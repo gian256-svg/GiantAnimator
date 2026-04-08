@@ -1,0 +1,109 @@
+.livro-container {
+  width: 100%;
+  height: 100%;
+  background-color: #030303;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: sans-serif;
+  color: white;
+  perspective: 2000px;
+}
+
+.livro-bg-glow {
+  position: absolute;
+  width: 150%;
+  height: 150%;
+  background: radial-gradient(circle at center, rgba(10, 100, 150, 0.15) 0%, transparent 50%);
+  top: -25%;
+  left: -25%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.livro-particles-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.livro-cards-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  z-index: 5;
+}
+
+.livro-single-promo-card {
+  position: absolute;
+  width: 540px;
+  height: 680px;
+  background: transparent;
+  border-radius: 24px;
+  border: 1px solid rgba(40, 255, 255, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transform-style: preserve-3d;
+}
+
+/* --- EPIC CENTRAL BURST TRANSITION --- */
+.livro-central-burst {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 
+    0 0 150px 80px rgba(0, 200, 255, 0.9), 
+    0 0 400px 200px rgba(0, 150, 255, 0.7),
+    0 0 600px 300px rgba(0, 255, 255, 0.4);
+  z-index: 70;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+.livro-horizontal-flare {
+  position: absolute;
+  width: 200vw;
+  height: 4px;
+  background: white;
+  box-shadow: 0 0 50px 15px rgba(0, 200, 255, 0.8), 0 0 120px 30px rgba(0, 255, 255, 0.6);
+  z-index: 71;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+.livro-energy-particle {
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  z-index: 65;
+}
+
+.livro-shockwave-ring {
+  position: absolute;
+  width: 300px; height: 300px;
+  border-radius: 50%;
+  border: 4px solid white;
+  box-shadow: 
+    0 0 80px 40px rgba(0, 150, 255, 0.8), 
+    inset 0 0 80px 40px rgba(0, 200, 255, 0.8),
+    0 0 150px 70px rgba(0, 255, 255, 0.5);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  z-index: 75;
+}

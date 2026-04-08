@@ -1,0 +1,16 @@
+fix: hotfixes visuais e de arquitetura — v0.97 a v0.99
+
+- app.js: durationInFrames corrigido de 150 para 600 (padrão)
+- renderService.ts: composition.durationInFrames = 600 antes do renderMedia
+- renderService.ts: removida validação inútil de durationInFrames via inputProps
+- LineChart: removido transform scale() que distorcia o gráfico
+- LineChart: clipPath id agora único por instância (Math.random)
+- theme.ts: criado arquivo central de tema (cores, animação, fontes)
+- BarChart: ANIMATION_FRAMES=120, textos fill=#1a1a2e, yMin corrigido
+- HorizontalBarChart: ANIMATION_FRAMES=120, textos fill=#1a1a2e
+- LineChart: ANIMATION_FRAMES=120, textos fill=#1a1a2e
+- PieChart: ANIMATION_FRAMES=120, textos fill=#1a1a2e
+- ComparativeBarChart: ANIMATION_FRAMES=120, textos fill=#1a1a2e, yMin corrigido
+- Todos os gráficos importam Theme de theme.ts
+- Animação termina em 4s (120 frames), restante 16s estático
+- TRAINING_LOG: entradas v0.97, v0.98, v0.99 adicionadas

@@ -1,0 +1,87 @@
+[33m-------------[39m
+[33mVersion mismatch:[39m
+[33m- On version: 4.0.434[39m
+[33m  - @remotion/bundler [90mnode_modules\@remotion\bundler\package.json[39m[33m[39m
+[33m  - @remotion/cli [90mnode_modules\@remotion\cli\package.json[39m[33m[39m
+[33m  - @remotion/compositor-win32-x64-msvc [90mnode_modules\@remotion\compositor-win32-x64-msvc\package.json[39m[33m[39m
+[33m  - remotion [90mnode_modules\remotion\package.json[39m[33m[39m
+[33m  - @remotion/eslint-config-flat [90mnode_modules\@remotion\eslint-config-flat\package.json[39m[33m[39m
+[33m  - @remotion/licensing [90mnode_modules\@remotion\licensing\package.json[39m[33m[39m
+[33m  - @remotion/media-utils [90mnode_modules\@remotion\media-utils\package.json[39m[33m[39m
+[33m  - @remotion/player [90mnode_modules\@remotion\player\package.json[39m[33m[39m
+[33m  - @remotion/renderer [90mnode_modules\@remotion\renderer\package.json[39m[33m[39m
+[33m  - @remotion/streaming [90mnode_modules\@remotion\streaming\package.json[39m[33m[39m
+[33m  - @remotion/studio-server [90mnode_modules\@remotion\studio-server\package.json[39m[33m[39m
+[33m  - @remotion/studio-shared [90mnode_modules\@remotion\studio-shared\package.json[39m[33m[39m
+[33m  - @remotion/studio [90mnode_modules\@remotion\studio\package.json[39m[33m[39m
+[33m  - @remotion/tailwind-v4 [90mnode_modules\@remotion\tailwind-v4\package.json[39m[33m[39m
+[33m  - @remotion/media-parser [90mnode_modules\@remotion\media-parser\package.json[39m[33m[39m
+[33m  - @remotion/zod-types [90mnode_modules\@remotion\zod-types\package.json[39m[33m[39m
+[33m  - @remotion/webcodecs [90mnode_modules\@remotion\webcodecs\package.json[39m[33m[39m
+[33m  - @remotion/web-renderer [90mnode_modules\@remotion\web-renderer\package.json[39m[33m[39m
+
+[33m- On version: 4.0.440[39m
+[33m  - @remotion/google-fonts [90mnode_modules\@remotion\google-fonts\package.json[39m[33m[39m
+[33m  - @remotion/three [90mnode_modules\@remotion\three\package.json[39m[33m[39m
+
+[33mYou may experience breakages such as:[39m
+[33m- React context and hooks not working[39m
+[33m- Type errors and feature incompatibilities[39m
+[33m- Failed renders and unclear errors[39m
+
+[33mTo resolve:[39m
+[33m- Make sure your package.json has all Remotion packages pointing to the same version.[39m
+[33m- Remove the `^` character in front of a version to pin a package.[39m
+[33m- Run `npx remotion versions --log=verbose` to see the path of the modules resolved.[39m
+[33m-------------[39m
+
+Bundling 6%
+Bundling 51%
+Bundling 65%
+Bundling 71%
+Bundling 76%
+Bundling 81%
+Bundling 87%
+Bundling 92%
+Bundling 98%
+Bundling 100%
+Copying public dir 32.9 MB
+Copying public dir 84.7 MB
+Copying public dir 94.3 MB
+Copying public dir 96.8 MB
+Copying public dir 119.8 MB
+Getting composition
+[90mComposition          ReelsMastercard[39m
+[90mCodec                h264[39m
+[90mOutput               src/mastercard_reels/exports/out-beto-3d.mp4[39m
+[90mConcurrency          8x[39m
+Rendered 0/2100
+[40m Tab 0, node_modules/three/build/three.core.js:2000 [49m [33mTHREE.THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.[39m
+[40m Tab 1, node_modules/three/build/three.core.js:2000 [49m [33mTHREE.THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.[39m
+[40m Tab 2, node_modules/three/build/three.core.js:2000 [49m [33mTHREE.THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.[39m
+[40m Tab 3, node_modules/three/build/three.core.js:2000 [49m [33mTHREE.THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.[39m
+[40m Tab 5, node_modules/three/build/three.core.js:2000 [49m [33mTHREE.THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.[39m
+[40m Tab 6, node_modules/three/build/three.core.js:2000 [49m [33mTHREE.THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.[39m
+[40m Tab 4, node_modules/three/build/three.core.js:2000 [49m [33mTHREE.THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.[39m
+[40m Tab 7, node_modules/three/build/three.core.js:2000 [49m [33mTHREE.THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.[39m
+
+[31mAn error occurred while rendering frame 0:[39m
+[31m[41m[37m Error [39m[31m[49m[39m [31mR3F: Div is not part of the THREE namespace! Did you forget to extend? See: https://docs.pmnd.rs/react-three-fiber/api/objects#using-3rd-party-objects-declaratively[39m
+
+at [4mnode_modules/@react-three/fiber/dist/events-5a94e5eb.esm.js:15006[24m
+[90m15004[39m │ [90m  const target = catalogue[name];[39m
+[90m15005[39m │ 
+15006 │   // Validate element target
+[90m15007[39m │ [90m  if (type !== 'primitive' && !target) throw new Error(`R3F: ${name} is not part of the THREE namespace! Did you forget to extend? See: https://docs.pmnd.rs/react-three-fiber/api/objects#using-3rd-party-objects-declaratively`);[39m
+[90m15008[39m │ 
+[90m15009[39m │ [90m  // Validate primitives[39m
+
+[90mat createInstance [94m(node_modules/@react-three/fiber/dist/events-5a94e5eb.esm.js:15018)[39m[90m[39m
+[90mat Oa [94m(node_modules/@react-three/fiber/dist/events-5a94e5eb.esm.js:4095)[39m[90m[39m
+[90mat Mr [94m(node_modules/@react-three/fiber/dist/events-5a94e5eb.esm.js:5603)[39m[90m[39m
+[90mat rc [94m(node_modules/@react-three/fiber/dist/events-5a94e5eb.esm.js:5560)[39m[90m[39m
+[90mat qp [94m(node_modules/@react-three/fiber/dist/events-5a94e5eb.esm.js:5481)[39m[90m[39m
+[90mat Ji [94m(node_modules/@react-three/fiber/dist/events-5a94e5eb.esm.js:5473)[39m[90m[39m
+[90mat uf [94m(node_modules/@react-three/fiber/dist/events-5a94e5eb.esm.js:5313)[39m[90m[39m
+[90mat dt [94m(node_modules/@react-three/fiber/dist/events-5a94e5eb.esm.js:2154)[39m[90m[39m
+[90mat performWorkUntilDeadline [94m(node_modules/scheduler/cjs/scheduler.production.js:150)[39m[90m[39m

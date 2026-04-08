@@ -1,0 +1,980 @@
+[
+  {
+    "filename": "1775678174_image.png",
+    "outputFile": "render-1775678192.mp4",
+    "status": "done",
+    "duration": 54.2,
+    "props": {
+      "title": null,
+      "backgroundColor": "#F8F8F8",
+      "textColor": "#333333",
+      "seriesColors": [
+        "#1A3263",
+        "#007BFF",
+        "#5599FF",
+        "#A0BADB",
+        "#DDE5EF",
+        "#203C70"
+      ],
+      "borderRadius": 0,
+      "showValueLabels": true,
+      "data": [
+        {
+          "label": "Netflix",
+          "value": 34
+        },
+        {
+          "label": "YouTube",
+          "value": 20
+        },
+        {
+          "label": "Hulu",
+          "value": 11
+        },
+        {
+          "label": "Amazon",
+          "value": 8
+        },
+        {
+          "label": "Disney+",
+          "value": 4
+        },
+        {
+          "label": "Other",
+          "value": 23
+        }
+      ],
+      "componentId": "PieChart"
+    },
+    "id": "c7d6a2cf-3594-4e4c-94e6-1e552c8b4c0a",
+    "createdAt": "2026-04-08T19:57:10.094Z"
+  },
+  {
+    "filename": "1775677903_image.png",
+    "outputFile": "render-1775677914.mp4",
+    "status": "done",
+    "duration": 58.7,
+    "props": {
+      "title": null,
+      "backgroundColor": "#FFFFFF",
+      "textColor": "#212121",
+      "gridColor": "#E0E0E0",
+      "seriesColors": [
+        "#4682B4"
+      ],
+      "borderRadius": 4,
+      "showValueLabels": true,
+      "data": [
+        {
+          "label": "Nordic",
+          "value": 47690000
+        },
+        {
+          "label": "USA",
+          "value": 28160000
+        },
+        {
+          "label": "Japan",
+          "value": 11850000
+        },
+        {
+          "label": "UK",
+          "value": 10380000
+        },
+        {
+          "label": "Spain",
+          "value": 3450000
+        },
+        {
+          "label": "Germany",
+          "value": 3320000
+        }
+      ],
+      "componentId": "BarChart"
+    },
+    "id": "28cfbb37-69ef-4ba4-8fe5-bf46fc4d9908",
+    "createdAt": "2026-04-08T19:52:43.488Z"
+  },
+  {
+    "filename": "1775599061_image.png",
+    "outputFile": "render-1775599072.mp4",
+    "status": "done",
+    "duration": 18.1,
+    "props": {
+      "title": "Bar Chart (Data Visualization)",
+      "backgroundColor": "#FFFFFF",
+      "textColor": "#212121",
+      "gridColor": "#D3D3D3",
+      "seriesColors": [
+        "#6CA5DD",
+        "#F79646",
+        "#A5A5A5"
+      ],
+      "borderRadius": 0,
+      "showValueLabels": false,
+      "seriesLabels": [
+        "Series 1",
+        "Series 2",
+        "Series 3"
+      ],
+      "data": [
+        {
+          "label": "2018",
+          "series": [
+            {
+              "label": "Series 1",
+              "value": 110000
+            },
+            {
+              "label": "Series 2",
+              "value": 230000
+            },
+            {
+              "label": "Series 3",
+              "value": 75000
+            }
+          ]
+        },
+        {
+          "label": "2019",
+          "series": [
+            {
+              "label": "Series 1",
+              "value": 130000
+            },
+            {
+              "label": "Series 2",
+              "value": 195000
+            },
+            {
+              "label": "Series 3",
+              "value": 95000
+            }
+          ]
+        },
+        {
+          "label": "2020",
+          "series": [
+            {
+              "label": "Series 1",
+              "value": 100000
+            },
+            {
+              "label": "Series 2",
+              "value": 165000
+            },
+            {
+              "label": "Series 3",
+              "value": 108000
+            }
+          ]
+        }
+      ],
+      "componentId": "GroupedBarChart"
+    },
+    "id": "13967869-e447-427e-98c2-587780a365c2",
+    "createdAt": "2026-04-07T21:58:01.800Z"
+  },
+  {
+    "filename": "1775598293_image.png",
+    "outputFile": "render-1775598322.mp4",
+    "status": "done",
+    "duration": 29.7,
+    "props": {
+      "title": null,
+      "backgroundColor": "#FFFFFF",
+      "textColor": "#000000",
+      "gridColor": "#CCCCCC",
+      "seriesColors": [
+        "#2424FF"
+      ],
+      "borderRadius": 0,
+      "showValueLabels": false,
+      "data": [
+        {
+          "label": "1818",
+          "value": 4000
+        },
+        {
+          "label": "1894",
+          "value": 22000
+        },
+        {
+          "label": "1908",
+          "value": 31000
+        },
+        {
+          "label": "1924",
+          "value": 19000
+        },
+        {
+          "label": "1938",
+          "value": 56000
+        },
+        {
+          "label": "1956",
+          "value": 46000
+        },
+        {
+          "label": "1970",
+          "value": 70000
+        },
+        {
+          "label": "1978",
+          "value": 90000
+        },
+        {
+          "label": "1986",
+          "value": 94000
+        },
+        {
+          "label": "1994",
+          "value": 95000
+        },
+        {
+          "label": "2002",
+          "value": 85000
+        },
+        {
+          "label": "2012",
+          "value": 95000
+        },
+        {
+          "label": "2018",
+          "value": 99000
+        }
+      ],
+      "componentId": "LineChart"
+    },
+    "id": "a61cc177-379a-4df2-bdd4-2ee012e52d16",
+    "createdAt": "2026-04-07T21:45:25.317Z"
+  },
+  {
+    "filename": "1775597999_image.png",
+    "outputFile": "render-1775598032.mp4",
+    "status": "done",
+    "duration": 33.7,
+    "props": {
+      "title": null,
+      "backgroundColor": "#F8F8FA",
+      "textColor": "#47474C",
+      "gridColor": "#D6D7DC",
+      "seriesColors": [
+        "#4260DD"
+      ],
+      "borderRadius": 0,
+      "showValueLabels": false,
+      "data": [
+        {
+          "label": "Sep",
+          "value": 2480
+        },
+        {
+          "label": "Sep 11",
+          "value": 2520
+        },
+        {
+          "label": "Sep 18",
+          "value": 2510
+        },
+        {
+          "label": "Sep 25",
+          "value": 2525
+        },
+        {
+          "label": "Oct",
+          "value": 2540
+        },
+        {
+          "label": "Oct 9",
+          "value": 2560
+        },
+        {
+          "label": "Oct 16",
+          "value": 2580
+        },
+        {
+          "label": "Oct 23",
+          "value": 2600
+        },
+        {
+          "label": "Nov 6",
+          "value": 2595
+        },
+        {
+          "label": "Nov 13",
+          "value": 2615
+        },
+        {
+          "label": "Nov 20",
+          "value": 2640
+        },
+        {
+          "label": "Nov 27",
+          "value": 2670
+        },
+        {
+          "label": "Dec 4",
+          "value": 2670
+        },
+        {
+          "label": "Dec 11",
+          "value": 2690
+        },
+        {
+          "label": "Dec 18",
+          "value": 2710
+        },
+        {
+          "label": "Dec 26",
+          "value": 2730
+        },
+        {
+          "label": "Jan 1, 2018",
+          "value": 2735
+        },
+        {
+          "label": "Jan 8, 2018",
+          "value": 2770
+        },
+        {
+          "label": "Jan 16, 2018",
+          "value": 2800
+        },
+        {
+          "label": "Jan 22, 2018",
+          "value": 2830
+        },
+        {
+          "label": "Jan 29, 2018",
+          "value": 2860
+        },
+        {
+          "label": "Feb 5, 2018",
+          "value": 2875
+        },
+        {
+          "label": "Feb 12",
+          "value": 2585
+        },
+        {
+          "label": "Feb 20",
+          "value": 2700
+        },
+        {
+          "label": "Feb 26",
+          "value": 2780
+        },
+        {
+          "label": "Mar 5, 2018",
+          "value": 2680
+        },
+        {
+          "label": "Mar 12, 2018",
+          "value": 2691.25
+        }
+      ],
+      "componentId": "LineChart"
+    },
+    "id": "3e90afcd-14d9-4f46-beab-a6d62cb87ab9",
+    "createdAt": "2026-04-07T21:40:35.595Z"
+  },
+  {
+    "filename": "1775597448_image.png",
+    "outputFile": "render-1775597484.mp4",
+    "status": "done",
+    "duration": 37.2,
+    "props": {
+      "backgroundColor": "#F5F5F7",
+      "textColor": "#4A4F5C",
+      "gridColor": "#D2D2D4",
+      "seriesColors": [
+        "#4C65BF"
+      ],
+      "borderRadius": 0,
+      "showValueLabels": false,
+      "data": [
+        {
+          "label": "Sep",
+          "value": 2480
+        },
+        {
+          "label": "11",
+          "value": 2500
+        },
+        {
+          "label": "18",
+          "value": 2520
+        },
+        {
+          "label": "25",
+          "value": 2535
+        },
+        {
+          "label": "Oct",
+          "value": 2545
+        },
+        {
+          "label": "9",
+          "value": 2570
+        },
+        {
+          "label": "16",
+          "value": 2585
+        },
+        {
+          "label": "23",
+          "value": 2600
+        },
+        {
+          "label": "Nov",
+          "value": 2620
+        },
+        {
+          "label": "6",
+          "value": 2580
+        },
+        {
+          "label": "13",
+          "value": 2610
+        },
+        {
+          "label": "20",
+          "value": 2630
+        },
+        {
+          "label": "27",
+          "value": 2650
+        },
+        {
+          "label": "Dec",
+          "value": 2665
+        },
+        {
+          "label": "11",
+          "value": 2690
+        },
+        {
+          "label": "18",
+          "value": 2710
+        },
+        {
+          "label": "26",
+          "value": 2730
+        },
+        {
+          "label": "2018",
+          "value": 2740
+        },
+        {
+          "label": "8",
+          "value": 2770
+        },
+        {
+          "label": "16",
+          "value": 2800
+        },
+        {
+          "label": "22",
+          "value": 2820
+        },
+        {
+          "label": "29",
+          "value": 2850
+        },
+        {
+          "label": "Feb",
+          "value": 2870
+        },
+        {
+          "label": "8",
+          "value": 2790
+        },
+        {
+          "label": "16",
+          "value": 2650
+        },
+        {
+          "label": "22",
+          "value": 2730
+        },
+        {
+          "label": "29",
+          "value": 2690
+        },
+        {
+          "label": "Mar",
+          "value": 2770
+        },
+        {
+          "label": "12",
+          "value": 2680
+        },
+        {
+          "label": "20",
+          "value": 2750
+        },
+        {
+          "label": "26",
+          "value": 2691.25
+        }
+      ],
+      "componentId": "LineChart"
+    },
+    "id": "b2a0d9ec-e4c6-40ec-bb02-15bbd297aa11",
+    "createdAt": "2026-04-07T21:31:27.561Z"
+  },
+  {
+    "filename": "1775597024_image.png",
+    "outputFile": "render-1775597064.mp4",
+    "status": "done",
+    "duration": 40.5,
+    "props": {
+      "backgroundColor": "#F5F5F5",
+      "textColor": "#4A4A4A",
+      "gridColor": "#E0E0E0",
+      "seriesColors": [
+        "#4C74CF"
+      ],
+      "borderRadius": 0,
+      "showValueLabels": false,
+      "data": [
+        {
+          "label": "Sep",
+          "value": 2485
+        },
+        {
+          "label": "Sep 11",
+          "value": 2500
+        },
+        {
+          "label": "Sep 18",
+          "value": 2520
+        },
+        {
+          "label": "Sep 25",
+          "value": 2535
+        },
+        {
+          "label": "Oct",
+          "value": 2545
+        },
+        {
+          "label": "Oct 9",
+          "value": 2560
+        },
+        {
+          "label": "Oct 16",
+          "value": 2590
+        },
+        {
+          "label": "Oct 23",
+          "value": 2605
+        },
+        {
+          "label": "Nov",
+          "value": 2630
+        },
+        {
+          "label": "Nov 6",
+          "value": 2580
+        },
+        {
+          "label": "Nov 13",
+          "value": 2605
+        },
+        {
+          "label": "Nov 20",
+          "value": 2630
+        },
+        {
+          "label": "Nov 27",
+          "value": 2650
+        },
+        {
+          "label": "Dec",
+          "value": 2660
+        },
+        {
+          "label": "Dec 11",
+          "value": 2680
+        },
+        {
+          "label": "Dec 18",
+          "value": 2710
+        },
+        {
+          "label": "Dec 26",
+          "value": 2730
+        },
+        {
+          "label": "Jan 2018",
+          "value": 2745
+        },
+        {
+          "label": "Jan 8",
+          "value": 2790
+        },
+        {
+          "label": "Jan 16",
+          "value": 2820
+        },
+        {
+          "label": "Jan 22",
+          "value": 2840
+        },
+        {
+          "label": "Jan 29",
+          "value": 2860
+        },
+        {
+          "label": "Feb",
+          "value": 2870
+        },
+        {
+          "label": "Feb 8",
+          "value": 2580
+        },
+        {
+          "label": "Feb 16",
+          "value": 2690
+        },
+        {
+          "label": "Feb 22",
+          "value": 2770
+        },
+        {
+          "label": "Feb 29",
+          "value": 2710
+        },
+        {
+          "label": "Mar",
+          "value": 2785
+        },
+        {
+          "label": "Mar 12",
+          "value": 2700
+        },
+        {
+          "label": "Mar 20",
+          "value": 2680
+        },
+        {
+          "label": "Mar 26",
+          "value": 2691.25
+        }
+      ],
+      "componentId": "LineChart"
+    },
+    "id": "46bd443a-9273-42c4-a192-53604a109dfd",
+    "createdAt": "2026-04-07T21:24:27.335Z"
+  },
+  {
+    "filename": "1775596654_image.png",
+    "outputFile": "render-1775596670.mp4",
+    "status": "done",
+    "duration": 16.7,
+    "props": {
+      "title": "Population of Countries of the European Union in 2021 by percentage",
+      "backgroundColor": "#FFFFFF",
+      "textColor": "#000000",
+      "seriesColors": [
+        "#FF0000",
+        "#004DFF",
+        "#FFFF00",
+        "#008000",
+        "#FFC000",
+        "#CC0000",
+        "#FF66CC",
+        "#DCE6EB"
+      ],
+      "showValueLabels": true,
+      "data": [
+        {
+          "label": "Germany",
+          "value": 18.6
+        },
+        {
+          "label": "France",
+          "value": 15.2
+        },
+        {
+          "label": "Italy",
+          "value": 13.2
+        },
+        {
+          "label": "Spain",
+          "value": 10.6
+        },
+        {
+          "label": "Poland",
+          "value": 8.4
+        },
+        {
+          "label": "Romania",
+          "value": 4.3
+        },
+        {
+          "label": "Netherlands",
+          "value": 3.9
+        },
+        {
+          "label": "Rest of the EU",
+          "value": 25.7
+        }
+      ],
+      "componentId": "PieChart"
+    },
+    "id": "5941b4dc-d6a8-48b7-8aa7-5f7b240be4df",
+    "createdAt": "2026-04-07T21:17:53.368Z"
+  },
+  {
+    "filename": "1775596266_image.png",
+    "outputFile": "render-1775596276.mp4",
+    "status": "done",
+    "duration": 11.1,
+    "props": {
+      "title": "Superhero Battle Winner",
+      "backgroundColor": "#FFFFFF",
+      "textColor": "#333333",
+      "seriesColors": [
+        "#4C8ED6",
+        "#F48245",
+        "#A1A1A1",
+        "#FBC02D"
+      ],
+      "data": [
+        {
+          "label": "Captain America",
+          "value": 19
+        },
+        {
+          "label": "Iron Man",
+          "value": 27
+        },
+        {
+          "label": "Superman",
+          "value": 13
+        },
+        {
+          "label": "Batman",
+          "value": 41
+        }
+      ],
+      "componentId": "PieChart"
+    },
+    "id": "cc0efadb-dc03-4eca-ae02-e1d61a14df40",
+    "createdAt": "2026-04-07T21:11:19.594Z"
+  },
+  {
+    "filename": "1775592588757_1775592456_image.png",
+    "outputFile": "render-1775595653.mp4",
+    "status": "done",
+    "duration": 27.3,
+    "props": {
+      "data": [
+        {
+          "label": "2019",
+          "value": 80
+        },
+        {
+          "label": "2020",
+          "value": 210
+        },
+        {
+          "label": "2021",
+          "value": 240
+        },
+        {
+          "label": "2022",
+          "value": 320
+        },
+        {
+          "label": "2023",
+          "value": 300
+        },
+        {
+          "label": "2024",
+          "value": 420
+        },
+        {
+          "label": "2025",
+          "value": 690
+        },
+        {
+          "label": "2026",
+          "value": 810
+        }
+      ],
+      "backgroundColor": "#F8F8F8",
+      "textColor": "#52525B",
+      "gridColor": "#E5E5E5",
+      "seriesColors": [
+        "#00C2FF",
+        "#10E6A2"
+      ],
+      "borderRadius": 4,
+      "showValueLabels": false,
+      "componentId": "HorizontalBarChart"
+    },
+    "id": "23392cd5-a05e-4a42-961a-8cd6e5be5e96",
+    "createdAt": "2026-04-07T21:00:58.035Z"
+  },
+  {
+    "filename": "1775592588757_1775592456_image.png",
+    "outputFile": "render-1775595600.mp4",
+    "status": "done",
+    "duration": 19.9,
+    "props": {
+      "title": null,
+      "backgroundColor": "#F7F7F7",
+      "textColor": "#374151",
+      "gridColor": "#E5E7EB",
+      "seriesColors": [
+        "#3CA0CD"
+      ],
+      "borderRadius": 4,
+      "showValueLabels": false,
+      "data": [
+        {
+          "label": "2019",
+          "value": 95
+        },
+        {
+          "label": "2020",
+          "value": 215
+        },
+        {
+          "label": "2021",
+          "value": 255
+        },
+        {
+          "label": "2022",
+          "value": 310
+        },
+        {
+          "label": "2023",
+          "value": 290
+        },
+        {
+          "label": "2024",
+          "value": 410
+        },
+        {
+          "label": "2025",
+          "value": 685
+        },
+        {
+          "label": "2026",
+          "value": 790
+        }
+      ],
+      "componentId": "HorizontalBarChart"
+    },
+    "id": "8ae43e93-555f-4529-8838-ffef71109103",
+    "createdAt": "2026-04-07T21:00:03.119Z"
+  },
+  {
+    "filename": "1775595053_image.png",
+    "outputFile": "render-1775595067.mp4",
+    "status": "done",
+    "duration": 13.7,
+    "props": {
+      "title": null,
+      "backgroundColor": "#FFFFFF",
+      "textColor": "#1A1A1A",
+      "seriesColors": [
+        "#1B2A41",
+        "#001F4E",
+        "#007BFF",
+        "#5091F8",
+        "#A3BCE0",
+        "#D4DBEC"
+      ],
+      "borderRadius": 0,
+      "showValueLabels": true,
+      "data": [
+        {
+          "label": "Other",
+          "value": 23
+        },
+        {
+          "label": "Netflix",
+          "value": 34
+        },
+        {
+          "label": "YouTube",
+          "value": 20
+        },
+        {
+          "label": "Hulu",
+          "value": 11
+        },
+        {
+          "label": "Amazon",
+          "value": 8
+        },
+        {
+          "label": "Disney+",
+          "value": 4
+        }
+      ],
+      "componentId": "PieChart"
+    },
+    "id": "85a2866c-99f7-4070-a6e7-a9bb084a1d0f",
+    "createdAt": "2026-04-07T20:51:09.692Z"
+  },
+  {
+    "filename": "1775592588757_1775592456_image.png",
+    "outputFile": "render-1775594954.mp4",
+    "status": "done",
+    "duration": 23.7,
+    "props": {
+      "data": [
+        {
+          "label": "2019",
+          "value": 80
+        },
+        {
+          "label": "2020",
+          "value": 220
+        },
+        {
+          "label": "2021",
+          "value": 260
+        },
+        {
+          "label": "2022",
+          "value": 320
+        },
+        {
+          "label": "2023",
+          "value": 300
+        },
+        {
+          "label": "2024",
+          "value": 420
+        },
+        {
+          "label": "2025",
+          "value": 680
+        },
+        {
+          "label": "2026",
+          "value": 800
+        }
+      ],
+      "backgroundColor": "#F8F8F8",
+      "textColor": "#333333",
+      "gridColor": "#EEEEEE",
+      "seriesColors": [
+        "#3DB7D4"
+      ],
+      "borderRadius": 4,
+      "showValueLabels": false,
+      "componentId": "HorizontalBarChart"
+    },
+    "id": "129e6f89-dc72-4e34-8ea0-0729624ceb84",
+    "createdAt": "2026-04-07T20:49:19.808Z"
+  }
+]

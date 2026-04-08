@@ -1,0 +1,227 @@
+import React, { useMemo, useId } from "react";
+import {
+  spring,
+  useCurrentFrame,
+  useVideoConfig,
+  interpolate,
+  AbsoluteFill,
+} from "remotion";
+import { evolvePath } from "@remotion/paths";
+import { Theme } from "../theme";
+
+export interface MultiLineChartProps {
+  series: {
+    label: string;
+    data: number[];
+    color?: string;
+  }[];
+  labels: string[];
+  title?: string;
+  subtitle?: string;
+  highlightSeries?: string;
+  legendMode?: 'inline' | 'classic';
+}
+
+export const MultiLineChart: React.FC<MultiLineChartProps> = ({
+  series: propSeries = [],
+  labels = [],
+  title = "Multi-Line Chart",
+  subtitle,
+  highlightSeries,
+  legendMode = 'inline',
+}) => {
+  const frame = useCurrentFrame();
+  const { width, height, fps } = useVideoConfig();
+  const instanceId = useId().replace(/:/g, "");
+  const ANIMATION_FRAMES = Theme.animation.animationFrames;
+
+  const series = useMemo(() => {
+    return Array.isArray(propSeries) ? propSeries.slice(0, 8) : [];
+  }, [propSeries]);
+
+  if (series.length === 0 || labels.length < 2) {
+    return (
+      <AbsoluteFill style={{ backgroundColor: Theme.colors.background, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <p style={{ color: Theme.colors.text, fontSize: Theme.typography.category.size }}>Aguardando dados...</p>
+      </AbsoluteFill>
+    );
+  }
+
+  // Safe Zone 4K (D2 + Spacing)
+  const margin = Theme.spacing.padding; // 128px
+  const titleHeight = Theme.spacing.titleHeight; // 160px
+  const paddingRight = legendMode === 'inline' ? 400 : margin; // Espaço para labels inline 4K
+  const plotWidth = width - margin - paddingRight;
+  const plotHeight = height - margin * 2 - titleHeight - 100;
+  const chartTop = margin + titleHeight;
+  const chartLeft = margin;
+
+  // Escala Y Adaptativa
+  const allValues = series.flatMap((s) => s.data);
+  const dataMin = Math.min(...allValues);
+  const dataMax = Math.max(...allValues);
+  const range = dataMax - dataMin;
+  const paddingY = range * 0.1 || 10;
+  const yMin = dataMin - paddingY;
+  const yMax = dataMax + paddingY;
+
+  const getX = (index: number) => chartLeft + (index / (labels.length - 1)) * plotWidth;
+  const getY = (val: number) => chartTop + plotHeight - ((val - yMin) / (yMax - yMin)) * plotHeight;
+
+  // Collision Avoidance 4K (D8)
+  const inlineLabels = useMemo(() => {
+    if (legendMode !== 'inline') return [];
+    let basePositions = series.map((s, i) => ({
+      index: i,
+      label: s.label,
+      y: getY(s.data[s.data.length - 1]),
+      color: s.color || Theme.colors.categorical[i % Theme.colors.categorical.length]
+    })).sort((a, b) => a.y - b.y);
+
+    const minGap = 45; // Threshold colisão 4K
+    for (let iter = 0; iter < 10; iter++) {
+      for (let i = 0; i < basePositions.length - 1; i++) {
+        const diff = basePositions[i + 1].y - basePositions[i].y;
+        if (diff < minGap) {
+          const offset = (minGap - diff) / 2;
+          basePositions[i].y -= offset;
+          basePositions[i + 1].y += offset;
+        }
+      }
+    }
+    return basePositions;
+  }, [series, legendMode, yMin, yMax]);
+
+  return (
+    <AbsoluteFill style={{ backgroundColor: Theme.colors.background }}>
+      {/* ZONA 1: Cabeçalho (Regra D2) */}
+      <div style={{
+        position: 'absolute', top: margin, width: '100%', textAlign: 'center',
+        opacity: interpolate(frame, [0, 15], [0, 1])
+      }}>
+        {title && <div style={{ 
+          fontSize: Theme.typography.title.size, 
+          fontWeight: Theme.typography.title.weight, 
+          color: Theme.typography.title.color,
+          fontFamily: Theme.typography.fontFamily,
+          marginBottom: 10
+        }}>{title}</div>}
+        {subtitle && <div style={{ 
+          fontSize: Theme.typography.subtitle.size, 
+          fontWeight: Theme.typography.subtitle.weight, 
+          color: Theme.typography.subtitle.color,
+          fontFamily: Theme.typography.fontFamily
+        }}>{subtitle}</div>}
+      </div>
+
+      <svg width={width} height={height} style={{ overflow: 'visible' }}>
+        {/* ZONA 2: Gráfico - Gridlines (Regra D3) */}
+        <g opacity={interpolate(frame, [5, 25], [0, 0.6])}>
+          {[0, 0.25, 0.5, 0.75, 1].map((v, i) => {
+            const val = yMin + v * (yMax - yMin);
+            const y = getY(val);
+            return (
+              <React.Fragment key={i}>
+                <line x1={chartLeft} y1={y} x2={chartLeft + plotWidth} y2={y} stroke={Theme.colors.grid} strokeWidth={1} />
+                <text 
+                  x={chartLeft - 20} y={y} textAnchor="end" dominantBaseline="middle" 
+                  style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.ui.axisText, fontFamily: Theme.typography.fontFamily }}
+                >
+                  {val >= 1000 ? `${(val / 1000).toFixed(1)}k` : Math.round(val)}
+                </text>
+              </React.Fragment>
+            );
+          })}
+        </g>
+
+        {/* Linhas de Dados (Cascade Stagger 10f) */}
+        {series.map((s, sIndex) => {
+          const isFocused = !highlightSeries || s.label === highlightSeries;
+          const lineColor = s.color || Theme.colors.categorical[sIndex % Theme.colors.categorical.length];
+          const strokeWidth = isFocused ? 4 : 2;
+          const opacity = isFocused ? 1 : 0.25;
+
+          const pointsStr = s.data.slice(0, labels.length).map((val, i) => `${getX(i)},${getY(val)}`).join(" ");
+          const pathD = `M ${pointsStr.split(" ").join(" L ")}`;
+
+          const progress = spring({
+            frame: frame - (15 + sIndex * 10),
+            fps,
+            config: { damping: 20, stiffness: 100 },
+          });
+
+          const evolved = evolvePath(progress, pathD);
+
+          return (
+            <g key={sIndex} opacity={opacity}>
+              <path
+                d={pathD} fill="none" stroke={lineColor} strokeWidth={strokeWidth}
+                strokeLinejoin="round" strokeLinecap="round"
+                strokeDasharray={evolved.strokeDasharray}
+                strokeDashoffset={evolved.strokeDashoffset}
+              />
+
+              {/* Dots Pop (D7) */}
+              {frame > (15 + sIndex * 10 + 60) && s.data.map((val, pIndex) => {
+                if (s.data.length > 20 && pIndex % Math.ceil(s.data.length / 10) !== 0) return null;
+                const dotPop = spring({
+                  frame: frame - (15 + sIndex * 10 + 60) - (pIndex * 3),
+                  fps,
+                  config: { damping: 10, stiffness: 100 }
+                });
+                if (dotPop <= 0) return null;
+                return (
+                  <circle
+                    key={pIndex} cx={getX(pIndex)} cy={getY(val)} r={Theme.spacing.dotRadius * dotPop}
+                    fill="#fff" stroke={lineColor} strokeWidth={2.5}
+                  />
+                );
+              })}
+            </g>
+          );
+        })}
+
+        {/* Labels Inline 4K */}
+        {legendMode === 'inline' && inlineLabels.map((lbl, i) => {
+          const seriesAnimStart = 15 + i * 10 + 80;
+          const opacity = interpolate(frame, [seriesAnimStart, seriesAnimStart + 20], [0, 1], { extrapolateLeft: 'clamp' });
+          return (
+            <text
+              key={i} x={chartLeft + plotWidth + 30} y={lbl.y}
+              dominantBaseline="middle"
+              style={{ 
+                fontSize: Theme.typography.legend.size, 
+                fontWeight: Theme.typography.legend.weight, 
+                fill: lbl.color,
+                fontFamily: Theme.typography.fontFamily,
+                opacity 
+              }}
+            >
+              {lbl.label}
+            </text>
+          );
+        })}
+      </svg>
+
+      {/* Legenda Clássica (ZONA 3) */}
+      {legendMode === 'classic' && (
+        <div style={{
+          position: 'absolute', bottom: margin, width: '100%', display: 'flex', justifyContent: 'center', gap: 40,
+          opacity: interpolate(frame, [60, 80], [0, 1])
+        }}>
+          {series.map((s, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ width: 24, height: 24, borderRadius: 4, backgroundColor: s.color || Theme.colors.categorical[i % Theme.colors.categorical.length] }} />
+              <span style={{ 
+                fontSize: Theme.typography.legend.size,
+                fontWeight: Theme.typography.legend.weight,
+                color: Theme.typography.legend.color,
+                fontFamily: Theme.typography.fontFamily
+              }}>{s.label}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </AbsoluteFill>
+  );
+};

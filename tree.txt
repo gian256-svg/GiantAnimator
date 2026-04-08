@@ -1,0 +1,255 @@
+﻿.\.gitignore
+.\audit.txt
+.\consolidate.js
+.\INICIAR.bat
+.\knowledge-base\reports\analysis_linechart_00001_How_To_Create_Animated_Charts___Graphs_In_CapCut___Quick_and_Easy_Tutorial.json
+.\knowledge-base\reports\analysis_linechart_Animated_Chart__The_World_s_Top_15_Carbon_Emitters__1850_2022.json
+.\knowledge-base\reports\analysis_linechart_Animated_Line_Graph__tutorial.json
+.\knowledge-base\reports\video_001_analysis.json
+.\knowledge-base\reports\video_002_analysis.json
+.\knowledge-base\reports\video_003_analysis.json
+.\knowledge-base\reports\video_004_analysis.json
+.\knowledge-base\reports\video_005_analysis.json
+.\knowledge-base\reports\video_006_analysis.json
+.\knowledge-base\reports\video_007_analysis.json
+.\knowledge-base\reports\video_008_analysis.json
+.\knowledge-base\reports\video_009_analysis.json
+.\knowledge-base\reports\video_010_analysis.json
+.\knowledge-base\update-knowledge.ps1
+.\knowledge-base\videos\00000_charts animation data visualization.info.json
+.\knowledge-base\videos\00001_charts animation data visualization.info.json
+.\knowledge-base\videos\00001_How To Create Animated Charts & Graphs In CapCut ｜ Quick and Easy Tutorial.info.json
+.\knowledge-base\videos\00001_How To Create Animated Charts & Graphs In CapCut ｜ Quick and Easy Tutorial.mp4
+.\knowledge-base\videos\Animated Chart： The World’s Top 15 Carbon Emitters (1850-2022).mp4
+.\knowledge-base\videos\Animated Line Graph (tutorial).mp4
+.\knowledge-base\videos\bloomberg_00001.mp4
+.\knowledge-base\videos\bloomberg_00002.mp4
+.\knowledge-base\videos\Bring Your Data to Life with Flourish + Canva (Animated Charts).mp4
+.\knowledge-base\videos\Charted： Sinking Fertility Rates in the World’s 10 Largest Countries.mp4
+.\knowledge-base\videos\Create Animated Charts and Graphics Instantly with AI & Remotion.mp4
+.\knowledge-base\videos\Datamatic Tutorial.mp4
+.\knowledge-base\videos\Datavis 2020 Episode 11 - Coronavirus Dataviz Hackathon Part I (Coronavirus Dataviz).mp4
+.\knowledge-base\videos\donut-pie\5 Infographic Edits You Should Know in After Effects.mp4
+.\knowledge-base\videos\donut-pie\Bring Your Data to Life with Flourish + Canva (Animated Charts).mp4
+.\knowledge-base\videos\donut-pie\Build Charts in React With Recharts in 7 Minutes.mp4
+.\knowledge-base\videos\donut-pie\Candlesticks chart 2D cartoon object animation.mp4
+.\knowledge-base\videos\donut-pie\How to Make Dynamic Pie Charts in After Effects.mp4
+.\knowledge-base\videos\donut-pie\Learn React ChartJS in 8 Minutes ｜ Complete Guide.mp4
+.\knowledge-base\videos\donut-pie\Piechart Example.mp4
+.\knowledge-base\videos\donut-pie\Vox-Style Infographic Animations： Learn to Animate Pie Charts in After Effects Like Pro.mp4
+.\knowledge-base\videos\final_batch_00001.mp4
+.\knowledge-base\videos\final_batch_00002.mp4
+.\knowledge-base\videos\ft_00001.mp4
+.\knowledge-base\videos\ft_00002.mp4
+.\knowledge-base\videos\How cloud systems are transforming data management ｜ FT Tech.mp4
+.\knowledge-base\videos\How to create a line chart out of data from ＂Our World in Data＂.mp4
+.\knowledge-base\videos\How to create a simple line chart on Flourish.mp4
+.\knowledge-base\videos\How to create charts with Datawrapper.mp4
+.\knowledge-base\videos\How to CREATE VIRAL Motion Graphics In Canva Without ANY Animation Skills.mp4
+.\knowledge-base\videos\How to Make Bar Chart Race Video ｜ Tutorial.mp4
+.\knowledge-base\videos\HP Stock Market Chart Analysis -Line Chart Race of #HPQ.mp4
+.\knowledge-base\videos\Journalist's Toolbox： Datawrapper Chart Tutorial.mp4
+.\knowledge-base\videos\Line Chart Race ｜ Flourish Studio.mp4
+.\knowledge-base\videos\selected_10.mp4
+.\knowledge-base\videos\story_00001.mp4
+.\knowledge-base\videos\story_00002.mp4
+.\knowledge-base\videos\The ONLY 7 Charts You Need as a Finance Pro (2025 Tutorial).mp4
+.\knowledge-base\videos\Timeline： The Arab Israeli conflict ｜ FT #shorts.mp4
+.\knowledge-base\videos\Visualization with Datawrapper： Charts ｜ 2⧸4 ｜ UPV.mp4
+.\remotion-project\.agents\skills\threejs-animation\SKILL.md
+.\remotion-project\.agents\skills\threejs-fundamentals\SKILL.md
+.\remotion-project\.agents\skills\threejs-geometry\SKILL.md
+.\remotion-project\.agents\skills\threejs-interaction\SKILL.md
+.\remotion-project\.agents\skills\threejs-lighting\SKILL.md
+.\remotion-project\.agents\skills\threejs-loaders\SKILL.md
+.\remotion-project\.agents\skills\threejs-materials\SKILL.md
+.\remotion-project\.agents\skills\threejs-postprocessing\SKILL.md
+.\remotion-project\.agents\skills\threejs-shaders\SKILL.md
+.\remotion-project\.agents\skills\threejs-textures\SKILL.md
+.\remotion-project\.agents\skills\zero-touch-video-pipeline\examples\CaptionEngine.tsx
+.\remotion-project\.agents\skills\zero-touch-video-pipeline\scripts\multicam_pipeline.mjs
+.\remotion-project\.agents\skills\zero-touch-video-pipeline\SKILL.md
+.\remotion-project\.env
+.\remotion-project\.gitignore
+.\remotion-project\.prettierrc
+.\remotion-project\blackrock_holdings.mp4
+.\remotion-project\build\161.bundle.js
+.\remotion-project\build\161.bundle.js.map
+.\remotion-project\build\208.bundle.js
+.\remotion-project\build\208.bundle.js.map
+.\remotion-project\build\304.bundle.js
+.\remotion-project\build\304.bundle.js.map
+.\remotion-project\build\429.bundle.js
+.\remotion-project\build\429.bundle.js.map
+.\remotion-project\build\624.bundle.js
+.\remotion-project\build\624.bundle.js.map
+.\remotion-project\build\63.bundle.js
+.\remotion-project\build\63.bundle.js.map
+.\remotion-project\build\761.bundle.js
+.\remotion-project\build\761.bundle.js.map
+.\remotion-project\build\845.bundle.js
+.\remotion-project\build\845.bundle.js.map
+.\remotion-project\build\872.bundle.js
+.\remotion-project\build\872.bundle.js.map
+.\remotion-project\build\892.bundle.js
+.\remotion-project\build\892.bundle.js.map
+.\remotion-project\build\997.bundle.js
+.\remotion-project\build\997.bundle.js.map
+.\remotion-project\build\bundle.js
+.\remotion-project\build\bundle.js.map
+.\remotion-project\build\favicon.ico
+.\remotion-project\build\index.html
+.\remotion-project\build\public\actor_doll.png
+.\remotion-project\build\public\background.png
+.\remotion-project\build\public\blackrock_bg.png
+.\remotion-project\build\public\blackrock_photo.png
+.\remotion-project\build\public\brazil_map.png
+.\remotion-project\build\public\cash_pile.png
+.\remotion-project\build\public\financial_bg.png
+.\remotion-project\build\public\financial_bg_final.png
+.\remotion-project\build\public\financial_bg_positive.png
+.\remotion-project\build\public\financial_bg_sp500.png
+.\remotion-project\build\public\financial_bg_v3.png
+.\remotion-project\build\public\neymar.png
+.\remotion-project\build\public\romario.png
+.\remotion-project\build\public\ronaldinho.png
+.\remotion-project\build\public\studio_war_scene.png
+.\remotion-project\build\public\tactics_bg.png
+.\remotion-project\build\public\th_burning_low.png
+.\remotion-project\build\public\war_scene.png
+.\remotion-project\build\public\warscene.jpg
+.\remotion-project\build\public\will-trecho.mp4
+.\remotion-project\build\source-map-helper.wasm
+.\remotion-project\dl.js
+.\remotion-project\eslint.config.mjs
+.\remotion-project\generate_beto_audio.mjs
+.\remotion-project\get_glb.js
+.\remotion-project\package.json
+.\remotion-project\package-lock.json
+.\remotion-project\README.md
+.\remotion-project\remotion.config.ts
+.\remotion-project\render_err.txt
+.\remotion-project\run_pipeline.bat
+.\remotion-project\scripts\analyze_and_cut.mjs
+.\remotion-project\scripts\multicam_pipeline.mjs
+.\remotion-project\src\animation-knowledge.md
+.\remotion-project\src\arca-scene\ArcaScene.tsx
+.\remotion-project\src\AxisSystem.tsx
+.\remotion-project\src\BlackRockHoldingsChart.tsx
+.\remotion-project\src\BlackRockIntro.tsx
+.\remotion-project\src\BrazilMoneyInfographic.tsx
+.\remotion-project\src\brick-scene\BrickScene.tsx
+.\remotion-project\src\CaptionEngine.tsx
+.\remotion-project\src\ChartRenderer.tsx
+.\remotion-project\src\charts\BarChart.tsx
+.\remotion-project\src\charts\LineChart.tsx
+.\remotion-project\src\charts\PieChart.tsx
+.\remotion-project\src\cinematic-infographic\CinematicInfographic.tsx
+.\remotion-project\src\cinematic-infographic\styles.css
+.\remotion-project\src\ComparativeAxisSystem.tsx
+.\remotion-project\src\ComparativeChart.tsx
+.\remotion-project\src\ComparativeLinePath.tsx
+.\remotion-project\src\ComparativeValueIndicator.tsx
+.\remotion-project\src\components\Character.tsx
+.\remotion-project\src\components\CircularArrow.tsx
+.\remotion-project\src\components\Connector.tsx
+.\remotion-project\src\components\Equipment.tsx
+.\remotion-project\src\components\fidc\FIDCArrow.tsx
+.\remotion-project\src\components\fidc\FIDCFlowItem.tsx
+.\remotion-project\src\components\fidc\FIDCFlowLayout.tsx
+.\remotion-project\src\components\FloatingCurrency.tsx
+.\remotion-project\src\components\FlowItem.tsx
+.\remotion-project\src\components\FlowLayout.tsx
+.\remotion-project\src\components\StepItem.tsx
+.\remotion-project\src\Composition.tsx
+.\remotion-project\src\compositions\AnimatedBarChart.tsx
+.\remotion-project\src\compositions\AnimatedLineChart.tsx
+.\remotion-project\src\compositions\AnimatedPieChart.tsx
+.\remotion-project\src\countdown\CountdownAnimation.tsx
+.\remotion-project\src\countdown\Digit.tsx
+.\remotion-project\src\countdown\styles.css
+.\remotion-project\src\data.ts
+.\remotion-project\src\data\comparativeData.ts
+.\remotion-project\src\data\fidc\fidcFlowData.ts
+.\remotion-project\src\data\flowData.ts
+.\remotion-project\src\data\sceneConfig.ts
+.\remotion-project\src\data\stepsData.ts
+.\remotion-project\src\EventMarker.tsx
+.\remotion-project\src\FIDCFlow.tsx
+.\remotion-project\src\FlowAnimation.tsx
+.\remotion-project\src\FlowFinance.tsx
+.\remotion-project\src\fonts.ts
+.\remotion-project\src\FundAnimation\ETFAnimation.tsx
+.\remotion-project\src\FundAnimation\FootballTactics.tsx
+.\remotion-project\src\FundAnimation\FundAnimation.tsx
+.\remotion-project\src\FundAnimation\GrowthAnimation.tsx
+.\remotion-project\src\FundAnimation\SP500Chart.tsx
+.\remotion-project\src\HiddenCostChart.tsx
+.\remotion-project\src\ImageAnimator.tsx
+.\remotion-project\src\index.css
+.\remotion-project\src\index.ts
+.\remotion-project\src\layout\CircularFlow.tsx
+.\remotion-project\src\lego-scene\LegoScene.tsx
+.\remotion-project\src\lego-scene\styles.css
+.\remotion-project\src\Letterings\data.ts
+.\remotion-project\src\Letterings\index.ts
+.\remotion-project\src\Letterings\LetteringBase.tsx
+.\remotion-project\src\LinePath.tsx
+.\remotion-project\src\OilPriceChart.tsx
+.\remotion-project\src\OpeningSequence\RicosRicosScene.tsx
+.\remotion-project\src\OpeningSequence\Screen4.tsx
+.\remotion-project\src\promo-board\DUOPromoBoard.tsx
+.\remotion-project\src\promo-board\duo-styles.css
+.\remotion-project\src\promo-board\LivroPromoBoard.tsx
+.\remotion-project\src\promo-board\livro-styles.css
+.\remotion-project\src\promo-board\SocialPromoBoard.tsx
+.\remotion-project\src\promo-board\styles.css
+.\remotion-project\src\reason-scene\ReasonScene.tsx
+.\remotion-project\src\reason-scene\styles.css
+.\remotion-project\src\Root.tsx
+.\remotion-project\src\scene\FilmSet.tsx
+.\remotion-project\src\split-scene\SplitPromoScene.tsx
+.\remotion-project\src\split-scene\styles.css
+.\remotion-project\src\types.ts
+.\remotion-project\src\ValueIndicator.tsx
+.\remotion-project\test.wav
+.\remotion-project\test_auphonic.mjs
+.\remotion-project\test_curl.bat
+.\remotion-project\test_curl.mjs
+.\remotion-project\tsconfig.json
+.\server\.env
+.\server\.gitignore
+.\server\agent.ts
+.\server\analyze-video.ts
+.\server\check_models.js
+.\server\debug-agent.ts
+.\server\debug-watcher.ts
+.\server\fast_analyze.js
+.\server\index.ts
+.\server\list-models.ts
+.\server\manual-render.ts
+.\server\package.json
+.\server\package-lock.json
+.\server\render.ts
+.\server\render-h-1.log
+.\server\render-h-2.log
+.\server\render-v-1.log
+.\server\render-v-2.log
+.\server\render-v-3.log
+.\server\result_temp.json
+.\server\result_temp_donut_pie_5_Infographic_Edits_You_Should_Know_in_After_Effects.json
+.\server\result_temp_donut_pie_Bring_Your_Data_to_Life_with_Flourish___Canva__Animated_Charts_.json
+.\server\result_temp_donut_pie_Build_Charts_in_React_With_Recharts_in_7_Minutes.json
+.\server\result_temp_donut_pie_Candlesticks_chart_2D_cartoon_object_animation.json
+.\server\save-prompt.ts
+.\server\scripts\backup.ts
+.\server\scripts\restore.ts
+.\server\server-live-polling.log
+.\server\server-live-polling-fix.log
+.\server\tester.ts
+.\server\tsconfig.json
+.\top15.txt
+.\tree.txt
+.\update-knowledge.ps1
+.\verify.ps1
+.\yt-dlp.exe

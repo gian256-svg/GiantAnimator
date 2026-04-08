@@ -1,0 +1,45 @@
+{
+  "componentId": "PieChart",
+  "reasoning": "The image displays a circular chart divided into proportional slices, each with a percentage label, and a corresponding legend. This directly matches the description and visual characteristics of a PieChart. The background is light, indicating a Light Mode theme. Percentage values are shown on the slices, and a clear legend maps colors to labels.",
+  "props": {
+    "title": null,
+    "backgroundColor": "#F8F8F8",
+    "textColor": "#333333",
+    "seriesColors": [
+      "#1A3263",
+      "#007BFF",
+      "#5599FF",
+      "#A0BADB",
+      "#DDE5EF",
+      "#203C70"
+    ],
+    "borderRadius": 0,
+    "showValueLabels": true,
+    "data": [
+      {
+        "label": "Netflix",
+        "value": 34
+      },
+      {
+        "label": "YouTube",
+        "value": 20
+      },
+      {
+        "label": "Hulu",
+        "value": 11
+      },
+      {
+        "label": "Amazon",
+        "value": 8
+      },
+      {
+        "label": "Disney+",
+        "value": 4
+      },
+      {
+        "label": "Other",
+        "value": 23
+      }
+    ]
+  }
+}

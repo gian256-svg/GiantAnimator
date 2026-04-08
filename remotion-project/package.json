@@ -1,0 +1,55 @@
+{
+  "name": "remotion-project",
+  "version": "1.0.0",
+  "description": "My Remotion video",
+  "repository": {},
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "@fontsource/inter": "^5.2.8",
+    "@fontsource/noto-sans": "^5.2.10",
+    "@fontsource/open-sans": "^5.2.7",
+    "@fontsource/roboto": "^5.2.10",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.5.0",
+    "@remotion/animation-utils": "4.0.446",
+    "@remotion/cli": "4.0.446",
+    "@remotion/google-fonts": "4.0.446",
+    "@remotion/layout-utils": "4.0.446",
+    "@remotion/paths": "^4.0.446",
+    "@remotion/tailwind-v4": "4.0.446",
+    "@remotion/three": "4.0.446",
+    "@remotion/zod-types": "4.0.446",
+    "axios": "^1.13.6",
+    "d3-scale": "^4.0.2",
+    "d3-shape": "^3.2.0",
+    "form-data": "^4.0.5",
+    "lucide-react": "^1.0.1",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "remotion": "4.0.446",
+    "tailwindcss": "4.0.0",
+    "three": "^0.183.2",
+    "zod": "4.3.6"
+  },
+  "devDependencies": {
+    "@remotion/eslint-config-flat": "4.0.446",
+    "@types/d3-scale": "^4.0.9",
+    "@types/d3-shape": "^3.1.8",
+    "@types/react": "19.2.7",
+    "@types/three": "^0.183.1",
+    "@types/web": "0.0.166",
+    "eslint": "9.19.0",
+    "prettier": "3.8.1",
+    "typescript": "5.9.3"
+  },
+  "scripts": {
+    "dev": "remotion studio",
+    "build": "remotion bundle",
+    "upgrade": "remotion upgrade",
+    "lint": "eslint src && tsc"
+  },
+  "sideEffects": [
+    "*.css"
+  ]
+}

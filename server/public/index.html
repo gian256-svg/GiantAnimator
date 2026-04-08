@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GiantAnimator — IA Visual Automática</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Fundo de Partículas -->
+    <canvas id="particles"></canvas>
+
+    <!-- Container de Toasts -->
+    <div id="toast-container"></div>
+
+    <!-- Fila de Uploads Ativos -->
+    <div id="upload-queue"></div>
+
+    <div id="app">
+        <header>
+            <span class="logo">⬡ GiantAnimator</span>
+            <span class="badge">Production Ready</span>
+        </header>
+
+        <!-- Dropzone Principal -->
+        <div id="dropzone">
+            <div class="icon-wrap">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+            </div>
+            <h1>Cole ou arraste seus gráficos</h1>
+            <p>Ctrl+V · Seleção Múltipla · PNG · JPG</p>
+            <img id="preview" />
+        </div>
+
+        <!-- Histórico da Sessão -->
+        <section id="history-section">
+            <h2>📊 Histórico da Sessão</h2>
+            <div id="history-list">
+                <!-- Itens gerados via JS -->
+            </div>
+        </section>
+    </div>
+
+    <!-- Modal do Player e Controle de Props -->
+    <div id="player-modal" style="display:none">
+        <div id="player-overlay" onclick="closePlayer()"></div>
+        <div id="player-content">
+            <button id="player-close" onclick="closePlayer()">✕</button>
+            <h3 id="player-title" style="margin-bottom: 24px; font-size: 20px;">Preview</h3>
+            
+            <video id="player-video" controls autoplay loop
+                   style="width:100%; border-radius:16px; background:#000; box-shadow: 0 10px 40px rgba(0,0,0,0.5)">
+            </video>
+
+            <div id="props-panel" style="display:none">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h4 style="font-size: 16px;">⚙️ Ajustar Propriedades</h4>
+                    <button class="btn btn-secondary btn-sm" onclick="copyPropsJson()">📋 Copiar JSON</button>
+                </div>
+                <div id="props-controls" class="accordion-container">
+                    <!-- Gerado dinamicamente via JS -->
+                </div>
+                <button class="btn btn-primary" onclick="forceRerender()" style="width:100%; justify-content:center; padding: 14px; margin-top: 16px;">
+                    🔄 Re-renderizar (Manual)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

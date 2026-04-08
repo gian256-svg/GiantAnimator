@@ -1,0 +1,75 @@
+{
+  "componentId": "GroupedBarChart",
+  "reasoning": "The image displays a bar chart with multiple bars grouped by year (2018, 2019, 2020). The bars are vertical and appear side-by-side for each category, fitting the 'GroupedBarChart' component. The background is white, text is dark, and gridlines are light gray, indicating a light mode theme. Bar corners are sharp, and no value labels are present on the bars.",
+  "props": {
+    "title": "Bar Chart (Data Visualization)",
+    "backgroundColor": "#FFFFFF",
+    "textColor": "#212121",
+    "gridColor": "#D3D3D3",
+    "seriesColors": [
+      "#6CA5DD",
+      "#F79646",
+      "#A5A5A5"
+    ],
+    "borderRadius": 0,
+    "showValueLabels": false,
+    "seriesLabels": [
+      "Series 1",
+      "Series 2",
+      "Series 3"
+    ],
+    "data": [
+      {
+        "label": "2018",
+        "series": [
+          {
+            "label": "Series 1",
+            "value": 110000
+          },
+          {
+            "label": "Series 2",
+            "value": 230000
+          },
+          {
+            "label": "Series 3",
+            "value": 75000
+          }
+        ]
+      },
+      {
+        "label": "2019",
+        "series": [
+          {
+            "label": "Series 1",
+            "value": 130000
+          },
+          {
+            "label": "Series 2",
+            "value": 195000
+          },
+          {
+            "label": "Series 3",
+            "value": 95000
+          }
+        ]
+      },
+      {
+        "label": "2020",
+        "series": [
+          {
+            "label": "Series 1",
+            "value": 100000
+          },
+          {
+            "label": "Series 2",
+            "value": 165000
+          },
+          {
+            "label": "Series 3",
+            "value": 108000
+          }
+        ]
+      }
+    ]
+  }
+}

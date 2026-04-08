@@ -1,0 +1,129 @@
+.promo-container {
+  width: 100%;
+  height: 100%;
+  background-color: #030303;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: sans-serif;
+  color: white;
+}
+
+.promo-bg-glow {
+  position: absolute;
+  width: 150%;
+  height: 150%;
+  background: radial-gradient(circle at center, rgba(30, 40, 60, 0.4) 0%, transparent 60%);
+  top: -25%;
+  left: -25%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.particles-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.cards-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2560px;
+  height: 1080px;
+  transform-style: preserve-3d;
+  z-index: 5;
+}
+
+.promo-card {
+  position: absolute;
+  width: 260px;
+  height: 325px;
+  background: transparent;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.haze {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(0,0,0,0) 30%, rgba(0,10,20, 0.6) 100%);
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* --- EPIC CENTRAL BURST TRANSITION --- */
+.central-burst {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 
+    0 0 100px 50px rgba(255, 200, 0, 0.9), 
+    0 0 300px 150px rgba(255, 100, 0, 0.6),
+    0 0 500px 250px rgba(255, 0, 150, 0.4);
+  opacity: 0;
+  z-index: 70;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+.horizontal-flare {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 300%;
+  height: 4px;
+  background: white;
+  box-shadow: 0 0 40px 10px rgba(255, 200, 0, 0.8), 0 0 100px 20px rgba(255, 50, 0, 0.5);
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  z-index: 71;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+.energy-particle {
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  z-index: 65;
+}
+
+.shockwave-ring {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 300px; height: 300px;
+  border-radius: 50%;
+  border: 5px solid white;
+  box-shadow: 
+    0 0 60px 30px rgba(255, 150, 0, 0.8), 
+    inset 0 0 60px 30px rgba(255, 200, 0, 0.8),
+    0 0 100px 50px rgba(255, 0, 100, 0.5);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  z-index: 75;
+  transform: translate(-50%, -50%);
+}

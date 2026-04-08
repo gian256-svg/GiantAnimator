@@ -1,0 +1,3 @@
+{
+  "message": "Gere um componente Remotion para este JSON: { \"type\": \"pie\", \"title\": \"Global Market Share 2025\", \"data\": [{ \"label\": \"Company A\", \"value\": 35 }, { \"label\": \"Company B\", \"value\": 25 }, { \"label\": \"Company C\", \"value\": 20 }, { \"label\": \"Others\", \"value\": 20 }] }"
+}
