@@ -128,8 +128,8 @@ export const NetworkChart: React.FC<NetworkChartProps> = ({
               />
               {nodePop > 0.8 && (
                 <text
-                  x={x} y={y + radius + 40} textAnchor="middle"
-                  style={{ fontSize: 32, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}
+                  x={x} y={y + radius + 30} textAnchor="middle"
+                  style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}
                 >
                   {node.label}
                 </text>

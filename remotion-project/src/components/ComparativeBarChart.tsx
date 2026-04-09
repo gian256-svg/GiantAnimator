@@ -52,7 +52,7 @@ export const ComparativeBarChart: React.FC<ComparativeBarChartProps> = ({
   }
 
   const allValues = data.flatMap(d => [d.leftValue, d.rightValue]);
-  const maxVal = Math.max(...allValues) * 1.1;
+  const maxVal = Math.max(...allValues, 1);
 
   const barHeight = (plotHeight / data.length) * 0.7;
   const barGap = (plotHeight / data.length) * 0.3;
@@ -92,8 +92,8 @@ export const ComparativeBarChart: React.FC<ComparativeBarChartProps> = ({
         </defs>
 
         {/* Labels de Lado */}
-        <text x={centerX - 100} y={chartTop - 30} textAnchor="end" style={{ fontSize: 32, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>{leftLabel.toUpperCase()}</text>
-        <text x={centerX + 100} y={chartTop - 30} textAnchor="start" style={{ fontSize: 32, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>{rightLabel.toUpperCase()}</text>
+        <text x={centerX - 100} y={chartTop - 30} textAnchor="end" style={{ fontSize: Theme.typography.subtitle.size, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>{leftLabel.toUpperCase()}</text>
+        <text x={centerX + 100} y={chartTop - 30} textAnchor="start" style={{ fontSize: Theme.typography.subtitle.size, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>{rightLabel.toUpperCase()}</text>
 
         {/* Eixo Central */}
         <line x1={centerX} y1={chartTop} x2={centerX} y2={chartTop + plotHeight} stroke={Theme.colors.grid} strokeWidth={2} opacity={0.5} />
@@ -107,7 +107,7 @@ export const ComparativeBarChart: React.FC<ComparativeBarChartProps> = ({
 
           return (
             <g key={i}>
-              <text x={centerX} y={y} textAnchor="middle" dominantBaseline="middle" style={{ fontSize: 24, fill: Theme.colors.textSecondary, fontWeight: 600, fontFamily: Theme.typography.fontFamily }}>{d.label}</text>
+              <text x={centerX} y={y} textAnchor="middle" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.textSecondary, fontWeight: 600, fontFamily: Theme.typography.fontFamily }}>{d.label}</text>
 
               <rect
                 x={centerX - 100 - leftW * pop} y={y - barHeight / 2} width={leftW * pop} height={barHeight}
@@ -120,8 +120,8 @@ export const ComparativeBarChart: React.FC<ComparativeBarChartProps> = ({
 
               {pop > 0.9 && (
                 <>
-                  <text x={centerX - 120 - leftW} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: 28, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>{d.leftValue.toLocaleString()}</text>
-                  <text x={centerX + 120 + rightW} y={y} textAnchor="start" dominantBaseline="middle" style={{ fontSize: 28, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>{d.rightValue.toLocaleString()}</text>
+                  <text x={centerX - 120 - leftW} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>{d.leftValue.toLocaleString()}</text>
+                  <text x={centerX + 120 + rightW} y={y} textAnchor="start" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>{d.rightValue.toLocaleString()}</text>
                 </>
               )}
             </g>

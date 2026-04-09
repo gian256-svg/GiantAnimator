@@ -31,14 +31,9 @@ export const PolarChart: React.FC<PolarChartProps> = ({
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // ÁREA ÚTIL 4K (REGRA GLOBAL)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  const usableWidth = 3584; 
-  const usableHeight = 1920; 
-  const originX = 128;
-  const originY = 160;
-
-  const cx = originX + usableWidth / 2;
-  const cy = originY + usableHeight / 2;
-  const maxRadius = usableHeight * 0.42;
+  const cx = width / 2;
+  const cy = height / 2;
+  const maxRadius = height * 0.42;
 
   if (data.length === 0) return null;
 
@@ -89,7 +84,7 @@ export const PolarChart: React.FC<PolarChartProps> = ({
             <g key={i}>
               <path d={pathD} fill={`url(#polarGrad-${i}-${instanceId})`} stroke={Theme.colors.background} strokeWidth={2} opacity={0.85} />
               {pop > 0.9 && (
-                <text x={lp.x} y={lp.y} textAnchor="middle" dominantBaseline="middle" style={{ fontSize: 32, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>
+                <text x={lp.x} y={lp.y} textAnchor="middle" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>
                   {d.label}
                 </text>
               )}

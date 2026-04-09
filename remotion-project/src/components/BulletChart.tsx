@@ -88,7 +88,7 @@ export const BulletChart: React.FC<BulletChartProps> = ({
             <g key={i}>
               <text
                 x={paddingLeft - 40} y={centerY} textAnchor="end" dominantBaseline="middle"
-                style={{ fontSize: 32, fill: Theme.colors.text, fontWeight: 600, fontFamily: Theme.typography.fontFamily }}
+                style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.text, fontWeight: 600, fontFamily: Theme.typography.fontFamily }}
               >
                 {m.label}
               </text>
@@ -129,7 +129,7 @@ export const BulletChart: React.FC<BulletChartProps> = ({
                      const val = p * maxRangeValue;
                      const x = getX(val);
                      return (
-                       <text key={p} x={x} y={centerY + rangeThickness} textAnchor="middle" style={{ fontSize: 24, fill: Theme.colors.ui.axisText, fontFamily: Theme.typography.fontFamily }}>{Math.round(val)}</text>
+                       <text key={p} x={x} y={centerY + rangeThickness} textAnchor="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.ui.axisText, fontFamily: Theme.typography.fontFamily }}>{Math.round(val)}</text>
                      );
                    })}
                 </g>

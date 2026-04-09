@@ -46,21 +46,12 @@ export const DonutChart: React.FC<DonutChartProps> = ({
   const data = useMemo(() => (Array.isArray(propData) ? propData : []).filter(d => d.value > 0).slice(0, 10), [propData]);
   const total = useMemo(() => data.reduce((acc, d) => acc + d.value, 0) || 1, [data]);
 
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // ÁREA ÚTIL 4K (REGRA GLOBAL)
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  const usableWidth = 3584; 
-  const usableHeight = 1920; 
-  const originX = 128;
-  const originY = 160;
-
-  const legendWidth = usableWidth * 0.25;
-  const chartAreaWidth = usableWidth * 0.75;
-  
-  const outerRadius = Math.min(chartAreaWidth, usableHeight) * 0.42; // ~806.4px
+  const legendWidth = 800; // Largura fixa para legenda 4K
+  const chartAreaWidth = width - legendWidth;
+  const cx = Theme.canvas.safeZoneX + chartAreaWidth / 2;
+  const cy = height / 2;
+  const outerRadius = height * 0.35;
   const innerRadius = outerRadius * innerRadiusRatio;
-  const cx = originX + chartAreaWidth / 2;
-  const cy = originY + usableHeight / 2;
 
   let curAngle = 0;
   const slices = data.map((d, i) => {
@@ -72,8 +63,8 @@ export const DonutChart: React.FC<DonutChartProps> = ({
 
   return (
     <AbsoluteFill style={{ backgroundColor: Theme.colors.background }}>
-      {/* HEADER (ZONA 1) */}
-      <div style={{ position: 'absolute', top: 50, width: '100%', textAlign: 'center', opacity: interpolate(frame, [0, 15], [0, 1]) }}>
+      {/* HEADER */}
+      <div style={{ position: 'absolute', top: Theme.canvas.safeZoneTop / 2, width: '100%', textAlign: 'center', opacity: interpolate(frame, [0, 15], [0, 1]) }}>
         {title && <div style={{ fontSize: Theme.typography.title.size, fontWeight: Theme.typography.title.weight, color: Theme.typography.title.color, fontFamily: Theme.typography.fontFamily }}>{title}</div>}
         {subtitle && <div style={{ fontSize: Theme.typography.subtitle.size, color: Theme.typography.subtitle.color, fontFamily: Theme.typography.fontFamily }}>{subtitle}</div>}
       </div>
@@ -82,27 +73,37 @@ export const DonutChart: React.FC<DonutChartProps> = ({
         {/* CHART AREA */}
         <g>
           {slices.map((s, i) => {
-            const pop = spring({ frame: frame - 15 - i * 4, fps, config: { damping: 15, stiffness: 100 } });
+            const pop = spring({ 
+              frame: frame - 30 - i * 3, 
+              fps, 
+              config: { damping: 80, stiffness: 200, overshoot_clamp: true } 
+            });
+            if (pop <= 0) return null;
+            
             const pD = describeSlice(cx, cy, innerRadius, outerRadius, s.start, s.start + s.angle * pop);
             return <path key={i} d={pD} fill={s.color} stroke={Theme.colors.background} strokeWidth={4} />;
           })}
           
           {innerRadiusRatio > 0 && (
-            <text x={cx} y={cy} textAnchor="middle" dominantBaseline="middle" style={{ fontSize: outerRadius * 0.25, fontWeight: 900, fill: Theme.colors.text, fontFamily: Theme.typography.fontFamily }}>
+            <text x={cx} y={cy} textAnchor="middle" dominantBaseline="middle" style={{ fontSize: 100, fontWeight: 900, fill: Theme.colors.text, fontFamily: Theme.typography.fontFamily }}>
               {total >= 1000000 ? (total / 1000000).toFixed(1) + "M" : total >= 1000 ? (total/1000).toFixed(1) + "k" : total}
             </text>
           )}
         </g>
 
-        {/* LEGENDA (À DIREITA, 25%) */}
-        <g transform={`translate(${originX + chartAreaWidth + 100}, ${cy - (slices.length * 80) / 2})`}>
-          {slices.map((s, i) => {
-            const entryPop = spring({ frame: frame - 40 - i * 4, fps, config: { damping: 12 } });
+        {/* LEGENDA */}
+        <g transform={`translate(${width - legendWidth + 100}, ${cy - (data.length * 80) / 2})`}>
+          {data.map((s, i) => {
+            const entryPop = spring({ 
+              frame: frame - 60 - i * 3, 
+              fps, 
+              config: { damping: 80, stiffness: 200, overshoot_clamp: true } 
+            });
             return (
               <g key={i} transform={`translate(0, ${i * 90})`} opacity={entryPop}>
-                <rect width={40} height={40} fill={s.color} rx={8} />
-                <text x={60} y={30} style={{ fontSize: 36, fill: Theme.colors.text, fontWeight: 600, fontFamily: Theme.typography.fontFamily }}>{s.label}</text>
-                <text x={legendWidth - 100} y={30} textAnchor="end" style={{ fontSize: 32, fill: Theme.colors.textSecondary, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>
+                <rect width={50} height={50} fill={s.color || Theme.chartColors[i % Theme.chartColors.length]} rx={12} />
+                <text x={80} y={38} style={{ fontSize: 44, fill: Theme.colors.text, fontWeight: 600, fontFamily: Theme.typography.fontFamily }}>{s.label}</text>
+                <text x={legendWidth - 250} y={38} textAnchor="end" style={{ fontSize: 40, fill: Theme.colors.textMuted, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>
                   {((s.value / total) * 100).toFixed(1)}%
                 </text>
               </g>

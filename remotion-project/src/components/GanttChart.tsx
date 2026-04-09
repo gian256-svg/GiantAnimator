@@ -90,7 +90,7 @@ export const GanttChart: React.FC<GanttChartProps> = ({
                 x2={getDayX(i)} y2={margin + titleHeight + plotHeight} 
                 stroke={Theme.colors.grid} strokeDasharray="8 8" 
               />
-              <text x={getDayX(i)} y={margin + titleHeight + plotHeight + 50} textAnchor="middle" style={{ fontSize: 24, fill: Theme.colors.ui.axisText, fontFamily: Theme.typography.fontFamily }}>{i}d</text>
+              <text x={getDayX(i)} y={margin + titleHeight + plotHeight + 50} textAnchor="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.ui.axisText, fontFamily: Theme.typography.fontFamily }}>{i}d</text>
             </React.Fragment>
           ))}
         </g>
@@ -129,7 +129,7 @@ export const GanttChart: React.FC<GanttChartProps> = ({
             <g key={task.id} opacity={barProgress}>
               <text 
                  x={sidebarWidth + margin - 30} y={y} textAnchor="end" dominantBaseline="middle" 
-                 style={{ fontSize: 32, fill: Theme.colors.text, fontWeight: 600, fontFamily: Theme.typography.fontFamily }}
+                 style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.text, fontWeight: 600, fontFamily: Theme.typography.fontFamily }}
               >
                 {task.label}
               </text>

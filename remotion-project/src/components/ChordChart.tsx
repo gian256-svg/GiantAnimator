@@ -38,14 +38,9 @@ export const ChordChart: React.FC<ChordChartProps> = ({
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // ÁREA ÚTIL 4K (REGRA GLOBAL)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  const usableWidth = 3584; 
-  const usableHeight = 1920; 
-  const originX = 128;
-  const originY = 160;
-
-  const cx = originX + usableWidth / 2;
-  const cy = originY + usableHeight / 2;
-  const outerRadius = usableHeight * 0.42;
+  const cx = width / 2;
+  const cy = height / 2;
+  const outerRadius = height * 0.42;
   const innerRadius = outerRadius * 0.94;
   const padAngle = 0.05;
 
@@ -121,7 +116,7 @@ export const ChordChart: React.FC<ChordChartProps> = ({
             <g key={arc.id}>
               <path d={d} fill={Theme.chartColors[i % Theme.chartColors.length]} opacity={pop} />
               {pop > 0.8 && (
-                <text x={lp.x} y={lp.y} textAnchor="middle" dominantBaseline="middle" style={{ fontSize: 32, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>
+                <text x={lp.x} y={lp.y} textAnchor="middle" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>
                   {arc.label}
                 </text>
               )}

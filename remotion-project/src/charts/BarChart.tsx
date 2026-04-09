@@ -49,7 +49,7 @@ export const BarChart: React.FC<BarChartProps> = ({
   // Escala de fonte baseada na resolução
   const fs = (base: number) => Math.round(base * (width / 1280));
 
-  const maxVal        = Math.max(...safeData.map(d => d.value), 1) * 1.15;
+  const maxVal        = Math.max(...safeData.map(d => d.value), 1);
   const categoryWidth = plotWidth / safeData.length;
   const barGap        = 0.28;
   const barWidth      = categoryWidth * (1 - barGap);
@@ -181,15 +181,19 @@ export const BarChart: React.FC<BarChartProps> = ({
         {/* ── BARS ── */}
         {safeData.map((d, i) => {
           const delay = 20 + i * 3;
-          const pop   = spring({
+          const progress = spring({
             frame: frame - delay,
             fps,
-            config: { damping: 14, stiffness: 90, mass: 0.8 },
+            config: { 
+              damping: 80, 
+              stiffness: 200, 
+              overshoot_clamp: true 
+            },
           });
 
+          const currentH = Math.max(0, (d.value / maxVal) * plotHeight * progress);
           const bX = plotLeft + i * categoryWidth + (categoryWidth * barGap) / 2;
-          const bH = Math.max(0, (d.value / maxVal) * plotHeight * pop);
-          const bY = plotTop + plotHeight - bH;
+          const bY = plotTop + plotHeight - currentH;
 
           const labelOpacity = interpolate(
             frame,
@@ -256,7 +260,7 @@ export const BarChart: React.FC<BarChartProps> = ({
                   fontFamily: Theme.typography.fontFamily,
                 }}
               >
-                {d.label.length > 12 ? d.label.slice(0, 11) + "…" : d.label}
+                {d.label}
               </text>
             </g>
           );

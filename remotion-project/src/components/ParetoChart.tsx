@@ -57,7 +57,7 @@ export const ParetoChart: React.FC<ParetoChartProps> = ({
     );
   }
 
-  const maxVal = Math.max(...data.map(d => d.value), 1) * 1.1;
+  const maxVal = Math.max(...sortedData.map(d => d.value), 1);
   const getLeftY = (val: number) => chartTop + plotHeight - (val / maxVal) * plotHeight;
   const getRightY = (perc: number) => chartTop + plotHeight - (perc / 100) * plotHeight;
   const getX = (i: number) => plotLeft + (i + 0.5) * (plotWidth / processedData.length);
@@ -101,7 +101,7 @@ export const ParetoChart: React.FC<ParetoChartProps> = ({
             return (
               <React.Fragment key={v}>
                 <line x1={plotLeft} y1={y} x2={plotLeft + plotWidth} y2={y} stroke={Theme.colors.grid} strokeWidth={1} />
-                <text x={plotLeft - 20} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: 28, fill: Theme.colors.ui.axisText, fontFamily: Theme.typography.fontFamily }}>{val}</text>
+                <text x={plotLeft - 20} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.ui.axisText, fontFamily: Theme.typography.fontFamily }}>{val}</text>
               </React.Fragment>
             );
           })}
@@ -113,7 +113,7 @@ export const ParetoChart: React.FC<ParetoChartProps> = ({
             const y = getRightY(p);
             return (
               <g key={p}>
-                <text x={width - plotRight + 20} y={y} textAnchor="start" dominantBaseline="middle" style={{ fontSize: 28, fill: p === 80 ? Theme.colors.semantic.highlight : Theme.colors.ui.axisText, fontWeight: p === 80 ? 900 : 400, fontFamily: Theme.typography.fontFamily }}>{p}%</text>
+                <text x={width - plotRight + 20} y={y} textAnchor="start" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: p === 80 ? Theme.colors.semantic.highlight : Theme.colors.ui.axisText, fontWeight: p === 80 ? 900 : 400, fontFamily: Theme.typography.fontFamily }}>{p}%</text>
                 {p === 80 && (
                   <line x1={plotLeft} y1={y} x2={width - plotRight} y2={y} stroke={Theme.colors.semantic.highlight} strokeWidth={4} strokeDasharray="16 8" opacity={0.8} />
                 )}
@@ -123,18 +123,14 @@ export const ParetoChart: React.FC<ParetoChartProps> = ({
         </g>
 
         {/* Barras */}
-        {processedData.map((d, i) => {
+        {sortedData.map((d, i) => {
           const h = (d.value / maxVal) * plotHeight;
           const x = getX(i) - barWidth / 2;
-          const barPop = spring({ frame: frame - 25 - i * 5, fps, config: { damping: 14, stiffness: 100 } });
 
           return (
             <g key={i}>
-              <rect
-                x={x} y={chartTop + plotHeight - h * barPop} width={barWidth} height={Math.max(h * barPop, 2)}
-                fill={`url(#paretoGrad-${instanceId})`} rx={6} opacity={0.85}
-              />
-              <text x={getX(i)} y={chartTop + plotHeight + 60} textAnchor="middle" style={{ fontSize: 28, fill: Theme.colors.textSecondary, fontWeight: 600, fontFamily: Theme.typography.fontFamily }}>{d.label}</text>
+              <rect x={x} y={chartTop + plotHeight - h} width={barWidth} height={h} fill={Theme.colors.series[0]} rx={4} />
+              <text x={x + barWidth / 2} y={chartTop + plotHeight + 60} textAnchor="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.textSecondary, fontWeight: 600, fontFamily: Theme.typography.fontFamily }}>{d.label}</text>
             </g>
           );
         })}

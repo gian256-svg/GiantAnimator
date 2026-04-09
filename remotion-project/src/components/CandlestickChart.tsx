@@ -52,7 +52,7 @@ export const CandlestickChart: React.FC<CandlestickChartProps> = ({
   const minY = Math.min(...allValues);
   const maxY = Math.max(...allValues);
   const rangeY = (maxY - minY) || 1;
-  const extentY = [minY - rangeY * 0.1, maxY + rangeY * 0.1];
+  const extentY = [minY, maxY];
   const screenRangeY = extentY[1] - extentY[0];
 
   const getY = (val: number) => chartTop + plotHeight - ((val - extentY[0]) / screenRangeY) * plotHeight;

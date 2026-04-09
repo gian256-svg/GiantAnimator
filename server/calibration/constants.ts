@@ -9,7 +9,7 @@ import type { ChartType } from "./types.js";
 // Fonte: https://ai.google.dev/gemini-api/docs/models
 // ─────────────────────────────────────────────────────────
 export const GEMINI_MODEL        = "gemini-2.5-flash";
-export const GEMINI_MODEL_VISION = "gemini-2.5-flash";
+export const GEMINI_MODEL_VISION = "models/gemini-2.5-flash-lite";
 
 // ─────────────────────────────────────────────────────────
 // Mapa de tipos → nomes dos componentes Remotion

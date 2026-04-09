@@ -7,6 +7,7 @@ import { EventEmitter } from 'events';
 import { v4 as uuidv4 } from 'uuid';
 import { bundle } from '@remotion/bundler';
 import { renderMedia, selectComposition } from '@remotion/renderer';
+import { analyzeChartImage } from './visionService.js';
 
 // ─── UTILS ───────────────────────────────────────────────────
 function sanitizeFilename(filename: string): string {
@@ -159,16 +160,35 @@ async function processJob720p(
 
   try {
     updateJob(jobId, { status: 'processing' });
-    emit(5, 'Analisando arquivo...');
-
     // 1. Analisar dados
-    const inputData = await analyzeFile(file);
-    emit(20, 'Arquivo analisado ✓', `📊 ${inputData.rowCount} linhas detectadas`);
+    let inputProps: any;
+    let resolvedType: string;
 
-    // 2. Montar props
-    const resolvedType = chartType === 'auto' ? inputData.suggestedChart : chartType;
-    const inputProps   = buildInputProps(inputData, resolvedType, chartTheme, 1280, 720);
-    const compId       = resolveCompositionId(resolvedType);
+    const ext = path.extname(file.originalname).toLowerCase();
+    const isImage = ['.png', '.jpg', '.jpeg', '.webp'].includes(ext);
+
+    if (isImage) {
+      emit(10, 'Analisando imagem com Gemini Vision...');
+      const analysis = await analyzeChartImage(file.path);
+      resolvedType = chartType === 'auto' ? analysis.componentId : chartType;
+      inputProps = {
+        ...analysis.props,
+        chartType: resolvedType,
+        theme: chartTheme,
+        width: 1280,
+        height: 720,
+        fps: 30,
+        durationInSeconds: 8
+      };
+      emit(20, 'Imagem analisada ✓', `📊 ${analysis.reasoning.slice(0, 50)}...`);
+    } else {
+      const inputData = await analyzeFile(file);
+      emit(20, 'Arquivo analisado ✓', `📊 ${inputData.rowCount} linhas detectadas`);
+      resolvedType = chartType === 'auto' ? inputData.suggestedChart : chartType;
+      inputProps = buildInputProps(inputData, resolvedType, chartTheme, 1280, 720, file.originalname);
+    }
+
+    const compId = resolveCompositionId(resolvedType);
     emit(30, 'Props montadas ✓', `🎨 Tipo: ${resolvedType} | Tema: ${chartTheme}`, 'accent');
 
     // 3. Bundle
@@ -193,8 +213,6 @@ async function processJob720p(
       codec:          'h264',
       outputLocation: outPath720,
       inputProps,
-      overrideWidth:  1280,
-      overrideHeight: 720,
       crf:            23,
       onProgress: ({ progress: pct }) => {
         const mapped = 60 + Math.round(pct * 38); // 60% → 98%
@@ -214,7 +232,7 @@ async function processJob720p(
     job.stage         = 'Preview 720p pronto ✓';
     job.videoUrl      = `/output/${outFile720}`;
 
-    const duration = formatDuration(composition.durationInFrames, composition.fps);
+    const duration = formatDuration(composition.durationInFrames, composition.fps as number);
 
     jobBus.emit(jobId + ':done', {
       status:   'done',
@@ -236,7 +254,7 @@ async function processJob720p(
 
 // ─── RENDER 4K (sob demanda) ──────────────────────────────────
 app.post('/render4k/:jobId', async (req: Request, res: Response) => {
-  const { jobId } = req.params;
+  const jobId = req.params.jobId as string;
   const job = jobs.get(jobId);
 
   if (!job) {
@@ -296,8 +314,6 @@ async function render4K(jobId: string) {
       codec:          'h264',
       outputLocation: outPath4k,
       inputProps:     props4k,
-      overrideWidth:  3840,
-      overrideHeight: 2160,
       crf:            18, // alta qualidade
       onProgress: ({ progress: pct }) => {
         const mapped = 20 + Math.round(pct * 78); // 20% → 98%
@@ -328,7 +344,7 @@ async function render4K(jobId: string) {
 
 // ─── SSE PROGRESS (720p) ──────────────────────────────────────
 app.get('/progress/:jobId', (req: Request, res: Response) => {
-  const { jobId } = req.params;
+  const jobId = req.params.jobId as string;
 
   res.setHeader('Content-Type',  'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
@@ -356,7 +372,7 @@ app.get('/progress/:jobId', (req: Request, res: Response) => {
     send({ progress: j.progress, stage: j.stage, status: j.status, ...extra });
   };
 
-  const onDone = (data: object) => {
+  const onDone = (data: any) => {
     send(data);
     cleanup();
     res.end();
@@ -376,7 +392,7 @@ app.get('/progress/:jobId', (req: Request, res: Response) => {
 
 // ─── SSE PROGRESS 4K ──────────────────────────────────────────
 app.get('/progress4k/:jobId', (req: Request, res: Response) => {
-  const { jobId } = req.params;
+  const jobId = req.params.jobId as string;
 
   res.setHeader('Content-Type',  'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
@@ -393,9 +409,9 @@ app.get('/progress4k/:jobId', (req: Request, res: Response) => {
     res.end(); return;
   }
 
-  const onUpdate = (data: object) => {
+  const onUpdate = (data: any) => {
     send(data);
-    if ((data as any).status === 'done' || (data as any).status === 'error') {
+    if (data?.status === 'done' || data?.status === 'error') {
       cleanup();
       res.end();
     }
@@ -430,15 +446,17 @@ async function analyzeFile(file: Express.Multer.File): Promise<FileAnalysis> {
   if (['.xlsx', '.xls'].includes(ext)) return analyzeXLSX(file.path);
 
   if (['.png', '.jpg', '.jpeg', '.webp'].includes(ext)) {
-    // TODO: Integrar chamada real ao Gemini Vision aqui
+    const analysis = await analyzeChartImage(file.path);
+    // Mapeia de volta para FileAnalysis para quem ainda usa esse formato
+    const data = analysis.props.data || [];
     return {
-      rowCount:       5,
-      labels:         ['Jan', 'Fev', 'Mar', 'Abr', 'Mai'],
-      datasets:       [{ label: 'Série A', values: [42, 67, 55, 78, 91] }],
-      suggestedChart: 'bar',
-      title:          sanitizeFilename(file.originalname),
-      subtitle:       '',
-      unit:           '',
+      rowCount:       data.length,
+      labels:         data.map((d: any) => d.label || ''),
+      datasets:       [{ label: 'Série', values: data.map((d: any) => d.value || 0) }],
+      suggestedChart: analysis.componentId,
+      title:          analysis.props.title || sanitizeFilename(file.originalname),
+      subtitle:       analysis.props.subtitle || '',
+      unit:           analysis.props.unit || '',
     };
   }
   throw new Error(`Formato não suportado: ${ext}`);
@@ -510,11 +528,12 @@ async function analyzeXLSX(filePath: string): Promise<FileAnalysis> {
 
 // ─── BUILD PROPS ──────────────────────────────────────────────
 function buildInputProps(
-  data:      FileAnalysis,
-  chartType: string,
-  theme:     string,
-  width:     number,
-  height:    number,
+  data:         FileAnalysis,
+  chartType:    string,
+  theme:        string,
+  width:        number,
+  height:       number,
+  originalname: string,
 ) {
   const palettes: Record<string, string[]> = {
     dark:      ['#7c3aed','#06b6d4','#a855f7','#22c55e','#f59e0b','#ef4444'],
@@ -534,8 +553,8 @@ function buildInputProps(
 
   return {
     data:      chartData,
-    title:     data.title?.trim(),
-    subtitle:  data.subtitle || `${data.rowCount} registros · tema ${theme}`,
+    title:     data.title?.trim() || sanitizeFilename(originalname),
+    subtitle:  data.subtitle?.trim() || '',
     unit:      data.unit || '',
 
     // Campos extras

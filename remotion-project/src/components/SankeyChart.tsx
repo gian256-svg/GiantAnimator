@@ -147,7 +147,7 @@ export const SankeyChart: React.FC<SankeyChartProps> = ({
               <text
                 x={n.column === 0 ? n.x - 20 : n.x + nodeWidth + 20} y={n.y + n.h / 2}
                 textAnchor={n.column === 0 ? "end" : "start"} dominantBaseline="middle"
-                style={{ fontSize: 32, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}
+                style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}
               >
                 {n.label}
               </text>

@@ -7,15 +7,28 @@ export interface ChartData {
 }
 
 export interface ChartAnalysis {
-  componentId: 'BarChart' | 'LineChart' | 'PieChart';
-  props: ChartProps;
+  componentId: string;
+  props: any; // Props variam drasticamente entre os 31 componentes
   reasoning: string;
 }
 
 export interface ChartProps {
-  data: ChartData[];
+  data: any[];
   title?: string;
-  colors?: string[];
+  subtitle?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  seriesColors?: string[];
   borderRadius?: number;
   showValueLabels?: boolean;
+}
+
+export interface FileAnalysis {
+  rowCount:       number;
+  labels:         string[];
+  datasets:       Array<{ label: string; values: number[] }>;
+  suggestedChart: string;
+  title:          string;
+  subtitle?:      string;
+  unit?:          string;
 }

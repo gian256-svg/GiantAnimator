@@ -100,7 +100,7 @@ export const MekkoChart: React.FC<MekkoChartProps> = ({
               {colPop > 0.6 && (
                 <text
                   x={col.x + col.width / 2} y={chartTop - 30} textAnchor="middle"
-                  style={{ fontSize: 24, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}
+                  style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}
                 >
                   {col.label} ({Math.round((col.totalValue / totalMarketValue) * 100)}%)
                 </text>
@@ -121,7 +121,7 @@ export const MekkoChart: React.FC<MekkoChartProps> = ({
                     {rectH > 60 && col.width > 80 && colPop > 0.9 && (
                       <text
                         x={col.x + col.width/2} y={rectY + rectH/2} textAnchor="middle" dominantBaseline="middle"
-                        style={{ fontSize: 24, fill: "#fff", fontWeight: 700, fontFamily: Theme.typography.fontFamily }}
+                        style={{ fontSize: Theme.typography.axis.size, fill: "#fff", fontWeight: 700, fontFamily: Theme.typography.fontFamily }}
                       >
                         {Math.round((seg.value / segmentSum) * 100)}%
                       </text>

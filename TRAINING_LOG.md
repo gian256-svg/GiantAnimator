@@ -4,6 +4,118 @@
 > **Hierarquia ativa:** Filosofia 4K > Padrões Multi-Fonte (Mango / Lychee / Papaya) > Dados Originais
 
 ---
+### REGRA PERMANENTE — Animação Fluida (obrigatória em todos os componentes)
+Data: 2026-04-09
+Escopo: TODOS os componentes presentes e futuros do GiantAnimator
+
+OBRIGATÓRIO em qualquer componente novo ou editado:
+1. spring() sempre com { damping: 80, stiffness: 200, overshoot_clamp: true }
+2. Nunca usar Easing.linear em animações visuais
+3. count/progress sempre clampado com stableCount
+4. Stagger de elementos individuais: i * 3 frames (máx i * 5)
+5. Delay de entrada do componente: entre 10-20 frames
+
+PROIBIDO:
+- spring() sem overshoot_clamp
+- Math.floor() para calcular contagem de elementos visíveis
+- Interpolação linear em transições visuais
+- progress sem clamping no estado final
+
+---
+### REGRA PERMANENTE — Validação Visual via Stills
+Data: 2026-04-09
+Sempre que gerar um `remotion still` para validação, o frame deve ser >= 30.
+Fórmula: `frameVal = (numElementos * framesStagger) + 20`
+Tabela de referência:
+- Bar/Stacked/Pie/Donut: --frame=30
+- Line/Area/Radar/Waterfall: --frame=45
+- Scatter/Bubble: --frame=60
+
+---
+### [2026-04-09] Padrão de Animação Definitivo
+- spring({ damping: 80, stiffness: 200, overshoot_clamp: true })
+- count = Math.ceil(progress * total), clampado ao máximo
+- stableCount: força valor final quando progress >= 1
+- Aplicado em: LineChart ✅
+
+---
+## [2026-04-09] Gauntlet T03 (StackedBarChart) — APROVADO
+
+### Resultado
+3/3 modelos com 100% de fidelidade.
+Primeiro teste com múltiplas séries — pipeline manteve precisão total.
+
+### Modelos Testados
+- modelo_1.png → Vendas por Canal e Trimestre → 100% ✅
+- modelo_2.png → Budget vs Realizado por Área → 100% ✅
+- modelo_3.png → Uso de Recursos por Servidor → 100% ✅
+
+### Configuração Validada
+- Modelo de visão: gemini-2.5-flash-lite (GEMINI_MODEL_VISION)
+- Componente: StackedBarChart
+- Séries múltiplas: até 3 séries extraídas com 100% de precisão
+
+---
+## [2026-04-09] Gauntlet T02 (VerticalBarChart) — APROVADO
+
+### Resultado
+3/3 modelos com 100% de fidelidade.
+
+### Modelos Testados
+- modelo_1.png → Receita Mensal 2024 → 100% ✅
+- modelo_2.png → NPS por Departamento → 100% ✅
+- modelo_3.png → Consumo de Energia (KWh) → 100% ✅
+
+### Configuração Validada
+- Modelo de visão: gemini-2.5-flash-lite (GEMINI_MODEL_VISION)
+- Componente: BarChart (vertical)
+- Delay entre testes: 10s (rate limit safety)
+
+---
+## [2026-04-09] Gauntlet T01 (HorizontalBarChart) — APROVADO
+
+### Resultado
+3/3 modelos com 100% de fidelidade.
+Pipeline de visão + renderização totalmente estável.
+
+### Modelos Testados
+- modelo_1.png → Drivers de Eficiência → 100% ✅
+- modelo_2.png → Vendas por Região 2024 → 100% ✅
+- modelo_3.png → Market Share Big Tech 2024 → 100% ✅
+
+### Configuração Validada
+- Modelo de visão: gemini-2.5-flash-lite (GEMINI_MODEL_VISION)
+- Componente: HorizontalBarChart
+- SDK: @google/genai v1.48.0
+
+---
+## [2026-04-09] Bug Fix — visionService.ts ignorava GEMINI_MODEL_VISION
+
+### Problema
+O `visionService.ts` importava `GEMINI_MODEL` ao invés de
+`GEMINI_MODEL_VISION`, fazendo com que todas as alterações
+na constante de visão fossem ignoradas silenciosamente.
+O modelo real usado era sempre o de texto, não o de visão.
+
+### Root Cause
+Import incorreto na linha 6 de `server/visionService.ts`.
+A constante `GEMINI_MODEL_VISION` existia em `constants.ts`
+mas nunca havia sido referenciada no serviço de visão.
+
+### Fix Aplicado
+- Import: `GEMINI_MODEL` → `GEMINI_MODEL_VISION`
+- Chamada SDK: `GEMINI_MODEL` → `GEMINI_MODEL_VISION`
+- Arquivo: `server/visionService.ts`
+
+### Resultado
+Fidelidade 100% no modelo_1.png (bar_h) após correção.
+
+### Lição
+Sempre verificar se uma constante de configuração está
+de fato sendo IMPORTADA e USADA no serviço correto,
+não apenas definida em constants.ts.
+
+---
 
 ## HIERARQUIA DE DECISÃO
 
@@ -690,4 +802,22 @@ Sempre incluir jobId e source ('image' | 'table') nos payloads.
 **Contexto:** Typo crítico que derruba silenciosamente o render. O codec "h244"
 não existe — o Remotion rejeita com erro de runtime, não de compilação.
 **Aplicar quando:** Ao configurar qualquer nova chamada a renderMedia().
+
+---
+
+## [2026-04-09] 🎓 APRENDIZADO — INTEGRIDADE DE DADOS & LAYOUT
+**Aprendi:** Dados categóricos e escalas devem ser preservados sem manipulação artificial.
+**Contexto:** 
+1. **Truncamento Proibido:** Labels de categorias (eixo X ou Y) NUNCA devem ser truncados com `.slice()` ou `...`. Se o texto for longo, o layout deve se adaptar (ex: `labelAreaWidth` dinâmico).
+2. **Escala Y Real:** Remover inflação artificial da escala (`* 1.15`). O gráfico deve terminar exatamente no valor máximo ou em um round-number amigável próximo, sem espaço vazio arbitrário no topo.
+3. **Fallbacks de Título:** Nomes de arquivos devem ser sanitizados para Title Case (ex: `vendas-2024.png` -> `Vendas 2024`) antes de serem usados como título.
+**Aplicar quando:** No `buildInputProps` do servidor e no cálculo de `maxVal` / renderização de labels em qualquer componente de gráfico.
+
+---
+
+## [2026-04-09] 🎓 APRENDIZADO — SUBTÍTULOS REAIS
+**Aprendi:** NUNCA inventar metadados que não existam no gráfico original.
+**Contexto:** O Agente estava gerando subtítulos automáticos como "5 registros · tema dark". Isso deve ser evitado se o arquivo original não possuir um subtítulo explícito. Preferir string vazia para manter a neutralidade e proximidade com o print original.
+**Aplicar quando:** Na lógica de montagem de props no servidor.
+
 

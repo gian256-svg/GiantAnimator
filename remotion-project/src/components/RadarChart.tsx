@@ -1,4 +1,4 @@
-import React, { useId } from "react";
+import React, { useMemo } from "react";
 import {
   spring,
   useCurrentFrame,
@@ -9,7 +9,7 @@ import {
 import { Theme } from "../theme";
 
 export interface RadarSeries {
-  name: string;
+  label: string;
   values: number[]; 
   color?: string;
 }
@@ -19,6 +19,8 @@ export interface RadarChartProps {
   series: RadarSeries[];
   title: string;
   subtitle?: string;
+  backgroundColor?: string;
+  textColor?: string;
 }
 
 export const RadarChart: React.FC<RadarChartProps> = ({
@@ -26,24 +28,17 @@ export const RadarChart: React.FC<RadarChartProps> = ({
   series = [],
   title,
   subtitle,
+  backgroundColor = "#111827",
+  textColor = "#FFFFFF",
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
 
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // ÁREA ÚTIL 4K (REGRA GLOBAL)
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  const usableWidth = 3584; 
-  const usableHeight = 1920; 
-  const originX = 128;
-  const originY = 160;
-
-  const legendWidth = usableWidth * 0.25;
-  const chartAreaWidth = usableWidth * 0.75;
-  
-  const radius = Math.min(chartAreaWidth, usableHeight) * 0.42;
-  const cx = originX + chartAreaWidth / 2;
-  const cy = originY + usableHeight / 2;
+  // Layout 4K
+  const margin = 200;
+  const cx = width / 2 - 200; // Recuado para dar espaço à legenda
+  const cy = height / 2;
+  const radius = Math.min(width, height) * 0.35;
 
   if (axes.length === 0) return null;
   const numAxes = axes.length;
@@ -51,71 +46,117 @@ export const RadarChart: React.FC<RadarChartProps> = ({
 
   const getPoint = (r: number, index: number, value: number) => {
     const angle = index * angleStep - Math.PI / 2;
+    // Normalização: assumindo inputs de 0 a 100 se houver valores > 1, ou 0 a 1 caso contrário
+    // Para o gauntlet, os valores são 0-100 ou 0-10. Vamos detectar o max.
+    const maxValInSeries = Math.max(...series.flatMap(s => s.values), 1);
+    const normalize = maxValInSeries > 1.1 ? 100 : 1; 
+    // No gauntlet T08, os valores são 80, 70 etc -> normalize 100.
+    const actualNormalize = maxValInSeries > 10 ? 100 : (maxValInSeries > 1 ? 10 : 1);
+    
+    const val = value / actualNormalize;
     return {
-      x: cx + Math.cos(angle) * r * value,
-      y: cy + Math.sin(angle) * r * value,
+      x: cx + Math.cos(angle) * r * val,
+      y: cy + Math.sin(angle) * r * val,
     };
   };
 
-  const getPolygonPath = (values: number[], r: number) => {
-    const pts = values.map((v, i) => getPoint(r, i, v));
+  const getPolygonPath = (r: number, values: number[], scale: number = 1) => {
+    const pts = values.map((v, i) => getPoint(r, i, v * scale));
     return pts.map((p, i) => (i === 0 ? `M ${p.x} ${p.y}` : `L ${p.x} ${p.y}`)).join(" ") + " Z";
   };
 
   return (
-    <AbsoluteFill style={{ backgroundColor: Theme.colors.background }}>
-      <div style={{ position: 'absolute', top: 50, width: '100%', textAlign: 'center', opacity: interpolate(frame, [0, 15], [0, 1]) }}>
-        {title && <div style={{ fontSize: Theme.typography.title.size, fontWeight: Theme.typography.title.weight, color: Theme.typography.title.color, fontFamily: Theme.typography.fontFamily }}>{title}</div>}
-        {subtitle && <div style={{ fontSize: Theme.typography.subtitle.size, color: Theme.typography.subtitle.color, fontFamily: Theme.typography.fontFamily }}>{subtitle}</div>}
+    <AbsoluteFill style={{ backgroundColor, color: textColor, fontFamily: "sans-serif" }}>
+      {/* TÍTULO */}
+      <div style={{
+        position: "absolute", top: 60, width: "100%", textAlign: "center",
+        fontSize: 84, fontWeight: 800, opacity: interpolate(frame, [0, 20], [0, 1])
+      }}>
+        {title}
       </div>
 
-      <svg width={width} height={height} style={{ overflow: 'visible' }}>
-        {/* GRIDS CONCÊNTRICOS */}
-        {[0.25, 0.5, 0.75, 1].map(v => (
-          <path key={v} d={getPolygonPath(new Array(numAxes).fill(1), radius * v)} fill="none" stroke={Theme.colors.grid} strokeWidth={2} opacity={0.3} />
+      <svg width={width} height={height} style={{ overflow: "visible" }}>
+        {/* GRIDS POLIGONAIS */}
+        {[0.2, 0.4, 0.6, 0.8, 1].map((v, i) => (
+          <path
+            key={i}
+            d={getPolygonPath(radius * v, new Array(numAxes).fill(100))} 
+            fill="none"
+            stroke="rgba(255,255,255,0.15)"
+            strokeWidth={3}
+          />
         ))}
 
-        {/* EIXOS E LABELS */}
+        {/* EIXOS RADIAIS */}
         {axes.map((ax, i) => {
-          const pt = getPoint(radius, i, 1);
-          const lp = getPoint(radius + 60, i, 1);
+          const angle = i * angleStep - Math.PI / 2;
+          const x2 = cx + Math.cos(angle) * radius;
+          const y2 = cy + Math.sin(angle) * radius;
+          const lx = cx + Math.cos(angle) * (radius + 60);
+          const ly = cy + Math.sin(angle) * (radius + 60);
+
           return (
             <g key={i}>
-              <line x1={cx} y1={cy} x2={pt.x} y2={pt.y} stroke={Theme.colors.grid} strokeWidth={2} opacity={0.2} />
-              <text x={lp.x} y={lp.y} textAnchor="middle" dominantBaseline="middle" style={{ fontSize: 32, fill: Theme.colors.textSecondary, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>
+              <line x1={cx} y1={cy} x2={x2} y2={y2} stroke="rgba(255,255,255,0.2)" strokeWidth={3} />
+              <text
+                x={lx} y={ly} textAnchor="middle" dominantBaseline="middle"
+                style={{ fontSize: 36, fill: textColor, fontWeight: 600, opacity: 0.8 }}
+              >
                 {ax}
               </text>
             </g>
           );
         })}
 
-        {/* SÉRIES */}
+        {/* SÉRIES RADAR */}
         {series.map((s, si) => {
-          const pop = spring({ frame: frame - 25 - si * 10, fps, config: { damping: 14, stiffness: 60 } });
+          const progress = spring({
+            frame: frame - 30 - (si * 15),
+            fps,
+            config: { damping: 80, stiffness: 200, overshoot_clamp: true }
+          });
+          if (progress <= 0) return null;
+
           const color = s.color || Theme.chartColors[si % Theme.chartColors.length];
-          const pathD = getPolygonPath(s.values.map(v => v * pop), radius);
+          const pathD = getPolygonPath(radius, s.values, progress);
+
           return (
-            <g key={si} opacity={pop}>
-              <path d={pathD} fill={color} fillOpacity={0.25} stroke={color} strokeWidth={6} strokeLinejoin="round" />
-              {s.values.map((v, ai) => {
-                const pt = getPoint(radius, ai, v * pop);
-                return <circle key={ai} cx={pt.x} cy={pt.y} r={12} fill={color} stroke={Theme.colors.background} strokeWidth={4} />;
+            <g key={si}>
+              <path
+                d={pathD}
+                fill={color}
+                fillOpacity={0.3}
+                stroke={color}
+                strokeWidth={8}
+                strokeLinejoin="round"
+              />
+              {/* PONTOS NAS QUINAS */}
+              {s.values.map((v, valIdx) => {
+                const pt = getPoint(radius, valIdx, v * progress);
+                return (
+                  <circle
+                    key={valIdx}
+                    cx={pt.x}
+                    cy={pt.y}
+                    r={12}
+                    fill={color}
+                    stroke="#FFFFFF"
+                    strokeWidth={3}
+                  />
+                );
               })}
             </g>
           );
         })}
 
-        {/* LEGENDA (À DIREITA, 25%) */}
-        <g transform={`translate(${originX + chartAreaWidth + 100}, ${cy - (series.length * 60) / 2})`}>
-          {series.map((s, i) => {
-            const entryPop = spring({ frame: frame - 40 - i * 4, fps, config: { damping: 12 } });
-            return (
-              <g key={i} transform={`translate(0, ${i * 80})`} opacity={entryPop}>
-                <rect width={32} height={32} fill={s.color || Theme.chartColors[i % Theme.chartColors.length]} rx={6} />
-                <text x={50} y={26} style={{ fontSize: 32, fill: Theme.colors.text, fontWeight: 600, fontFamily: Theme.typography.fontFamily }}>{s.name}</text>
-              </g>
-            );
-          })}
+        {/* LEGENDA (Canto Direito) */}
+        <g transform={`translate(${width - 450}, ${cy - (series.length * 60) / 2})`}>
+          {series.map((s, i) => (
+            <g key={i} transform={`translate(0, ${i * 80})`}>
+              <rect width={40} height={24} fill={s.color || Theme.chartColors[i % Theme.chartColors.length]} rx={4} />
+              <text x={60} y={22} style={{ fontSize: 36, fill: textColor, fontWeight: 500 }}>{s.label}</text>
+            </g>
+          ))}
         </g>
       </svg>
     </AbsoluteFill>

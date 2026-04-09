@@ -76,13 +76,35 @@ export const COLORS = {
 export const TYPOGRAPHY = {
   fontFamily: "'Inter', 'Segoe UI', sans-serif",
 
-  // Tamanhos
-  titleSize:    72,  // Título principal do gráfico
-  subtitleSize: 40,  // Subtítulo / descrição
-  labelSize:    36,  // Labels de dados
-  axisSize:     30,  // Labels de eixos
-  legendSize:   28,  // Legenda
-  captionSize:  24,  // Notas de rodapé / captions
+  // Tamanhos (Flat - para retrocompatibilidade rápida se necessário)
+  titleSize:    72,
+  subtitleSize: 40,
+  labelSize:    36,
+  axisSize:     30,
+  legendSize:   28,
+  captionSize:  24,
+
+  // Estruturas de objeto (Usadas por componentes modernos)
+  title: {
+    size: 72,
+    weight: 700,
+    color: '#e8eaf6',
+  },
+  subtitle: {
+    size: 40,
+    weight: 400,
+    color: '#8892b0',
+  },
+  label: {
+    size: 36,
+    weight: 600,
+    color: '#e8eaf6',
+  },
+  axis: {
+    size: 30,
+    weight: 400,
+    color: '#8892b0',
+  },
 
   // Pesos
   weightLight:     300,

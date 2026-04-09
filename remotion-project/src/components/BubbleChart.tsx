@@ -1,202 +1,172 @@
 import React, { useMemo } from "react";
 import {
-  spring,
+  AbsoluteFill,
   useCurrentFrame,
   useVideoConfig,
   interpolate,
-  AbsoluteFill,
+  spring,
 } from "remotion";
-import { Theme } from "../theme";
-
-export interface BubblePoint {
-  x: number;
-  y: number;
-  size: number;
-  group?: string;
-  label?: string;
-  color?: string;
-}
 
 export interface BubbleChartProps {
-  data: BubblePoint[];
   title: string;
   subtitle?: string;
+  series: {
+    label: string;
+    data: { x: number; y: number; r: number }[];
+    color?: string;
+  }[];
   xLabel?: string;
   yLabel?: string;
-  showLabels?: boolean;
-  showTrendLine?: boolean;
   backgroundColor?: string;
+  textColor?: string;
 }
 
 export const BubbleChart: React.FC<BubbleChartProps> = ({
-  data: propData = [],
   title,
   subtitle,
-  xLabel,
-  yLabel,
-  showLabels = true,
-  showTrendLine = false,
-  backgroundColor = Theme.colors.background,
+  series = [],
+  xLabel = "Eixo X",
+  yLabel = "Eixo Y",
+  backgroundColor = "#111827",
+  textColor = "#FFFFFF",
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
 
-  const data = useMemo(() => (Array.isArray(propData) ? propData : []), [propData]);
+  // Layout 4K
+  const MARGIN = { top: 160, right: 300, bottom: 200, left: 240 };
+  const plotWidth = width - MARGIN.left - MARGIN.right;
+  const plotHeight = height - MARGIN.top - MARGIN.bottom;
 
-  if (data.length === 0) {
-    return (
-      <AbsoluteFill style={{ backgroundColor, justifyContent: 'center', alignItems: 'center' }}>
-        <p style={{ color: Theme.colors.text, fontSize: Theme.typography.category.size }}>Aguardando dados...</p>
-      </AbsoluteFill>
-    );
-  }
+  const allPoints = useMemo(() => series.flatMap((s) => s.data), [series]);
 
-  // Safe Zone 4K
-  const margin = Theme.spacing.padding || 128;
-  const titleHeight = Theme.spacing.titleHeight || 160;
-  const plotWidth = width - margin * 2 - 200;
-  const plotHeight = height - margin * 2 - titleHeight - 120;
-  const chartTop = margin + titleHeight;
-  const chartLeft = margin + 150;
+  if (allPoints.length === 0) return null;
 
-  // Calc Ranges
-  const minX = Math.min(...data.map(d => d.x));
-  const maxX = Math.max(...data.map(d => d.x)) || 1;
-  const minY = Math.min(...data.map(d => d.y));
-  const maxY = Math.max(...data.map(d => d.y)) || 1;
-  const maxSize = Math.max(...data.map(d => d.size)) || 1;
+  const xMin = Math.min(...allPoints.map((p) => p.x));
+  const xMax = Math.max(...allPoints.map((p) => p.x));
+  const yMin = Math.min(...allPoints.map((p) => p.y));
+  const yMax = Math.max(...allPoints.map((p) => p.y));
+  const maxR = Math.max(...allPoints.map(p => p.r || 1));
 
-  const extentX = [minX - (maxX - minX) * 0.1, maxX + (maxX - minX) * 0.1];
-  const extentY = [minY - (maxY - minY) * 0.1, maxY + (maxY - minY) * 0.1];
+  const xRange = (xMax - xMin) || 1;
+  const yRange = (yMax - yMin) || 1;
 
-  const formatValue = (val: number) => {
-    if (Math.abs(val) >= 1000000) return (val / 1000000).toFixed(1) + "M";
-    if (Math.abs(val) >= 1000) return (val / 1000).toFixed(1) + "k";
-    return val.toFixed(1).replace(".0", "");
-  };
+  // Helpers de Escala
+  const toPixelX = (x: number) => MARGIN.left + ((x - xMin) / xRange) * plotWidth;
+  const toPixelY = (y: number) => MARGIN.top + (1 - (y - yMin) / yRange) * plotHeight;
 
-  // Trend Line simple regression (X, Y)
-  const trendLine = useMemo(() => {
-    if (!showTrendLine || data.length < 2) return null;
-    const n = data.length;
-    let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
-    data.forEach(d => {
-      sumX += d.x;
-      sumY += d.y;
-      sumXY += d.x * d.y;
-      sumX2 += d.x * d.x;
-    });
-    const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
-    const intercept = (sumY - slope * sumX) / n;
-    
-    const x1 = extentX[0];
-    const y1 = slope * x1 + intercept;
-    const x2 = extentX[1];
-    const y2 = slope * x2 + intercept;
-    
-    return { x1, y1, x2, y2 };
-  }, [data, showTrendLine, extentX]);
+  // Regra de Raio (Min 12px, Max 80px visual em 4K vira x2: 24px a 160px)
+  const minRender = 24;
+  const maxRender = 160;
+  const getRenderR = (r: number) => minRender + ((r / maxR) * (maxRender - minRender));
 
   return (
-    <AbsoluteFill style={{ backgroundColor }}>
-      {/* ZONA 1 — Cabeçalho */}
+    <AbsoluteFill style={{ backgroundColor, color: textColor, fontFamily: "sans-serif" }}>
+      {/* 1. TÍTULO */}
       <div style={{
-        position: 'absolute', top: margin, width: '100%', textAlign: 'center',
-        opacity: interpolate(frame, [0, 15], [0, 1])
+        position: "absolute", top: 60, width: "100%", textAlign: "center",
+        fontSize: 84, fontWeight: 800, opacity: interpolate(frame, [0, 20], [0, 1])
       }}>
-        {title && <div style={{ 
-          fontSize: Theme.typography.title.size, 
-          fontWeight: Theme.typography.title.weight, 
-          color: Theme.typography.title.color,
-          fontFamily: Theme.typography.fontFamily,
-          marginBottom: 10
-        }}>{title}</div>}
-        {subtitle && <div style={{ 
-          fontSize: Theme.typography.subtitle.size, 
-          fontWeight: Theme.typography.subtitle.weight, 
-          color: Theme.typography.subtitle.color,
-          fontFamily: Theme.typography.fontFamily
-        }}>{subtitle}</div>}
+        {title}
       </div>
 
-      <svg width={width} height={height} style={{ overflow: 'visible' }}>
-        {/* ZONA 2 — Gridlines */}
-        <g opacity={interpolate(frame, [5, 25], [0, 0.4])}>
-          {[0, 0.25, 0.5, 0.75, 1].map((v) => {
-            const yVal = extentY[0] + v * (extentY[1] - extentY[0]);
-            const xVal = extentX[0] + v * (extentX[1] - extentX[0]);
-            const yPos = chartTop + plotHeight - v * plotHeight;
-            const xPos = chartLeft + v * plotWidth;
+      <svg width={width} height={height} style={{ overflow: "visible" }}>
+        {/* GRID & AXIS TICKS */}
+        <g>
+          {[0, 0.25, 0.5, 0.75, 1].map((v, i) => {
+            const yPos = MARGIN.top + (1 - v) * plotHeight;
+            const xPos = MARGIN.left + v * plotWidth;
+            const yVal = yMin + v * yRange;
+            const xVal = xMin + v * xRange;
+
             return (
-              <React.Fragment key={v}>
-                <line x1={chartLeft} y1={yPos} x2={chartLeft + plotWidth} y2={yPos} stroke={Theme.colors.grid} strokeWidth={1} />
-                <line x1={xPos} y1={chartTop} x2={xPos} y2={chartTop + plotHeight} stroke={Theme.colors.grid} strokeWidth={1} />
-                <text x={chartLeft - 20} y={yPos} textAnchor="end" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.ui.axisText, fontFamily: Theme.typography.fontFamily }}>{formatValue(yVal)}</text>
-                <text x={xPos} y={chartTop + plotHeight + 50} textAnchor="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.ui.axisText, fontFamily: Theme.typography.fontFamily }}>{formatValue(xVal)}</text>
+              <React.Fragment key={i}>
+                <line x1={MARGIN.left} y1={yPos} x2={MARGIN.left + plotWidth} y2={yPos} stroke="rgba(255,255,255,0.15)" strokeWidth={3} />
+                <text x={MARGIN.left - 40} y={yPos} textAnchor="end" dominantBaseline="middle" style={{ fontSize: 36, fill: textColor, opacity: 0.7 }}>
+                  {yVal.toFixed(1).replace(".0", "")}
+                </text>
+
+                <line x1={xPos} y1={MARGIN.top} x2={xPos} y2={MARGIN.top + plotHeight} stroke="rgba(255,255,255,0.15)" strokeWidth={3} />
+                <text x={xPos} y={MARGIN.top + plotHeight + 60} textAnchor="middle" style={{ fontSize: 36, fill: textColor, opacity: 0.7 }}>
+                  {xVal.toFixed(1).replace(".0", "")}
+                </text>
               </React.Fragment>
             );
           })}
         </g>
 
-        {/* Eixo Labels */}
-        {xLabel && <text x={chartLeft + plotWidth / 2} y={chartTop + plotHeight + 120} textAnchor="middle" style={{ fontSize: Theme.typography.axisTitle.size, fill: Theme.typography.axisTitle.color, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>{xLabel}</text>}
-        {yLabel && <text transform={`rotate(-90, ${margin + 40}, ${chartTop + plotHeight / 2})`} x={margin + 40} y={chartTop + plotHeight / 2} textAnchor="middle" style={{ fontSize: Theme.typography.axisTitle.size, fill: Theme.typography.axisTitle.color, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>{yLabel}</text>}
+        {/* AXIS LABELS */}
+        <text x={MARGIN.left + plotWidth / 2} y={MARGIN.top + plotHeight + 160} textAnchor="middle" style={{ fontSize: 48, fontWeight: 600, fill: textColor }}>
+          {xLabel}
+        </text>
+        <text
+          x={80} y={MARGIN.top + plotHeight / 2} textAnchor="middle"
+          transform={`rotate(-90, 80, ${MARGIN.top + plotHeight / 2})`}
+          style={{ fontSize: 48, fontWeight: 600, fill: textColor }}
+        >
+          {yLabel}
+        </text>
 
-        {/* Trend Line */}
-        {trendLine && (
-          <line
-            x1={chartLeft + ((trendLine.x1 - extentX[0]) / (extentX[1] - extentX[0])) * plotWidth}
-            y1={chartTop + plotHeight - ((trendLine.y1 - extentY[0]) / (extentY[1] - extentY[0])) * plotHeight}
-            x2={chartLeft + ((trendLine.x2 - extentX[0]) / (extentX[1] - extentX[0])) * plotWidth}
-            y2={chartTop + plotHeight - ((trendLine.y2 - extentY[0]) / (extentY[1] - extentY[0])) * plotHeight}
-            stroke={Theme.colors.accent}
-            strokeWidth={4}
-            strokeDasharray="12 12"
-            opacity={interpolate(frame, [100, 130], [0, 0.6], { extrapolateLeft: 'clamp' })}
-          />
-        )}
-
-        {/* Bolhas */}
-        {data.map((d, i) => {
-          const cx = chartLeft + ((d.x - extentX[0]) / (extentX[1] - extentX[0])) * plotWidth;
-          const cy = chartTop + plotHeight - ((d.y - extentY[0]) / (extentY[1] - extentY[0])) * plotHeight;
-          const maxRadius = 120;
-          const radius = Math.sqrt(Math.max(0, d.size) / maxSize) * maxRadius;
-
-          const pop = spring({
-            frame: frame - 20 - i * 3,
-            fps,
-            config: { damping: 12, stiffness: 100, mass: 0.8 }
-          });
-          
-          const color = d.color || Theme.chartColors[i % Theme.chartColors.length];
-
+        {/* BUBBLES */}
+        {series.map((s, sIdx) => {
+          const color = s.color || "#3B82F6";
           return (
-            <g key={i}>
-              <circle
-                cx={cx} cy={cy} r={radius * pop}
-                fill={color} fillOpacity={0.6}
-                stroke={color} strokeWidth={3} strokeOpacity={0.8}
-              />
-              {showLabels && d.label && radius * pop > 40 && (
-                <text
-                  x={cx} y={cy} textAnchor="middle" dominantBaseline="middle"
-                  style={{ fontSize: 24, fill: "#fff", fontWeight: 700, fontFamily: Theme.typography.fontFamily, opacity: interpolate(pop, [0.9, 1], [0, 1]) }}
-                >
-                  {d.label}
-                </text>
-              )}
-              {showLabels && d.label && radius * pop <= 40 && pop > 0.8 && (
-                <text
-                  x={cx} y={cy - radius - 15} textAnchor="middle"
-                  style={{ fontSize: 20, fill: Theme.colors.text, fontWeight: 500, fontFamily: Theme.typography.fontFamily }}
-                >
-                  {d.label}
-                </text>
-              )}
+            <g key={sIdx}>
+              {s.data.map((p, pIdx) => {
+                const delay = 30 + (sIdx * 10) + (pIdx * 4);
+                const progress = spring({
+                  frame: frame - delay,
+                  fps,
+                  config: { damping: 80, stiffness: 200, overshoot_clamp: true }
+                });
+                if (progress <= 0) return null;
+
+                const rPixel = getRenderR(p.r);
+
+                return (
+                  <g key={pIdx}>
+                    <circle
+                      cx={toPixelX(p.x)}
+                      cy={toPixelY(p.y)}
+                      r={rPixel * progress}
+                      fill={color}
+                      fillOpacity={0.7}
+                      stroke="#FFFFFF"
+                      strokeWidth={4}
+                    />
+                    {/* VALUE LABEL INSIDE (Exact r) */}
+                    {progress > 0.8 && rPixel > 30 && (
+                      <text
+                        x={toPixelX(p.x)}
+                        y={toPixelY(p.y)}
+                        textAnchor="middle"
+                        dominantBaseline="middle"
+                        style={{
+                          fontSize: Math.max(24, rPixel * 0.4),
+                          fontWeight: 700,
+                          fill: "#FFFFFF",
+                          pointerEvents: "none"
+                        }}
+                      >
+                        {p.r}
+                      </text>
+                    )}
+                  </g>
+                );
+              })}
             </g>
           );
         })}
+
+        {/* LEGENDA */}
+        <g transform={`translate(${width - MARGIN.right + 40}, ${MARGIN.top})`}>
+          {series.map((s, i) => (
+            <g key={i} transform={`translate(0, ${i * 60})`}>
+              <rect width={40} height={24} fill={s.color || "#3B82F6"} rx={4} />
+              <text x={55} y={20} style={{ fontSize: 32, fill: textColor, fontWeight: 500 }}>{s.label}</text>
+            </g>
+          ))}
+        </g>
       </svg>
     </AbsoluteFill>
   );

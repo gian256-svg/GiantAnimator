@@ -1,4 +1,4 @@
-import React, { useId } from "react";
+import React, { useId, useMemo } from "react";
 import {
   spring,
   useCurrentFrame,
@@ -22,7 +22,7 @@ export interface StackedBarChartProps {
 }
 
 export const StackedBarChart: React.FC<StackedBarChartProps> = ({
-  data = [],
+  data: propData = [],
   seriesLabels = [],
   title,
   subtitle,
@@ -40,9 +40,8 @@ export const StackedBarChart: React.FC<StackedBarChartProps> = ({
   const plotHeight = height - margin * 2 - titleHeight - 100;
   const chartTop = margin + titleHeight;
 
-  if (data.length === 0) return null;
-
-  const maxTotal = Math.max(...data.map(d => d.values.reduce((a, b) => a + b, 0))) * 1.1;
+  const data = useMemo(() => Array.isArray(propData) ? propData : [], [propData]);
+  const maxTotal = Math.max(...data.map(d => d.values.reduce((a, b) => a + b, 0)), 1);
   const barGap = 0.3;
   const categoryWidth = plotWidth / data.length;
   const barWidth = categoryWidth * (1 - barGap);
@@ -52,6 +51,8 @@ export const StackedBarChart: React.FC<StackedBarChartProps> = ({
     if (Math.abs(val) >= 1000) return (val / 1000).toFixed(1) + "k";
     return val.toString();
   };
+
+  if (data.length === 0) return null;
 
   return (
     <AbsoluteFill style={{ backgroundColor }}>
@@ -75,10 +76,10 @@ export const StackedBarChart: React.FC<StackedBarChartProps> = ({
 
         {/* Legend */}
         <g transform={`translate(${width - margin}, ${margin + 80})`}>
-          {seriesLabels.map((sl, si) => (
-            <g key={si} transform={`translate(${-(seriesLabels.length - 1 - si) * 350}, 0)`}>
-              <rect width={30} height={30} fill={`url(#stackedGrad-${si}-${instanceId})`} rx={4} />
-              <text x={45} y={22} style={{ fontSize: 28, fill: Theme.colors.textSecondary, fontWeight: 500, fontFamily: Theme.typography.fontFamily }}>{sl}</text>
+          {seriesLabels.map((sl, i) => (
+            <g key={i} transform={`translate(0, ${i * 40})`}>
+              <rect width={30} height={20} fill={Theme.colors.categorical[i % Theme.colors.categorical.length]} rx={4} />
+              <text x={45} y={22} style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.textSecondary, fontWeight: 500, fontFamily: Theme.typography.fontFamily }}>{sl}</text>
             </g>
           ))}
         </g>
@@ -88,10 +89,10 @@ export const StackedBarChart: React.FC<StackedBarChartProps> = ({
           {[0, 0.5, 1].map(v => {
             const y = chartTop + plotHeight - v * plotHeight;
             return (
-              <React.Fragment key={v}>
-                <line x1={paddingX} y1={y} x2={width - paddingX} y2={y} stroke={Theme.colors.grid} strokeWidth={1} />
-                <text x={paddingX - 20} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: 24, fill: Theme.colors.ui.axisText, fontFamily: Theme.typography.fontFamily }}>{formatValue(v * maxTotal)}</text>
-              </React.Fragment>
+              <g key={v}>
+                <line x1={paddingX} y1={y} x2={paddingX + plotWidth} y2={y} stroke={Theme.colors.grid} strokeWidth={1} opacity={0.3} />
+                <text x={paddingX - 20} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.ui.axisText, fontFamily: Theme.typography.fontFamily }}>{Math.round(v * maxTotal)}</text>
+              </g>
             );
           })}
         </g>
@@ -102,18 +103,24 @@ export const StackedBarChart: React.FC<StackedBarChartProps> = ({
           let currentAcc = 0;
           return (
             <g key={ci}>
-              {cat.values.map((v, si) => {
-                const progress = spring({ frame: frame - 30 - ci * 5 - si * 2, fps, config: { damping: 14, stiffness: 60 } });
-                const segH = (v / maxTotal) * plotHeight;
-                const yB = chartTop + plotHeight - (currentAcc / maxTotal) * plotHeight;
-                const curH = segH * progress;
-                const curY = yB - curH;
+              {cat.values.map((v, vi) => {
+                const progress = spring({ 
+                  frame: frame - 30 - ci * 5 - vi * 2, 
+                  fps, 
+                  config: { 
+                    damping: 80, 
+                    stiffness: 200, 
+                    overshoot_clamp: true 
+                  } 
+                });
+                const currentH = ((v / maxTotal) * plotHeight) * progress;
+                const currentY = chartTop + plotHeight - ((currentAcc + v) / maxTotal) * plotHeight - (currentH - (v / maxTotal) * plotHeight * progress);
                 currentAcc += v;
                 return (
-                  <rect key={si} x={x} y={curY} width={barWidth} height={Math.max(curH, 2)} fill={`url(#stackedGrad-${si}-${instanceId})`} rx={0} />
+                  <rect key={vi} x={x} y={currentY} width={barWidth} height={Math.max(currentH, 2)} fill={Theme.colors.categorical[vi % Theme.colors.categorical.length]} rx={4} />
                 );
               })}
-              <text x={x + barWidth/2} y={chartTop + plotHeight + 60} textAnchor="middle" style={{ fontSize: 28, fill: Theme.colors.ui.axisText, fontWeight: 600, fontFamily: Theme.typography.fontFamily }}>{cat.label}</text>
+              <text x={x + barWidth/2} y={chartTop + plotHeight + 60} textAnchor="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.ui.axisText, fontWeight: 600, fontFamily: Theme.typography.fontFamily }}>{cat.label}</text>
             </g>
           );
         })}

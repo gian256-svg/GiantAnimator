@@ -56,7 +56,7 @@ export const GroupedBarChart: React.FC<GroupedBarChartProps> = ({
     );
   }
 
-  const maxValue = Math.max(...series.flatMap(s => s.values)) * 1.15;
+  const maxValue = Math.max(...series.flatMap(s => s.values), 1);
   const groupGap = 0.3;
   const barGap = 0.1;
   const categoryWidth = plotWidth / categories.length;
@@ -107,7 +107,7 @@ export const GroupedBarChart: React.FC<GroupedBarChartProps> = ({
             {series.map((s, si) => (
               <g key={si} transform={`translate(${-(series.length - 1 - si) * 350}, 0)`}>
                 <rect width={30} height={30} fill={`url(#groupGrad-${si}-${instanceId})`} rx={4} />
-                <text x={45} y={22} style={{ fontSize: 28, fill: Theme.colors.textSecondary, fontWeight: 500, fontFamily: Theme.typography.fontFamily }}>{s.name}</text>
+                <text x={45} y={22} style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.textSecondary, fontWeight: 500, fontFamily: Theme.typography.fontFamily }}>{s.name}</text>
               </g>
             ))}
           </g>
@@ -120,7 +120,7 @@ export const GroupedBarChart: React.FC<GroupedBarChartProps> = ({
             return (
               <React.Fragment key={v}>
                 <line x1={margin} y1={y} x2={width - margin} y2={y} stroke={Theme.colors.grid} strokeWidth={1} />
-                <text x={margin - 20} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: 28, fill: Theme.colors.ui.axisText, fontFamily: Theme.typography.fontFamily }}>{formatValue(v * maxValue)}</text>
+                <text x={margin - 20} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.ui.axisText, fontFamily: Theme.typography.fontFamily }}>{formatValue(v * maxValue)}</text>
               </React.Fragment>
             );
           })}
@@ -147,12 +147,12 @@ export const GroupedBarChart: React.FC<GroupedBarChartProps> = ({
                       style={{ filter: isGroupHighlighted ? `brightness(${Theme.effects.highlightScale})` : 'none' }}
                     />
                     {showValues && groupProgress > 0.9 && (
-                      <text x={x + barWidth/2} y={y - 15} textAnchor="middle" style={{ fontSize: 24, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>{formatValue(s.values[ci])}</text>
+                      <text x={x + barWidth/2} y={y - 15} textAnchor="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>{formatValue(s.values[ci])}</text>
                     )}
                   </g>
                 );
               })}
-              <text x={groupX + groupWidth/2} y={chartTop + plotHeight + 60} textAnchor="middle" style={{ fontSize: 32, fill: Theme.colors.ui.axisText, fontWeight: 600, fontFamily: Theme.typography.fontFamily }}>{cat}</text>
+              <text x={groupX + groupWidth/2} y={chartTop + plotHeight + 60} textAnchor="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.ui.axisText, fontWeight: 600, fontFamily: Theme.typography.fontFamily }}>{cat}</text>
             </g>
           );
         })}

@@ -36,7 +36,7 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
   const ANIMATION_FRAMES = Theme.animation.animationFrames;
 
   const series = useMemo(() => {
-    return Array.isArray(propSeries) ? propSeries.slice(0, 8) : [];
+    return Array.isArray(propSeries) ? propSeries : [];
   }, [propSeries]);
 
   if (series.length === 0 || labels.length < 2) {
@@ -60,10 +60,8 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
   const allValues = series.flatMap((s) => s.data);
   const dataMin = Math.min(...allValues);
   const dataMax = Math.max(...allValues);
-  const range = dataMax - dataMin;
-  const paddingY = range * 0.1 || 10;
-  const yMin = dataMin - paddingY;
-  const yMax = dataMax + paddingY;
+  const yMin = dataMin;
+  const yMax = dataMax || 1;
 
   const getX = (index: number) => chartLeft + (index / (labels.length - 1)) * plotWidth;
   const getY = (val: number) => chartTop + plotHeight - ((val - yMin) / (yMax - yMin)) * plotHeight;
@@ -147,7 +145,11 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
           const progress = spring({
             frame: frame - (15 + sIndex * 10),
             fps,
-            config: { damping: 20, stiffness: 100 },
+            config: { 
+              damping: 80, 
+              stiffness: 200, 
+              overshoot_clamp: true 
+            },
           });
 
           const evolved = evolvePath(progress, pathD);
@@ -163,11 +165,14 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
 
               {/* Dots Pop (D7) */}
               {frame > (15 + sIndex * 10 + 60) && s.data.map((val, pIndex) => {
-                if (s.data.length > 20 && pIndex % Math.ceil(s.data.length / 10) !== 0) return null;
                 const dotPop = spring({
                   frame: frame - (15 + sIndex * 10 + 60) - (pIndex * 3),
                   fps,
-                  config: { damping: 10, stiffness: 100 }
+                  config: { 
+                    damping: 80, 
+                    stiffness: 200, 
+                    overshoot_clamp: true 
+                  }
                 });
                 if (dotPop <= 0) return null;
                 return (

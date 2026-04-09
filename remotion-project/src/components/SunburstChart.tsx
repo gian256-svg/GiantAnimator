@@ -31,14 +31,9 @@ export const SunburstChart: React.FC<SunburstChartProps> = ({
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // ÁREA ÚTIL 4K (REGRA GLOBAL)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  const usableWidth = 3584; 
-  const usableHeight = 1920; 
-  const originX = 128;
-  const originY = 160;
-
-  const cx = originX + usableWidth / 2;
-  const cy = originY + usableHeight / 2;
-  const maxRadius = usableHeight * 0.42;
+  const cx = width / 2;
+  const cy = height / 2;
+  const maxRadius = height * 0.42;
   const innerRadius = maxRadius * 0.2;
   const ringWidth = (maxRadius - innerRadius) / 3; // Supondo 3 níveis médios
 
@@ -79,7 +74,7 @@ export const SunburstChart: React.FC<SunburstChartProps> = ({
             x={getX(r0 + (r1 - r0) / 2, sAngle + range / 2)}
             y={getY(r0 + (r1 - r0) / 2, sAngle + range / 2)}
             textAnchor="middle" dominantBaseline="middle"
-            style={{ fontSize: 28, fill: "#fff", fontWeight: 700, fontFamily: Theme.typography.fontFamily }}
+            style={{ fontSize: Theme.typography.axis.size, fill: "#fff", fontWeight: 700, fontFamily: Theme.typography.fontFamily }}
             transform={`rotate(${(sAngle + range / 2) * (180 / Math.PI)}, ${getX(r0 + (r1 - r0) / 2, sAngle + range / 2)}, ${getY(r0 + (r1 - r0) / 2, sAngle + range / 2)})`}
           >
              {node.label}

@@ -49,10 +49,10 @@ const Sparkline: React.FC<{
 
   return (
     <g>
-      <text x={0} y={-20} style={{ fontSize: 24, fill: Theme.colors.textSecondary, fontWeight: 600, fontFamily: Theme.typography.fontFamily }}>{item.label}</text>
+      <text x={0} y={-20} style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.textSecondary, fontWeight: 600, fontFamily: Theme.typography.fontFamily }}>{item.label}</text>
       <polyline points={points} fill="none" stroke={color} strokeWidth={4} strokeLinecap="round" strokeLinejoin="round" />
       <circle cx={getX(count-1)} cy={getY(data[count-1])} r={6} fill={color} />
-      <text x={width + 20} y={height / 2} dominantBaseline="middle" style={{ fontSize: 32, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily, opacity: reveal }}>
+      <text x={width + 20} y={height / 2} dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily, opacity: reveal }}>
         {lastVal.toLocaleString()}
       </text>
     </g>

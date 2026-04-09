@@ -1,0 +1,51 @@
+{
+  "componentId": "RadarChart",
+  "reasoning": "Identifiquei 5 categorias nos eixos: SEO, Social, Email, Direct, Paid. Extraí os dados para 3 séries: Grupo 1, Grupo 2 e Grupo 3.",
+  "props": {
+    "title": "Performance por Canal",
+    "axes": [
+      "SEO",
+      "Social",
+      "Email",
+      "Direct",
+      "Paid"
+    ],
+    "series": [
+      {
+        "label": "Grupo 1",
+        "values": [
+          8.3,
+          4.8,
+          3.2,
+          6.2,
+          5.2
+        ]
+      },
+      {
+        "label": "Grupo 2",
+        "values": [
+          5.8,
+          7.5,
+          4.5,
+          4.2,
+          3.3
+        ]
+      },
+      {
+        "label": "Grupo 3",
+        "values": [
+          5.1,
+          5.4,
+          3.7,
+          6.8,
+          4.3
+        ]
+      }
+    ],
+    "seriesColors": [
+      "#3e61a8",
+      "#e89f45",
+      "#e84d52"
+    ]
+  }
+}

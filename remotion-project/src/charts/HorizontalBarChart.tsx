@@ -48,13 +48,14 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
   // Escala de fonte
   const fs = (base: number) => Math.round(base * (width / 1280));
 
-  const labelAreaWidth = width * 0.22;
+  const maxLabelLen = Math.max(...safeData.map(d => d.label.length));
+  const labelAreaWidth = Math.min(width * 0.32, maxLabelLen * fs(11));
   const plotLeft       = pad + labelAreaWidth;
   const plotTop        = padTop;
   const plotWidth      = width - plotLeft - pad - fs(40); // folga para valor no final
   const plotHeight     = height - padTop - padBot;
 
-  const maxVal    = Math.max(...safeData.map(d => d.value), 1) * 1.1;
+  const maxVal    = Math.max(...safeData.map(d => d.value), 1);
   const rowHeight = plotHeight / safeData.length;
   const barGap    = 0.32;
   const barHeight = rowHeight * (1 - barGap);
@@ -104,9 +105,17 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
         {/* ── BARS ── */}
         {safeData.map((d, i) => {
           const delay = 25 + i * 4;
-          const pop = spring({ frame: frame - delay, fps, config: { damping: 14, stiffness: 65, mass: 0.9 } });
+          const progress = spring({ 
+            frame: frame - delay, 
+            fps, 
+            config: { 
+              damping: 80, 
+              stiffness: 200, 
+              overshoot_clamp: true 
+            } 
+          });
           const bY = plotTop + i * rowHeight + (rowHeight * barGap) / 2;
-          const bW = Math.max(0, (d.value / maxVal) * plotWidth * pop);
+          const bW = Math.max(0, (d.value / maxVal) * plotWidth * progress);
           
           const labelOp = interpolate(frame, [delay + 10, delay + 25], [0, 1], { extrapolateRight: "clamp" });
           const color = Theme.chartColors[i % Theme.chartColors.length];
@@ -117,7 +126,7 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
               <text x={plotLeft - fs(15)} y={bY + barHeight/2} textAnchor="end" dominantBaseline="middle" opacity={labelOp} style={{ 
                 fontSize: fs(16), fill: Theme.colors.text, fontWeight: 600, fontFamily: Theme.typography.fontFamily 
               }}>
-                {d.label.length > 20 ? d.label.slice(0, 19) + "…" : d.label}
+                {d.label}
               </text>
 
               {/* Bar Glow */}

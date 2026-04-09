@@ -1,0 +1,45 @@
+{
+    "title":  "Performance por Canal",
+    "series":  [
+                   {
+                       "label":  "Grupo 1",
+                       "values":  [
+                                      8,
+                                      5,
+                                      9,
+                                      6,
+                                      7
+                                  ],
+                       "color":  "#FF6384"
+                   },
+                   {
+                       "label":  "Grupo 2",
+                       "values":  [
+                                      4,
+                                      9,
+                                      7,
+                                      8,
+                                      5
+                                  ],
+                       "color":  "#36A2EB"
+                   },
+                   {
+                       "label":  "Grupo 3",
+                       "values":  [
+                                      6,
+                                      6,
+                                      6,
+                                      6,
+                                      6
+                                  ],
+                       "color":  "#4BC0C0"
+                   }
+               ],
+    "axes":  [
+                 "SEO",
+                 "Social",
+                 "Email",
+                 "Direct",
+                 "Paid"
+             ]
+}

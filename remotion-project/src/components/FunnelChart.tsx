@@ -105,17 +105,17 @@ export const FunnelChart: React.FC<FunnelChartProps> = ({
               {/* Labels (Esquerda e Direita) */}
               <text
                 x={width / 2 - (topW / 2) - 40} y={yT + stageHeight/2} textAnchor="end" dominantBaseline="middle"
-                style={{ fontSize: 32, fill: Theme.colors.text, fontWeight: 600, fontFamily: Theme.typography.fontFamily }}
+                style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.text, fontWeight: 600, fontFamily: Theme.typography.fontFamily }}
               >
                 {stage.label}
               </text>
 
               <g transform={`translate(${width / 2 + (topW / 2) + 40}, ${yT + stageHeight/2})`}>
-                <text x={0} y={-10} textAnchor="start" style={{ fontSize: 36, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>
+                <text x={0} y={-10} textAnchor="start" style={{ fontSize: Theme.typography.subtitle.size, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>
                   {stage.value.toLocaleString()}
                 </text>
                 {i > 0 && (
-                  <text x={0} y={30} textAnchor="start" style={{ fontSize: 24, fill: Theme.colors.textSecondary, fontFamily: Theme.typography.fontFamily }}>
+                  <text x={0} y={30} textAnchor="start" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.textSecondary, fontFamily: Theme.typography.fontFamily }}>
                     Conv: {((stage.value / data[i-1].value) * 100).toFixed(1)}%
                   </text>
                 )}

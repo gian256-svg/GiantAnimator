@@ -131,7 +131,7 @@ export const TreemapChart: React.FC<TreemapChartProps> = ({
               {r.w > 200 && r.h > 100 && pop > 0.9 && (
                 <text
                   x={r.x + r.w / 2} y={r.y + r.h / 2} textAnchor="middle" dominantBaseline="middle"
-                  style={{ fontSize: 32, fill: "#fff", fontWeight: 700, fontFamily: Theme.typography.fontFamily }}
+                  style={{ fontSize: Theme.typography.axis.size, fill: "#fff", fontWeight: 700, fontFamily: Theme.typography.fontFamily }}
                 >
                   {r.data.label}
                 </text>

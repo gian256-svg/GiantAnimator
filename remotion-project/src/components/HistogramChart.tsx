@@ -59,7 +59,7 @@ export const HistogramChart: React.FC<HistogramChartProps> = ({
   const plotHeight = height - margin * 2 - titleHeight - 100;
   const chartTop = margin + titleHeight;
 
-  const getAbsY = (count: number) => chartTop + plotHeight - (count / (maxValue * 1.2)) * plotHeight;
+  const getAbsY = (count: number) => chartTop + plotHeight - (count / maxValue) * plotHeight;
   const barWidth = plotWidth / binCount;
 
   return (
@@ -98,17 +98,17 @@ export const HistogramChart: React.FC<HistogramChartProps> = ({
             const count = Math.round(v * maxValue);
             const y = getAbsY(count);
             return (
-              <React.Fragment key={v}>
-                <line x1={plotLeft} y1={y} x2={plotLeft + plotWidth} y2={y} stroke={Theme.colors.grid} strokeWidth={1} />
-                <text x={plotLeft - 20} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: 28, fill: Theme.colors.ui.axisText, fontFamily: Theme.typography.fontFamily }}>{count}</text>
-              </React.Fragment>
+              <g key={v}>
+              <line x1={plotLeft} y1={y} x2={plotLeft + plotWidth} y2={y} stroke={Theme.colors.grid} strokeWidth={1} opacity={0.3} />
+              <text x={plotLeft - 20} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.ui.axisText, fontFamily: Theme.typography.fontFamily }}>{count}</text>
+            </g>
             );
           })}
         </g>
 
         {/* Barras */}
         {bins.map((b, i) => {
-          const h = (b.count / (maxValue * 1.2)) * plotHeight;
+          const h = (b.count / maxValue) * plotHeight;
           const x = plotLeft + i * barWidth;
           const barPop = spring({ frame: frame - 25 - i * 4, fps, config: { damping: 14, stiffness: 60 } });
 
@@ -118,11 +118,11 @@ export const HistogramChart: React.FC<HistogramChartProps> = ({
                 x={x} y={chartTop + plotHeight - h * barPop} width={barWidth} height={h * barPop}
                 fill={`url(#histGrad-${instanceId})`} stroke={backgroundColor} strokeWidth={2} opacity={0.85} rx={4}
               />
-              {showValueLabels && barPop > 0.9 && (
-                <text x={x + barWidth / 2} y={chartTop + plotHeight - h * barPop - 15} textAnchor="middle" style={{ fontSize: 24, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>{b.count}</text>
+              {showValueLabels && barPop > 0.8 && (
+                <text x={x + barWidth / 2} y={chartTop + plotHeight - h * barPop - 15} textAnchor="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>{b.count}</text>
               )}
               {i % 2 === 0 && (
-                <text x={x + barWidth / 2} y={chartTop + plotHeight + 50} textAnchor="middle" style={{ fontSize: 24, fill: Theme.colors.ui.axisText, fontFamily: Theme.typography.fontFamily }}>{`${Math.round(b.min)}-${Math.round(b.max)}`}</text>
+                <text x={x + barWidth / 2} y={chartTop + plotHeight + 50} textAnchor="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.ui.axisText, fontFamily: Theme.typography.fontFamily }}>{`${Math.round(b.min)}-${Math.round(b.max)}`}</text>
               )}
             </g>
           );

@@ -27,14 +27,9 @@ export const GaugeChart: React.FC<GaugeChartProps> = ({
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // ÁREA ÚTIL 4K (REGRA GLOBAL)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  const usableHeight = 1920; 
-  const usableWidth = 3584;
-  const originX = 128;
-  const originY = 160;
-
-  const cx = originX + usableWidth / 2;
-  const cy = originY + usableHeight * 0.75; // Ponto central baixo para o arco
-  const radius = Math.min(usableWidth, usableHeight * 1.5) * 0.42;
+  const cx = width / 2;
+  const cy = height * 0.75; // Ponto central baixo para o arco
+  const radius = Math.min(width, height * 1.5) * 0.42;
   const strokeWidth = radius * 0.25;
 
   const animatedValue = spring({ frame: frame - 20, fps, config: { damping: 14, stiffness: 60 } });
@@ -80,10 +75,10 @@ export const GaugeChart: React.FC<GaugeChartProps> = ({
         </g>
 
         {/* Text Central */}
-        <text x={cx} y={cy + 150} textAnchor="middle" style={{ fontSize: radius * 0.4, fontWeight: 900, fill: Theme.colors.text, fontFamily: Theme.typography.fontFamily }}>
+        <text x={cx} y={cy + 150} textAnchor="middle" style={{ fontSize: Theme.typography.title.size * 2, fontWeight: 900, fill: Theme.colors.text, fontFamily: Theme.typography.fontFamily }}>
           {Math.round(finalValue)}%
         </text>
-        <text x={cx} y={cy + 250} textAnchor="middle" style={{ fontSize: 56, fill: Theme.colors.textSecondary, fontWeight: 500, fontFamily: Theme.typography.fontFamily }}>
+        <text x={cx} y={cy + 250} textAnchor="middle" style={{ fontSize: Theme.typography.subtitle.size, fill: Theme.colors.textSecondary, fontWeight: 500, fontFamily: Theme.typography.fontFamily }}>
           {label}
         </text>
       </svg>

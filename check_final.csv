@@ -1,0 +1,8 @@
+#TYPE Selected.Microsoft.PowerShell.Commands.MatchInfo
+"Path","LineNumber","Line"
+"C:\Users\gianluca.palmisciano\.gemini\antigravity\scratch\GiantAnimator\remotion-project\src\components\Equipment.tsx","20","    const tilt = Math.sin(frame * 0.1) * 1.5;"
+"C:\Users\gianluca.palmisciano\.gemini\antigravity\scratch\GiantAnimator\remotion-project\src\components\FloatingCurrency.tsx","24","        const startY = -400 + randY * height * 1.5;"
+"C:\Users\gianluca.palmisciano\.gemini\antigravity\scratch\GiantAnimator\remotion-project\src\components\GaugeChart.tsx","32","  const radius = Math.min(width, height * 1.5) * 0.42;"
+"C:\Users\gianluca.palmisciano\.gemini\antigravity\scratch\GiantAnimator\remotion-project\src\components\ScatterPlot.tsx","151","            frame: frame - 20 - (i * 1.5), // Stagger r?pido para scatter"
+"C:\Users\gianluca.palmisciano\.gemini\antigravity\scratch\GiantAnimator\remotion-project\src\components\SparklineChart.tsx","52","      <text x={0} y={-20} style={{ fontSize: 24, fill: Theme.colors.textSecondary, fontWeight: 600, fontFamily: Theme.typography.fontFamily }}>{item.label}</text>"
+"C:\Users\gianluca.palmisciano\.gemini\antigravity\scratch\GiantAnimator\remotion-project\src\components\SparklineChart.tsx","55","      <text x={width + 20} y={height / 2} dominantBaseline=""middle"" style={{ fontSize: 32, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily, opacity: reveal }}>"
