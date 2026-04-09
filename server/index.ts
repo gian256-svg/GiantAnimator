@@ -8,6 +8,15 @@ import { v4 as uuidv4 } from 'uuid';
 import { bundle } from '@remotion/bundler';
 import { renderMedia, selectComposition } from '@remotion/renderer';
 
+// ─── UTILS ───────────────────────────────────────────────────
+function sanitizeFilename(filename: string): string {
+  return filename
+    .replace(/\.[^.]+$/, '')          // remove extensão
+    .replace(/[-_]+/g, ' ')           // hifens/underscores → espaço
+    .replace(/\b\w/g, c => c.toUpperCase()) // Title Case
+    .trim();
+}
+
 // ─── ESM __dirname ────────────────────────────────────────────
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
@@ -409,20 +418,27 @@ interface FileAnalysis {
   datasets:       Array<{ label: string; values: number[] }>;
   suggestedChart: string;
   title:          string;
+  subtitle?:      string;
+  unit?:          string;
 }
 
 async function analyzeFile(file: Express.Multer.File): Promise<FileAnalysis> {
   const ext = path.extname(file.originalname).toLowerCase();
+
   if (ext === '.json')              return analyzeJSON(file.path);
   if (ext === '.csv')               return analyzeCSV(file.path);
-  if (['.xlsx','.xls'].includes(ext)) return analyzeXLSX(file.path);
-  if (['.png','.jpg','.jpeg','.webp'].includes(ext)) {
+  if (['.xlsx', '.xls'].includes(ext)) return analyzeXLSX(file.path);
+
+  if (['.png', '.jpg', '.jpeg', '.webp'].includes(ext)) {
+    // TODO: Integrar chamada real ao Gemini Vision aqui
     return {
-      rowCount: 5,
-      labels:   ['Jan','Fev','Mar','Abr','Mai'],
-      datasets: [{ label: 'Série A', values: [42,67,55,78,91] }],
+      rowCount:       5,
+      labels:         ['Jan', 'Fev', 'Mar', 'Abr', 'Mai'],
+      datasets:       [{ label: 'Série A', values: [42, 67, 55, 78, 91] }],
       suggestedChart: 'bar',
-      title:    file.originalname.replace(/\.[^.]+$/, ''),
+      title:          sanitizeFilename(file.originalname),
+      subtitle:       '',
+      unit:           '',
     };
   }
   throw new Error(`Formato não suportado: ${ext}`);
@@ -431,17 +447,29 @@ async function analyzeFile(file: Express.Multer.File): Promise<FileAnalysis> {
 function analyzeJSON(filePath: string): FileAnalysis {
   const raw  = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
   const data = Array.isArray(raw) ? raw : (raw.data || raw.rows || [raw]);
+
   if (!data.length) throw new Error('JSON vazio');
+
   const keys    = Object.keys(data[0]);
   const numKeys = keys.filter(k => typeof data[0][k] === 'number');
   const strKeys = keys.filter(k => typeof data[0][k] === 'string');
+
   const labelKey = strKeys[0] || 'index';
+  const labels   = data.map((r: any, i: number) => String(r[labelKey] ?? i));
+
+  const datasets = numKeys.map(k => ({
+    label:  k,
+    values: data.map((r: any) => Number(r[k]) || 0),
+  }));
+
   return {
     rowCount:       data.length,
-    labels:         data.map((r: any, i: number) => String(r[labelKey] ?? i)),
-    datasets:       numKeys.map(k => ({ label: k, values: data.map((r: any) => Number(r[k]) || 0) })),
+    labels,
+    datasets,
     suggestedChart: numKeys.length > 2 ? 'line' : 'bar',
-    title:          raw.title || raw.name || 'Análise de Dados',
+    title:          raw.title?.trim() || 'Análise de Dados',
+    subtitle:       raw.subtitle || '',
+    unit:           raw.unit || '',
   };
 }
 
@@ -498,7 +526,6 @@ function buildInputProps(
   };
 
   // ✅ Converte para o formato que o BarChart espera: { label, value }[]
-  // Usa o primeiro dataset se houver múltiplos
   const firstDataset = data.datasets[0];
   const chartData: { label: string; value: number }[] = data.labels.map((label, i) => ({
     label,
@@ -506,12 +533,12 @@ function buildInputProps(
   }));
 
   return {
-    // ✅ Formato correto para o BarChart
-    data:     chartData,
-    title:    data.title,
-    subtitle: `${data.rowCount} registros · tema ${theme}`,
+    data:      chartData,
+    title:     data.title?.trim(),
+    subtitle:  data.subtitle || `${data.rowCount} registros · tema ${theme}`,
+    unit:      data.unit || '',
 
-    // Campos extras (usados futuramente por outros componentes)
+    // Campos extras
     labels:   data.labels,
     datasets: data.datasets,
     colors:   palettes[theme] || palettes.dark,
@@ -524,13 +551,23 @@ function buildInputProps(
   };
 }
 
+// ─── RESOLVE COMPOSITION ──────────────────────────────────────
 function resolveCompositionId(chartType: string): string {
   const map: Record<string, string> = {
-    bar: 'BarChart', line: 'LineChart', pie: 'PieChart',
-    donut: 'DonutChart', area: 'AreaChart', scatter: 'ScatterChart',
-    bubble: 'BubbleChart', heatmap: 'HeatmapChart', radar: 'RadarChart',
+    bar:            'BarChart',
+    vertical_bar:   'BarChart',
+    horizontal_bar: 'HorizontalBarChart',
+    line:           'LineChart',
+    multiline:      'MultiLineChart',
+    pie:            'PieChart',
+    donut:          'PieChart',
+    area:           'AreaChart',
+    scatter:        'ScatterPlot',
+    heatmap:        'Heatmap',
+    waterfall:      'WaterfallChart',
+    candlestick:    'CandlestickChart',
   };
-  return map[chartType] || 'BarChart';
+  return map[chartType?.toLowerCase()] ?? 'BarChart';
 }
 
 function formatDuration(frames: number, fps: number): string {
