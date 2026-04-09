@@ -9,109 +9,260 @@ import {
 import { Theme } from "../theme";
 
 interface BarChartProps {
-  data: { label: string; value: number }[];
-  title: string;
+  data?:     { label: string; value: number }[];
+  title?:    string;
   subtitle?: string;
 }
 
 const format = (n: number) => {
-  if (n >= 1000000) return (n/1000000).toFixed(1) + "M";
-  if (n >= 1000) return (n/1000).toFixed(1) + "k";
-  return n.toString();
+  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + "M";
+  if (n >= 1_000)     return (n / 1_000).toFixed(1) + "k";
+  return String(Math.round(n));
 };
 
 export const BarChart: React.FC<BarChartProps> = ({
-  data = [],
-  title,
-  subtitle,
+  data     = [],
+  title    = "",
+  subtitle = "",
 }) => {
-  const frame = useCurrentFrame();
+  const frame      = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
   const instanceId = useId().replace(/:/g, "");
 
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // ÁREA ÚTIL 4K (REGRA GLOBAL)
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  const usableWidth = 3584; 
-  const usableHeight = 1920; 
-  const originX = 128;
-  const originY = 160;
+  // ─── Guarda contra dados vazios ───────────────────────
+  const safeData = Array.isArray(data) && data.length > 0 ? data : [
+    { label: "A", value: 10 },
+    { label: "B", value: 20 },
+    { label: "C", value: 15 },
+  ];
 
-  const yAxisLabelWidth = 160;
-  const chartHeight = usableHeight * 0.85; // 1632
-  const xAxisHeight = usableHeight * 0.15; // 288
+  // ─── Layout responsivo baseado na resolução real ──────
+  const pad     = width * 0.04;   // 4% de padding
+  const padTop  = height * 0.12;  // 12% para o header
+  const padBot  = height * 0.12;  // 12% para eixo X
 
-  const plotWidth = usableWidth - yAxisLabelWidth;
-  const plotHeight = chartHeight;
-  const plotLeft = originX + yAxisLabelWidth;
-  const plotTop = originY;
+  const plotLeft   = pad + width * 0.06;   // espaço eixo Y
+  const plotTop    = padTop;
+  const plotWidth  = width  - plotLeft - pad;
+  const plotHeight = height - padTop - padBot;
 
-  if (data.length === 0) return null;
+  // Escala de fonte baseada na resolução
+  const fs = (base: number) => Math.round(base * (width / 1280));
 
-  const maxVal = Math.max(...data.map(d => d.value), 1) * 1.15;
-  const categoryWidth = plotWidth / data.length;
-  const barGap = 0.25;
-  const barWidth = categoryWidth * (1 - barGap);
+  const maxVal        = Math.max(...safeData.map(d => d.value), 1) * 1.15;
+  const categoryWidth = plotWidth / safeData.length;
+  const barGap        = 0.28;
+  const barWidth      = categoryWidth * (1 - barGap);
 
-  const getY = (v: number) => plotTop + plotHeight - (v / maxVal) * plotHeight;
+  const getY = (v: number) =>
+    plotTop + plotHeight - (v / maxVal) * plotHeight;
+
+  // Animação de entrada do header
+  const headerOpacity = interpolate(frame, [0, 20], [0, 1], {
+    extrapolateRight: "clamp",
+  });
 
   return (
     <AbsoluteFill style={{ backgroundColor: Theme.colors.background }}>
-      {/* HEADER */}
-      <div style={{ position: 'absolute', top: 40, width: '100%', textAlign: 'center', opacity: interpolate(frame, [0, 15], [0, 1]) }}>
-        {title && <div style={{ fontSize: Theme.typography.title.size, fontWeight: Theme.typography.title.weight, color: Theme.typography.title.color, fontFamily: Theme.typography.fontFamily }}>{title}</div>}
-        {subtitle && <div style={{ fontSize: Theme.typography.subtitle.size, color: Theme.typography.subtitle.color, fontFamily: Theme.typography.fontFamily }}>{subtitle}</div>}
+
+      {/* ── HEADER ── */}
+      <div
+        style={{
+          position: "absolute",
+          top: height * 0.03,
+          width: "100%",
+          textAlign: "center",
+          opacity: headerOpacity,
+          fontFamily: Theme.typography.fontFamily,
+        }}
+      >
+        {title && (
+          <div
+            style={{
+              fontSize:   fs(36),
+              fontWeight: 700,
+              color:      Theme.colors.text,
+              letterSpacing: "-0.5px",
+            }}
+          >
+            {title}
+          </div>
+        )}
+        {subtitle && (
+          <div
+            style={{
+              fontSize: fs(18),
+              color:    Theme.colors.textSecondary,
+              marginTop: fs(6),
+            }}
+          >
+            {subtitle}
+          </div>
+        )}
       </div>
 
-      <svg width={width} height={height} style={{ overflow: 'visible' }}>
+      {/* ── SVG CHART ── */}
+      <svg
+        width={width}
+        height={height}
+        style={{ position: "absolute", top: 0, left: 0 }}
+      >
         <defs>
-          {data.map((_, i) => (
-            <linearGradient key={i} id={`barGrad-${i}-${instanceId}`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={Theme.chartColors[i % Theme.chartColors.length]} />
-              <stop offset="100%" stopColor={Theme.chartColors[i % Theme.chartColors.length]} stopOpacity={0.8} />
+          {safeData.map((_, i) => (
+            <linearGradient
+              key={i}
+              id={`barGrad-${i}-${instanceId}`}
+              x1="0" y1="0" x2="0" y2="1"
+            >
+              <stop
+                offset="0%"
+                stopColor={Theme.chartColors[i % Theme.chartColors.length]}
+              />
+              <stop
+                offset="100%"
+                stopColor={Theme.chartColors[i % Theme.chartColors.length]}
+                stopOpacity={0.65}
+              />
             </linearGradient>
           ))}
+
+          {/* Glow filter */}
+          <filter id={`glow-${instanceId}`} x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation={fs(3)} result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
         </defs>
 
-        {/* GRID Y */}
-        <g opacity={0.4}>
-          {[0, 0.25, 0.5, 0.75, 1].map(v => {
-            const y = getY(v * maxVal);
-            return (
-              <React.Fragment key={v}>
-                <line x1={plotLeft} y1={y} x2={plotLeft + plotWidth} y2={y} stroke={Theme.colors.grid} strokeWidth={2} />
-                <text x={plotLeft - 30} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: 32, fill: Theme.colors.textSecondary, fontFamily: Theme.typography.fontFamily }}>{format(v * maxVal)}</text>
-              </React.Fragment>
-            );
-          })}
-        </g>
+        {/* ── GRID Y ── */}
+        {[0, 0.25, 0.5, 0.75, 1].map((v) => {
+          const y = getY(v * maxVal);
+          const op = interpolate(frame, [5, 25], [0, 0.45], {
+            extrapolateRight: "clamp",
+          });
+          return (
+            <React.Fragment key={v}>
+              <line
+                x1={plotLeft} y1={y}
+                x2={plotLeft + plotWidth} y2={y}
+                stroke={Theme.colors.grid}
+                strokeWidth={Math.max(1, fs(1.5))}
+                opacity={op}
+              />
+              <text
+                x={plotLeft - fs(12)}
+                y={y}
+                textAnchor="end"
+                dominantBaseline="middle"
+                style={{
+                  fontSize:   fs(14),
+                  fill:       Theme.colors.textSecondary,
+                  fontFamily: Theme.typography.fontFamily,
+                  opacity:    op,
+                }}
+              >
+                {format(v * maxVal)}
+              </text>
+            </React.Fragment>
+          );
+        })}
 
-        {/* BARS */}
-        {data.map((d, i) => {
-          const pop = spring({ frame: frame - 20 - i * 3, fps, config: { damping: 12, stiffness: 100 } });
+        {/* ── AXIS LINE ── */}
+        <line
+          x1={plotLeft} y1={plotTop + plotHeight}
+          x2={plotLeft + plotWidth} y2={plotTop + plotHeight}
+          stroke={Theme.colors.grid}
+          strokeWidth={Math.max(1, fs(2))}
+          opacity={0.6}
+        />
+
+        {/* ── BARS ── */}
+        {safeData.map((d, i) => {
+          const delay = 20 + i * 3;
+          const pop   = spring({
+            frame: frame - delay,
+            fps,
+            config: { damping: 14, stiffness: 90, mass: 0.8 },
+          });
+
           const bX = plotLeft + i * categoryWidth + (categoryWidth * barGap) / 2;
-          const bH = (d.value / maxVal) * plotHeight * pop;
+          const bH = Math.max(0, (d.value / maxVal) * plotHeight * pop);
           const bY = plotTop + plotHeight - bH;
-          
+
+          const labelOpacity = interpolate(
+            frame,
+            [delay + 10, delay + 20],
+            [0, 1],
+            { extrapolateRight: "clamp" }
+          );
+
+          const color = Theme.chartColors[i % Theme.chartColors.length];
+
           return (
             <g key={i}>
-              <rect x={bX} y={bY} width={barWidth} height={bH} fill={`url(#barGrad-${i}-${instanceId})`} rx={12} />
-              
-              {/* Value Label */}
-              {pop > 0.9 && (
-                <text x={bX + barWidth/2} y={bY - 20} textAnchor="middle" style={{ fontSize: 32, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>
-                  {format(d.value)}
-                </text>
-              )}
+              {/* Sombra/glow da barra */}
+              <rect
+                x={bX + fs(2)} y={bY + fs(4)}
+                width={barWidth} height={bH}
+                fill={color}
+                rx={fs(6)}
+                opacity={0.2}
+                filter={`url(#glow-${instanceId})`}
+              />
 
-              {/* X Axis Label */}
-              <text x={bX + barWidth/2} y={plotTop + plotHeight + 60} textAnchor="middle" style={{ fontSize: 36, fill: Theme.colors.textSecondary, fontWeight: 600, fontFamily: Theme.typography.fontFamily }}>
-                {d.label}
+              {/* Barra principal */}
+              <rect
+                x={bX} y={bY}
+                width={barWidth} height={bH}
+                fill={`url(#barGrad-${i}-${instanceId})`}
+                rx={fs(6)}
+              />
+
+              {/* Highlight topo da barra */}
+              <rect
+                x={bX + barWidth * 0.1} y={bY}
+                width={barWidth * 0.8} height={Math.min(bH, fs(6))}
+                fill="rgba(255,255,255,0.25)"
+                rx={fs(6)}
+              />
+
+              {/* Valor em cima da barra */}
+              <text
+                x={bX + barWidth / 2}
+                y={bY - fs(10)}
+                textAnchor="middle"
+                opacity={labelOpacity}
+                style={{
+                  fontSize:   fs(15),
+                  fill:       Theme.colors.text,
+                  fontWeight: 700,
+                  fontFamily: Theme.typography.fontFamily,
+                }}
+              >
+                {format(d.value)}
+              </text>
+
+              {/* Label eixo X */}
+              <text
+                x={bX + barWidth / 2}
+                y={plotTop + plotHeight + fs(28)}
+                textAnchor="middle"
+                opacity={labelOpacity}
+                style={{
+                  fontSize:   fs(13),
+                  fill:       Theme.colors.textSecondary,
+                  fontFamily: Theme.typography.fontFamily,
+                }}
+              >
+                {d.label.length > 12 ? d.label.slice(0, 11) + "…" : d.label}
               </text>
             </g>
           );
         })}
       </svg>
+
     </AbsoluteFill>
   );
 };

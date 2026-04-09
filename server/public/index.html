@@ -1,173 +1,1141 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GiantAnimator — Automation Suite</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GiantAnimator</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    /* ─── RESET & BASE ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #060608;
+      --surface:   rgba(255,255,255,0.04);
+      --border:    rgba(255,255,255,0.08);
+      --border-hi: rgba(255,255,255,0.18);
+      --text:      #e8e8f0;
+      --text-muted:#6b6b80;
+      --accent1:   #7c3aed;
+      --accent2:   #06b6d4;
+      --accent3:   #a855f7;
+      --danger:    #ef4444;
+      --success:   #22c55e;
+      --radius:    16px;
+      --radius-sm: 10px;
+    }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ─── NOISE GRAIN OVERLAY ──────────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+
+    /* ─── ORB CANVAS ───────────────────────────────────────────────── */
+    #orb-canvas {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 700px; height: 700px;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.55;
+    }
+
+    /* ─── LAYOUT ───────────────────────────────────────────────────── */
+    .app {
+      position: relative; z-index: 1;
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      grid-template-columns: 1fr;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ─── HEADER ───────────────────────────────────────────────────── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 28px 0 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 18px; font-weight: 700; letter-spacing: -0.5px;
+    }
+    .logo-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: conic-gradient(from 0deg, var(--accent1), var(--accent2), var(--accent3), var(--accent1));
+      animation: spin 4s linear infinite;
+      box-shadow: 0 0 12px var(--accent2);
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .header-status {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; color: var(--text-muted);
+    }
+    .status-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 6px var(--success);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    /* ─── MAIN CONTENT ─────────────────────────────────────────────── */
+    main {
+      padding: 40px 0 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* ─── GLASS CARD ───────────────────────────────────────────────── */
+    .glass {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      transition: border-color .2s;
+    }
+    .glass:hover { border-color: var(--border-hi); }
+
+    /* ─── UPLOAD ZONE ──────────────────────────────────────────────── */
+    #drop-zone {
+      padding: 36px 24px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 12px; cursor: pointer;
+      border: 1.5px dashed var(--border);
+      border-radius: var(--radius);
+      transition: all .25s;
+      position: relative; overflow: hidden;
+      min-height: 160px;
+    }
+    #drop-zone.dragging {
+      border-color: var(--accent2);
+      background: rgba(6,182,212,0.06);
+      box-shadow: 0 0 40px rgba(6,182,212,0.15) inset;
+    }
+    #drop-zone .drop-icon {
+      font-size: 36px; line-height: 1;
+      filter: drop-shadow(0 0 12px var(--accent2));
+    }
+    #drop-zone .drop-text {
+      font-size: 15px; font-weight: 500; color: var(--text);
+    }
+    #drop-zone .drop-hint {
+      font-size: 12px; color: var(--text-muted);
+    }
+    #drop-zone .drop-formats {
+      display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 4px;
+    }
+    .badge {
+      padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+      background: rgba(124,58,237,0.18); border: 1px solid rgba(124,58,237,0.35);
+      color: var(--accent3); letter-spacing: 0.5px;
+    }
+    #file-input { display: none; }
+
+    /* ─── FILE QUEUE ───────────────────────────────────────────────── */
+    #file-queue {
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .file-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      animation: slideIn .25s ease;
+    }
+    @keyframes slideIn {
+      from { opacity:0; transform: translateY(-8px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+    .file-icon { font-size: 20px; }
+    .file-name { flex: 1; font-size: 13px; font-weight: 500; }
+    .file-size { font-size: 11px; color: var(--text-muted); }
+    .file-status { font-size: 11px; }
+    .file-status.pending  { color: var(--text-muted); }
+    .file-status.processing { color: var(--accent2); }
+    .file-status.done     { color: var(--success); }
+    .file-status.error    { color: var(--danger); }
+    .file-remove {
+      background: none; border: none; cursor: pointer;
+      color: var(--text-muted); font-size: 16px; padding: 2px 6px;
+      border-radius: 6px; transition: all .15s;
+    }
+    .file-remove:hover { color: var(--danger); background: rgba(239,68,68,0.1); }
+
+    /* ─── CONTROLS ROW ─────────────────────────────────────────────── */
+    .controls-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 16px; align-items: end;
+    }
+
+    .control-group { display: flex; flex-direction: column; gap: 8px; }
+    .control-label {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.8px;
+      color: var(--text-muted); text-transform: uppercase;
+    }
+
+    select, input[type="text"] {
+      width: 100%; padding: 10px 14px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text); font-size: 13px;
+      outline: none; transition: border-color .2s;
+      appearance: none; -webkit-appearance: none;
+      cursor: pointer;
+    }
+    select:focus, input[type="text"]:focus {
+      border-color: var(--accent2);
+      box-shadow: 0 0 0 3px rgba(6,182,212,0.12);
+    }
+    select option { background: #111118; }
+
+    /* ─── BUTTONS ──────────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: var(--radius-sm);
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      border: none; transition: all .2s; white-space: nowrap;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      color: white;
+      box-shadow: 0 4px 20px rgba(124,58,237,0.35);
+    }
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 28px rgba(124,58,237,0.5);
+    }
+    .btn-primary:disabled {
+      opacity: 0.45; cursor: not-allowed; transform: none;
+    }
+    .btn-ghost {
+      background: var(--surface); border: 1px solid var(--border); color: var(--text);
+    }
+    .btn-ghost:hover { border-color: var(--border-hi); background: rgba(255,255,255,0.07); }
+
+    .btn-render {
+      padding: 10px 28px;
+      background: linear-gradient(135deg, #7c3aed, #a855f7, #06b6d4);
+      background-size: 200% 200%;
+      animation: gradientShift 4s ease infinite;
+      color: white; font-size: 14px;
+      box-shadow: 0 4px 24px rgba(124,58,237,0.45);
+      border: none;
+    }
+    .btn-render:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(124,58,237,0.6);
+    }
+    .btn-render:disabled { opacity: 0.4; cursor: not-allowed; transform: none; animation: none; }
+    @keyframes gradientShift {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* ─── ACTION BAR ───────────────────────────────────────────────── */
+    .action-bar {
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      flex-wrap: wrap;
+    }
+    .action-left { display: flex; gap: 10px; align-items: center; }
+    .action-right { display: flex; gap: 10px; align-items: center; }
+
+    /* ─── PROGRESS ─────────────────────────────────────────────────── */
+    .progress-wrap {
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .progress-bar-track {
+      height: 4px; border-radius: 99px;
+      background: rgba(255,255,255,0.08); overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%; border-radius: 99px;
+      background: linear-gradient(90deg, var(--accent1), var(--accent2));
+      transition: width .4s ease;
+      box-shadow: 0 0 8px var(--accent2);
+      width: 0%;
+    }
+    .progress-label {
+      display: flex; justify-content: space-between;
+      font-size: 11px; color: var(--text-muted);
+    }
+
+    /* ─── LOG CONSOLE ──────────────────────────────────────────────── */
+    .log-console {
+      padding: 16px;
+      font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      font-size: 12px; line-height: 1.8;
+      color: var(--text-muted);
+      max-height: 180px; overflow-y: auto;
+      border-radius: var(--radius-sm);
+    }
+    .log-console::-webkit-scrollbar { width: 4px; }
+    .log-console::-webkit-scrollbar-track { background: transparent; }
+    .log-console::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 99px; }
+    .log-line { display: flex; gap: 10px; }
+    .log-time { color: rgba(124,58,237,0.7); flex-shrink: 0; }
+    .log-line.info  .log-msg { color: var(--text-muted); }
+    .log-line.success .log-msg { color: var(--success); }
+    .log-line.error   .log-msg { color: var(--danger); }
+    .log-line.warn    .log-msg { color: #f59e0b; }
+    .log-line.accent  .log-msg { color: var(--accent2); }
+
+    /* ─── PREVIEW PLAYER ───────────────────────────────────────────── */
+    .preview-section { display: flex; flex-direction: column; gap: 16px; }
+    .preview-header {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .preview-section-title {
+      font-size: 13px; font-weight: 600; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.8px;
+    }
+    .preview-badge {
+      padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;
+      background: rgba(6,182,212,0.15); border: 1px solid rgba(6,182,212,0.3);
+      color: var(--accent2);
+    }
+
+    #player-wrap {
+      width: 100%; aspect-ratio: 16/9;
+      background: #000;
+      border-radius: var(--radius-sm);
+      overflow: hidden; position: relative;
+      border: 1px solid var(--border);
+    }
+    #player-wrap video {
+      width: 100%; height: 100%; object-fit: contain;
+    }
+    .player-placeholder {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 12px; color: var(--text-muted);
+    }
+    .player-placeholder .ph-icon { font-size: 48px; opacity: 0.3; }
+    .player-placeholder .ph-text { font-size: 13px; }
+
+    /* ─── HISTORY ──────────────────────────────────────────────────── */
+    .history-section { display: flex; flex-direction: column; gap: 12px; }
+    .section-header {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .section-title {
+      font-size: 13px; font-weight: 600; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.8px;
+    }
+    .section-count {
+      font-size: 11px; color: var(--text-muted);
+      background: rgba(255,255,255,0.06);
+      padding: 2px 8px; border-radius: 20px;
+    }
+
+    #history-list {
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .history-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px;
+      background: rgba(255,255,255,0.025);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer; transition: all .2s;
+      animation: slideIn .25s ease;
+    }
+    .history-item:hover {
+      border-color: var(--border-hi);
+      background: rgba(255,255,255,0.05);
+    }
+    .history-item.active {
+      border-color: rgba(6,182,212,0.4);
+      background: rgba(6,182,212,0.06);
+    }
+    .hist-thumb {
+      width: 56px; height: 32px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 6px; overflow: hidden; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .hist-info { flex: 1; min-width: 0; }
+    .hist-name {
+      font-size: 13px; font-weight: 500;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .hist-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .hist-actions { display: flex; gap: 6px; }
+    .hist-btn {
+      padding: 4px 10px; font-size: 11px; border-radius: 6px;
+      background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+      color: var(--text-muted); cursor: pointer; transition: all .15s;
+      white-space: nowrap;
+    }
+    .hist-btn:hover { border-color: var(--border-hi); color: var(--text); }
+    .hist-btn.download {
+      background: rgba(6,182,212,0.1); border-color: rgba(6,182,212,0.25);
+      color: var(--accent2);
+    }
+    .hist-btn.download:hover { background: rgba(6,182,212,0.2); }
+    .hist-btn.delete:hover { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.3); color: var(--danger); }
+
+    /* ─── TOAST ────────────────────────────────────────────────────── */
+    #toast-container {
+      position: fixed; bottom: 28px; right: 28px;
+      display: flex; flex-direction: column; gap: 10px;
+      z-index: 1000;
+    }
+    .toast {
+      padding: 12px 18px;
+      background: rgba(20,20,30,0.92);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      backdrop-filter: blur(20px);
+      font-size: 13px; color: var(--text);
+      display: flex; align-items: center; gap: 10px;
+      min-width: 260px; max-width: 380px;
+      animation: toastIn .3s ease;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+    .toast.success { border-color: rgba(34,197,94,0.3); }
+    .toast.error   { border-color: rgba(239,68,68,0.3); }
+    .toast.info    { border-color: rgba(6,182,212,0.3); }
+    @keyframes toastIn {
+      from { opacity:0; transform: translateX(20px); }
+      to   { opacity:1; transform: translateX(0); }
+    }
+    @keyframes toastOut {
+      from { opacity:1; transform: translateX(0); }
+      to   { opacity:0; transform: translateX(20px); }
+    }
+
+    /* ─── FOOTER ───────────────────────────────────────────────────── */
+    footer {
+      padding: 20px 0;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 11px; color: var(--text-muted);
+    }
+
+    /* ─── SCROLLBAR GLOBAL ─────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 99px; }
+
+    /* ─── RESPONSIVE ───────────────────────────────────────────────── */
+    @media (max-width: 700px) {
+      .controls-row { grid-template-columns: 1fr 1fr; }
+      .btn-render { grid-column: 1/-1; }
+      #orb-canvas { width: 400px; height: 400px; }
+    }
+    .hidden { display: none !important; }
+  </style>
 </head>
 <body>
-    <div id="app">
 
-        <!-- HEADER FIXO -->
-        <header id="main-header">
-            <h1>GiantAnimator <span>4K</span></h1>
-            <div class="status-bar">
-                <span id="status-text">Pronto</span>
-                <span id="connection-dot" class="dot"></span>
-            </div>
-        </header>
+<!-- THREE.JS ORB CANVAS -->
+<canvas id="orb-canvas"></canvas>
 
-        <!-- LAYOUT PRINCIPAL: split-screen -->
-        <div id="workspace">
+<div class="app">
 
-            <!-- COLUNA ESQUERDA: vídeo + upload + histórico -->
-            <div id="left-panel">
-
-                <section id="upload-section">
-                    <!-- Tabs de tipo de upload -->
-                    <div class="upload-tabs">
-                        <button class="upload-tab active" data-tab="image">
-                            🖼️ Imagem
-                        </button>
-                        <button class="upload-tab" data-tab="table">
-                            📊 Planilha
-                        </button>
-                    </div>
-
-                    <!-- Drop zone: Imagem -->
-                    <div id="drop-zone-image" class="drop-zone active">
-                        <div class="drop-icon">🖼️</div>
-                        <p>Cole, arraste ou clique para enviar uma <strong>imagem</strong> de gráfico</p>
-                        <span class="drop-hint">JPG, PNG, WEBP — até 10MB</span>
-                        <input type="file" id="file-input-image" hidden accept="image/*">
-                    </div>
-
-                    <!-- Drop zone: Tabela -->
-                    <div id="drop-zone-table" class="drop-zone" style="display:none;">
-                        <div class="drop-icon">📊</div>
-                        <p>Cole, arraste ou clique para enviar uma <strong>planilha</strong></p>
-                        <span class="drop-hint">XLSX, XLS, CSV, ODS — até 20MB</span>
-                        <input type="file" id="file-input-table" hidden
-                               accept=".xlsx,.xls,.csv,.ods">
-                    </div>
-                </section>
-
-                <section id="processing-section" style="display:none;">
-                    <div class="loader"></div>
-                    <p id="processing-filename">Processando...</p>
-                </section>
-
-                <!-- PREVIEW DO VÍDEO FIXO -->
-                <section id="preview-section" style="display:none;">
-                    <div id="video-wrapper">
-                        <video id="preview-video" controls playsinline></video>
-                    </div>
-                    <div id="preview-actions">
-                        <button id="btn-rerender" class="btn-primary">
-                            ↺ Re-renderizar
-                        </button>
-                        <button id="btn-download" class="btn-secondary">
-                            ⬇ Download
-                        </button>
-                    </div>
-                </section>
-
-                <section id="history-section">
-                    <h2>Histórico</h2>
-                    <div id="history-list"></div>
-                </section>
-
-            </div>
-
-            <!-- COLUNA DIREITA: painel de propriedades com scroll próprio -->
-            <div id="right-panel" style="display:none;">
-
-                <div id="props-header">
-                    <span>⚙ Propriedades</span>
-                    <button id="btn-copy-json" class="btn-ghost">📋 Copiar JSON</button>
-                </div>
-
-                <!-- BLOCO: Dados -->
-                <div class="prop-block" id="block-dados">
-                    <div class="prop-block-title" data-target="body-dados">
-                        <span>📊 Dados</span>
-                        <div class="block-actions">
-                            <button class="btn-reset-block" data-block="dados">Reset</button>
-                            <span class="chevron">▲</span>
-                        </div>
-                    </div>
-                    <div class="prop-block-body" id="body-dados">
-                        <div class="prop-row">
-                            <label>Título</label>
-                            <input type="text" id="prop-title" placeholder="Título do gráfico">
-                        </div>
-                        <!-- Labels e valores gerados dinamicamente pelo app.js -->
-                        <div id="dynamic-data-fields"></div>
-                    </div>
-                </div>
-
-                <!-- BLOCO: Cores -->
-                <div class="prop-block" id="block-cores">
-                    <div class="prop-block-title" data-target="body-cores">
-                        <span>🎨 Cores</span>
-                        <div class="block-actions">
-                            <button class="btn-reset-block" data-block="cores">Reset</button>
-                            <span class="chevron">▼</span>
-                        </div>
-                    </div>
-                    <div class="prop-block-body collapsed" id="body-cores">
-                        <div class="prop-row">
-                            <label>Background</label>
-                            <div class="color-input-group">
-                                <input type="color" id="prop-bg-color" value="#0f1117">
-                                <input type="text"  id="prop-bg-color-hex" value="#0f1117" maxlength="7">
-                            </div>
-                        </div>
-                        <div class="prop-row">
-                            <label>Texto principal</label>
-                            <div class="color-input-group">
-                                <input type="color" id="prop-text-color" value="#ffffff">
-                                <input type="text"  id="prop-text-color-hex" value="#ffffff" maxlength="7">
-                            </div>
-                        </div>
-                        <div class="prop-row">
-                            <label>Texto secundário</label>
-                            <div class="color-input-group">
-                                <input type="color" id="prop-muted-color" value="#a0a0b0">
-                                <input type="text"  id="prop-muted-color-hex" value="#a0a0b0" maxlength="7">
-                            </div>
-                        </div>
-                        <!-- Cores dos elementos geradas dinamicamente -->
-                        <div id="dynamic-color-fields"></div>
-                    </div>
-                </div>
-
-                <!-- BLOCO: Escala -->
-                <div class="prop-block" id="block-escala">
-                    <div class="prop-block-title" data-target="body-escala">
-                        <span>⚖ Escala</span>
-                        <div class="block-actions">
-                            <button class="btn-reset-block" data-block="escala">Reset</button>
-                            <span class="chevron">▼</span>
-                        </div>
-                    </div>
-                    <div class="prop-block-body collapsed" id="body-escala">
-                        <div class="prop-row">
-                            <label>Escala geral <span id="scale-value-label">1.0×</span></label>
-                            <input type="range" id="prop-scale"
-                                   min="0.5" max="2" step="0.05" value="1">
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-            <!-- /right-panel -->
-
-        </div>
-        <!-- /workspace -->
-
+  <!-- ── HEADER ── -->
+  <header>
+    <div class="logo">
+      <div class="logo-dot"></div>
+      GiantAnimator
     </div>
-    <script src="app.js"></script>
+    <div class="header-status">
+      <div class="status-dot" id="status-dot"></div>
+      <span id="status-text">Conectando...</span>
+    </div>
+  </header>
+
+  <!-- ── MAIN ── -->
+  <main>
+
+    <!-- UPLOAD -->
+    <div class="glass" style="padding:20px;">
+      <div id="drop-zone">
+        <div class="drop-icon">📊</div>
+        <div class="drop-text">Arraste arquivos aqui ou clique para selecionar</div>
+        <div class="drop-hint">Múltiplos arquivos suportados (XLSX, CSV, JSON, PNG)</div>
+        <div class="drop-formats">
+          <span class="badge">XLSX</span>
+          <span class="badge">CSV</span>
+          <span class="badge">JSON</span>
+          <span class="badge">PNG</span>
+          <span class="badge">JPG</span>
+        </div>
+      </div>
+      <input type="file" id="file-input" multiple accept=".xlsx,.xls,.csv,.json,.png,.jpg,.jpeg,.webp" />
+      <div id="file-queue" style="margin-top:12px;"></div>
+    </div>
+
+    <!-- CONTROLS -->
+    <div class="glass" style="padding:20px;">
+      <div class="controls-row">
+        <div class="control-group">
+          <div class="control-label">Tipo de Gráfico</div>
+          <select id="chart-type">
+            <option value="auto">🤖 Automático (IA decide)</option>
+            <option value="bar">📊 Barras</option>
+            <option value="line">📈 Linhas</option>
+            <option value="pie">🥧 Pizza</option>
+            <option value="donut">🍩 Donut</option>
+            <option value="area">🏔 Área</option>
+            <option value="scatter">✦ Dispersão</option>
+            <option value="bubble">🫧 Bolhas</option>
+            <option value="heatmap">🌡 Heatmap</option>
+            <option value="radar">🕸 Radar</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <div class="control-label">Tema Visual</div>
+          <select id="chart-theme">
+            <option value="dark">🌑 Dark Premium</option>
+            <option value="neon">⚡ Neon Glow</option>
+            <option value="ocean">🌊 Ocean Deep</option>
+            <option value="sunset">🌅 Sunset</option>
+            <option value="minimal">◻ Minimal</option>
+            <option value="corporate">💼 Corporate</option>
+          </select>
+        </div>
+        <button class="btn btn-render" id="btn-render" disabled>
+          ✦ Render 4K
+        </button>
+      </div>
+    </div>
+
+    <!-- PROGRESS + LOG -->
+    <div class="glass" style="padding:20px; display:flex; flex-direction:column; gap:16px;" id="progress-panel">
+      <div class="progress-wrap">
+        <div class="progress-label">
+          <span id="progress-stage">Aguardando...</span>
+          <span id="progress-pct">0%</span>
+        </div>
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" id="progress-bar"></div>
+        </div>
+      </div>
+      <div class="log-console" id="log-console">
+        <div class="log-line accent">
+          <span class="log-time">[init]</span>
+          <span class="log-msg">✦ GiantAnimator pronto. Faça upload de um arquivo para começar.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PREVIEW 720p -->
+    <div class="glass" style="padding:20px;">
+      <div class="preview-header" style="margin-bottom:14px;">
+        <div class="preview-section-title">Preview</div>
+        <div class="preview-badge" id="preview-badge">720p</div>
+      </div>
+      <div id="player-wrap">
+        <div class="player-placeholder" id="player-placeholder">
+          <div class="ph-icon">🎬</div>
+          <div class="ph-text">Preview aparecerá aqui após gerar</div>
+        </div>
+        <video id="preview-video" controls style="display:none;"></video>
+
+        <!-- Overlay de progresso 4K (aparece só durante render 4K) -->
+        <div id="render4k-overlay" style="
+          display:none; position:absolute; inset:0;
+          background:rgba(6,6,10,0.88);
+          backdrop-filter:blur(8px);
+          border-radius:10px;
+          flex-direction:column;
+          align-items:center; justify-content:center; gap:18px;
+        ">
+          <div style="font-size:13px;color:var(--text-muted);letter-spacing:.8px;text-transform:uppercase;">Renderizando 4K</div>
+          <div style="width:260px;">
+            <div class="progress-bar-track">
+              <div class="progress-bar-fill" id="4k-bar" style="width:0%"></div>
+            </div>
+          </div>
+          <div style="font-size:28px;font-weight:700;color:var(--text)" id="4k-pct">0%</div>
+          <div style="font-size:12px;color:var(--text-muted)" id="4k-stage">Aguardando...</div>
+        </div>
+      </div>
+
+      <!-- Action bar -->
+      <div class="action-bar" style="margin-top:14px;">
+        <div class="action-left">
+          <button class="btn btn-render" id="btn-download4k" disabled style="font-size:13px;padding:10px 22px;">
+            ⬇ Baixar 4K
+          </button>
+          <button class="btn btn-ghost" id="btn-clear-preview" style="display:none;">✕ Limpar</button>
+        </div>
+        <div style="font-size:11px;color:var(--text-muted)" id="video-meta"></div>
+      </div>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="history-section">
+      <div class="section-header">
+        <div class="section-title">Histórico</div>
+        <span class="section-count" id="history-count">0 / 10</span>
+      </div>
+      <div id="history-list">
+        <div style="text-align:center; padding:24px; color:var(--text-muted); font-size:13px;">
+          Nenhuma animação gerada ainda
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ── FOOTER ── -->
+  <footer>
+    <span>GiantAnimator · Remotion + Gemini AI</span>
+    <span id="footer-version">v1.0.0</span>
+  </footer>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   THREE.JS REACTIVE ORB
+═══════════════════════════════════════════════════════════════ */
+(function initOrb() {
+  const canvas = document.getElementById('orb-canvas');
+  if (!canvas) return;
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(700, 700);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+  camera.position.z = 3;
+
+  const vertShader = `
+    uniform float uTime;
+    uniform float uActivity;
+    varying vec3 vNormal;
+    varying vec3 vPos;
+
+    vec3 mod289(vec3 x){return x - floor(x*(1./289.))*289.;}
+    vec4 mod289(vec4 x){return x - floor(x*(1./289.))*289.;}
+    vec4 permute(vec4 x){return mod289(((x*34.)+1.)*x);}
+    vec4 taylorInvSqrt(vec4 r){return 1.79284291400159 - 0.85373472095314*r;}
+    float snoise(vec3 v){
+      const vec2 C=vec2(1./6.,1./3.);
+      const vec4 D=vec4(0.,0.5,1.,2.);
+      vec3 i=floor(v+dot(v,C.yyy));
+      vec3 x0=v-i+dot(i,C.xxx);
+      vec3 g=step(x0.yzx,x0.xyz);
+      vec3 l=1.-g;
+      vec3 i1=min(g.xyz,l.zxy);
+      vec3 i2=max(g.xyz,l.zxy);
+      vec3 x1=x0-i1+C.xxx;
+      vec3 x2=x0-i2+C.yyy;
+      vec3 x3=x0-D.yyy;
+      i=mod289(i);
+      vec4 p=permute(permute(permute(i.z+vec4(0.,i1.z,i2.z,1.))+i.y+vec4(0.,i1.y,i2.y,1.))+i.x+vec4(0.,i1.x,i2.x,1.));
+      float n_=0.142857142857;
+      vec3 ns=n_*D.wyz-D.xzx;
+      vec4 j=p-49.*floor(p*ns.z*ns.z);
+      vec4 x_=floor(j*ns.z);
+      vec4 y_=floor(j-7.*x_);
+      vec4 x2v=x_*ns.x+ns.yyyy;
+      vec4 y2v=y_*ns.x+ns.yyyy;
+      vec4 h=1.-abs(x2v)-abs(y2v);
+      vec4 b0=vec4(x2v.xy,y2v.xy);
+      vec4 b1=vec4(x2v.zw,y2v.zw);
+      vec4 s0=floor(b0)*2.+1.;
+      vec4 s1=floor(b1)*2.+1.;
+      vec4 sh=-step(h,vec4(0.));
+      vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy;
+      vec4 a1=b1.xzyw+s1.xzyw*sh.zzww;
+      vec3 p0=vec3(a0.xy,h.x);
+      vec3 p1=vec3(a0.zw,h.y);
+      vec3 p2=vec3(a1.xy,h.z);
+      vec3 p3=vec3(a1.zw,h.w);
+      vec4 norm=taylorInvSqrt(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));
+      p0*=norm.x; p1*=norm.y; p2*=norm.z; p3*=norm.w;
+      vec4 m=max(0.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.);
+      m=m*m;
+      return 42.*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));
+    }
+
+    void main(){
+      vNormal = normal;
+      float t = uTime * 0.4;
+      float act = uActivity;
+      float n1 = snoise(position * 1.2 + vec3(t * 0.6, t * 0.4, t * 0.3));
+      float n2 = snoise(position * 2.5 + vec3(-t * 0.3, t * 0.7, -t * 0.5));
+      float disp = (n1 * 0.18 + n2 * 0.08) * (1.0 + act * 1.6);
+      vec3 newPos = position + normal * disp;
+      vPos = newPos;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(newPos, 1.0);
+    }
+  `;
+
+  const fragShader = `
+    uniform float uTime;
+    uniform float uActivity;
+    varying vec3 vNormal;
+    varying vec3 vPos;
+
+    void main(){
+      vec3 col1 = vec3(0.486, 0.227, 0.929); // purple
+      vec3 col2 = vec3(0.024, 0.714, 0.831); // cyan
+      vec3 col3 = vec3(0.659, 0.333, 0.969); // violet
+
+      float t = uTime * 0.25;
+      float mix1 = sin(vPos.y * 2.0 + t) * 0.5 + 0.5;
+      float mix2 = cos(vPos.x * 1.5 - t * 0.7) * 0.5 + 0.5;
+      vec3 baseCol = mix(mix(col1, col2, mix1), col3, mix2 * 0.4);
+
+      vec3 viewDir = normalize(vec3(0,0,1));
+      float rim = 1.0 - max(dot(normalize(vNormal), viewDir), 0.0);
+      rim = pow(rim, 2.5);
+
+      vec3 finalCol = baseCol + rim * col2 * 0.6;
+      float alpha = 0.72 + rim * 0.22 + uActivity * 0.1;
+
+      gl_FragColor = vec4(finalCol, alpha);
+    }
+  `;
+
+  const geo = new THREE.SphereGeometry(1, 128, 128);
+  const mat = new THREE.ShaderMaterial({
+    vertexShader: vertShader,
+    fragmentShader: fragShader,
+    uniforms: {
+      uTime:     { value: 0 },
+      uActivity: { value: 0 }
+    },
+    transparent: true,
+    side: THREE.FrontSide
+  });
+
+  const glowGeo = new THREE.SphereGeometry(1.22, 32, 32);
+  const glowMat = new THREE.MeshBasicMaterial({
+    color: 0x7c3aed,
+    transparent: true,
+    opacity: 0.07,
+    side: THREE.BackSide
+  });
+
+  const orb = new THREE.Mesh(geo, mat);
+  const glow = new THREE.Mesh(glowGeo, glowMat);
+  scene.add(glow);
+  scene.add(orb);
+
+  const ambient = new THREE.AmbientLight(0x7c3aed, 0.5);
+  scene.add(ambient);
+  const point = new THREE.PointLight(0x06b6d4, 2, 10);
+  point.position.set(2, 2, 2);
+  scene.add(point);
+
+  let targetActivity = 0;
+  let currentActivity = 0;
+  window._orbSetActivity = (v) => { targetActivity = Math.min(1, Math.max(0, v)); };
+
+  let mouseX = 0, mouseY = 0;
+  document.addEventListener('mousemove', e => {
+    mouseX = (e.clientX / window.innerWidth  - 0.5) * 0.4;
+    mouseY = (e.clientY / window.innerHeight - 0.5) * 0.4;
+  });
+
+  const clock = new THREE.Clock();
+  (function animate() {
+    requestAnimationFrame(animate);
+    const t = clock.getElapsedTime();
+    currentActivity += (targetActivity - currentActivity) * 0.05;
+    mat.uniforms.uTime.value     = t;
+    mat.uniforms.uActivity.value = currentActivity;
+    orb.rotation.y = t * 0.08 + mouseX;
+    orb.rotation.x = mouseY * 0.5;
+    glow.rotation.y = t * 0.05;
+    renderer.render(scene, camera);
+  })();
+})();
+
+/* ═══════════════════════════════════════════════════════════════
+   APP LOGIC
+═══════════════════════════════════════════════════════════════ */
+const state = {
+  files: [],
+  history: [],
+  currentVideo: null,
+  isRendering: false,
+  eventSource: null
+};
+
+function uid() { return Math.random().toString(36).slice(2, 9); }
+function fmt(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1048576) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/1048576).toFixed(1) + ' MB';
+}
+function now() {
+  return new Date().toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+}
+
+function toast(msg, type = 'info') {
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => {
+    el.style.animation = 'toastOut .3s ease forwards';
+    setTimeout(() => el.remove(), 300);
+  }, 4000);
+}
+
+function log(msg, type = 'info') {
+  const con = document.getElementById('log-console');
+  const line = document.createElement('div');
+  line.className = `log-line ${type}`;
+  line.innerHTML = `<span class="log-time">[${now()}]</span><span class="log-msg">${msg}</span>`;
+  con.appendChild(line);
+  con.scrollTop = con.scrollHeight;
+}
+
+function setProgress(pct, stage) {
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-pct').textContent = pct + '%';
+  if (stage) document.getElementById('progress-stage').textContent = stage;
+  if (window._orbSetActivity) window._orbSetActivity(pct / 100);
+}
+
+function fileIcon(name) {
+  const ext = name.split('.').pop().toLowerCase();
+  if (['xlsx','xls','csv'].includes(ext)) return '📊';
+  if (ext === 'json') return '{ }';
+  if (['png','jpg','jpeg','webp'].includes(ext)) return '🖼';
+  return '📄';
+}
+
+function renderFileQueue() {
+  const el = document.getElementById('file-queue');
+  if (!state.files.length) { el.innerHTML = ''; return; }
+  el.innerHTML = state.files.map(f => `
+    <div class="file-item">
+      <div class="file-icon">${fileIcon(f.name)}</div>
+      <div class="file-name">${f.name}</div>
+      <div class="file-size">${fmt(f.size)}</div>
+      <div class="file-status ${f.status}">${f.status === 'pending' ? 'Aguardando' : f.status === 'processing' ? 'Processando...' : f.status === 'done' ? '✓ Concluído' : '✕ Erro'}</div>
+      ${f.status === 'pending' ? `<button class="file-remove" onclick="removeFile('${f.id}')">✕</button>` : ''}
+    </div>
+  `).join('');
+  document.getElementById('btn-render').disabled = !state.files.some(f => f.status === 'pending') || state.isRendering;
+}
+
+function removeFile(id) {
+  state.files = state.files.filter(f => f.id !== id);
+  renderFileQueue();
+}
+
+function addFiles(fileList) {
+  Array.from(fileList).forEach(file => {
+    state.files.push({ id: uid(), file, name: file.name, size: file.size, status: 'pending' });
+    log(`📎 Arquivo adicionado: ${file.name}`);
+  });
+  renderFileQueue();
+}
+
+const dz = document.getElementById('drop-zone');
+const fi = document.getElementById('file-input');
+dz.addEventListener('click', () => fi.click());
+fi.addEventListener('change', e => addFiles(e.target.files));
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragging'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('dragging'));
+dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('dragging'); addFiles(e.dataTransfer.files); });
+
+document.getElementById('btn-render').addEventListener('click', async () => {
+  const pending = state.files.filter(f => f.status === 'pending');
+  if (!pending.length) return;
+  state.isRendering = true;
+  document.getElementById('btn-render').disabled = true;
+
+  for (const f of pending) {
+    f.status = 'processing';
+    renderFileQueue();
+    const fd = new FormData();
+    fd.append('file', f.file);
+    fd.append('chartType', document.getElementById('chart-type').value);
+    fd.append('chartTheme', document.getElementById('chart-theme').value);
+
+    try {
+      log(`🚀 Enviando: ${f.name}`, 'accent');
+      const res = await fetch('/upload', { method: 'POST', body: fd });
+      const data = await res.json();
+      startSSE(data.jobId, f.name);
+      f.status = 'done';
+      renderFileQueue();
+    } catch (err) {
+      f.status = 'error';
+      renderFileQueue();
+      log(`✕ Erro: ${err.message}`, 'error');
+      state.isRendering = false;
+    }
+  }
+});
+
+/* ═══════════════════════════════════════════════════════════════
+   SSE 720p
+═══════════════════════════════════════════════════════════════ */
+function startSSE(jobId, fileName) {
+  if (state.eventSource) state.eventSource.close();
+
+  const es = new EventSource(`/progress/${jobId}`);
+  state.eventSource = es;
+  state.currentJobId = jobId;
+
+  if (window._orbSetActivity) window._orbSetActivity(0.3);
+
+  es.onmessage = (e) => {
+    try {
+      const msg = JSON.parse(e.data);
+
+      if (msg.progress !== undefined) {
+        setProgress(msg.progress, msg.stage || '');
+        if (msg.log) log(msg.log, msg.logType || 'info');
+      }
+
+      if (msg.status === 'done') {
+        es.close();
+        state.isRendering = false;
+        setProgress(100, 'Preview 720p pronto ✓');
+        log(`🎬 Preview pronto: ${msg.videoUrl}`, 'success');
+        toast('Preview 720p gerado! Clique em "Baixar 4K" quando quiser.', 'success', 5000);
+        if (window._orbSetActivity) window._orbSetActivity(0.9);
+        setTimeout(() => { if (window._orbSetActivity) window._orbSetActivity(0); }, 3000);
+        loadVideo(msg.videoUrl, fileName, msg.duration || '');
+        document.getElementById('btn-render').disabled = false;
+      }
+
+      if (msg.status === 'error') {
+        es.close();
+        state.isRendering = false;
+        log(`✕ Erro: ${msg.error}`, 'error');
+        toast(`Erro: ${msg.error}`, 'error');
+        setProgress(0, 'Erro ✕');
+        if (window._orbSetActivity) window._orbSetActivity(0);
+        document.getElementById('btn-render').disabled = false;
+      }
+    } catch(err) { /* ignore */ }
+  };
+
+  es.onerror = () => {
+    log('⚠ Conexão SSE perdida', 'warn');
+    es.close();
+    state.isRendering = false;
+    document.getElementById('btn-render').disabled = false;
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   VIDEO PLAYER
+═══════════════════════════════════════════════════════════════ */
+function loadVideo(url, name, duration) {
+  const video       = document.getElementById('preview-video');
+  const placeholder = document.getElementById('player-placeholder');
+  const meta        = document.getElementById('video-meta');
+  const btn4k       = document.getElementById('btn-download4k');
+  const btnClear    = document.getElementById('btn-clear-preview');
+
+  video.src = url;
+  video.style.display = 'block';
+  placeholder.style.display = 'none';
+  state.currentVideo = { url, name };
+
+  if (duration) meta.textContent = `⏱ ${duration}  ·  720p preview`;
+
+  btn4k.disabled = false;
+  btnClear.style.display = 'inline-flex';
+
+  btnClear.onclick = () => {
+    video.src = '';
+    video.style.display = 'none';
+    placeholder.style.display = 'flex';
+    meta.textContent = '';
+    btn4k.disabled = true;
+    btnClear.style.display = 'none';
+    state.currentVideo = null;
+    state.currentJobId = null;
+    document.getElementById('render4k-overlay').style.display = 'none';
+    document.getElementById('preview-badge').textContent = '720p';
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RENDER 4K ON DEMAND
+═══════════════════════════════════════════════════════════════ */
+document.getElementById('btn-download4k').addEventListener('click', async () => {
+  const jobId = state.currentJobId;
+  if (!jobId) { toast('Nenhuma animação carregada', 'warn'); return; }
+
+  const btn = document.getElementById('btn-download4k');
+  btn.disabled = true;
+
+  // Verifica se 4K já foi gerado antes
+  try {
+    const check = await fetch(`/progress4k/${jobId}`);
+    // Se SSE retornar done imediatamente, baixa direto — tratado no startSSE4K
+  } catch(e) {}
+
+  log('🔷 Solicitando render 4K...', 'accent');
+  toast('Render 4K iniciado! Aguarde...', 'info', 3000);
+  if (window._orbSetActivity) window._orbSetActivity(0.5);
+
+  // Inicia render 4K no servidor
+  const res = await fetch(`/render4k/${jobId}`, { method: 'POST' }).catch(err => {
+    toast(`Erro ao iniciar 4K: ${err.message}`, 'error');
+    btn.disabled = false;
+    return null;
+  });
+  if (!res) return;
+
+  const data = await res.json();
+
+  // Se já estava pronto (cache)
+  if (data.status === 'ready' && data.video4kUrl) {
+    log('✅ 4K já disponível — baixando...', 'success');
+    triggerDownload4K(data.video4kUrl);
+    btn.disabled = false;
+    return;
+  }
+
+  // Mostra overlay de progresso 4K no player
+  const overlay = document.getElementById('render4k-overlay');
+  overlay.style.display = 'flex';
+  document.getElementById('preview-badge').textContent = '4K rendering...';
+
+  // Abre SSE do 4K
+  startSSE4K(jobId);
+});
+
+function startSSE4K(jobId) {
+  const es     = new EventSource(`/progress4k/${jobId}`);
+  const bar    = document.getElementById('4k-bar');
+  const pctEl  = document.getElementById('4k-pct');
+  const stage  = document.getElementById('4k-stage');
+  const overlay = document.getElementById('render4k-overlay');
+  const btn    = document.getElementById('btn-download4k');
+  const badge  = document.getElementById('preview-badge');
+
+  es.onmessage = (e) => {
+    try {
+      const msg = JSON.parse(e.data);
+
+      if (msg.progress !== undefined) {
+        bar.style.width  = msg.progress + '%';
+        pctEl.textContent = msg.progress + '%';
+        if (msg.stage) stage.textContent = msg.stage;
+        if (msg.log) log(msg.log, msg.logType || 'info');
+        if (window._orbSetActivity) window._orbSetActivity(0.4 + msg.progress / 100 * 0.5);
+      }
+
+      if (msg.status === 'done') {
+        es.close();
+        overlay.style.display = 'none';
+        badge.textContent = '4K ✓';
+        log('🔷 Render 4K concluído! Baixando...', 'success');
+        toast('Render 4K pronto! Iniciando download...', 'success');
+        if (window._orbSetActivity) window._orbSetActivity(1.0);
+        setTimeout(() => { if (window._orbSetActivity) window._orbSetActivity(0); }, 3000);
+        triggerDownload4K(msg.video4kUrl);
+        btn.disabled = false;
+
+        // Atualiza histórico
+        const histItem = state.history.find(h => h.id === jobId);
+        if (histItem) { histItem.video4kUrl = msg.video4kUrl; saveHistory(); }
+      }
+
+      if (msg.status === 'error') {
+        es.close();
+        overlay.style.display = 'none';
+        badge.textContent = '720p';
+        log(`✕ Erro 4K: ${msg.error}`, 'error');
+        toast(`Erro no render 4K: ${msg.error}`, 'error');
+        if (window._orbSetActivity) window._orbSetActivity(0);
+        btn.disabled = false;
+      }
+    } catch(err) { /* ignore */ }
+  };
+
+  es.onerror = () => {
+    log('⚠ SSE 4K perdido', 'warn');
+    es.close();
+    overlay.style.display = 'none';
+    badge.textContent = '720p';
+    btn.disabled = false;
+  };
+}
+
+function triggerDownload4K(url) {
+  const name = (state.currentVideo?.name || 'animacao').replace(/\.[^.]+$/, '');
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `${name}_4K.mp4`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+function addToHistory(item) {
+  state.history.unshift(item);
+  if (state.history.length > 10) state.history.pop();
+  renderHistory();
+}
+
+function renderHistory() {
+  const el = document.getElementById('history-list');
+  document.getElementById('history-count').textContent = `${state.history.length} / 10`;
+  if (!state.history.length) return;
+  el.innerHTML = state.history.map(h => `
+    <div class="history-item" onclick="loadVideo('${h.videoUrl}', '${h.name}', '${h.duration}')">
+      <div class="hist-thumb">${fileIcon(h.name)}</div>
+      <div class="hist-info"><div class="hist-name">${h.name}</div><div class="hist-meta">${h.createdAt}</div></div>
+    </div>
+  `).join('');
+}
+
+async function checkStatus() {
+  try {
+    const res = await fetch('/health');
+    const online = res.ok;
+    document.getElementById('status-dot').style.background = online ? 'var(--success)' : 'var(--danger)';
+    document.getElementById('status-text').textContent = online ? 'Servidor online' : 'Servidor offline';
+  } catch {
+    document.getElementById('status-dot').style.background = 'var(--danger)';
+    document.getElementById('status-text').textContent = 'Servidor offline';
+  }
+}
+setInterval(checkStatus, 10000);
+checkStatus();
+</script>
 </body>
 </html>
