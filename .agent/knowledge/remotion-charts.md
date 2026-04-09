@@ -4,7 +4,7 @@
 ---
 
 ## ⛔ Regra Fundamental — Libs Proibidas
-NUNCA use Chart.js, Recharts, Victory ou qualquer lib com animação própria.
+NUNCA use Chart.js, RLychee, Victory ou qualquer lib com animação própria.
 Essas libs usam requestAnimationFrame/CSS transitions — quebram no renderer do Remotion.
 Remotion renderiza frame-a-frame: o tempo não "passa", ele é CALCULADO.
 Todo valor animado DEVE derivar de `useCurrentFrame()`.

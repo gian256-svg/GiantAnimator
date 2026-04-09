@@ -6,7 +6,7 @@ import { exec } from "child_process";
 import { promisify } from "util";
 import fs from "fs";
 import path from "path";
-import type { ChartType, ReferenceData } from "./types";
+import type { ChartType, ReferenceData } from "./types.js";
 
 const execAsync = promisify(exec);
 

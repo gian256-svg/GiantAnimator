@@ -1,60 +1,107 @@
-# GiantAnimator 📈🎬
+# GiantAnimator 🎬
 
-Sistema de geração automática de animações de gráficos usando **Remotion** + **Gemini AI**.
-Transforme prints estáticos de gráficos em vídeos animados profissionais (.mp4) em segundos.
+Pipeline inteligente de geração de **animações de gráficos em 4K UHD**, controlado por agente de IA (Gemini).
 
-## 🚀 Como funciona
+Envie uma imagem ou planilha — o agente analisa os dados, escolhe o melhor gráfico e renderiza um vídeo animado em MP4.
 
-1. **Upload:** Coloque uma imagem de gráfico (`.png`, `.jpg`, `.webp`) na pasta `shared/input/` (ou use a UI).
-2. **Análise IA:** O servidor detecta o arquivo, redimensiona para otimização e envia ao **Gemini 2.1 Flash**.
-3. **Extração:** O Gemini extrai os dados (labels, valores), o tipo de gráfico e cores.
-4. **Renderização:** O **Remotion** utiliza os dados extraídos para gerar uma animação fluida.
-5. **Output:** O vídeo final aparece em `shared/output/` e a imagem original é movida para `shared/done/`.
+---
 
-## 🛠️ Setup Inicial
+## 🧠 Como Funciona
 
-### Requisitos
-- Node.js 18+
-- ffmpeg (para o Remotion renderizar MP4)
+### Via Imagem
+1. Faça upload de um print/screenshot de gráfico pela interface web
+2. O **Gemini Vision** analisa a imagem e extrai os dados
+3. O **Remotion** renderiza a animação em 4K
+4. O vídeo MP4 fica disponível para download
 
-### Instalação
+### Via Planilha
+1. Faça upload de um arquivo `.xlsx`, `.csv` ou `.ods`
+2. O **Gemini** lê os dados tabulares e decide o tipo de gráfico ideal
+3. O **Remotion** renderiza a animação em 4K
+4. O vídeo MP4 fica disponível para download
+
+---
+
+## 🚀 Setup
+
 ```bash
-# Entre na pasta do servidor
-cd server
+# 1. Instalar dependências
 npm install
+cd remotion-project && npm install && cd ..
 
-# Configure as variáveis de ambiente
+# 2. Configurar variáveis de ambiente
 cp .env.example .env
-# Edite o .env e adicione sua GEMINI_API_KEY
+# Editar .env e adicionar GEMINI_API_KEY
+
+# 3. Build do servidor
+npm run build
+
+# 4. Iniciar
+npm start
 ```
-
-### Execução
-```bash
-npm run dev
-```
-
-## ⚙️ Variáveis de Ambiente (.env)
-
-| Variável | Descrição | Padrão |
-|---|---|---|
-| `GEMINI_API_KEY` | Sua chave da Google AI Studio | (obrigatório) |
-| `GEMINI_MOCK` | Se `true`, pula a API e usa dados fixos para teste | `false` |
-| `PORT` | Porta do servidor Express | `3000` |
+Acesse: `http://localhost:3000`
 
 ## 📂 Estrutura de Pastas
 
-| Pasta | Descrição |
-|---|---|
-| `shared/input/` | Imagens aguardando processamento. |
-| `shared/output/` | Vídeos MP4 gerados prontos para uso. |
-| `shared/input/done/` | Imagens processadas com sucesso. |
-| `shared/input/error/` | Imagens que falharam após 5 tentativas (ex: API offline). |
-| `server/cache/` | Cache MD5 das análises da IA para economizar cota. |
+```
+GiantAnimator/
+├── server/                     # Backend Node.js + TypeScript
+│   ├── index.ts                # Entry point + rotas
+│   ├── agent.ts                # Agente Gemini (analyzeImage + analyzeTable)
+│   ├── renderService.ts        # Orquestrador do Remotion
+│   ├── tableParserService.ts   # Parser de xlsx/csv/ods
+│   ├── componentRegistry.ts    # Catálogo de componentes disponíveis
+│   ├── sseService.ts           # Eventos em tempo real (SSE)
+│   ├── paths.ts                # Fonte de verdade de todos os caminhos
+│   ├── public/                 # Frontend (HTML + CSS + JS)
+│   ├── scripts/                # Utilitários: save-knowledge, load-context
+│   └── calibration/            # Scraper de referências visuais
+├── remotion-project/           # Componentes de animação (Remotion)
+│   └── src/
+│       ├── BarChart.tsx
+│       ├── LineChart.tsx
+│       ├── PieChart.tsx
+│       └── ...
+├── .agent/
+│   └── knowledge/
+│       └── TRAINING_LOG.md     # Base de conhecimento do agente
+├── input/
+│   ├── images/                 # Imagens de entrada
+│   └── tables/                 # Planilhas de entrada
+└── output/                     # Vídeos gerados
+```
+
+## 🛠️ Stack
+
+| Camada | Tecnologia |
+| :--- | :--- |
+| **Runtime** | Node.js + TypeScript (ESM) |
+| **Framework** | Express |
+| **IA** | Google Gemini 2.5 Flash |
+| **Renderização** | Remotion 4.x |
+| **Parsers** | xlsx, csv-parse, ods |
+| **Frontend** | HTML + CSS + JS (Vanilla) |
+| **Eventos** | Server-Sent Events (SSE) |
 
 ## 📊 Tipos de Gráfico Suportados
-- ✅ **BarChart** (Barras verticais/horizontais)
-- ⏳ **LineChart** (Em breve)
-- ⏳ **PieChart** (Em breve)
+- **BarChart** — barras verticais
+- **HorizontalBarChart** — barras horizontais
+- **LineChart** — linhas / séries temporais
+- **PieChart** — pizza
+- **DonutChart** — rosca
+- **GroupedBarChart** — barras agrupadas
 
----
-*GiantAnimator — Desenvolvido para editores de vídeo e criadores de conteúdo.*
+## 🧩 Variáveis de Ambiente (`.env`)
+```env
+GEMINI_API_KEY=sua_chave_aqui
+PORT=3000
+```
+
+## 📘 Base de Conhecimento
+O agente mantém um log de aprendizados em `.agent/knowledge/TRAINING_LOG.md`. Toda nova convenção, bug corrigido ou padrão descoberto é registrado lá.
+
+## ⚠️ Regras Importantes
+1. Nunca commitar o `.env`
+2. Todo novo tipo de gráfico deve ser registrado no `componentRegistry.ts`
+3. Imports `.ts` sempre com extensão `.js` (ESM/NodeNext)
+4. Codec do Remotion: sempre **h264**

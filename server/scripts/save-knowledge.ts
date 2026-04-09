@@ -1,8 +1,12 @@
 import fs from "fs";
 import path from "path";
-import { loadFullContext } from "./load-context";
-import { agentEvents } from "../events";
-import { agent } from "../agent";
+import { fileURLToPath } from "url";
+import { loadFullContext } from "./load-context.js";
+import { agentEvents } from "../events.js";
+import { agent } from "../agent.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // ─────────────────────────────────────────────
 //  Caminhos

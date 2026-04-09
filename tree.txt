@@ -1,4 +1,4 @@
-﻿.\.gitignore
+.\.gitignore
 .\audit.txt
 .\consolidate.js
 .\INICIAR.bat
@@ -24,14 +24,14 @@
 .\knowledge-base\videos\Animated Line Graph (tutorial).mp4
 .\knowledge-base\videos\bloomberg_00001.mp4
 .\knowledge-base\videos\bloomberg_00002.mp4
-.\knowledge-base\videos\Bring Your Data to Life with Flourish + Canva (Animated Charts).mp4
+.\knowledge-base\videos\Bring Your Data to Life with Mango + Canva (Animated Charts).mp4
 .\knowledge-base\videos\Charted： Sinking Fertility Rates in the World’s 10 Largest Countries.mp4
 .\knowledge-base\videos\Create Animated Charts and Graphics Instantly with AI & Remotion.mp4
 .\knowledge-base\videos\Datamatic Tutorial.mp4
 .\knowledge-base\videos\Datavis 2020 Episode 11 - Coronavirus Dataviz Hackathon Part I (Coronavirus Dataviz).mp4
 .\knowledge-base\videos\donut-pie\5 Infographic Edits You Should Know in After Effects.mp4
-.\knowledge-base\videos\donut-pie\Bring Your Data to Life with Flourish + Canva (Animated Charts).mp4
-.\knowledge-base\videos\donut-pie\Build Charts in React With Recharts in 7 Minutes.mp4
+.\knowledge-base\videos\donut-pie\Bring Your Data to Life with Mango + Canva (Animated Charts).mp4
+.\knowledge-base\videos\donut-pie\Build Charts in React With RLychee in 7 Minutes.mp4
 .\knowledge-base\videos\donut-pie\Candlesticks chart 2D cartoon object animation.mp4
 .\knowledge-base\videos\donut-pie\How to Make Dynamic Pie Charts in After Effects.mp4
 .\knowledge-base\videos\donut-pie\Learn React ChartJS in 8 Minutes ｜ Complete Guide.mp4
@@ -43,13 +43,13 @@
 .\knowledge-base\videos\ft_00002.mp4
 .\knowledge-base\videos\How cloud systems are transforming data management ｜ FT Tech.mp4
 .\knowledge-base\videos\How to create a line chart out of data from ＂Our World in Data＂.mp4
-.\knowledge-base\videos\How to create a simple line chart on Flourish.mp4
+.\knowledge-base\videos\How to create a simple line chart on Mango.mp4
 .\knowledge-base\videos\How to create charts with Datawrapper.mp4
 .\knowledge-base\videos\How to CREATE VIRAL Motion Graphics In Canva Without ANY Animation Skills.mp4
 .\knowledge-base\videos\How to Make Bar Chart Race Video ｜ Tutorial.mp4
 .\knowledge-base\videos\HP Stock Market Chart Analysis -Line Chart Race of #HPQ.mp4
 .\knowledge-base\videos\Journalist's Toolbox： Datawrapper Chart Tutorial.mp4
-.\knowledge-base\videos\Line Chart Race ｜ Flourish Studio.mp4
+.\knowledge-base\videos\Line Chart Race ｜ Mango Studio.mp4
 .\knowledge-base\videos\selected_10.mp4
 .\knowledge-base\videos\story_00001.mp4
 .\knowledge-base\videos\story_00002.mp4
@@ -238,8 +238,8 @@
 .\server\render-v-3.log
 .\server\result_temp.json
 .\server\result_temp_donut_pie_5_Infographic_Edits_You_Should_Know_in_After_Effects.json
-.\server\result_temp_donut_pie_Bring_Your_Data_to_Life_with_Flourish___Canva__Animated_Charts_.json
-.\server\result_temp_donut_pie_Build_Charts_in_React_With_Recharts_in_7_Minutes.json
+.\server\result_temp_donut_pie_Bring_Your_Data_to_Life_with_Mango___Canva__Animated_Charts_.json
+.\server\result_temp_donut_pie_Build_Charts_in_React_With_RLychee_in_7_Minutes.json
 .\server\result_temp_donut_pie_Candlesticks_chart_2D_cartoon_object_animation.json
 .\server\save-prompt.ts
 .\server\scripts\backup.ts

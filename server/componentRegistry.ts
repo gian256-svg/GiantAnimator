@@ -367,3 +367,15 @@ export const COMPONENT_REGISTRY: ComponentEntry[] = [
     }
   }
 ];
+
+export const componentRegistry = {
+  getTypes(): string[] {
+    return COMPONENT_REGISTRY.map(c => c.id);
+  },
+  getEntry(id: string): ComponentEntry | undefined {
+    return COMPONENT_REGISTRY.find(c => c.id === id);
+  },
+  getAll(): ComponentEntry[] {
+    return COMPONENT_REGISTRY;
+  }
+};

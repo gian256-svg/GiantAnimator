@@ -1,78 +1,173 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GiantAnimator — IA Visual Automática</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>GiantAnimator — Automation Suite</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <!-- Fundo de Partículas -->
-    <canvas id="particles"></canvas>
-
-    <!-- Container de Toasts -->
-    <div id="toast-container"></div>
-
-    <!-- Fila de Uploads Ativos -->
-    <div id="upload-queue"></div>
-
     <div id="app">
-        <header>
-            <span class="logo">⬡ GiantAnimator</span>
-            <span class="badge">Production Ready</span>
+
+        <!-- HEADER FIXO -->
+        <header id="main-header">
+            <h1>GiantAnimator <span>4K</span></h1>
+            <div class="status-bar">
+                <span id="status-text">Pronto</span>
+                <span id="connection-dot" class="dot"></span>
+            </div>
         </header>
 
-        <!-- Dropzone Principal -->
-        <div id="dropzone">
-            <div class="icon-wrap">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                    <polyline points="17 8 12 3 7 8"></polyline>
-                    <line x1="12" y1="3" x2="12" y2="15"></line>
-                </svg>
+        <!-- LAYOUT PRINCIPAL: split-screen -->
+        <div id="workspace">
+
+            <!-- COLUNA ESQUERDA: vídeo + upload + histórico -->
+            <div id="left-panel">
+
+                <section id="upload-section">
+                    <!-- Tabs de tipo de upload -->
+                    <div class="upload-tabs">
+                        <button class="upload-tab active" data-tab="image">
+                            🖼️ Imagem
+                        </button>
+                        <button class="upload-tab" data-tab="table">
+                            📊 Planilha
+                        </button>
+                    </div>
+
+                    <!-- Drop zone: Imagem -->
+                    <div id="drop-zone-image" class="drop-zone active">
+                        <div class="drop-icon">🖼️</div>
+                        <p>Cole, arraste ou clique para enviar uma <strong>imagem</strong> de gráfico</p>
+                        <span class="drop-hint">JPG, PNG, WEBP — até 10MB</span>
+                        <input type="file" id="file-input-image" hidden accept="image/*">
+                    </div>
+
+                    <!-- Drop zone: Tabela -->
+                    <div id="drop-zone-table" class="drop-zone" style="display:none;">
+                        <div class="drop-icon">📊</div>
+                        <p>Cole, arraste ou clique para enviar uma <strong>planilha</strong></p>
+                        <span class="drop-hint">XLSX, XLS, CSV, ODS — até 20MB</span>
+                        <input type="file" id="file-input-table" hidden
+                               accept=".xlsx,.xls,.csv,.ods">
+                    </div>
+                </section>
+
+                <section id="processing-section" style="display:none;">
+                    <div class="loader"></div>
+                    <p id="processing-filename">Processando...</p>
+                </section>
+
+                <!-- PREVIEW DO VÍDEO FIXO -->
+                <section id="preview-section" style="display:none;">
+                    <div id="video-wrapper">
+                        <video id="preview-video" controls playsinline></video>
+                    </div>
+                    <div id="preview-actions">
+                        <button id="btn-rerender" class="btn-primary">
+                            ↺ Re-renderizar
+                        </button>
+                        <button id="btn-download" class="btn-secondary">
+                            ⬇ Download
+                        </button>
+                    </div>
+                </section>
+
+                <section id="history-section">
+                    <h2>Histórico</h2>
+                    <div id="history-list"></div>
+                </section>
+
             </div>
-            <h1>Cole ou arraste seus gráficos</h1>
-            <p>Ctrl+V · Seleção Múltipla · PNG · JPG</p>
-            <img id="preview" />
-        </div>
 
-        <!-- Histórico da Sessão -->
-        <section id="history-section">
-            <h2>📊 Histórico da Sessão</h2>
-            <div id="history-list">
-                <!-- Itens gerados via JS -->
-            </div>
-        </section>
-    </div>
+            <!-- COLUNA DIREITA: painel de propriedades com scroll próprio -->
+            <div id="right-panel" style="display:none;">
 
-    <!-- Modal do Player e Controle de Props -->
-    <div id="player-modal" style="display:none">
-        <div id="player-overlay" onclick="closePlayer()"></div>
-        <div id="player-content">
-            <button id="player-close" onclick="closePlayer()">✕</button>
-            <h3 id="player-title" style="margin-bottom: 24px; font-size: 20px;">Preview</h3>
-            
-            <video id="player-video" controls autoplay loop
-                   style="width:100%; border-radius:16px; background:#000; box-shadow: 0 10px 40px rgba(0,0,0,0.5)">
-            </video>
-
-            <div id="props-panel" style="display:none">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h4 style="font-size: 16px;">⚙️ Ajustar Propriedades</h4>
-                    <button class="btn btn-secondary btn-sm" onclick="copyPropsJson()">📋 Copiar JSON</button>
+                <div id="props-header">
+                    <span>⚙ Propriedades</span>
+                    <button id="btn-copy-json" class="btn-ghost">📋 Copiar JSON</button>
                 </div>
-                <div id="props-controls" class="accordion-container">
-                    <!-- Gerado dinamicamente via JS -->
-                </div>
-                <button class="btn btn-primary" onclick="forceRerender()" style="width:100%; justify-content:center; padding: 14px; margin-top: 16px;">
-                    🔄 Re-renderizar (Manual)
-                </button>
-            </div>
-        </div>
-    </div>
 
+                <!-- BLOCO: Dados -->
+                <div class="prop-block" id="block-dados">
+                    <div class="prop-block-title" data-target="body-dados">
+                        <span>📊 Dados</span>
+                        <div class="block-actions">
+                            <button class="btn-reset-block" data-block="dados">Reset</button>
+                            <span class="chevron">▲</span>
+                        </div>
+                    </div>
+                    <div class="prop-block-body" id="body-dados">
+                        <div class="prop-row">
+                            <label>Título</label>
+                            <input type="text" id="prop-title" placeholder="Título do gráfico">
+                        </div>
+                        <!-- Labels e valores gerados dinamicamente pelo app.js -->
+                        <div id="dynamic-data-fields"></div>
+                    </div>
+                </div>
+
+                <!-- BLOCO: Cores -->
+                <div class="prop-block" id="block-cores">
+                    <div class="prop-block-title" data-target="body-cores">
+                        <span>🎨 Cores</span>
+                        <div class="block-actions">
+                            <button class="btn-reset-block" data-block="cores">Reset</button>
+                            <span class="chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="prop-block-body collapsed" id="body-cores">
+                        <div class="prop-row">
+                            <label>Background</label>
+                            <div class="color-input-group">
+                                <input type="color" id="prop-bg-color" value="#0f1117">
+                                <input type="text"  id="prop-bg-color-hex" value="#0f1117" maxlength="7">
+                            </div>
+                        </div>
+                        <div class="prop-row">
+                            <label>Texto principal</label>
+                            <div class="color-input-group">
+                                <input type="color" id="prop-text-color" value="#ffffff">
+                                <input type="text"  id="prop-text-color-hex" value="#ffffff" maxlength="7">
+                            </div>
+                        </div>
+                        <div class="prop-row">
+                            <label>Texto secundário</label>
+                            <div class="color-input-group">
+                                <input type="color" id="prop-muted-color" value="#a0a0b0">
+                                <input type="text"  id="prop-muted-color-hex" value="#a0a0b0" maxlength="7">
+                            </div>
+                        </div>
+                        <!-- Cores dos elementos geradas dinamicamente -->
+                        <div id="dynamic-color-fields"></div>
+                    </div>
+                </div>
+
+                <!-- BLOCO: Escala -->
+                <div class="prop-block" id="block-escala">
+                    <div class="prop-block-title" data-target="body-escala">
+                        <span>⚖ Escala</span>
+                        <div class="block-actions">
+                            <button class="btn-reset-block" data-block="escala">Reset</button>
+                            <span class="chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="prop-block-body collapsed" id="body-escala">
+                        <div class="prop-row">
+                            <label>Escala geral <span id="scale-value-label">1.0×</span></label>
+                            <input type="range" id="prop-scale"
+                                   min="0.5" max="2" step="0.05" value="1">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <!-- /right-panel -->
+
+        </div>
+        <!-- /workspace -->
+
+    </div>
     <script src="app.js"></script>
 </body>
 </html>

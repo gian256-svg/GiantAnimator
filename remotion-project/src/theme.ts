@@ -1,125 +1,214 @@
-// remotion-project/src/theme.ts
-// Novo Design System GiantAnimator 4K (Filosofia 4K UHD)
+// =============================================================================
+// 🎨 GIANT ANIMATOR — DESIGN SYSTEM
+// =============================================================================
+// FONTE ÚNICA DE VERDADE para cores, tipografia, espaçamento e animação.
+//
+// ⚠️  REGRA ARQUITETURAL:
+//     Este é o ÚNICO arquivo de tema do projeto.
+//     Não existe (nem deve existir) theme.ts na raiz ou em qualquer outro lugar.
+//     Todos os componentes importam via: import { Theme } from '../theme'
+//
+// 🚫  NÃO DUPLICAR este arquivo.
+// 🚫  NÃO criar theme.ts na raiz do projeto.
+// 🚫  NÃO hardcodar cores, tamanhos ou durações nos componentes.
+// =============================================================================
 
-export const Theme = {
-  // CANVAS
-  canvas: {
-    width: 3840,
-    height: 2160,
-    background: '#0f1117',         // Fundo escuro premium (padrão)
-    backgroundLight: '#f8f9fc',    // Fundo claro (alternativo)
-  },
+// ---------------------------------------------------------------------------
+// CANVAS — Resolução 4K UHD
+// ---------------------------------------------------------------------------
+export const CANVAS = {
+  width: 3840,
+  height: 2160,
 
-  // CORES DAS SÉRIES (ordem de uso)
+  // Área útil (descontando safe zones)
+  safeZoneX: 128,   // lateral (cada lado)
+  safeZoneTop: 160, // topo
+  safeZoneBottom: 80, // rodapé
+
+  get usableWidth()  { return this.width  - this.safeZoneX * 2; },   // 3584px
+  get usableHeight() { return this.height - this.safeZoneTop - this.safeZoneBottom; }, // 1920px
+
+  // Centro geométrico correto (sempre usar estes valores, nunca hardcodar)
+  get cx() { return this.safeZoneX + this.usableWidth  / 2; }, // 1920
+  get cy() { return this.safeZoneTop + this.usableHeight / 2; }, // 1120
+} as const;
+
+// ---------------------------------------------------------------------------
+// CORES
+// ---------------------------------------------------------------------------
+export const COLORS = {
+  // Fundo
+  background: '#0f1117',
+  backgroundCard: '#1a1d27',
+  backgroundMuted: '#13151f',
+
+  // Texto
+  text: '#e8eaf6',
+  textMuted: '#8892b0',
+  textSubtle: '#4a5568',
+
+  // Eixos e grid
+  axis: 'rgba(232, 234, 246, 0.15)',
+  grid: 'rgba(232, 234, 246, 0.06)',
+
+  // Semânticas
+  positive: '#00e5a0',
+  negative: '#ff4d6d',
+  neutral:  '#8892b0',
+  highlight: '#ffd166',
+
+  // Paleta principal — 8 cores premium
   chartColors: [
-    '#4f8ef7',   // Azul primário — série 1
-    '#f97316',   // Laranja — série 2
-    '#22d3a5',   // Turquesa — série 3
-    '#a78bfa',   // Violeta — série 4
-    '#fb7185',   // Rosa — série 5
-    '#facc15',   // Amarelo dourado — série 6
-    '#38bdf8',   // Azul céu — série 7
-    '#4ade80',   // Verde — série 8
+    '#4f8ef7', // Azul elétrico
+    '#00e5a0', // Verde esmeralda
+    '#ffd166', // Âmbar premium
+    '#ff6b9d', // Rosa vibrante
+    '#a78bfa', // Violeta suave
+    '#38bdf8', // Céu ciano
+    '#fb923c', // Laranja quente
+    '#34d399', // Verde menta
   ],
+} as const;
 
-  colors: {
-    background: '#0f1117',
-    text: '#f1f5f9',
-    textSecondary: '#94a3b8',
-    grid: '#1e2433',
-    axis: '#2d3548',
-    accent: '#4f8ef7',
-    
-    categorical: [
-      '#4f8ef7', '#f97316', '#22d3a5', '#a78bfa',
-      '#fb7185', '#facc15', '#38bdf8', '#4ade80'
-    ],
+// ---------------------------------------------------------------------------
+// TIPOGRAFIA — Escalada para 4K
+// ---------------------------------------------------------------------------
+export const TYPOGRAPHY = {
+  fontFamily: "'Inter', 'Segoe UI', sans-serif",
 
-    semantic: {
-      positive: '#22c55e',
-      negative: '#ef4444',
-      neutral:  '#64748b',
-      highlight: '#fbbf24',
-      warning:  '#f97316',
-    },
+  // Tamanhos
+  titleSize:    72,  // Título principal do gráfico
+  subtitleSize: 40,  // Subtítulo / descrição
+  labelSize:    36,  // Labels de dados
+  axisSize:     30,  // Labels de eixos
+  legendSize:   28,  // Legenda
+  captionSize:  24,  // Notas de rodapé / captions
 
-    ui: {
-      gridline:     '#1e2433',
-      gridlineLight:'#e5e7eb',
-      axisLine:     '#2d3548',
-      axisText:     '#94a3b8',
-      axisTextLight:'#64748b',
-      border:       '#1e2433',
-    },
+  // Pesos
+  weightLight:     300,
+  weightRegular:   400,
+  weightMedium:    500,
+  weightSemiBold:  600,
+  weightBold:      700,
+  weightExtraBold: 800,
+
+  // Regra: título com maxWidth e padding de segurança (nunca cortar)
+  titleMaxWidth:   3400,
+  titlePaddingX:   80,
+} as const;
+
+// ---------------------------------------------------------------------------
+// ESPAÇAMENTO
+// ---------------------------------------------------------------------------
+export const SPACING = {
+  xs:  16,
+  sm:  32,
+  md:  64,
+  lg:  96,
+  xl:  128,
+  xxl: 192,
+
+  // Padding interno padrão de gráficos cartesianos
+  chartPadding: {
+    top:    80,
+    bottom: 120,
+    left:   140,
+    right:  80,
   },
 
-  // TIPOGRAFIA (escalada para 4K)
-  typography: {
-    fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
-    titleSize: 72,
-    titleWeight: 700,
-    titleColor: '#f1f5f9',
-    subtitleSize: 42,
-    subtitleWeight: 400,
-    subtitleColor: '#94a3b8',
-    dataLabelSize: 36,
-    axisLabelSize: 30,
-    axisTitleSize: 32,
-    legendSize: 34,
-    
-    // Objetos mantidos para compatibilidade com o que já fiz
-    title: { size: 72, weight: 700, color: '#f1f5f9' },
-    subtitle: { size: 42, weight: 400, color: '#94a3b8' },
-    value: { size: 36, weight: 700, color: '#f1f5f9' },
-    axis: { size: 30, weight: 400, color: '#94a3b8' },
-    axisTitle: { size: 32, weight: 500, color: '#64748b' },
-    legend: { size: 34, weight: 500, color: '#cbd5e1' },
-    category: { size: 36, weight: 600, color: '#f1f5f9' },
+  // Legenda
+  legendItemHeight: 56,
+  legendIconSize:   32,
+  legendGap:        24,
+} as const;
+
+// ---------------------------------------------------------------------------
+// ANIMAÇÃO — Padrão Mango + Lychee (3 Atos)
+// ---------------------------------------------------------------------------
+export const ANIMATION = {
+  // Duração total do vídeo
+  durationInFrames: 600, // 20 segundos @ 30fps
+
+  // Ato 1: Estrutura (background, eixos, título)
+  act1Start:  0,
+  act1End:    30,
+
+  // Ato 2: Dados (barras, linhas, pontos, fatias)
+  act2Start:  30,
+  act2End:    150,
+
+  // Ato 3: Labels e legenda
+  act3Start:  150,
+  act3End:    210,
+
+  // Conveniência: duração do reveal de dados (Ato 2)
+  animationFrames: 120,
+
+  // Stagger padrão entre elementos (50ms @ 30fps ≈ 1.5 frames)
+  staggerFrames: 2,
+
+  // Easing padrão (Mango cubic-bezier)
+  easing: [0.1, 0, 0.1, 1] as [number, number, number, number],
+
+  // Spring padrão (com overshoot suave)
+  spring: {
+    damping:   12,
+    stiffness: 90,
+    mass:      0.8,
   },
 
-  // ESPAÇAMENTOS (escalados para 4K)
-  spacing: {
-    safeZone: 128,         // Safe Zone Lateral 4K
-    safeZoneVertical: {
-      top: 160,
-      bottom: 80,
-    },
-    usableWidth: 3584,     // 3840 - (128 * 2)
-    usableHeight: 1920,    // 2160 - 160 - 80
-    cx: 1920,              // 128 + 3584 / 2
-    cy: 1120,              // 160 + 1920 / 2
-    
-    padding: 128,          
-    titleHeight: 160,
-    legendHeight: 80,
-    axisLeft: 160,
-    axisBottom: 100,
-    barRadius: 6,
-    dotRadius: 10,
-    gap: 12,
-  },
-
-  // ANIMAÇÃO
-  animation: {
-    durationInFrames: 600,
-    animationFrames: 120,
-    fps: 30,
-    transitionFrames: 18,
-    easing: [0.1, 0, 0.1, 1], // Flourish Standard: [x1, y1, x2, y2]
-  },
-
-  // EFEITOS VISUAIS
-  effects: {
-    shadowColor: 'rgba(0,0,0,0.4)',
-    shadowBlur: 20,
-    areaOpacity: 0.25,
-    barGradient: true,
-    highlightScale: 1.04,
-    legendIconSize: 32,    // Mínimo 32px
-    minLegendFont: 28,     // Mínimo 28px
-    internalLabelMin: 24,  // Mínimo 24px
-    internalLabelFactor: 0.08, // fontSize = radius * factor
+  // Spring com bounce mais agressivo (bolhas, pontos)
+  springBounce: {
+    damping:   10,
+    stiffness: 100,
+    mass:      0.6,
   },
 } as const;
 
-export const THEME = Theme;
+// ---------------------------------------------------------------------------
+// HELPERS DE LAYOUT — Cálculos obrigatórios por tipo de gráfico
+// ---------------------------------------------------------------------------
+export const LAYOUT = {
+  // Gráficos circulares (Pie, Donut, Radar, Polar, Gauge)
+  circular: {
+    legendWidth: Math.round(CANVAS.usableWidth * 0.25), // 896px
+    chartArea:   Math.round(CANVAS.usableWidth * 0.75), // 2688px
+    get radius() {
+      return Math.round(Math.min(this.chartArea, CANVAS.usableHeight) * 0.42);
+    },
+  },
+
+  // Gráficos cartesianos (Bar, Line, Area, Scatter, Histogram)
+  cartesian: {
+    chartWidth:  CANVAS.usableWidth,
+    chartHeight: Math.round(CANVAS.usableHeight * 0.85),
+  },
+
+  // Gráficos de fluxo (Sankey, Funnel, Chord)
+  flow: {
+    chartWidth:  CANVAS.usableWidth,
+    chartHeight: CANVAS.usableHeight,
+  },
+} as const;
+
+// ---------------------------------------------------------------------------
+// EXPORT PRINCIPAL — Objeto unificado (compatibilidade com ambos os padrões)
+// ---------------------------------------------------------------------------
+// Uso: import { Theme } from '../theme'
+// Uso: import { THEME } from '../theme'  (alias para retrocompatibilidade)
+export const Theme = {
+  canvas:     CANVAS,
+  colors:     COLORS,
+  typography: TYPOGRAPHY,
+  spacing:    SPACING,
+  animation:  ANIMATION,
+  layout:     LAYOUT,
+
+  // Atalhos de retrocompatibilidade (não usar em código novo)
+  chartColors:     COLORS.chartColors,
+  durationInFrames: ANIMATION.durationInFrames,
+  animationFrames:  ANIMATION.animationFrames,
+} as const;
+
+export const THEME = Theme; // alias retrocompatível
+

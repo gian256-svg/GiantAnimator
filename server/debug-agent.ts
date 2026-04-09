@@ -2,7 +2,8 @@
 import "dotenv/config";
 import path from "path";
 import fs from "fs";
-import { analyzeChart } from "./agent.js";
+import { agent } from "./agent.js";
+const analyzeChart = agent.analyzeChart.bind(agent);
 import { PATHS } from "./paths.js";
 
 // ─── Pega o primeiro arquivo de imagem que tiver em GiantAnimator/input ──────────────

@@ -73,7 +73,7 @@ Você NÃO improvisa design. NÃO "melhora" sem ser solicitado. Segue o original
 - Proteção contra NaN em TODOS os atributos SVG (ex: isNaN(x) ? 0 : x)
 - Altura mínima de barra positiva: 4px
 - Import do tema: import { THEME } from "../theme"
-- NUNCA usar libs externas (Chart.js, Recharts, etc.)
+- NUNCA usar libs externas (Chart.js, RLychee, etc.)
 
 ## Knowledge Base — Regras de Ouro:
 ${knowledgeBase}

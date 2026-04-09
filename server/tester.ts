@@ -1,8 +1,16 @@
 import fs from 'fs';
 import path from 'path';
 import * as dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 dotenv.config({ path: path.join(__dirname, '.env') });
-import { analyzeAnimationFrames } from './agent';
+
+import { agent } from "./agent.js";
+const analyzeChart = agent.analyzeChart.bind(agent);
+// import { analyzeAnimationFrames } from './agent.js'; // ⚠️ Método removido/refatorado
 
 async function main() {
   const baseDir = path.resolve(__dirname, '../knowledge-base/frames');
@@ -12,16 +20,13 @@ async function main() {
   console.log('📌 Testando agent.ts:', targets);
 
   for (const dirName of targets) {
-    const dirPath = path.join(baseDir, dirName);
-    const files = fs.readdirSync(dirPath).filter(f=>f.endsWith('.jpg') || f.endsWith('.png') || f.endsWith('.webp'))
-      .map(f => path.join(dirPath, f));
-      
-    if (files.length === 0) continue;
-
-    console.log(`\n🚀 Extracao via agent.ts do folder: ${dirName}`);
     try {
-      const parsed = await analyzeAnimationFrames(files);
-      console.log(`✅ Resultado:`, parsed);
+      const dirPath = path.join(baseDir, dirName);
+      const files = fs.readdirSync(dirPath).filter(f => f.endsWith('.png'));
+      console.log(`🔍 Processando ${dirName} (${files.length} frames)...`);
+      
+      const result = await analyzeChart(dirPath);
+      console.log(`✅ Resultado de ${dirName}:`, JSON.stringify(result, null, 2));
     } catch(err: any) {
       console.error(`❌ Erro em ${dirName}:`, err.message);
     }

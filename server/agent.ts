@@ -2,6 +2,8 @@
 import fs   from "fs";
 import path from "path";
 import { GoogleGenAI, type Chat } from "@google/genai";
+import { type NormalizedTableData } from "./tableParserService.js";
+import { componentRegistry } from "./componentRegistry.js";
 import { GEMINI_MODEL } from "./calibration/constants.js";
 
 export const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
@@ -189,6 +191,65 @@ export class GiantAnimatorAgent {
       return response.text ?? "Sem resposta do modelo.";
     } catch (err) {
       throw new Error(`Análise de imagem falhou: ${String(err)}`);
+    }
+  }
+
+  /**
+   * analyzeTable — Analisa dados de planilha e recomenda o melhor gráfico.
+   */
+  async analyzeTable(parsedData: NormalizedTableData): Promise<any> {
+    if (!this.isReady()) throw new Error("Agente não inicializado.");
+
+    const prompt = `
+Você é um especialista em visualização de dados 4K para o GiantAnimator.
+Recebi uma planilha com os seguintes dados:
+
+RESUMO DA TABELA:
+- Total de linhas: ${parsedData.summary.totalRows}
+- Total de colunas: ${parsedData.summary.totalCols}
+- Colunas categóricas: ${parsedData.summary.categoricalColumns.join(', ')}
+- Colunas numéricas: ${parsedData.summary.numericColumns.join(', ')}
+
+AMOSTRA (primeiras 5 linhas):
+${JSON.stringify(parsedData.summary.sample, null, 2)}
+
+TODOS OS DADOS:
+${JSON.stringify(parsedData.rows, null, 2)}
+
+TIPOS DE GRÁFICO DISPONÍVEIS: ${componentRegistry.getTypes().join(', ')}
+
+TAREFA:
+Com base nos dados, escolha o tipo de gráfico mais adequado e gere a configuração completa.
+
+REGRAS:
+- Se houver 1 coluna categórica + 1 numérica -> prefira BarChart ou HorizontalBarChart
+- Se houver 1 coluna de tempo/data + 1 numérica -> prefira LineChart
+- Se os valores somam ~100% -> prefira PieChart ou DonutChart
+- Se houver múltiplas séries numéricas -> prefira GroupedBarChart ou LineChart
+- Cores seguem o padrão Mango/Lychee UHD
+- Saída ESTRITAMENTE em JSON, sem markdown, sem texto extra
+
+FORMATO DE SAÍDA OBRIGATÓRIO:
+{
+  "type": "NomeDoComponente",
+  "title": "Título sugerido baseado nos dados",
+  "subtitle": "Subtítulo opcional",
+  "data": [{ "label": "...", "value": 0 }],
+  "backgroundColor": "#0f1117",
+  "textColor": "#ffffff",
+  "mutedColor": "#a0a0b0",
+  "elementColors": ["#7c6af7", "#34d399", "#fbbf24", "#f87171", "#60a5fa"],
+  "scale": 1
+}
+`;
+
+    try {
+      const response = await this.sendWithRetry(prompt);
+      const text = response.text?.trim() || "{}";
+      const clean = text.replace(/```json|```/g, '').trim();
+      return JSON.parse(clean);
+    } catch (err) {
+      throw new Error(`Falha na análise da tabela pelo Gemini: ${String(err)}`);
     }
   }
 

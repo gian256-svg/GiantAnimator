@@ -6,14 +6,15 @@ import path           from "path";
 import fs             from "fs";
 import { agent }      from "./agent.js";
 import { startWatcher } from "./watcherService.js";
-import uploadService   from "./uploadService.js";
-import downloadRoute   from "./downloadRoute.js";
-import statusRoute     from "./statusRoute.js";
-import { PATHS }       from "./paths.js";
+import uploadService, { upload } from "./uploadService.js";
+import downloadRoute     from "./downloadRoute.js";
+import statusRoute       from "./statusRoute.js";
+import { PATHS }         from "./paths.js";
+import { tableParserService } from "./tableParserService.js";
 
 // Novos serviços (Fase C)
 import { addClient, broadcast } from "./sseService.js";
-import { getHistory, getJobById } from "./historyService.js";
+import { getHistory, getJobById, addJob } from "./historyService.js";
 import { renderChart } from "./renderService.js";
 
 const app  = express();
@@ -73,6 +74,69 @@ app.post("/render", async (req, res) => {
     console.error("❌ [API] Erro no /render:", err);
     res.status(500).json({ error: err.message });
   }
+});
+
+app.post('/upload-table', upload.single('table'), async (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ error: 'Nenhuma tabela enviada' });
+    }
+
+    const filename = req.file.originalname;
+    const jobId = `table-${Date.now()}`;
+
+    // Notifica cliente via SSE que começou
+    broadcast({
+        type: 'processing',
+        filename,
+        message: '📊 Lendo tabela...'
+    });
+
+    try {
+        // 1. Parse da planilha
+        console.log(`📊 Parsing tabela: ${req.file.originalname}`);
+        const parsed = tableParserService.parse(req.file.path);
+
+        console.log(`✅ Tabela lida: ${parsed.summary.totalRows} linhas, ${parsed.summary.totalCols} colunas`);
+
+        // 2. Gemini decide tipo e configuração
+        broadcast({ type: 'processing', filename, message: '🤖 Gemini analisando dados...' });
+        const props = await agent.analyzeTable(parsed);
+
+        console.log(`🤖 Gemini escolheu: ${props.type}`);
+
+        // 3. Renderiza
+        broadcast({ type: 'processing', filename, message: '🎬 Renderizando...' });
+        const start = Date.now();
+        const outputPath = await renderChart(props.type || "BarChart", props);
+        const outputFilename = path.basename(outputPath);
+        const duration = parseFloat(((Date.now() - start) / 1000).toFixed(1));
+
+        // 4. Salva no histórico
+        addJob({
+            filename,
+            outputFile: outputFilename,
+            status: 'done',
+            duration,
+            props
+        });
+
+        // 5. Notifica conclusão via SSE
+        broadcast({
+            type: 'done',
+            filename,
+            outputFile: outputFilename,
+            duration,
+            props,
+            jobId // Usado pelo frontend para carregar o preview
+        });
+
+        res.json({ ok: true, jobId, props, outputFile: outputFilename });
+
+    } catch (err: any) {
+        console.error(`❌ Erro no pipeline de tabela: ${err.message}`);
+        broadcast({ type: 'error', filename, message: err.message });
+        res.status(500).json({ error: err.message });
+    }
 });
 
 app.post("/rerender", async (req, res) => {

@@ -19,7 +19,7 @@ async function listModels() {
     }
     
     console.log("✅ Modelos disponíveis:");
-    const models = data.models || [];
+    const models = (data as any).models || [];
     for (const m of models) {
       console.log(` - ${m.name.replace("models/", "")} (Métodos suportados: ${m.supportedGenerationMethods?.join(", ")})`);
     }

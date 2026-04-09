@@ -11,11 +11,12 @@
 node_modules/
 **/node_modules/
 
-# --- Arquivos de Runtime (shared/) ---
+# --- Arquivos de Runtime ---
+input/
+output/
 shared/input/
 shared/output/
-shared/input/done/
-shared/input/error/
+history.json
 shared/history.json
 
 # --- Vídeos e Imagens geradas ---
