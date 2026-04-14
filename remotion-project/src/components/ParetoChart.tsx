@@ -6,7 +6,7 @@ import {
   interpolate,
   AbsoluteFill,
 } from "remotion";
-import { Theme } from "../theme";
+import { Theme, resolveTheme } from '../theme';
 
 export interface ParetoItem {
   label: string;
@@ -18,16 +18,22 @@ export interface ParetoChartProps {
   title: string;
   subtitle?: string;
   backgroundColor?: string;
+  theme?: string;
+  backgroundColor?: string;
+  colors?: string[];
+  textColor?: string;
 }
 
 export const ParetoChart: React.FC<ParetoChartProps> = ({
+  theme = 'dark',
   data = [],
   title,
   subtitle,
-  backgroundColor = Theme.colors.background,
+  backgroundColor ?? T.background,
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
+  const T = resolveTheme(theme ?? 'dark');
   const instanceId = useId().replace(/:/g, "");
 
   const processedData = useMemo(() => {
@@ -51,8 +57,8 @@ export const ParetoChart: React.FC<ParetoChartProps> = ({
 
   if (processedData.length === 0) {
     return (
-      <AbsoluteFill style={{ backgroundColor, justifyContent: 'center', alignItems: 'center' }}>
-        <p style={{ color: Theme.colors.text }}>Dados insuficientes.</p>
+      <AbsoluteFill style={{ backgroundColor ?? T.background, justifyContent: 'center', alignItems: 'center' }}>
+        <p style={{ color: T.text }}>Dados insuficientes.</p>
       </AbsoluteFill>
     );
   }
@@ -64,7 +70,7 @@ export const ParetoChart: React.FC<ParetoChartProps> = ({
   const barWidth = (plotWidth / processedData.length) * 0.8;
 
   return (
-    <AbsoluteFill style={{ backgroundColor }}>
+    <AbsoluteFill style={{ backgroundColor ?? T.background }}>
       {/* ZONA 1 — Cabeçalho */}
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',
@@ -88,8 +94,8 @@ export const ParetoChart: React.FC<ParetoChartProps> = ({
       <svg width={width} height={height} style={{ overflow: 'visible' }}>
         <defs>
           <linearGradient id={`paretoGrad-${instanceId}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={Theme.chartColors[0]} />
-            <stop offset="100%" stopColor={Theme.chartColors[0]} stopOpacity={0.8} />
+            <stop offset="0%" stopColor={T.colors[0]} />
+            <stop offset="100%" stopColor={T.colors[0]} stopOpacity={0.8} />
           </linearGradient>
         </defs>
 
@@ -100,7 +106,7 @@ export const ParetoChart: React.FC<ParetoChartProps> = ({
             const y = getLeftY(val);
             return (
               <React.Fragment key={v}>
-                <line x1={plotLeft} y1={y} x2={plotLeft + plotWidth} y2={y} stroke={Theme.colors.grid} strokeWidth={1} />
+                <line x1={plotLeft} y1={y} x2={plotLeft + plotWidth} y2={y} stroke={T.grid} strokeWidth={1} />
                 <text x={plotLeft - 20} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.ui.axisText, fontFamily: Theme.typography.fontFamily }}>{val}</text>
               </React.Fragment>
             );
@@ -130,7 +136,7 @@ export const ParetoChart: React.FC<ParetoChartProps> = ({
           return (
             <g key={i}>
               <rect x={x} y={chartTop + plotHeight - h} width={barWidth} height={h} fill={Theme.colors.series[0]} rx={4} />
-              <text x={x + barWidth / 2} y={chartTop + plotHeight + 60} textAnchor="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.textSecondary, fontWeight: 600, fontFamily: Theme.typography.fontFamily }}>{d.label}</text>
+              <text x={x + barWidth / 2} y={chartTop + plotHeight + 60} textAnchor="middle" style={{ fontSize: Theme.typography.axis.size, fill: T.textMuted, fontWeight: 600, fontFamily: Theme.typography.fontFamily }}>{d.label}</text>
             </g>
           );
         })}

@@ -6,7 +6,7 @@ import {
   interpolate,
   AbsoluteFill,
 } from "remotion";
-import { Theme } from "../theme";
+import { Theme, resolveTheme } from '../theme';
 
 export interface RadarSeries {
   label: string;
@@ -21,6 +21,10 @@ export interface RadarChartProps {
   subtitle?: string;
   backgroundColor?: string;
   textColor?: string;
+  theme?: string;
+  backgroundColor?: string;
+  colors?: string[];
+  textColor?: string;
 }
 
 export const RadarChart: React.FC<RadarChartProps> = ({
@@ -33,6 +37,7 @@ export const RadarChart: React.FC<RadarChartProps> = ({
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
+  const T = resolveTheme(theme ?? 'dark');
 
   // Layout 4K
   const margin = 200;
@@ -117,7 +122,7 @@ export const RadarChart: React.FC<RadarChartProps> = ({
           });
           if (progress <= 0) return null;
 
-          const color = s.color || Theme.chartColors[si % Theme.chartColors.length];
+          const color = s.color || T.colors[si % T.colors.length];
           const pathD = getPolygonPath(radius, s.values, progress);
 
           return (
@@ -153,7 +158,7 @@ export const RadarChart: React.FC<RadarChartProps> = ({
         <g transform={`translate(${width - 450}, ${cy - (series.length * 60) / 2})`}>
           {series.map((s, i) => (
             <g key={i} transform={`translate(0, ${i * 80})`}>
-              <rect width={40} height={24} fill={s.color || Theme.chartColors[i % Theme.chartColors.length]} rx={4} />
+              <rect width={40} height={24} fill={s.color || T.colors[i % T.colors.length]} rx={4} />
               <text x={60} y={22} style={{ fontSize: 36, fill: textColor, fontWeight: 500 }}>{s.label}</text>
             </g>
           ))}

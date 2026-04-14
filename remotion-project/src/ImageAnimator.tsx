@@ -6,6 +6,7 @@ interface Props {
 
 export const ImageAnimator: React.FC<Props> = ({ imagePath }) => {
   const frame = useCurrentFrame();
+  const T = resolveTheme(theme ?? 'dark');
   const { fps } = useVideoConfig();
 
   // Fase 1 (0-20f): fade in da imagem completa

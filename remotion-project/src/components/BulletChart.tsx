@@ -6,7 +6,7 @@ import {
   interpolate,
   AbsoluteFill,
 } from "remotion";
-import { Theme } from "../theme";
+import { Theme, resolveTheme } from '../theme';
 
 export interface BulletMetric {
   label: string;
@@ -20,16 +20,21 @@ export interface BulletChartProps {
   title: string;
   subtitle?: string;
   backgroundColor?: string;
+  theme?: string;
+  backgroundColor?: string;
+  colors?: string[];
+  textColor?: string;
 }
 
 export const BulletChart: React.FC<BulletChartProps> = ({
   metrics = [],
   title,
   subtitle,
-  backgroundColor = Theme.colors.background,
+  backgroundColor ?? T.background,
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
+  const T = resolveTheme(theme ?? 'dark');
   const instanceId = useId().replace(/:/g, "");
 
   // Safe Zone 4K
@@ -45,7 +50,7 @@ export const BulletChart: React.FC<BulletChartProps> = ({
   const rangeThickness = 120;
 
   return (
-    <AbsoluteFill style={{ backgroundColor }}>
+    <AbsoluteFill style={{ backgroundColor ?? T.background }}>
       {/* ZONA 1 — Cabeçalho */}
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',
@@ -70,8 +75,8 @@ export const BulletChart: React.FC<BulletChartProps> = ({
         <defs>
           {metrics.map((_, i) => (
             <linearGradient key={i} id={`bulletGrad-${i}-${instanceId}`} x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor={Theme.chartColors[i % Theme.chartColors.length]} />
-              <stop offset="100%" stopColor={Theme.chartColors[i % Theme.chartColors.length]} stopOpacity={0.8} />
+              <stop offset="0%" stopColor={T.colors[i % T.colors.length]} />
+              <stop offset="100%" stopColor={T.colors[i % T.colors.length]} stopOpacity={0.8} />
             </linearGradient>
           ))}
         </defs>
@@ -88,7 +93,7 @@ export const BulletChart: React.FC<BulletChartProps> = ({
             <g key={i}>
               <text
                 x={paddingLeft - 40} y={centerY} textAnchor="end" dominantBaseline="middle"
-                style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.text, fontWeight: 600, fontFamily: Theme.typography.fontFamily }}
+                style={{ fontSize: Theme.typography.axis.size, fill: T.text, fontWeight: 600, fontFamily: Theme.typography.fontFamily }}
               >
                 {m.label}
               </text>
@@ -101,7 +106,7 @@ export const BulletChart: React.FC<BulletChartProps> = ({
                 return (
                   <rect
                     key={rIdx} x={xStart} y={centerY - rangeThickness / 2} width={xEnd - xStart} height={rangeThickness}
-                    fill={Theme.colors.text} opacity={0.05 + rIdx * 0.05} rx={4}
+                    fill={T.text} opacity={0.05 + rIdx * 0.05} rx={4}
                   />
                 );
               })}

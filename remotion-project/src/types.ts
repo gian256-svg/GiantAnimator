@@ -50,4 +50,8 @@ export interface AnimationData {
 export interface ChartCompositionProps {
   data: ChartData;
   animation: AnimationData;
+  theme?: string;
+  backgroundColor?: string;
+  colors?: string[];
+  textColor?: string;
 }

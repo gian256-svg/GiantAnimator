@@ -12,6 +12,7 @@ export type ComparativeLinePathProps = {
 };
 
 export const ComparativeLinePath: React.FC<ComparativeLinePathProps> = ({
+  theme = 'dark',
   data,
   pointsSP500,
   pointsNVIDIA,
@@ -20,6 +21,7 @@ export const ComparativeLinePath: React.FC<ComparativeLinePathProps> = ({
   lineThickness,
   glowIntensity,
 }) => {
+  const T = resolveTheme(theme ?? 'dark');
   const renderPath = (points: { x: number; y: number }[]) => {
     if (points.length === 0) return '';
     const d = [`M ${points[0].x} ${points[0].y}`];

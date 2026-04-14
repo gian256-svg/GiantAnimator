@@ -8,6 +8,7 @@ export const CircularArrow: React.FC<{
   duration?: number;
 }> = ({ from, to, delay, duration = 20 }) => {
   const frame = useCurrentFrame();
+  const T = resolveTheme(theme ?? 'dark');
 
   const progress = interpolate(Math.max(0, frame - delay), [0, duration], [0, 1], { extrapolateRight: 'clamp' });
 

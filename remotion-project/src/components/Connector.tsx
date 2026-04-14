@@ -3,6 +3,7 @@ import { useCurrentFrame, interpolate } from 'remotion';
 
 export const Connector: React.FC<{ from: [number, number]; to: [number, number]; delay: number }> = ({ from, to, delay }) => {
   const frame = useCurrentFrame();
+  const T = resolveTheme(theme ?? 'dark');
 
   const progress = interpolate(Math.max(0, frame - delay), [0, 15], [0, 1], { extrapolateRight: 'clamp' });
 

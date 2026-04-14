@@ -6,10 +6,14 @@ import {
   interpolate,
   AbsoluteFill,
 } from "remotion";
-import { Theme } from "../theme";
+import { Theme, resolveTheme } from '../theme';
 
 interface HorizontalBarChartProps {
-  data?:     { label: string; value: number }[];
+  data?: { label: string; value: number }[];
+  theme?: string;
+  backgroundColor?: string;
+  colors?: string[];
+  textColor?: string;
   title?:    string;
   subtitle?: string;
   unit?:     string;
@@ -24,6 +28,7 @@ const format = (n: number, unit: string = "") => {
 };
 
 export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
+  theme = 'dark',
   data     = [],
   title    = "",
   subtitle = "",
@@ -31,6 +36,7 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
 }) => {
   const frame      = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
+  const T = resolveTheme(theme ?? 'dark');
   const instanceId = useId().replace(/:/g, "");
 
   const safeData = Array.isArray(data) && data.length > 0 ? data : [
@@ -63,23 +69,23 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
   const headerOpacity = interpolate(frame, [0, 20], [0, 1], { extrapolateRight: "clamp" });
 
   return (
-    <AbsoluteFill style={{ backgroundColor: Theme.colors.background }}>
+    <AbsoluteFill style={{ backgroundColor: T.background }}>
       
       {/* ── HEADER ── */}
       <div style={{
         position: "absolute", top: height * 0.04, width: "100%", textAlign: "center",
         opacity: headerOpacity, fontFamily: Theme.typography.fontFamily
       }}>
-        {title && <div style={{ fontSize: fs(38), fontWeight: 700, color: Theme.colors.text }}>{title}</div>}
-        {subtitle && <div style={{ fontSize: fs(18), color: Theme.colors.textMuted, marginTop: fs(4) }}>{subtitle}</div>}
+        {title && <div style={{ fontSize: fs(38), fontWeight: 700, color: T.text }}>{title}</div>}
+        {subtitle && <div style={{ fontSize: fs(18), color: T.textMuted, marginTop: fs(4) }}>{subtitle}</div>}
       </div>
 
       <svg width={width} height={height} style={{ position: "absolute", top: 0, left: 0 }}>
         <defs>
           {safeData.map((_, i) => (
             <linearGradient key={i} id={`hbarGrad-${i}-${instanceId}`} x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor={Theme.chartColors[i % Theme.chartColors.length]} />
-              <stop offset="100%" stopColor={Theme.chartColors[i % Theme.chartColors.length]} stopOpacity={0.7} />
+              <stop offset="0%" stopColor={T.colors[i % T.colors.length]} />
+              <stop offset="100%" stopColor={T.colors[i % T.colors.length]} stopOpacity={0.7} />
             </linearGradient>
           ))}
           <filter id={`glow-${instanceId}`} x="-20%" y="-20%" width="140%" height="140%">
@@ -94,8 +100,8 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
           const op = interpolate(frame, [10, 30], [0, 0.3], { extrapolateRight: "clamp" });
           return (
             <React.Fragment key={v}>
-              <line x1={x} y1={plotTop} x2={x} y2={plotTop + plotHeight} stroke={Theme.colors.grid} strokeWidth={Math.max(1, fs(1.5))} opacity={op} />
-              <text x={x} y={plotTop + plotHeight + fs(24)} textAnchor="middle" style={{ fontSize: fs(14), fill: Theme.colors.textMuted, fontFamily: Theme.typography.fontFamily, opacity: op }}>
+              <line x1={x} y1={plotTop} x2={x} y2={plotTop + plotHeight} stroke={T.grid} strokeWidth={Math.max(1, fs(1.5))} opacity={op} />
+              <text x={x} y={plotTop + plotHeight + fs(24)} textAnchor="middle" style={{ fontSize: fs(14), fill: T.textMuted, fontFamily: Theme.typography.fontFamily, opacity: op }}>
                 {format(v * maxVal, unit)}
               </text>
             </React.Fragment>
@@ -118,26 +124,26 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
           const bW = Math.max(0, (d.value / maxVal) * plotWidth * progress);
           
           const labelOp = interpolate(frame, [delay + 10, delay + 25], [0, 1], { extrapolateRight: "clamp" });
-          const color = Theme.chartColors[i % Theme.chartColors.length];
+          const color = T.colors[i % T.colors.length];
 
           return (
             <g key={i}>
               {/* Category */}
               <text x={plotLeft - fs(15)} y={bY + barHeight/2} textAnchor="end" dominantBaseline="middle" opacity={labelOp} style={{ 
-                fontSize: fs(16), fill: Theme.colors.text, fontWeight: 600, fontFamily: Theme.typography.fontFamily 
+                fontSize: fs(16), fill: T.text, fontWeight: 600, fontFamily: Theme.typography.fontFamily 
               }}>
                 {d.label}
               </text>
 
               {/* Bar Glow */}
-              <rect x={plotLeft} y={bY + fs(3)} width={bW} height={barHeight} fill={color} rx={fs(4)} opacity={0.15 * pop} filter={`url(#glow-${instanceId})`} />
+              <rect x={plotLeft} y={bY + fs(3)} width={bW} height={barHeight} fill={color} rx={fs(4)} opacity={0.15} filter={`url(#glow-${instanceId})`} />
 
               {/* Main Bar */}
               <rect x={plotLeft} y={bY} width={bW} height={barHeight} fill={`url(#hbarGrad-${i}-${instanceId})`} rx={fs(4)} />
 
               {/* Value */}
               <text x={plotLeft + bW + fs(10)} y={bY + barHeight/2} dominantBaseline="middle" opacity={labelOp} style={{ 
-                fontSize: fs(16), fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily 
+                fontSize: fs(16), fill: T.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily 
               }}>
                 {format(d.value, unit)}
               </text>

@@ -6,10 +6,14 @@ import {
   interpolate,
   AbsoluteFill,
 } from "remotion";
-import { Theme } from "../theme";
+import { Theme, resolveTheme } from '../theme';
 
 export interface AreaChartProps {
-  data?: { label: string; value: number }[];
+  data?: { label: string; value: number   theme?: string;
+  backgroundColor?: string;
+  colors?: string[];
+  textColor?: string;
+}[];
   series?: { label: string; data: number[]; color?: string }[];
   labels?: string[];
   title: string;
@@ -23,6 +27,7 @@ const format = (n: number) => {
 };
 
 export const AreaChart: React.FC<AreaChartProps> = ({
+  theme = 'dark',
   data = [],
   series,
   labels,
@@ -31,6 +36,7 @@ export const AreaChart: React.FC<AreaChartProps> = ({
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
+  const T = resolveTheme(theme ?? 'dark');
   const instanceId = useId().replace(/:/g, "");
 
   // ÁREA ÚTIL 4K
@@ -76,7 +82,7 @@ export const AreaChart: React.FC<AreaChartProps> = ({
   const stableCount = progress >= 1 ? xAxisLabels.length : rawCount;
 
   return (
-    <AbsoluteFill style={{ backgroundColor: Theme.colors.background }}>
+    <AbsoluteFill style={{ backgroundColor: T.background }}>
       {/* HEADER */}
       <div style={{ position: "absolute", top: 40, width: "100%", textAlign: "center", opacity: interpolate(frame, [0, 15], [0, 1]) }}>
         {title && <div style={{ fontSize: Theme.typography.title.size, fontWeight: Theme.typography.title.weight, color: Theme.typography.title.color, fontFamily: Theme.typography.fontFamily }}>{title}</div>}
@@ -109,7 +115,7 @@ export const AreaChart: React.FC<AreaChartProps> = ({
         {/* SÉRIES (ÁREAS E LINHAS) */}
         {normalizedSeries.map((s, sIndex) => {
           if (stableCount < 1) return null;
-          const color = s.color || Theme.chartColors[sIndex % Theme.chartColors.length];
+          const color = s.color || T.colors[sIndex % T.colors.length];
 
           const linePath = s.data
             .slice(0, stableCount)

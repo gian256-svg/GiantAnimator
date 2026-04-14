@@ -54,6 +54,7 @@ export const FlowItem: React.FC<{
   node: { id: number; label: string; position: [number, number]; delay: number; icon: string; isCenter?: boolean };
 }> = ({ node }) => {
   const frame = useCurrentFrame();
+  const T = resolveTheme(theme ?? 'dark');
   const { fps } = useVideoConfig();
 
   const entrance = spring({

@@ -6,7 +6,7 @@ import {
   interpolate,
   AbsoluteFill,
 } from "remotion";
-import { Theme } from "../theme";
+import { Theme, resolveTheme } from '../theme';
 
 export interface MekkoSegment {
   label: string;
@@ -24,16 +24,22 @@ export interface MekkoChartProps {
   title: string;
   subtitle?: string;
   backgroundColor?: string;
+  theme?: string;
+  backgroundColor?: string;
+  colors?: string[];
+  textColor?: string;
 }
 
 export const MekkoChart: React.FC<MekkoChartProps> = ({
+  theme = 'dark',
   data = [],
   title,
   subtitle,
-  backgroundColor = Theme.colors.background,
+  backgroundColor ?? T.background,
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
+  const T = resolveTheme(theme ?? 'dark');
   const instanceId = useId().replace(/:/g, "");
 
   const totalMarketValue = useMemo(() => 
@@ -58,7 +64,7 @@ export const MekkoChart: React.FC<MekkoChartProps> = ({
   }, [data, totalMarketValue, plotWidth, margin]);
 
   return (
-    <AbsoluteFill style={{ backgroundColor }}>
+    <AbsoluteFill style={{ backgroundColor ?? T.background }}>
       {/* ZONA 1 — Cabeçalho */}
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',
@@ -83,8 +89,8 @@ export const MekkoChart: React.FC<MekkoChartProps> = ({
         <defs>
           {data[0]?.segments.map((_, j) => (
             <linearGradient key={j} id={`mekkoGrad-${j}-${instanceId}`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={Theme.chartColors[j % Theme.chartColors.length]} />
-              <stop offset="100%" stopColor={Theme.chartColors[j % Theme.chartColors.length]} stopOpacity={0.8} />
+              <stop offset="0%" stopColor={T.colors[j % T.colors.length]} />
+              <stop offset="100%" stopColor={T.colors[j % T.colors.length]} stopOpacity={0.8} />
             </linearGradient>
           ))}
         </defs>
@@ -100,7 +106,7 @@ export const MekkoChart: React.FC<MekkoChartProps> = ({
               {colPop > 0.6 && (
                 <text
                   x={col.x + col.width / 2} y={chartTop - 30} textAnchor="middle"
-                  style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}
+                  style={{ fontSize: Theme.typography.axis.size, fill: T.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}
                 >
                   {col.label} ({Math.round((col.totalValue / totalMarketValue) * 100)}%)
                 </text>
@@ -116,7 +122,7 @@ export const MekkoChart: React.FC<MekkoChartProps> = ({
                   <g key={j}>
                     <rect
                       x={col.x} y={rectY} width={col.width - 4} height={rectH}
-                      fill={`url(#mekkoGrad-${j}-${instanceId})`} stroke={backgroundColor} strokeWidth={2} opacity={0.85}
+                      fill={`url(#mekkoGrad-${j}-${instanceId})`} stroke={backgroundColor ?? T.background} strokeWidth={2} opacity={0.85}
                     />
                     {rectH > 60 && col.width > 80 && colPop > 0.9 && (
                       <text

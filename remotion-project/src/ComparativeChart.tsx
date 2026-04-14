@@ -21,6 +21,7 @@ export type ComparativeChartProps = {
 };
 
 export const ComparativeChart: React.FC<ComparativeChartProps> = ({
+  theme = 'dark',
   data,
   colorSP500 = '#00E5FF',
   colorNVIDIA = '#39FF14',
@@ -32,6 +33,7 @@ export const ComparativeChart: React.FC<ComparativeChartProps> = ({
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
+  const T = resolveTheme(theme ?? 'dark');
 
   const maxDrawingFrame = 800; // Complete drawing slightly before end for pause
   const totalPoints = data.length;

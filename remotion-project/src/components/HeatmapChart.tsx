@@ -7,7 +7,7 @@ import {
   interpolate,
   AbsoluteFill,
 } from "remotion";
-import { Theme } from "../theme";
+import { Theme, resolveTheme } from '../theme';
 
 export interface HeatmapCell {
   x: string;
@@ -22,9 +22,14 @@ export interface HeatmapChartProps {
   title?: string;
   subtitle?: string;
   seriesColors?: string[]; // Min, Max colors
+  theme?: string;
+  backgroundColor?: string;
+  colors?: string[];
+  textColor?: string;
 }
 
 export const HeatmapChart: React.FC<HeatmapChartProps> = ({
+  theme = 'dark',
   data = [],
   xLabels = [],
   yLabels = [],
@@ -34,6 +39,7 @@ export const HeatmapChart: React.FC<HeatmapChartProps> = ({
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
+  const T = resolveTheme(theme ?? 'dark');
 
   const minMax = useMemo(() => {
     if (data.length === 0) return { min: 0, max: 1 };
@@ -60,7 +66,7 @@ export const HeatmapChart: React.FC<HeatmapChartProps> = ({
   };
 
   return (
-    <AbsoluteFill style={{ backgroundColor: Theme.colors.background }}>
+    <AbsoluteFill style={{ backgroundColor: T.background }}>
       {/* ZONA 1: Cabeçalho (Regra D2) */}
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',

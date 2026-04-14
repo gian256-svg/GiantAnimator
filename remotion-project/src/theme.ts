@@ -234,3 +234,173 @@ export const Theme = {
 
 export const THEME = Theme; // alias retrocompatível
 
+// ---------------------------------------------------------------------------
+// SISTEMA DE TEMAS — 6 paletas visuais completas (UI/UX Pro Max)
+// ---------------------------------------------------------------------------
+// ⚠️  REGRA:
+//     Componentes NUNCA devem usar Theme.colors.background ou Theme.chartColors
+//     diretamente. Usem resolveTheme(theme) para obter a identidade visual correta.
+//
+// Como usar num componente:
+//   const T = resolveTheme(theme);
+//   fill={T.colors[0]}
+//   backgroundColor={T.background}
+// ---------------------------------------------------------------------------
+
+export interface ThemeConfig {
+  background:  string;
+  surface:     string;
+  text:        string;
+  textMuted:   string;
+  grid:        string;
+  axis:        string;
+  colors:      readonly string[];
+  positive:    string;
+  negative:    string;
+}
+
+export const THEMES: Record<string, ThemeConfig> = {
+
+  // ── Dark Premium (padrão — inspirado em Financial Dashboard) ──────────────
+  dark: {
+    background: '#0f1117',
+    surface:    '#1a1d27',
+    text:       '#e8eaf6',
+    textMuted:  '#8892b0',
+    grid:       'rgba(232,234,246,0.07)',
+    axis:       'rgba(232,234,246,0.15)',
+    colors: [
+      '#7c3aed', // violeta
+      '#06b6d4', // ciano
+      '#a855f7', // roxo
+      '#22c55e', // verde
+      '#f59e0b', // âmbar
+      '#ef4444', // vermelho
+      '#3b82f6', // azul
+      '#f97316', // laranja
+    ],
+    positive: '#22c55e',
+    negative: '#ef4444',
+  },
+
+  // ── Neon Glow (Gaming — neon purple + rose, fundo ultra escuro) ──────────
+  neon: {
+    background: '#060614',
+    surface:    '#0d0d28',
+    text:       '#f0fff4',
+    textMuted:  '#a0aec0',
+    grid:       'rgba(0,255,136,0.08)',
+    axis:       'rgba(0,255,136,0.25)',
+    colors: [
+      '#00ff88', // verde neon
+      '#00e5ff', // ciano elétrico
+      '#ff00ff', // magenta
+      '#f9f871', // amarelo cyber
+      '#ff6600', // laranja neon
+      '#bf5fff', // roxo elétrico
+      '#00ffcc', // menta neon
+      '#ff4090', // rosa hot
+    ],
+    positive: '#00ff88',
+    negative: '#ff4090',
+  },
+
+  // ── Ocean Deep (Sustainability/ESG — nature green + ocean blue) ──────────
+  ocean: {
+    background: '#0c1b33',
+    surface:    '#0f2644',
+    text:       '#e0f2fe',
+    textMuted:  '#7dd3fc',
+    grid:       'rgba(14,165,233,0.1)',
+    axis:       'rgba(14,165,233,0.3)',
+    colors: [
+      '#0ea5e9', // sky blue
+      '#22d3ee', // ciano vivo
+      '#38bdf8', // azul claro
+      '#059669', // verde-mar
+      '#0891b2', // azul-petróleo
+      '#7dd3fc', // azul ice
+      '#34d399', // esmeralda
+      '#a5f3fc', // azul quase branco
+    ],
+    positive: '#34d399',
+    negative: '#f87171',
+  },
+
+  // ── Sunset (E-commerce / Podcast — warm accent, drama dark) ─────────────
+  sunset: {
+    background: '#1a0800',
+    surface:    '#2d0f00',
+    text:       '#fff7ed',
+    textMuted:  '#fbbf24',
+    grid:       'rgba(249,115,22,0.1)',
+    axis:       'rgba(249,115,22,0.25)',
+    colors: [
+      '#f97316', // laranja
+      '#ef4444', // vermelho
+      '#ec4899', // rosa
+      '#f59e0b', // âmbar
+      '#fb923c', // laranja claro
+      '#fbbf24', // dourado
+      '#dc2626', // vermelho escuro
+      '#e879f9', // fúcsia
+    ],
+    positive: '#fbbf24',
+    negative: '#ef4444',
+  },
+
+  // ── Minimal (Architecture / Interior — black + gold, high contrast) ──────
+  minimal: {
+    background: '#f8fafc',
+    surface:    '#ffffff',
+    text:       '#0f172a',
+    textMuted:  '#475569',
+    grid:       'rgba(15,23,42,0.07)',
+    axis:       'rgba(15,23,42,0.15)',
+    colors: [
+      '#334155', // slate escuro
+      '#475569', // slate médio
+      '#0f172a', // quase preto
+      '#64748b', // slate
+      '#94a3b8', // slate claro
+      '#1e293b', // slate profundo
+      '#cbd5e1', // slate muito claro
+      '#D4AF37', // ouro (accent)
+    ],
+    positive: '#059669',
+    negative: '#dc2626',
+  },
+
+  // ── Corporate (SaaS / Financial — trust blue + orange CTA) ──────────────
+  corporate: {
+    background: '#ffffff',
+    surface:    '#f8fafc',
+    text:       '#0f172a',
+    textMuted:  '#1e293b',
+    grid:       'rgba(30,64,175,0.08)',
+    axis:       'rgba(30,64,175,0.2)',
+    colors: [
+      '#1e40af', // azul institucional
+      '#3b82f6', // azul médio
+      '#0891b2', // ciano-azul
+      '#1d4ed8', // azul forte
+      '#6366f1', // índigo
+      '#0c4a6e', // azul-petróleo
+      '#2563eb', // azul vivo
+      '#f97316', // laranja accent
+    ],
+    positive: '#059669',
+    negative: '#dc2626',
+  },
+};
+
+/**
+ * resolveTheme — Retorna a configuração de tema correta.
+ * Uso: const T = resolveTheme(theme);
+ *
+ * @param theme - string do tema ('dark'|'neon'|'ocean'|'sunset'|'minimal'|'corporate')
+ * @returns ThemeConfig com todas as cores necessárias
+ */
+export function resolveTheme(theme?: string): ThemeConfig {
+  return THEMES[theme ?? 'dark'] ?? THEMES['dark'];
+}

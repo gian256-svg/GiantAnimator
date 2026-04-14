@@ -6,7 +6,7 @@ import {
   interpolate,
   AbsoluteFill,
 } from "remotion";
-import { Theme } from "../theme";
+import { Theme, resolveTheme } from '../theme';
 
 export interface CandleData {
   label: string;
@@ -20,6 +20,10 @@ export interface CandlestickChartProps {
   data: CandleData[];
   title?: string;
   subtitle?: string;
+  theme?: string;
+  backgroundColor?: string;
+  colors?: string[];
+  textColor?: string;
 }
 
 export const CandlestickChart: React.FC<CandlestickChartProps> = ({
@@ -29,13 +33,14 @@ export const CandlestickChart: React.FC<CandlestickChartProps> = ({
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
+  const T = resolveTheme(theme ?? 'dark');
 
   const data = useMemo(() => Array.isArray(propData) ? propData : [], [propData]);
 
   if (data.length === 0) {
     return (
-      <AbsoluteFill style={{ backgroundColor: Theme.colors.background, justifyContent: 'center', alignItems: 'center' }}>
-        <p style={{ color: Theme.colors.text, fontSize: Theme.typography.category.size }}>Aguardando dados...</p>
+      <AbsoluteFill style={{ backgroundColor: T.background, justifyContent: 'center', alignItems: 'center' }}>
+        <p style={{ color: T.text, fontSize: Theme.typography.category.size }}>Aguardando dados...</p>
       </AbsoluteFill>
     );
   }
@@ -68,7 +73,7 @@ export const CandlestickChart: React.FC<CandlestickChartProps> = ({
   };
 
   return (
-    <AbsoluteFill style={{ backgroundColor: Theme.colors.background }}>
+    <AbsoluteFill style={{ backgroundColor: T.background }}>
       {/* ZONA 1: Cabeçalho (Regra D2) */}
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',
@@ -97,7 +102,7 @@ export const CandlestickChart: React.FC<CandlestickChartProps> = ({
             const y = getY(val);
             return (
               <React.Fragment key={v}>
-                <line x1={chartLeft} y1={y} x2={chartLeft + plotWidth} y2={y} stroke={Theme.colors.grid} strokeWidth={1} />
+                <line x1={chartLeft} y1={y} x2={chartLeft + plotWidth} y2={y} stroke={T.grid} strokeWidth={1} />
                 <text x={chartLeft - 20} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.ui.axisText, fontFamily: Theme.typography.fontFamily }}>
                   {formatValue(val)}
                 </text>

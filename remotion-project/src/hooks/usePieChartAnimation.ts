@@ -38,6 +38,7 @@ export function usePieChartAnimation({
   calloutDuration = 20,
 }: UsePieChartAnimationOptions): PieChartAnimationState {
   const frame = useCurrentFrame();
+  const T = resolveTheme(theme ?? 'dark');
 
   return useMemo(() => {
     const BEZIER = Easing.bezier(0.25, 0.1, 0.25, 1.0);

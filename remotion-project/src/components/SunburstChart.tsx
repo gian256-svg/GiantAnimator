@@ -6,7 +6,7 @@ import {
   interpolate,
   AbsoluteFill,
 } from "remotion";
-import { Theme } from "../theme";
+import { Theme, resolveTheme } from '../theme';
 
 export interface SunburstNode {
   label: string;
@@ -18,15 +18,21 @@ export interface SunburstChartProps {
   data: SunburstNode;
   title: string;
   subtitle?: string;
+  theme?: string;
+  backgroundColor?: string;
+  colors?: string[];
+  textColor?: string;
 }
 
 export const SunburstChart: React.FC<SunburstChartProps> = ({
+  theme = 'dark',
   data,
   title,
   subtitle,
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
+  const T = resolveTheme(theme ?? 'dark');
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // ÁREA ÚTIL 4K (REGRA GLOBAL)
@@ -63,12 +69,12 @@ export const SunburstChart: React.FC<SunburstChartProps> = ({
                A ${r1} ${r1} 0 ${largeArc} 0 ${getX(r1, sAngle)} ${getY(r1, sAngle)}
                Z`;
 
-    const color = level === 1 ? Theme.chartColors[Math.abs(hash(node.label)) % Theme.chartColors.length] : pColor;
+    const color = level === 1 ? T.colors[Math.abs(hash(node.label)) % T.colors.length] : pColor;
     const bright = 1 - (level - 1) * 0.08;
 
     return (
       <g key={`${node.label}-${level}`}>
-        <path d={d} fill={color} stroke={Theme.colors.background} strokeWidth={2} style={{ filter: `brightness(${bright})` }} opacity={pop} />
+        <path d={d} fill={color} stroke={T.background} strokeWidth={2} style={{ filter: `brightness(${bright})` }} opacity={pop} />
         {range > 0.15 && pop > 0.9 && (
           <text
             x={getX(r0 + (r1 - r0) / 2, sAngle + range / 2)}
@@ -95,13 +101,13 @@ export const SunburstChart: React.FC<SunburstChartProps> = ({
   };
 
   return (
-    <AbsoluteFill style={{ backgroundColor: Theme.colors.background }}>
+    <AbsoluteFill style={{ backgroundColor: T.background }}>
       <div style={{ position: 'absolute', top: 50, width: '100%', textAlign: 'center', opacity: interpolate(frame, [0, 15], [0, 1]) }}>
         {title && <div style={{ fontSize: Theme.typography.title.size, fontWeight: Theme.typography.title.weight, color: Theme.typography.title.color, fontFamily: Theme.typography.fontFamily }}>{title}</div>}
         {subtitle && <div style={{ fontSize: Theme.typography.subtitle.size, color: Theme.typography.subtitle.color, fontFamily: Theme.typography.fontFamily }}>{subtitle}</div>}
       </div>
       <svg width={width} height={height} style={{ overflow: 'visible' }}>
-        {renderLevel(data, 1, 0, Math.PI * 2, Theme.chartColors[0])}
+        {renderLevel(data, 1, 0, Math.PI * 2, T.colors[0])}
       </svg>
     </AbsoluteFill>
   );

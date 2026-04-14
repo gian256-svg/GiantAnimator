@@ -60,10 +60,11 @@ function setProgress(pct, stage) {
 
 function fileIcon(name) {
   const ext = name.split('.').pop().toLowerCase();
-  if (['xlsx','xls','csv'].includes(ext)) return '📊';
-  if (ext === 'json') return '{ }';
-  if (['png','jpg','jpeg','webp'].includes(ext)) return '🖼';
-  return '📄';
+  // Return SVG paths — wrapped in .hist-thumb or .file-icon containers in HTML
+  if (['xlsx','xls','csv'].includes(ext)) return `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>`;
+  if (ext === 'json') return `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`;
+  if (['png','jpg','jpeg','webp'].includes(ext)) return `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>`;
 }
 
 function renderFileQueue() {
@@ -74,8 +75,10 @@ function renderFileQueue() {
     <div class="file-item">
       <div class="file-icon">${fileIcon(f.name)}</div>
       <div class="file-name">${f.name}</div>
-      <div class="file-status ${f.status}">${f.status === 'pending' ? 'Aguardando' : f.status === 'processing' ? 'Processando...' : f.status === 'done' ? '✓ Concluído' : '✕ Erro'}</div>
-      ${f.status === 'pending' ? `<button class="file-remove" onclick="removeFile('${f.id}')" style="background:none; border:none; cursor:pointer; color:#888;">✕</button>` : ''}
+      <div class="file-status ${f.status}">${f.status === 'pending' ? 'Aguardando' : f.status === 'processing' ? 'Processando...' : f.status === 'done' ? 'Concluído' : 'Erro'}</div>
+      ${f.status === 'pending' ? `<button class="file-remove" onclick="removeFile('${f.id}')" title="Remover">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>` : ''}
     </div>
   `).join('');
   
@@ -96,7 +99,100 @@ function addFiles(fileList) {
     log(`📎 Arquivo adicionado: ${file.name}`);
   });
   renderFileQueue();
+  
+  // Se houver uma tabela (CSV/XLSX), força a visualização do preview
+  const firstTable = Array.from(fileList).find(f => f.name.match(/\.(csv|xlsx|xls|ods)$/i));
+  if (firstTable) {
+    loadCSVPreview(firstTable);
+  }
 }
+
+async function loadCSVPreview(file) {
+  const panel = document.getElementById('csv-preview-panel');
+  if (!panel) return;
+  panel.style.display = 'flex';
+  
+  document.getElementById('csv-meta-info').innerHTML = '<div class="csv-meta-badge">Analisando estrutura...</div>';
+  document.getElementById('csv-cols-row').innerHTML = '';
+  document.getElementById('csv-sample-table').innerHTML = '';
+  document.getElementById('csv-suggestion').innerHTML = '';
+
+  try {
+    // 1. Faz upload simples pra garantir que o arquivo esteja no servidor
+    const fd = new FormData();
+    fd.append('file', file);
+    const uploadRes = await fetch('/api/upload-simple', { method: 'POST', body: fd });
+    const { filename } = await uploadRes.json();
+
+    // 2. Busca preview do arquivo
+    const previewRes = await fetch(`/api/preview-csv?file=${encodeURIComponent(filename)}`);
+    const data = await previewRes.json();
+
+    if (!data.ok) throw new Error(data.error);
+
+    // Meta Info
+    const metaHtml = `
+      <div class="csv-meta-badge accent">${data.totalCols} Colunas</div>
+      <div class="csv-meta-badge ok">${data.totalRows} Linhas</div>
+      <div class="csv-meta-badge">Delimitador: ${data.delimiterLabel}</div>
+      <div class="csv-meta-badge">Formato: ${data.shape === 'wide' ? 'Wide (Múltiplas séries)' : 'Long (Série simples)'}</div>
+    `;
+    document.getElementById('csv-meta-info').innerHTML = metaHtml;
+
+    // Colunas (Rainbow CSV style: azul para cat, verde para num)
+    let colsHtml = '';
+    data.categoricalColumns.forEach(c => {
+      colsHtml += \`<div class="csv-col-chip categorical"><span class="chip-type">TEXT</span>\${c}</div>\`;
+    });
+    data.numericColumns.forEach(c => {
+      colsHtml += \`<div class="csv-col-chip numeric"><span class="chip-type">NUM</span>\${c}</div>\`;
+    });
+    document.getElementById('csv-cols-row').innerHTML = colsHtml;
+
+    // Tabela Amostra
+    let sampleHtml = '<tr>';
+    data.headers.forEach(h => {
+      const isNum = data.numericColumns.includes(h);
+      sampleHtml += \`<th class="\${isNum ? 'col-num' : 'col-cat'}">\${h}</th>\`;
+    });
+    sampleHtml += '</tr>';
+
+    data.sample.forEach(row => {
+      sampleHtml += '<tr>';
+      data.headers.forEach(h => {
+        const val = row[h] !== undefined && row[h] !== null ? row[h] : '';
+        const isNum = data.numericColumns.includes(h);
+        sampleHtml += \`<td class="\${isNum ? 'col-num' : ''}" title="\${val}">\${val}</td>\`;
+      });
+      sampleHtml += '</tr>';
+    });
+    document.getElementById('csv-sample-table').innerHTML = sampleHtml;
+
+    // Sugere tipo de gráfico
+    const chartTypeSelect = document.getElementById('chart-type');
+    if (chartTypeSelect && data.suggestedChartType && chartTypeSelect.value === 'auto') {
+      chartTypeSelect.value = data.suggestedChartType;
+    }
+    
+    document.getElementById('csv-suggestion').innerHTML = \`
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+      A estrutura indica que sugerimos o gráfico: <strong>\${data.suggestedChartType}</strong>. Autoselecionado.
+    \`;
+
+  } catch (err) {
+    document.getElementById('csv-meta-info').innerHTML = \`<div class="csv-meta-badge accent">Erro ao prever estrutura: \${err.message}</div>\`;
+  }
+}
+
+
+function addClipboardImage(blob, index) {
+  const name = `imagem_colada_${Date.now()}${index > 0 ? '_' + index : ''}.png`;
+  const file = new File([blob], name, { type: blob.type || 'image/png' });
+  state.files.push({ id: uid(), file, name: file.name, size: file.size, status: 'pending' });
+  log(`📋 Imagem colada do clipboard: ${file.name}`);
+  renderFileQueue();
+}
+
 
 // ─── DOM EVENTS ───────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
@@ -112,6 +208,31 @@ document.addEventListener('DOMContentLoaded', () => {
     dz.addEventListener('dragleave', () => { dz.style.borderColor = ''; dz.style.backgroundColor = ''; });
     dz.addEventListener('drop', e => { e.preventDefault(); dz.style.borderColor = ''; dz.style.backgroundColor = ''; addFiles(e.dataTransfer.files); });
   }
+
+  // ─── CTRL+V / PASTE ────────────────────────────────────────
+  document.addEventListener('paste', (e) => {
+    if (!e.clipboardData) return;
+    const items = Array.from(e.clipboardData.items);
+    const imageItems = items.filter(item => item.type.startsWith('image/'));
+
+    if (!imageItems.length) return;
+
+    e.preventDefault();
+
+    // Flash visual no drop-zone
+    if (dz) {
+      dz.style.borderColor = '#111';
+      dz.style.backgroundColor = '#F0F0F0';
+      setTimeout(() => { dz.style.borderColor = ''; dz.style.backgroundColor = ''; }, 500);
+    }
+
+    imageItems.forEach((item, i) => {
+      const blob = item.getAsFile();
+      if (blob) addClipboardImage(blob, i);
+    });
+
+    toast('Imagem colada do clipboard!', 'success');
+  });
 
   if (btnRender) {
     btnRender.addEventListener('click', async () => {
@@ -180,6 +301,23 @@ document.addEventListener('DOMContentLoaded', () => {
   // Status check
   setInterval(checkStatus, 10000);
   checkStatus();
+
+  // ─── CLEAR HISTORY ─────────────────────────────────────────
+  const btnClearHistory = document.getElementById('btn-clear-history');
+  if (btnClearHistory) {
+    btnClearHistory.addEventListener('click', async () => {
+      if (!confirm('Limpar todo o histórico?')) return;
+      try {
+        await fetch('/history/clear', { method: 'POST' });
+        state.history = [];
+        renderHistory();
+        toast('Histórico limpo!', 'info');
+        log('🗑 Histórico limpo.');
+      } catch (err) {
+        toast('Erro ao limpar histórico', 'error');
+      }
+    });
+  }
 });
 
 /* ═══════════════════════════════════════════════════════════════
@@ -333,10 +471,20 @@ async function refreshHistory() {
 function renderHistory() {
   const el = document.getElementById('history-list');
   const countEl = document.getElementById('history-count');
+  const clearBtn = document.getElementById('btn-clear-history');
   if (!el) return;
 
   if (countEl) countEl.textContent = `${state.history.length} / 10`;
-  if (!state.history.length) return;
+  
+  // Mostrar/esconder botão Limpar
+  if (clearBtn) clearBtn.style.display = state.history.length > 0 ? 'flex' : 'none';
+
+  if (!state.history.length) {
+    el.innerHTML = '<div class="history-empty">Nenhuma animação gerada ainda</div>';
+    return;
+  }
+
+  const playIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;
 
   el.innerHTML = state.history.map(h => `
     <div class="history-item" onclick="loadVideo('${h.videoUrl || '/output/'+h.outputFile}', '${h.filename || h.name}', '${h.duration || ''}')">
@@ -345,6 +493,7 @@ function renderHistory() {
         <div class="hist-name">${h.filename || h.name}</div>
         <div class="hist-meta">${new Date(h.createdAt).toLocaleString('pt-BR')}</div>
       </div>
+      <div class="hist-play">${playIcon}</div>
     </div>
   `).join('');
 }

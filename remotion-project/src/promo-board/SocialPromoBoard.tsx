@@ -32,6 +32,7 @@ const SPARKLE_COLORS = [
 
 export const SocialPromoBoard: React.FC = () => {
   const frame = useCurrentFrame();
+  const T = resolveTheme(theme ?? 'dark');
   const { fps, width, height } = useVideoConfig(); // RESTORED 30FPS STANDARD
 
   /* =========================================

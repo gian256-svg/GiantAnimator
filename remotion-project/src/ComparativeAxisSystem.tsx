@@ -26,6 +26,7 @@ export const ComparativeAxisSystem: React.FC<ComparativeAxisSystemProps> = ({
   topOffset,
   bottomOffset,
 }) => {
+  const T = resolveTheme(theme ?? 'dark');
   const chartHeight = height - topOffset - bottomOffset;
   const paddingHorizontal = 100;
   const chartWidth = width - paddingHorizontal * 2;

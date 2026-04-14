@@ -7,14 +7,18 @@ import {
   AbsoluteFill,
 } from "remotion";
 import { evolvePath } from "@remotion/paths";
-import { Theme } from "../theme";
+import { Theme, resolveTheme } from '../theme';
 
 export interface MultiLineChartProps {
   series: {
     label: string;
     data: number[];
     color?: string;
-  }[];
+    theme?: string;
+  backgroundColor?: string;
+  colors?: string[];
+  textColor?: string;
+}[];
   labels: string[];
   title?: string;
   subtitle?: string;
@@ -32,6 +36,7 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
+  const T = resolveTheme(theme ?? 'dark');
   const instanceId = useId().replace(/:/g, "");
   const ANIMATION_FRAMES = Theme.animation.animationFrames;
 
@@ -41,8 +46,8 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
 
   if (series.length === 0 || labels.length < 2) {
     return (
-      <AbsoluteFill style={{ backgroundColor: Theme.colors.background, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <p style={{ color: Theme.colors.text, fontSize: Theme.typography.category.size }}>Aguardando dados...</p>
+      <AbsoluteFill style={{ backgroundColor: T.background, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <p style={{ color: T.text, fontSize: Theme.typography.category.size }}>Aguardando dados...</p>
       </AbsoluteFill>
     );
   }
@@ -91,7 +96,7 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
   }, [series, legendMode, yMin, yMax]);
 
   return (
-    <AbsoluteFill style={{ backgroundColor: Theme.colors.background }}>
+    <AbsoluteFill style={{ backgroundColor: T.background }}>
       {/* ZONA 1: Cabeçalho (Regra D2) */}
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',
@@ -120,7 +125,7 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
             const y = getY(val);
             return (
               <React.Fragment key={i}>
-                <line x1={chartLeft} y1={y} x2={chartLeft + plotWidth} y2={y} stroke={Theme.colors.grid} strokeWidth={1} />
+                <line x1={chartLeft} y1={y} x2={chartLeft + plotWidth} y2={y} stroke={T.grid} strokeWidth={1} />
                 <text 
                   x={chartLeft - 20} y={y} textAnchor="end" dominantBaseline="middle" 
                   style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.ui.axisText, fontFamily: Theme.typography.fontFamily }}

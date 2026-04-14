@@ -5,7 +5,7 @@ import {
   useVideoConfig,
   Easing,
 } from 'remotion';
-import { Theme } from './theme';
+import { Theme, resolveTheme } from './theme';
 
 interface BarChartRaceProps {
   title?: string;
@@ -15,7 +15,11 @@ interface BarChartRaceProps {
     values: number[][]; // [participant][period]
     colors?: string[];
     images?: string[];
-  };
+    theme?: string;
+  backgroundColor?: string;
+  colors?: string[];
+  textColor?: string;
+};
   topN?: number;
   transitionFrames?: number;
 }
@@ -27,6 +31,7 @@ export const BarChartRace: React.FC<BarChartRaceProps> = ({
   transitionFrames = 30,
 }) => {
   const frame = useCurrentFrame();
+  const T = resolveTheme(theme ?? 'dark');
   const { fps, width, height } = useVideoConfig();
 
   const { labels, periods, values, colors, images } = data;
@@ -79,7 +84,7 @@ export const BarChartRace: React.FC<BarChartRaceProps> = ({
   const maxValue = Math.max(...currentValues) * 1.1;
 
   return (
-    <AbsoluteFill style={{ backgroundColor: Theme.colors.background, padding }}>
+    <AbsoluteFill style={{ backgroundColor: T.background, padding }}>
       {/* Título (Ciclo 35.2 - Entrada 0-15f) */}
       <h1 style={{
         ...Theme.typography.title,
@@ -99,7 +104,7 @@ export const BarChartRace: React.FC<BarChartRaceProps> = ({
             top: 0,
             bottom: 0,
             width: 1,
-            backgroundColor: Theme.colors.grid,
+            backgroundColor: T.grid,
             opacity: interpolate(frame, [5, 25], [0, 0.2]),
           }}>
             <span style={{

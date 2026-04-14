@@ -6,7 +6,7 @@ import {
   interpolate,
   AbsoluteFill,
 } from "remotion";
-import { Theme } from "../theme";
+import { Theme, resolveTheme } from '../theme';
 
 export interface SankeyNode {
   id: string;
@@ -26,6 +26,10 @@ export interface SankeyChartProps {
   title: string;
   subtitle?: string;
   backgroundColor?: string;
+  theme?: string;
+  backgroundColor?: string;
+  colors?: string[];
+  textColor?: string;
 }
 
 export const SankeyChart: React.FC<SankeyChartProps> = ({
@@ -33,10 +37,11 @@ export const SankeyChart: React.FC<SankeyChartProps> = ({
   links = [],
   title,
   subtitle,
-  backgroundColor = Theme.colors.background,
+  backgroundColor ?? T.background,
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
+  const T = resolveTheme(theme ?? 'dark');
   const instanceId = useId().replace(/:/g, "");
 
   // Safe Zone 4K
@@ -95,14 +100,14 @@ export const SankeyChart: React.FC<SankeyChartProps> = ({
       const linkH = (l.value / maxColTotal) * plotHeight;
       sourceOffsets[l.source] = sOff + l.value;
       targetOffsets[l.target] = tOff + l.value;
-      return { ...l, sX: sNode.x + nodeWidth, sY: sY + linkH / 2, tX: tNode.x, tY: tY + linkH / 2, h: linkH, color: Theme.chartColors[nodes.indexOf(sNode) % Theme.chartColors.length] };
+      return { ...l, sX: sNode.x + nodeWidth, sY: sY + linkH / 2, tX: tNode.x, tY: tY + linkH / 2, h: linkH, color: T.colors[nodes.indexOf(sNode) % T.colors.length] };
     });
 
     return { nodes: nodesLayout, links: linksLayout };
   }, [nodes, links, plotWidth, plotHeight, margin, chartTop]);
 
   return (
-    <AbsoluteFill style={{ backgroundColor }}>
+    <AbsoluteFill style={{ backgroundColor ?? T.background }}>
       {/* ZONA 1 — Cabeçalho */}
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',
@@ -140,14 +145,14 @@ export const SankeyChart: React.FC<SankeyChartProps> = ({
         {/* Nodes */}
         {layout.nodes.map((n, i) => {
           const progress = spring({ frame: frame - 20 - i * 4, fps, config: { damping: 14, stiffness: 100 } });
-          const color = Theme.chartColors[nodes.indexOf(n) % Theme.chartColors.length];
+          const color = T.colors[nodes.indexOf(n) % T.colors.length];
           return (
             <g key={n.id} opacity={progress}>
               <rect x={n.x} y={n.y} width={nodeWidth} height={n.h} fill={color} rx={8} />
               <text
                 x={n.column === 0 ? n.x - 20 : n.x + nodeWidth + 20} y={n.y + n.h / 2}
                 textAnchor={n.column === 0 ? "end" : "start"} dominantBaseline="middle"
-                style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}
+                style={{ fontSize: Theme.typography.axis.size, fill: T.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}
               >
                 {n.label}
               </text>

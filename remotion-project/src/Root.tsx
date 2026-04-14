@@ -16,7 +16,7 @@ import { SparklineChartPreview }  from "./previews/SparklineChart.preview";
 import { ComparativeBarChart }     from "./components/ComparativeBarChart";
 import { ComparativeBarChartPreview } from "./previews/ComparativeBarChart.preview";
 import { LineChart }          from "./charts/LineChart";
-import { PieChart }           from "./components/PieChart";
+import { PieChart }           from "./charts/PieChart";
 import { DonutChart }         from "./components/DonutChart";
 import { PieChartPreview }      from "./previews/PieChart.preview";
 import { DonutChartPreview }    from "./previews/DonutChart.preview";

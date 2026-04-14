@@ -6,7 +6,7 @@ import {
   interpolate,
   AbsoluteFill,
 } from "remotion";
-import { Theme } from "../theme";
+import { Theme, resolveTheme } from '../theme';
 
 export interface BoxSet {
   label: string;
@@ -23,24 +23,29 @@ export interface BoxPlotChartProps {
   title: string;
   subtitle?: string;
   backgroundColor?: string;
+  theme?: string;
+  backgroundColor?: string;
+  colors?: string[];
+  textColor?: string;
 }
 
 export const BoxPlotChart: React.FC<BoxPlotChartProps> = ({
   data: propData = [],
   title,
   subtitle,
-  backgroundColor = Theme.colors.background,
+  backgroundColor ?? T.background,
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
+  const T = resolveTheme(theme ?? 'dark');
   const instanceId = useId().replace(/:/g, "");
 
   const data = useMemo(() => (Array.isArray(propData) ? propData : []), [propData]);
 
   if (data.length === 0) {
     return (
-      <AbsoluteFill style={{ backgroundColor, justifyContent: 'center', alignItems: 'center' }}>
-        <p style={{ color: Theme.colors.text, fontSize: Theme.typography.category.size }}>Nenhum dado para exibir.</p>
+      <AbsoluteFill style={{ backgroundColor ?? T.background, justifyContent: 'center', alignItems: 'center' }}>
+        <p style={{ color: T.text, fontSize: Theme.typography.category.size }}>Nenhum dado para exibir.</p>
       </AbsoluteFill>
     );
   }
@@ -64,7 +69,7 @@ export const BoxPlotChart: React.FC<BoxPlotChartProps> = ({
   const boxWidth = 120; // 4K Scale
 
   return (
-    <AbsoluteFill style={{ backgroundColor }}>
+    <AbsoluteFill style={{ backgroundColor ?? T.background }}>
       {/* ZONA 1 — Cabeçalho */}
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',
@@ -89,8 +94,8 @@ export const BoxPlotChart: React.FC<BoxPlotChartProps> = ({
         <defs>
           {data.map((_, i) => (
             <linearGradient key={i} id={`boxGrad-${i}-${instanceId}`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={Theme.chartColors[i % Theme.chartColors.length]} />
-              <stop offset="100%" stopColor={Theme.chartColors[i % Theme.chartColors.length]} stopOpacity={0.8} />
+              <stop offset="0%" stopColor={T.colors[i % T.colors.length]} />
+              <stop offset="100%" stopColor={T.colors[i % T.colors.length]} stopOpacity={0.8} />
             </linearGradient>
           ))}
         </defs>
@@ -102,7 +107,7 @@ export const BoxPlotChart: React.FC<BoxPlotChartProps> = ({
             const y = getY(val);
             return (
               <React.Fragment key={v}>
-                <line x1={chartLeft} y1={y} x2={chartLeft + plotWidth} y2={y} stroke={Theme.colors.grid} strokeWidth={1} />
+                <line x1={chartLeft} y1={y} x2={chartLeft + plotWidth} y2={y} stroke={T.grid} strokeWidth={1} />
                 <text x={chartLeft - 20} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.ui.axisText, fontFamily: Theme.typography.fontFamily }}>
                   {Math.round(val).toLocaleString()}
                 </text>

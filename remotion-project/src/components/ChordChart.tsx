@@ -6,7 +6,7 @@ import {
   interpolate,
   AbsoluteFill,
 } from "remotion";
-import { Theme } from "../theme";
+import { Theme, resolveTheme } from '../theme';
 
 export interface ChordEntity {
   id: string;
@@ -24,6 +24,10 @@ export interface ChordChartProps {
   flows: ChordFlow[];
   title: string;
   subtitle?: string;
+  theme?: string;
+  backgroundColor?: string;
+  colors?: string[];
+  textColor?: string;
 }
 
 export const ChordChart: React.FC<ChordChartProps> = ({
@@ -34,6 +38,7 @@ export const ChordChart: React.FC<ChordChartProps> = ({
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
+  const T = resolveTheme(theme ?? 'dark');
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // ÁREA ÚTIL 4K (REGRA GLOBAL)
@@ -74,7 +79,7 @@ export const ChordChart: React.FC<ChordChartProps> = ({
   });
 
   return (
-    <AbsoluteFill style={{ backgroundColor: Theme.colors.background }}>
+    <AbsoluteFill style={{ backgroundColor: T.background }}>
       <div style={{ position: 'absolute', top: 50, width: '100%', textAlign: 'center', opacity: interpolate(frame, [0, 15], [0, 1]) }}>
         {title && <div style={{ fontSize: Theme.typography.title.size, fontWeight: Theme.typography.title.weight, color: Theme.typography.title.color, fontFamily: Theme.typography.fontFamily }}>{title}</div>}
         {subtitle && <div style={{ fontSize: Theme.typography.subtitle.size, color: Theme.typography.subtitle.color, fontFamily: Theme.typography.fontFamily }}>{subtitle}</div>}
@@ -94,7 +99,7 @@ export const ChordChart: React.FC<ChordChartProps> = ({
           return (
             <path
               key={i} d={`M ${p1.x} ${p1.y} Q ${cx} ${cy} ${p2.x} ${p2.y}`}
-              fill="none" stroke={Theme.chartColors[entities.indexOf(s) % Theme.chartColors.length]}
+              fill="none" stroke={T.colors[entities.indexOf(s) % T.colors.length]}
               strokeWidth={Math.max(6, (flow.value / totalAll) * 180)}
               strokeOpacity={0.3 * prog} strokeLinecap="round"
             />
@@ -114,9 +119,9 @@ export const ChordChart: React.FC<ChordChartProps> = ({
           const lp = getPos(outerRadius + 80, mid);
           return (
             <g key={arc.id}>
-              <path d={d} fill={Theme.chartColors[i % Theme.chartColors.length]} opacity={pop} />
+              <path d={d} fill={T.colors[i % T.colors.length]} opacity={pop} />
               {pop > 0.8 && (
-                <text x={lp.x} y={lp.y} textAnchor="middle" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>
+                <text x={lp.x} y={lp.y} textAnchor="middle" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: T.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>
                   {arc.label}
                 </text>
               )}

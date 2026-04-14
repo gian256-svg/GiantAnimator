@@ -9,7 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { bundle } from '@remotion/bundler';
 import { renderMedia, selectComposition } from '@remotion/renderer';
 import { analyzeChartImage } from './visionService.js';
-import { getHistory, addJob } from './historyService.js';
+import { getHistory, addJob, clearHistory } from './historyService.js';
 
 
 // ─── UTILS ───────────────────────────────────────────────────
@@ -108,12 +108,88 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok', uptime: process.uptime(), jobs: jobs.size });
 });
 
+// ─── HISTORY ──────────────────────────────────────────────────
 app.get('/history', (_req, res) => {
   res.json(getHistory());
 });
 
+app.post('/history/clear', (_req, res) => {
+  clearHistory();
+  res.json({ ok: true });
+});
+
+// ─── CSV PREVIEW (estrutura antes do render) ───────────────────
+// Inspirado no Rainbow CSV: mostra colunas, tipos e amostra de dados
+// para o usuário confirmar o mapeamento antes de animar.
+app.get('/api/preview-csv', async (req: Request, res: Response) => {
+  try {
+    const { file } = req.query;
+    if (!file || typeof file !== 'string') {
+      res.status(400).json({ error: 'Parâmetro ?file= obrigatório' });
+      return;
+    }
+
+    // Segurança: file deve estar dentro de UPLOADS_DIR
+    const fullPath = path.resolve(UPLOADS_DIR, path.basename(file));
+    if (!fullPath.startsWith(UPLOADS_DIR)) {
+      res.status(403).json({ error: 'Acesso negado' });
+      return;
+    }
+    if (!fs.existsSync(fullPath)) {
+      res.status(404).json({ error: `Arquivo não encontrado: ${path.basename(file)}` });
+      return;
+    }
+
+    const { tableParserService } = await import('./tableParserService.js');
+    const parsed = tableParserService.parse(fullPath);
+
+    // Monta resposta rica para o painel de preview
+    const delimLabel: Record<string, string> = {
+      ',':  'vírgula (,)',
+      ';':  'ponto-e-vírgula (;)',
+      '\t': 'tabulação (Tab)',
+      '|':  'pipe (|)',
+    };
+
+    res.json({
+      ok: true,
+      file: path.basename(file),
+      delimiter: parsed.detectedDelimiter ?? ',',
+      delimiterLabel: delimLabel[parsed.detectedDelimiter ?? ','] ?? parsed.detectedDelimiter,
+      shape: parsed.shape,
+      totalRows: parsed.summary.totalRows,
+      totalCols: parsed.summary.totalCols,
+      headers: parsed.headers,
+      numericColumns:     parsed.summary.numericColumns,
+      categoricalColumns: parsed.summary.categoricalColumns,
+      // Primeira coluna categórica → eixo X sugerido
+      suggestedLabelColumn: parsed.summary.categoricalColumns[0] ?? parsed.headers[0],
+      // Primeira coluna numérica → eixo Y sugerido
+      suggestedValueColumn: parsed.summary.numericColumns[0]     ?? parsed.headers[1],
+      // Hint do tipo de gráfico
+      suggestedChartType: parsed.summary.numericColumns.length > 1 ? 'GroupedBarChart'
+        : parsed.summary.totalRows <= 8 ? 'PieChart' : 'BarChart',
+      // 5 linhas de amostra
+      sample: parsed.summary.sample,
+    });
+  } catch (err: any) {
+    console.error('❌ [preview-csv]', err.message);
+    res.status(500).json({ error: err.message ?? 'Erro ao analisar CSV' });
+  }
+});
+
 
 // ─── UPLOAD + RENDER 720p ─────────────────────────────────────
+// ─── UPLOAD SIMPLES (sem render) ──────────────────────────────
+// Apenas salva o arquivo em UPLOADS_DIR para posterior análise ou preview.
+app.post('/api/upload-simple', upload.single('file'), (req: Request, res: Response) => {
+  if (!req.file) {
+    res.status(400).json({ error: 'Nenhum arquivo enviado' });
+    return;
+  }
+  res.json({ ok: true, filename: req.file.filename });
+});
+
 app.post('/upload', upload.single('file'), async (req: Request, res: Response) => {
   try {
     if (!req.file) {
@@ -179,16 +255,32 @@ async function processJob720p(
       emit(10, 'Analisando imagem com Gemini Vision...');
       const analysis = await analyzeChartImage(file.path);
       resolvedType = chartType === 'auto' ? analysis.componentId : chartType;
+
+      // Paletas por tema — identidade visual única por tema
+      const themeMap: Record<string, { colors: string[]; backgroundColor: string; textColor: string }> = {
+        dark:      { colors: ['#7c3aed','#06b6d4','#a855f7','#22c55e','#f59e0b','#ef4444'], backgroundColor: '#0f1117', textColor: '#e8eaf6' },
+        neon:      { colors: ['#00ff88','#00ccff','#ff00ff','#f9f871','#ff6600','#00e5ff'], backgroundColor: '#060614', textColor: '#f0fff4' },
+        ocean:     { colors: ['#0ea5e9','#38bdf8','#7dd3fc','#22d3ee','#0284c7','#bae6fd'], backgroundColor: '#0c1b33', textColor: '#e0f2fe' },
+        sunset:    { colors: ['#f97316','#ef4444','#ec4899','#f59e0b','#fb923c','#fbbf24'], backgroundColor: '#1a0800', textColor: '#fff7ed' },
+        minimal:   { colors: ['#64748b','#94a3b8','#475569','#334155','#cbd5e1','#e2e8f0'], backgroundColor: '#f8fafc', textColor: '#0f172a' },
+        corporate: { colors: ['#1e40af','#3b82f6','#60a5fa','#1d4ed8','#2563eb','#93c5fd'], backgroundColor: '#ffffff', textColor: '#111827' },
+      };
+      const themeConfig = themeMap[chartTheme] || themeMap.dark;
+
       inputProps = {
         ...analysis.props,
-        chartType: resolvedType,
-        theme: chartTheme,
-        width: 1280,
-        height: 720,
-        fps: 30,
-        durationInSeconds: 8
+        chartType:       resolvedType,
+        theme:           chartTheme,
+        colors:          themeConfig.colors,
+        backgroundColor: themeConfig.backgroundColor,
+        textColor:       themeConfig.textColor,
+        width:           1280,
+        height:          720,
+        fps:             30,
+        durationInSeconds: 8,
       };
       emit(20, 'Imagem analisada ✓', `📊 ${analysis.reasoning.slice(0, 50)}...`);
+
     } else {
       const inputData = await analyzeFile(file);
       emit(20, 'Arquivo analisado ✓', `📊 ${inputData.rowCount} linhas detectadas`);
@@ -553,16 +645,42 @@ function buildInputProps(
   height:       number,
   originalname: string,
 ) {
-  const palettes: Record<string, string[]> = {
-    dark:      ['#7c3aed','#06b6d4','#a855f7','#22c55e','#f59e0b','#ef4444'],
-    neon:      ['#00ff88','#00ccff','#ff00ff','#ffff00','#ff6600','#00ffcc'],
-    ocean:     ['#0ea5e9','#38bdf8','#0284c7','#7dd3fc','#0369a1','#bae6fd'],
-    sunset:    ['#f97316','#ef4444','#ec4899','#f59e0b','#dc2626','#fb923c'],
-    minimal:   ['#e2e8f0','#94a3b8','#64748b','#334155','#cbd5e1','#f8fafc'],
-    corporate: ['#1e40af','#3b82f6','#60a5fa','#93c5fd','#1d4ed8','#2563eb'],
+  const themeMap: Record<string, { colors: string[]; backgroundColor: string; textColor: string }> = {
+    dark: {
+      colors:          ['#7c3aed','#06b6d4','#a855f7','#22c55e','#f59e0b','#ef4444'],
+      backgroundColor: '#0f1117',
+      textColor:       '#e8eaf6',
+    },
+    neon: {
+      colors:          ['#00ff88','#00ccff','#ff00ff','#f9f871','#ff6600','#00e5ff'],
+      backgroundColor: '#060614',
+      textColor:       '#f0fff4',
+    },
+    ocean: {
+      colors:          ['#0ea5e9','#38bdf8','#7dd3fc','#22d3ee','#0284c7','#bae6fd'],
+      backgroundColor: '#0c1b33',
+      textColor:       '#e0f2fe',
+    },
+    sunset: {
+      colors:          ['#f97316','#ef4444','#ec4899','#f59e0b','#fb923c','#fbbf24'],
+      backgroundColor: '#1a0800',
+      textColor:       '#fff7ed',
+    },
+    minimal: {
+      colors:          ['#64748b','#94a3b8','#475569','#334155','#cbd5e1','#e2e8f0'],
+      backgroundColor: '#f8fafc',
+      textColor:       '#0f172a',
+    },
+    corporate: {
+      colors:          ['#1e40af','#3b82f6','#60a5fa','#1d4ed8','#2563eb','#93c5fd'],
+      backgroundColor: '#ffffff',
+      textColor:       '#111827',
+    },
   };
 
-  // ✅ Converte para o formato que o BarChart espera: { label, value }[]
+  const themeConfig = themeMap[theme] || themeMap.dark;
+
+  // Converte para o formato que o BarChart espera: { label, value }[]
   const firstDataset = data.datasets[0];
   const chartData: { label: string; value: number }[] = data.labels.map((label, i) => ({
     label,
@@ -576,9 +694,11 @@ function buildInputProps(
     unit:      data.unit || '',
 
     // Campos extras
-    labels:   data.labels,
-    datasets: data.datasets,
-    colors:   palettes[theme] || palettes.dark,
+    labels:          data.labels,
+    datasets:        data.datasets,
+    colors:          themeConfig.colors,
+    backgroundColor: themeConfig.backgroundColor,
+    textColor:       themeConfig.textColor,
     theme,
     chartType,
     width,
@@ -591,18 +711,45 @@ function buildInputProps(
 // ─── RESOLVE COMPOSITION ──────────────────────────────────────
 function resolveCompositionId(chartType: string): string {
   const map: Record<string, string> = {
+    // Select UI values
     bar:            'BarChart',
-    vertical_bar:   'BarChart',
-    horizontal_bar: 'HorizontalBarChart',
     line:           'LineChart',
-    multiline:      'MultiLineChart',
     pie:            'PieChart',
-    donut:          'PieChart',
+    donut:          'DonutChart',
     area:           'AreaChart',
     scatter:        'ScatterPlot',
-    heatmap:        'Heatmap',
+    bubble:         'BubbleChart',
+    heatmap:        'HeatmapChart',
+    radar:          'RadarChart',
+
+    // Vision / agent values
+    vertical_bar:   'BarChart',
+    horizontal_bar: 'HorizontalBarChart',
+    bar_h:          'HorizontalBarChart',
+    bar_v:          'BarChart',
+    bar_grouped:    'GroupedBarChart',
+    bar_stacked:    'StackedBarChart',
+    grouped_bar:    'GroupedBarChart',
+    stacked_bar:    'StackedBarChart',
+    multiline:      'MultiLineChart',
     waterfall:      'WaterfallChart',
     candlestick:    'CandlestickChart',
+    gauge:          'GaugeChart',
+    funnel:         'FunnelChart',
+    sankey:         'SankeyChart',
+    treemap:        'TreemapChart',
+    polar:          'PolarChart',
+    bullet:         'BulletChart',
+    sparkline:      'SparklineChart',
+    boxplot:        'BoxPlotChart',
+    network:        'NetworkChart',
+    histogram:      'HistogramChart',
+    pareto:         'ParetoChart',
+    sunburst:       'SunburstChart',
+    chord:          'ChordChart',
+    mekko:          'MekkoChart',
+    comparative:    'ComparativeBarChart',
+    bar_race:       'BarChartRace',
   };
   return map[chartType?.toLowerCase()] ?? 'BarChart';
 }

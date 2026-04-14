@@ -6,7 +6,7 @@ import {
   interpolate,
   AbsoluteFill,
 } from "remotion";
-import { Theme } from "../theme";
+import { Theme, resolveTheme } from '../theme';
 
 export interface NetworkNode {
   id: string;
@@ -29,6 +29,10 @@ export interface NetworkChartProps {
   title: string;
   subtitle?: string;
   backgroundColor?: string;
+  theme?: string;
+  backgroundColor?: string;
+  colors?: string[];
+  textColor?: string;
 }
 
 export const NetworkChart: React.FC<NetworkChartProps> = ({
@@ -36,10 +40,11 @@ export const NetworkChart: React.FC<NetworkChartProps> = ({
   edges = [],
   title,
   subtitle,
-  backgroundColor = Theme.colors.background,
+  backgroundColor ?? T.background,
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
+  const T = resolveTheme(theme ?? 'dark');
   const instanceId = useId().replace(/:/g, "");
 
   // Safe Zone 4K
@@ -54,7 +59,7 @@ export const NetworkChart: React.FC<NetworkChartProps> = ({
   const getAbsY = (ry: number) => plotTop + ry * plotHeight;
 
   return (
-    <AbsoluteFill style={{ backgroundColor }}>
+    <AbsoluteFill style={{ backgroundColor ?? T.background }}>
       {/* ZONA 1 — Cabeçalho */}
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',
@@ -84,8 +89,8 @@ export const NetworkChart: React.FC<NetworkChartProps> = ({
           </marker>
           {nodes.map((_, i) => (
             <radialGradient key={i} id={`nodeGrad-${i}-${instanceId}`}>
-              <stop offset="0%" stopColor={Theme.chartColors[i % Theme.chartColors.length]} />
-              <stop offset="100%" stopColor={Theme.chartColors[i % Theme.chartColors.length]} stopOpacity={0.8} />
+              <stop offset="0%" stopColor={T.colors[i % T.colors.length]} />
+              <stop offset="100%" stopColor={T.colors[i % T.colors.length]} stopOpacity={0.8} />
             </radialGradient>
           ))}
         </defs>
@@ -124,12 +129,12 @@ export const NetworkChart: React.FC<NetworkChartProps> = ({
             <g key={node.id}>
               <circle
                 cx={x} cy={y} r={radius * nodePop}
-                fill={`url(#nodeGrad-${i}-${instanceId})`} stroke={backgroundColor} strokeWidth={4} opacity={nodePop}
+                fill={`url(#nodeGrad-${i}-${instanceId})`} stroke={backgroundColor ?? T.background} strokeWidth={4} opacity={nodePop}
               />
               {nodePop > 0.8 && (
                 <text
                   x={x} y={y + radius + 30} textAnchor="middle"
-                  style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}
+                  style={{ fontSize: Theme.typography.axis.size, fill: T.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}
                 >
                   {node.label}
                 </text>

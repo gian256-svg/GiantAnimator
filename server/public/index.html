@@ -3,64 +3,136 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GiantAnimator</title>
+  <title>GiantAnimator — Animate Charts with AI</title>
+  <meta name="description" content="Transforme dados e imagens em animações 4K prontas para produção usando Remotion e Gemini AI.">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
 <div class="app">
+
+  <!-- ══════════════════════════════════════════════
+       HEADER
+  ═══════════════════════════════════════════════ -->
   <header>
-    <div class="logo">GiantAnimator</div>
+    <div class="logo">
+      <div class="logo-icon">
+        <!-- Bolt / lightning icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+        </svg>
+      </div>
+      GiantAnimator
+    </div>
     <div class="header-status">
       <div class="status-dot" id="status-dot"></div>
       <span id="status-text">Servidor online</span>
     </div>
   </header>
 
+  <!-- ══════════════════════════════════════════════
+       MAIN
+  ═══════════════════════════════════════════════ -->
   <main>
+
     <!-- Upload Area -->
     <section>
       <div id="drop-zone">
-        <div class="drop-icon">↑</div>
+        <div class="drop-upload-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+        </div>
         <div class="drop-text">Arraste arquivos ou clique para selecionar</div>
-        <div class="drop-hint">XLSX, CSV, JSON, PNG, JPG</div>
+        <div class="drop-hint">XLSX · CSV · JSON · PNG · JPG</div>
+        <div class="drop-paste-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+          Cole com <kbd>Ctrl+V</kbd>
+        </div>
       </div>
-      <input type="file" id="file-input" multiple accept=".xlsx,.xls,.csv,.json,.png,.jpg,.jpeg,.webp" style="display:none;" />
+      <input type="file" id="file-input" multiple
+             accept=".xlsx,.xls,.csv,.json,.png,.jpg,.jpeg,.webp"
+             style="display:none;" />
       <div id="file-queue"></div>
+    </section>
+
+    <!-- CSV Preview Panel (Rainbow CSV style) -->
+    <section id="csv-preview-panel" style="display:none;">
+      <div class="section-label">Estrutura do CSV — Mapeamento de colunas</div>
+      <div class="csv-preview-card">
+
+        <!-- Info header -->
+        <div class="csv-meta-row" id="csv-meta-info"></div>
+
+        <!-- Column chips -->
+        <div class="csv-cols-label">Colunas detectadas</div>
+        <div class="csv-cols-row" id="csv-cols-row"></div>
+
+        <!-- Sample table -->
+        <div class="csv-sample-wrap">
+          <table class="csv-sample-table" id="csv-sample-table"></table>
+        </div>
+
+        <!-- Suggestion -->
+        <div class="csv-suggestion" id="csv-suggestion"></div>
+
+      </div>
     </section>
 
     <!-- Controls -->
     <section>
-      <div class="controls-row">
-        <div class="control-group">
-          <select id="chart-type">
-            <option value="auto">🤖 Automático (IA decide)</option>
-            <option value="bar">📊 Barras</option>
-            <option value="line">📈 Linhas</option>
-            <option value="pie">🥧 Pizza</option>
-            <option value="donut">🍩 Donut</option>
-            <option value="area">Area</option>
-            <option value="scatter">Dispersão</option>
-            <option value="bubble">Bolhas</option>
-            <option value="heatmap">Heatmap</option>
-            <option value="radar">Radar</option>
-          </select>
+      <div class="controls-card">
+        <div class="controls-row">
+
+          <div class="control-group">
+            <label class="control-label" for="chart-type">Tipo de gráfico</label>
+            <select id="chart-type">
+              <option value="auto">Automático (IA decide)</option>
+              <option value="bar">Barras</option>
+              <option value="line">Linhas</option>
+              <option value="pie">Pizza</option>
+              <option value="donut">Donut</option>
+              <option value="area">Área</option>
+              <option value="scatter">Dispersão</option>
+              <option value="bubble">Bolhas</option>
+              <option value="heatmap">Heatmap</option>
+              <option value="radar">Radar</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="chart-theme">Tema</label>
+            <select id="chart-theme">
+              <option value="dark">Dark Premium</option>
+              <option value="neon">Neon Glow</option>
+              <option value="ocean">Ocean Deep</option>
+              <option value="sunset">Sunset</option>
+              <option value="minimal">Minimal</option>
+              <option value="corporate">Corporate</option>
+            </select>
+          </div>
+
+          <button class="btn btn-primary" id="btn-render" disabled>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="5 3 19 12 5 21 5 3"/>
+            </svg>
+            ANIMATE
+          </button>
+
         </div>
-        <div class="control-group">
-          <select id="chart-theme">
-            <option value="dark">Dark Premium</option>
-            <option value="neon">Neon Glow</option>
-            <option value="ocean">Ocean Deep</option>
-            <option value="sunset">Sunset</option>
-            <option value="minimal">Minimal</option>
-            <option value="corporate">Corporate</option>
-          </select>
-        </div>
-        <button class="btn btn-primary" id="btn-render" disabled>Render 4K</button>
       </div>
     </section>
 
-    <!-- Log / Status -->
+    <!-- Progress Panel -->
     <section id="progress-panel">
       <div class="progress-wrap">
         <div class="progress-label">
@@ -80,54 +152,86 @@
     </section>
 
     <!-- Preview -->
-    <section>
+    <section class="preview-section">
       <div class="section-label">Preview</div>
+
       <div id="player-wrap">
         <div class="player-placeholder" id="player-placeholder">
-          <div class="ph-icon">🎬</div>
+          <div class="ph-icon-wrap">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 10l4.553-2.069A1 1 0 0 1 21 8.845v6.31a1 1 0 0 1-1.447.894L15 14"/>
+              <rect x="1" y="5" width="14" height="14" rx="2" ry="2"/>
+            </svg>
+          </div>
           <div class="ph-text">Preview aparecerá aqui após gerar</div>
         </div>
         <video id="preview-video" controls style="display:none;"></video>
 
-        <!-- Overlay de progresso 4K -->
-        <div id="render4k-overlay" style="display:none; position:absolute; inset:0; background:rgba(255,255,255,0.9); z-index:10; flex-direction:column; align-items:center; justify-content:center; gap:16px;">
-          <div style="font-size:12px; font-weight:600; color:#666; text-transform:uppercase;">Renderizando 4K</div>
-          <div style="width:200px;">
+        <!-- Overlay 4K progress -->
+        <div id="render4k-overlay" style="display:none;">
+          <div class="overlay-label">Renderizando 4K</div>
+          <div class="overlay-bar-wrap">
             <div class="progress-bar-track">
               <div class="progress-bar-fill" id="4k-bar" style="width:0%"></div>
             </div>
           </div>
-          <div style="font-size:24px; font-weight:700; color:#111;" id="4k-pct">0%</div>
-          <div style="font-size:12px; color:#888;" id="4k-stage">Aguardando...</div>
+          <div class="overlay-pct" id="4k-pct">0%</div>
+          <div class="overlay-stage" id="4k-stage">Aguardando...</div>
         </div>
       </div>
 
-      <div class="action-bar" style="margin-top:12px; display:flex; gap:12px; align-items:center;">
-        <button class="btn btn-primary" id="btn-download4k" disabled>Baixar 4K</button>
-        <span id="video-meta" style="font-size:12px; color:#666;"></span>
-        <span id="preview-badge" style="display:none;"></span> <!-- Hidden as per objective, we can use it internally -->
+      <div class="action-bar">
+        <button class="btn btn-secondary" id="btn-download4k" disabled>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Baixar 4K
+        </button>
+        <span id="video-meta"></span>
+        <span id="preview-badge" style="display:none;"></span>
       </div>
     </section>
 
     <!-- History -->
     <section class="history-section">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <div class="section-label">Histórico</div>
-        <span id="history-count" style="font-size:11px; color:#888;">0/10</span>
+      <div class="history-header">
+        <div class="section-label" style="margin-bottom:0;">Histórico</div>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <span id="history-count">0/10</span>
+          <button id="btn-clear-history" class="btn btn-ghost" style="font-size:11px; padding:5px 12px; display:none;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+              <path d="M10 11v6M14 11v6"/>
+              <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+            </svg>
+            Limpar
+          </button>
+        </div>
       </div>
       <div id="history-list">
-        <div style="text-align:center; padding:24px; color:#888; font-size:13px;">Nenhuma animação gerada ainda</div>
+        <div class="history-empty">Nenhuma animação gerada ainda</div>
       </div>
     </section>
+
   </main>
 
+  <!-- ══════════════════════════════════════════════
+       FOOTER
+  ═══════════════════════════════════════════════ -->
   <footer>
     <span>GiantAnimator · Remotion + Gemini AI</span>
     <span id="footer-version">v1.1.0</span>
   </footer>
+
 </div>
 
-<!-- TOAST CONTAINER -->
+<!-- TOAST -->
 <div id="toast-container"></div>
 
 <script src="app.js"></script>

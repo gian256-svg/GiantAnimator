@@ -3,6 +3,7 @@ import { interpolate, useCurrentFrame } from 'remotion';
 
 export const FIDCArrow: React.FC<{ arrow: any }> = ({ arrow }) => {
   const frame = useCurrentFrame();
+  const T = resolveTheme(theme ?? 'dark');
   
   const duration = arrow.direction === 'path' ? 40 : 20;
   const progress = interpolate(Math.max(0, frame - arrow.delay), [0, duration], [0, 1], { extrapolateRight: 'clamp' });

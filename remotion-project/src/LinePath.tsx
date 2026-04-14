@@ -16,6 +16,7 @@ export const LinePath: React.FC<LinePathProps> = ({
   glowIntensity,
   enableGlow,
 }) => {
+  const T = resolveTheme(theme ?? 'dark');
   if (points.length === 0) return null;
 
   // Generate SVG path string

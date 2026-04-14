@@ -6,7 +6,7 @@ import {
   interpolate,
   AbsoluteFill,
 } from "remotion";
-import { Theme } from "../theme";
+import { Theme, resolveTheme } from '../theme';
 
 export interface GanttTask {
   id: string;
@@ -23,6 +23,10 @@ export interface GanttChartProps {
   subtitle?: string;
   totalDays?: number;
   backgroundColor?: string;
+  theme?: string;
+  backgroundColor?: string;
+  colors?: string[];
+  textColor?: string;
 }
 
 export const GanttChart: React.FC<GanttChartProps> = ({
@@ -30,10 +34,11 @@ export const GanttChart: React.FC<GanttChartProps> = ({
   title,
   subtitle,
   totalDays: propTotalDays = 0,
-  backgroundColor = Theme.colors.background,
+  backgroundColor ?? T.background,
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
+  const T = resolveTheme(theme ?? 'dark');
   const instanceId = useId().replace(/:/g, "");
 
   // Safe Zone 4K
@@ -50,7 +55,7 @@ export const GanttChart: React.FC<GanttChartProps> = ({
   const getDayX = (day: number) => sidebarWidth + margin + (day / totalDays) * plotWidth;
 
   return (
-    <AbsoluteFill style={{ backgroundColor }}>
+    <AbsoluteFill style={{ backgroundColor ?? T.background }}>
       {/* ZONA 1 — Cabeçalho */}
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',
@@ -75,8 +80,8 @@ export const GanttChart: React.FC<GanttChartProps> = ({
         <defs>
           {tasks.map((_, i) => (
             <linearGradient key={i} id={`ganttGrad-${i}-${instanceId}`} x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor={Theme.chartColors[i % Theme.chartColors.length]} />
-              <stop offset="100%" stopColor={Theme.chartColors[i % Theme.chartColors.length]} stopOpacity={0.8} />
+              <stop offset="0%" stopColor={T.colors[i % T.colors.length]} />
+              <stop offset="100%" stopColor={T.colors[i % T.colors.length]} stopOpacity={0.8} />
             </linearGradient>
           ))}
         </defs>
@@ -88,7 +93,7 @@ export const GanttChart: React.FC<GanttChartProps> = ({
               <line 
                 x1={getDayX(i)} y1={margin + titleHeight} 
                 x2={getDayX(i)} y2={margin + titleHeight + plotHeight} 
-                stroke={Theme.colors.grid} strokeDasharray="8 8" 
+                stroke={T.grid} strokeDasharray="8 8" 
               />
               <text x={getDayX(i)} y={margin + titleHeight + plotHeight + 50} textAnchor="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.ui.axisText, fontFamily: Theme.typography.fontFamily }}>{i}d</text>
             </React.Fragment>
@@ -129,7 +134,7 @@ export const GanttChart: React.FC<GanttChartProps> = ({
             <g key={task.id} opacity={barProgress}>
               <text 
                  x={sidebarWidth + margin - 30} y={y} textAnchor="end" dominantBaseline="middle" 
-                 style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.text, fontWeight: 600, fontFamily: Theme.typography.fontFamily }}
+                 style={{ fontSize: Theme.typography.axis.size, fill: T.text, fontWeight: 600, fontFamily: Theme.typography.fontFamily }}
               >
                 {task.label}
               </text>

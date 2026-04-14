@@ -6,7 +6,7 @@ import {
   interpolate,
   AbsoluteFill,
 } from "remotion";
-import { Theme } from "../theme";
+import { Theme, resolveTheme } from '../theme';
 
 export interface HistogramChartProps {
   rawData: number[];
@@ -16,6 +16,10 @@ export interface HistogramChartProps {
   subtitle?: string;
   backgroundColor?: string;
   showValueLabels?: boolean;
+  theme?: string;
+  backgroundColor?: string;
+  colors?: string[];
+  textColor?: string;
 }
 
 export const HistogramChart: React.FC<HistogramChartProps> = ({
@@ -24,11 +28,12 @@ export const HistogramChart: React.FC<HistogramChartProps> = ({
   showKDE = true,
   title,
   subtitle,
-  backgroundColor = Theme.colors.background,
+  backgroundColor ?? T.background,
   showValueLabels = true,
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
+  const T = resolveTheme(theme ?? 'dark');
   const instanceId = useId().replace(/:/g, "");
 
   const { bins, maxValue } = useMemo(() => {
@@ -63,7 +68,7 @@ export const HistogramChart: React.FC<HistogramChartProps> = ({
   const barWidth = plotWidth / binCount;
 
   return (
-    <AbsoluteFill style={{ backgroundColor }}>
+    <AbsoluteFill style={{ backgroundColor ?? T.background }}>
       {/* ZONA 1 — Cabeçalho */}
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',
@@ -87,8 +92,8 @@ export const HistogramChart: React.FC<HistogramChartProps> = ({
       <svg width={width} height={height} style={{ overflow: 'visible' }}>
         <defs>
           <linearGradient id={`histGrad-${instanceId}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={Theme.chartColors[0]} />
-            <stop offset="100%" stopColor={Theme.chartColors[0]} stopOpacity={0.8} />
+            <stop offset="0%" stopColor={T.colors[0]} />
+            <stop offset="100%" stopColor={T.colors[0]} stopOpacity={0.8} />
           </linearGradient>
         </defs>
 
@@ -99,7 +104,7 @@ export const HistogramChart: React.FC<HistogramChartProps> = ({
             const y = getAbsY(count);
             return (
               <g key={v}>
-              <line x1={plotLeft} y1={y} x2={plotLeft + plotWidth} y2={y} stroke={Theme.colors.grid} strokeWidth={1} opacity={0.3} />
+              <line x1={plotLeft} y1={y} x2={plotLeft + plotWidth} y2={y} stroke={T.grid} strokeWidth={1} opacity={0.3} />
               <text x={plotLeft - 20} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.ui.axisText, fontFamily: Theme.typography.fontFamily }}>{count}</text>
             </g>
             );
@@ -116,10 +121,10 @@ export const HistogramChart: React.FC<HistogramChartProps> = ({
             <g key={i}>
               <rect
                 x={x} y={chartTop + plotHeight - h * barPop} width={barWidth} height={h * barPop}
-                fill={`url(#histGrad-${instanceId})`} stroke={backgroundColor} strokeWidth={2} opacity={0.85} rx={4}
+                fill={`url(#histGrad-${instanceId})`} stroke={backgroundColor ?? T.background} strokeWidth={2} opacity={0.85} rx={4}
               />
               {showValueLabels && barPop > 0.8 && (
-                <text x={x + barWidth / 2} y={chartTop + plotHeight - h * barPop - 15} textAnchor="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>{b.count}</text>
+                <text x={x + barWidth / 2} y={chartTop + plotHeight - h * barPop - 15} textAnchor="middle" style={{ fontSize: Theme.typography.axis.size, fill: T.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>{b.count}</text>
               )}
               {i % 2 === 0 && (
                 <text x={x + barWidth / 2} y={chartTop + plotHeight + 50} textAnchor="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.ui.axisText, fontFamily: Theme.typography.fontFamily }}>{`${Math.round(b.min)}-${Math.round(b.max)}`}</text>

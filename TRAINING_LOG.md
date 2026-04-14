@@ -4,7 +4,69 @@
 > **Hierarquia ativa:** Filosofia 4K > Padrões Multi-Fonte (Mango / Lychee / Papaya) > Dados Originais
 
 ---
-### REGRA PERMANENTE — CONVENÇÃO UI/UX PRO MAX (OBRIGATÓRIA)
+### REGRA PERMANENTE — SISTEMA DE TEMAS (OBRIGATÓRIA)
+Data: 2026-04-14
+Escopo: TODOS os componentes Remotion do GiantAnimator
+
+**Regra**: Componentes NUNCA devem usar `Theme.colors.background` ou `Theme.chartColors` diretamente.
+**API obrigatória**: `import { resolveTheme } from '../theme'` → `const T = resolveTheme(theme ?? 'dark')`
+
+Os 6 temas suportados (`dark`, `neon`, `ocean`, `sunset`, `minimal`, `corporate`) têm identidades visuais 
+completamente distintas definidas no `THEMES` map em `theme.ts`. A função `resolveTheme(theme)` é a única
+fonte de verdade para cores, grid, eixos e backgrounds.
+
+**Props obrigatórias em todo componente chart:**
+- `theme?: string` — string do tema (default: `'dark'`)
+- `backgroundColor?: string` — override opcional (fallback para `T.background`)
+- `textColor?: string` — override opcional (fallback para `T.text`)
+- `colors?: string[]` — override opcional (fallback para `T.colors`)
+
+**PROIBIDO:**
+- `backgroundColor = Theme.colors.background` (hardcode dark)
+- `colors = Theme.chartColors` (hardcode paleta dark)
+- Qualquer cor inline que não seja via `T.*` ou prop explícita
+
+---
+### REGRA PERMANENTE — ROTEAMENTO DE COMPONENTES NO Root.tsx (OBRIGATÓRIA)
+Data: 2026-04-14
+
+**Problema histórico**: O `Root.tsx` importava `./components/PieChart` (versão antiga) em vez de `./charts/PieChart` (versão atual). Toda reescrita de um componente PRECISA ser acompanhada de atualização do import no `Root.tsx`.
+
+**Regra**: Ao reescrever ou criar um novo componente chart em `src/charts/`, verificar SEMPRE se o `Root.tsx` está importando do path correto. Nunca presumir que o import já está atualizado.
+
+---
+### REGRA PERMANENTE — TIPOGRAFIA EM PIECHART e COMPONENTES CIRCULARES (OBRIGATÓRIA)
+Data: 2026-04-14
+
+**Problema histórico**: PieChart usava `fontSize = 28 * sc` para título e `11 * sc` para legenda — valores muito pequenos que tornavam os textos invisíveis.
+
+**Tamanhos corretos (base 720p, sc = min(w/1280, h/720)):**
+| Elemento       | Multiplicador | Resultado 720p | Notas |
+|---------------|---------------|----------------|-------|
+| Título         | `42 * sc`     | 42px           | +50% do antigo |
+| Subtítulo      | `22 * sc`     | 22px           | +65% do antigo |
+| Label legenda  | `19 * sc`     | 19px           | +65% do antigo |
+| Valor legenda  | `17 * sc`     | 17px           | +55% do antigo |
+| Valor s/fatia  | `17 * sc`     | 17px           | com drop-shadow |
+| Valor c/guia   | `15 * sc`     | 15px           | fora de fatias pequenas |
+
+**NUNCA** usar valores fixos em pixels. Sempre multiplicar por `sc`.
+
+---
+### REGRA PERMANENTE — SAFE ZONE E LEGENDA SEM SOBREPOSIÇÃO (OBRIGATÓRIA)
+Data: 2026-04-14
+
+**Problema histórico**: Legenda do PieChart usava espaçamento fixo (`i * 40 * scale`) sem levar em conta o número de itens, causando sobreposição. O valor era posicionado em `width - 12px` sem verificar colisão com o label.
+
+**Regra do layout de legenda (PieChart e similares):**
+1. `SAFE_PAD_X = width * 0.05` — margem lateral mínima (5%)
+2. `SAFE_PAD_Y = height * 0.07` — margem superior/inferior mínima (7%)
+3. `ITEM_H = max(LEGEND_LABEL + gap + 4, SWATCH + gap)` — altura dinâmica por item
+4. Label truncado com `…` para caber em `VALUE_X - LABEL_X - 50*sc` px
+5. Valor alinhado em `VALUE_X = width - SAFE_PAD_X` (nunca na margem crua)
+6. **Label dentro da fatia** quando `pct >= 8%` + `progress > 0.8`; fora com linha guia quando menor
+
+---
 Data: 2026-04-14
 Escopo: TODOS os componentes e interfaces do GiantAnimator
 

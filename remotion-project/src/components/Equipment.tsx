@@ -7,6 +7,7 @@ export const Equipment: React.FC<{
   scale?: number;
 }> = ({ type, position, scale = 1 }) => {
   const frame = useCurrentFrame();
+  const T = resolveTheme(theme ?? 'dark');
 
   const color = '#282B2F';
   const highlight = '#FFC200';

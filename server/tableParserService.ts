@@ -3,11 +3,47 @@ import * as XLSX from 'xlsx';
 import * as fs from 'fs';
 import * as path from 'path';
 
+// ── Delimitadores suportados (mesmos do Rainbow CSV) ──────────────────────────
+const SUPPORTED_DELIMITERS = [',', ';', '\t', '|'] as const;
+type Delimiter = typeof SUPPORTED_DELIMITERS[number];
+
+/**
+ * Detecta automaticamente o delimitador de um CSV.
+ * Analisa as primeiras 5 linhas e escolhe o delimitador
+ * com maior consistência de contagem entre elas.
+ */
+function detectDelimiter(content: string): Delimiter {
+  const lines = content.split('\n').slice(0, 5).filter(l => l.trim().length > 0);
+  if (lines.length === 0) return ',';
+
+  let bestDelimiter: Delimiter = ',';
+  let bestScore = -1;
+
+  for (const delim of SUPPORTED_DELIMITERS) {
+    const counts = lines.map(l => l.split(delim).length - 1);
+    const min = Math.min(...counts);
+    const max = Math.max(...counts);
+    const avg = counts.reduce((a, b) => a + b, 0) / counts.length;
+    // Score: quantidade média de splits com baixa variância
+    if (avg > 0 && (max - min) <= 1) {
+      const score = avg * 10 - (max - min);
+      if (score > bestScore) {
+        bestScore = score;
+        bestDelimiter = delim;
+      }
+    }
+  }
+
+  return bestDelimiter;
+}
+
 export interface NormalizedTableData {
     headers: string[];
     rows: Record<string, string | number>[];
     /** Formato inferido: "wide" (1 col categoria + N numéricas) ou "long" */
     shape: 'wide' | 'long';
+    /** Delimitador detectado (para exibir na UI) */
+    detectedDelimiter?: string;
     /** Resumo para o Gemini decidir o tipo de gráfico */
     summary: {
         totalRows: number;
@@ -27,7 +63,30 @@ export const tableParserService = {
 
         if (ext === '.csv') {
             const content = fs.readFileSync(filePath, 'utf-8');
-            workbook = XLSX.read(content, { type: 'string' });
+            const delimiter = detectDelimiter(content);
+
+            // Para delimitadores não-padrão (;, tab, |), precisamos informar ao XLSX
+            if (delimiter === ',') {
+                workbook = XLSX.read(content, { type: 'string' });
+            } else {
+                // Converte para CSV com vírgula para o XLSX entender
+                const normalized = content
+                    .split('\n')
+                    .map(line => {
+                        // Divide por delimitador e re-junta com vírgula, preservando aspas
+                        return line.split(delimiter)
+                            .map(cell => {
+                                const v = cell.trim();
+                                return v.includes(',') ? `"${v}"` : v;
+                            })
+                            .join(',');
+                    })
+                    .join('\n');
+                workbook = XLSX.read(normalized, { type: 'string' });
+            }
+
+            // Guarda o delimitador detectado para retornar ao chamador
+            (workbook as any)._detectedDelimiter = delimiter;
         } else {
             // .xlsx, .xls, .ods
             workbook = XLSX.readFile(filePath);
@@ -73,6 +132,7 @@ export const tableParserService = {
             headers,
             rows,
             shape,
+            detectedDelimiter: (workbook as any)._detectedDelimiter,
             summary: {
                 totalRows: rows.length,
                 totalCols: headers.length,

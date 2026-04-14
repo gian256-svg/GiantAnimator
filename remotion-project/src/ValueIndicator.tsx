@@ -19,6 +19,7 @@ export const ValueIndicator: React.FC<ValueIndicatorProps> = ({
   glowIntensity,
   showValueLabel,
 }) => {
+  const T = resolveTheme(theme ?? 'dark');
   return (
     <>
       <div

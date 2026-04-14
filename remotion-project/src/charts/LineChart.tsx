@@ -6,7 +6,7 @@ import {
   interpolate,
   AbsoluteFill,
 } from "remotion";
-import { Theme } from "../theme";
+import { Theme, resolveTheme } from "../theme";
 
 interface LineChartProps {
   data?: { label: string; value: number }[];
@@ -15,12 +15,20 @@ interface LineChartProps {
   title: string;
   subtitle?: string;
   showArea?: boolean;
+  colors?: string[];
+  theme?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  unit?: string;
 }
 
-const format = (n: number) => {
-  if (Math.abs(n) >= 1000000) return (n / 1000000).toFixed(1) + "M";
-  if (Math.abs(n) >= 1000) return (n / 1000).toFixed(1) + "k";
-  return n.toLocaleString();
+const format = (n: number, unit = '') => {
+  if (!unit) {
+    if (Math.abs(n) >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
+    if (Math.abs(n) >= 1_000)     return (n / 1_000).toFixed(1) + 'k';
+  }
+  const rounded = Number.isInteger(n) ? String(n) : n.toFixed(1);
+  return unit ? `${rounded}${unit}` : n.toLocaleString();
 };
 
 export const LineChart: React.FC<LineChartProps> = ({
@@ -30,23 +38,34 @@ export const LineChart: React.FC<LineChartProps> = ({
   title,
   subtitle,
   showArea = true,
+  colors,
+  theme = "dark",
+  backgroundColor,
+  textColor,
+  unit = '',
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
-  const instanceId = useId().replace(/:/g, "");
 
-  // ÁREA ÚTIL 4K (REGRA GLOBAL)
-  const usableWidth = 3584;
-  const usableHeight = 1920;
-  const originX = 128;
-  const originY = 160;
+  // Resolve tema — fonte única de verdade
+  const T = resolveTheme(theme);
+  const resolvedBg     = backgroundColor ?? T.background;
+  const resolvedText   = textColor       ?? T.text;
+  const resolvedColors = colors && colors.length > 0 ? colors : [...T.colors];
 
-  const yAxisLabelWidth = 160;
-  const chartHeight = usableHeight * 0.85; 
-  const plotWidth = usableWidth - yAxisLabelWidth;
-  const plotHeight = chartHeight;
-  const plotLeft = originX + yAxisLabelWidth;
-  const plotTop = originY;
+  // Escala de fonte responsiva (igual ao BarChart)
+  const fs = (base: number) => Math.round(base * (width / 1280));
+
+  // Layout responsivo baseado na resolução real
+  const pad = width * 0.04;
+  const yAxisLabelWidth = width * 0.07;
+  const padTop = height * 0.13;  // espaço para header
+  const padBot = height * 0.10;  // espaço para eixo X
+
+  const plotLeft   = pad + yAxisLabelWidth;
+  const plotTop    = padTop;
+  const plotWidth  = width - plotLeft - pad;
+  const plotHeight = height - padTop - padBot;
 
   // Normalização de dados para formato unificado
   const normalizedSeries = series || [
@@ -75,7 +94,7 @@ export const LineChart: React.FC<LineChartProps> = ({
     config: { 
       damping: 80, 
       stiffness: 200, 
-      overshoot_clamp: true 
+      overshootClamping: true 
     },
   });
 
@@ -87,7 +106,7 @@ export const LineChart: React.FC<LineChartProps> = ({
   const stableCount = progress >= 1 ? xAxisLabels.length : rawCount;
 
   return (
-    <AbsoluteFill style={{ backgroundColor: Theme.colors.background }}>
+    <AbsoluteFill style={{ backgroundColor: resolvedBg }}>
       {/* TÍTULO */}
       <div
         style={{
@@ -103,7 +122,7 @@ export const LineChart: React.FC<LineChartProps> = ({
             style={{
               fontSize: Theme.typography.title.size,
               fontWeight: Theme.typography.title.weight,
-              color: Theme.typography.title.color,
+              color: resolvedText,
               fontFamily: Theme.typography.fontFamily,
             }}
           >
@@ -114,7 +133,7 @@ export const LineChart: React.FC<LineChartProps> = ({
           <div
             style={{
               fontSize: Theme.typography.subtitle.size,
-              color: Theme.typography.subtitle.color,
+              color: T.textMuted,
               fontFamily: Theme.typography.fontFamily,
             }}
           >
@@ -129,6 +148,7 @@ export const LineChart: React.FC<LineChartProps> = ({
           {[0, 0.25, 0.5, 0.75, 1].map((v) => {
             const val = minV + v * range;
             const y = getY(val);
+            const gridOpacity = interpolate(frame, [5, 25], [0, 0.45], { extrapolateRight: 'clamp' });
             return (
               <React.Fragment key={v}>
                 <line
@@ -136,21 +156,23 @@ export const LineChart: React.FC<LineChartProps> = ({
                   y1={y}
                   x2={plotLeft + plotWidth}
                   y2={y}
-                  stroke="rgba(255, 255, 255, 0.15)"
-                  strokeWidth={2}
+                  stroke={T.grid}
+                  strokeWidth={Math.max(1, fs(1.5))}
+                  opacity={gridOpacity}
                 />
                 <text
-                  x={plotLeft - 30}
+                  x={plotLeft - fs(10)}
                   y={y}
                   textAnchor="end"
                   dominantBaseline="middle"
                   style={{
-                    fontSize: 32,
-                    fill: "rgba(255, 255, 255, 0.6)",
+                    fontSize: fs(14),
+                    fill: T.textMuted,
                     fontFamily: Theme.typography.fontFamily,
+                    opacity: gridOpacity,
                   }}
                 >
-                  {format(val)}
+                  {format(val, unit)}
                 </text>
               </React.Fragment>
             );
@@ -161,7 +183,8 @@ export const LineChart: React.FC<LineChartProps> = ({
         {normalizedSeries.map((s, sIndex) => {
           if (stableCount < 1) return null;
 
-          const color = s.color || Theme.chartColors[sIndex % Theme.chartColors.length];
+          const color = s.color || resolvedColors[sIndex % resolvedColors.length];
+          const strokeW = Math.max(2, fs(4));
 
           // Geração da polyline para a linha
           const linePoints = s.data
@@ -193,7 +216,7 @@ export const LineChart: React.FC<LineChartProps> = ({
                   points={linePoints}
                   fill="none"
                   stroke={color}
-                  strokeWidth={8}
+                  strokeWidth={strokeW}
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
@@ -233,11 +256,11 @@ export const LineChart: React.FC<LineChartProps> = ({
               <text
                 key={i}
                 x={getX(i)}
-                y={plotTop + plotHeight + 60}
+                y={plotTop + plotHeight + fs(28)}
                 textAnchor="middle"
                 style={{
-                  fontSize: 32,
-                  fill: "rgba(255, 255, 255, 0.6)",
+                  fontSize: fs(13),
+                  fill: T.textMuted,
                   fontFamily: Theme.typography.fontFamily,
                 }}
               >

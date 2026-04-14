@@ -7,6 +7,7 @@ export const Character: React.FC<{
   scale?: number;
 }> = ({ type, position, scale = 1 }) => {
   const frame = useCurrentFrame();
+  const T = resolveTheme(theme ?? 'dark');
 
   const seed = type.length;
   // very slight breathe loop

@@ -8,6 +8,7 @@ export const FloatingCurrency: React.FC<{
   opacityRange: [number, number];
 }> = ({ count, speed, drift, opacityRange }) => {
   const frame = useCurrentFrame();
+  const T = resolveTheme(theme ?? 'dark');
   const { height, width } = useVideoConfig();
 
   return (

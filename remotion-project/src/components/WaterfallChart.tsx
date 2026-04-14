@@ -6,7 +6,7 @@ import {
   interpolate,
   AbsoluteFill,
 } from "remotion";
-import { Theme } from "../theme";
+import { Theme, resolveTheme } from '../theme';
 
 export interface WaterfallPoint {
   label: string;
@@ -17,6 +17,10 @@ export interface WaterfallChartProps {
   data: WaterfallPoint[];
   title?: string;
   subtitle?: string;
+  theme?: string;
+  backgroundColor?: string;
+  colors?: string[];
+  textColor?: string;
 }
 
 export const WaterfallChart: React.FC<WaterfallChartProps> = ({
@@ -26,6 +30,7 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
+  const T = resolveTheme(theme ?? 'dark');
   const instanceId = useId().replace(/:/g, "");
 
   const data = useMemo(() => Array.isArray(propData) ? propData : [], [propData]);
@@ -55,8 +60,8 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
 
   if (waterfallData.length <= 1) {
     return (
-      <AbsoluteFill style={{ backgroundColor: Theme.colors.background, justifyContent: 'center', alignItems: 'center' }}>
-        <p style={{ color: Theme.colors.text, fontSize: Theme.typography.category.size }}>Aguardando dados...</p>
+      <AbsoluteFill style={{ backgroundColor: T.background, justifyContent: 'center', alignItems: 'center' }}>
+        <p style={{ color: T.text, fontSize: Theme.typography.category.size }}>Aguardando dados...</p>
       </AbsoluteFill>
     );
   }
@@ -95,7 +100,7 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
   };
 
   return (
-    <AbsoluteFill style={{ backgroundColor: Theme.colors.background }}>
+    <AbsoluteFill style={{ backgroundColor: T.background }}>
       {/* ZONA 1: Cabeçalho (Regra D2) */}
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',
@@ -134,7 +139,7 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
             const isZero = Math.abs(val) < 0.1;
             return (
               <React.Fragment key={v}>
-                <line x1={chartLeft} y1={y} x2={chartLeft + plotWidth} y2={y} stroke={Theme.colors.grid} strokeWidth={isZero ? 2 : 1} opacity={isZero ? 1 : 0.6} />
+                <line x1={chartLeft} y1={y} x2={chartLeft + plotWidth} y2={y} stroke={T.grid} strokeWidth={isZero ? 2 : 1} opacity={isZero ? 1 : 0.6} />
                 <text x={chartLeft - 20} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.ui.axisText, fontFamily: Theme.typography.fontFamily }}>
                   {formatValue(val)}
                 </text>

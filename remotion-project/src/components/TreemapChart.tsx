@@ -6,7 +6,7 @@ import {
   interpolate,
   AbsoluteFill,
 } from "remotion";
-import { Theme } from "../theme";
+import { Theme, resolveTheme } from '../theme';
 
 export interface TreemapNode {
   id: string;
@@ -20,6 +20,10 @@ export interface TreemapChartProps {
   title: string;
   subtitle?: string;
   backgroundColor?: string;
+  theme?: string;
+  backgroundColor?: string;
+  colors?: string[];
+  textColor?: string;
 }
 
 interface Rect {
@@ -34,10 +38,11 @@ export const TreemapChart: React.FC<TreemapChartProps> = ({
   data: propData = [],
   title,
   subtitle,
-  backgroundColor = Theme.colors.background,
+  backgroundColor ?? T.background,
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
+  const T = resolveTheme(theme ?? 'dark');
   const instanceId = useId().replace(/:/g, "");
 
   // Safe Zone 4K
@@ -108,7 +113,7 @@ export const TreemapChart: React.FC<TreemapChartProps> = ({
   const groups = Array.from(new Set(data.map(d => d.group || "default")));
 
   return (
-    <AbsoluteFill style={{ backgroundColor }}>
+    <AbsoluteFill style={{ backgroundColor ?? T.background }}>
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',
         opacity: interpolate(frame, [0, 15], [0, 1])
@@ -120,13 +125,13 @@ export const TreemapChart: React.FC<TreemapChartProps> = ({
       <svg width={width} height={height} style={{ overflow: 'visible' }}>
         {rects.map((r, i) => {
           const gIdx = groups.indexOf(r.data.group || "default");
-          const color = Theme.chartColors[gIdx % Theme.chartColors.length];
+          const color = T.colors[gIdx % T.colors.length];
           const pop = spring({ frame: frame - 20 - i * 4, fps, config: { damping: 15, stiffness: 60 } });
 
           return (
             <g key={r.data.id}>
               <rect
-                 x={r.x} y={r.y} width={r.w} height={r.h} fill={color} opacity={0.8 * pop} stroke={backgroundColor} strokeWidth={2}
+                 x={r.x} y={r.y} width={r.w} height={r.h} fill={color} opacity={0.8 * pop} stroke={backgroundColor ?? T.background} strokeWidth={2}
               />
               {r.w > 200 && r.h > 100 && pop > 0.9 && (
                 <text

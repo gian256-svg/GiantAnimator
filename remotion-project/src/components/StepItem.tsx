@@ -37,6 +37,7 @@ export const StepItem: React.FC<{
   isActive: boolean;
 }> = ({ node, isActive }) => {
   const frame = useCurrentFrame();
+  const T = resolveTheme(theme ?? 'dark');
   const { fps } = useVideoConfig();
 
   const entrance = spring({

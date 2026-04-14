@@ -11,6 +11,7 @@ const SPARKLE_COLORS = [
 
 export const DUOPromoBoard: React.FC = () => {
   const frame = useCurrentFrame();
+  const T = resolveTheme(theme ?? 'dark');
   const { fps, width, height } = useVideoConfig(); 
 
   const BURST_START = 20; 

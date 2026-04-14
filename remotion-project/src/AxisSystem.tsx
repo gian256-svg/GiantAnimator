@@ -32,6 +32,7 @@ export const AxisSystem: React.FC<AxisSystemProps> = ({
   topOffset = 0,
   bottomOffset = 0,
 }) => {
+  const T = resolveTheme(theme ?? 'dark');
   const rangeY = maxY - minY;
   let stepY = 10;
   

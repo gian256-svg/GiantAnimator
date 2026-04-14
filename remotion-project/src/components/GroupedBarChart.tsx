@@ -6,7 +6,7 @@ import {
   AbsoluteFill,
   interpolate
 } from "remotion";
-import { Theme } from "../theme";
+import { Theme, resolveTheme } from '../theme';
 
 export interface GroupedBarSeries {
   name: string;
@@ -24,6 +24,10 @@ export interface GroupedBarChartProps {
   showValues?: boolean;
   highlightGroup?: number;
   backgroundColor?: string;
+  theme?: string;
+  backgroundColor?: string;
+  colors?: string[];
+  textColor?: string;
 }
 
 export const GroupedBarChart: React.FC<GroupedBarChartProps> = ({
@@ -35,10 +39,11 @@ export const GroupedBarChart: React.FC<GroupedBarChartProps> = ({
   showLegend = true,
   showValues = true,
   highlightGroup,
-  backgroundColor = Theme.colors.background,
+  backgroundColor ?? T.background,
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
+  const T = resolveTheme(theme ?? 'dark');
   const instanceId = useId().replace(/:/g, "");
 
   // Safe Zone 4K
@@ -50,8 +55,8 @@ export const GroupedBarChart: React.FC<GroupedBarChartProps> = ({
 
   if (categories.length === 0 || series.length === 0) {
     return (
-      <AbsoluteFill style={{ backgroundColor, justifyContent: 'center', alignItems: 'center' }}>
-        <p style={{ color: Theme.colors.text }}>Dados insuficientes.</p>
+      <AbsoluteFill style={{ backgroundColor ?? T.background, justifyContent: 'center', alignItems: 'center' }}>
+        <p style={{ color: T.text }}>Dados insuficientes.</p>
       </AbsoluteFill>
     );
   }
@@ -70,7 +75,7 @@ export const GroupedBarChart: React.FC<GroupedBarChartProps> = ({
   };
 
   return (
-    <AbsoluteFill style={{ backgroundColor }}>
+    <AbsoluteFill style={{ backgroundColor ?? T.background }}>
       {/* ZONA 1 — Cabeçalho */}
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',
@@ -95,8 +100,8 @@ export const GroupedBarChart: React.FC<GroupedBarChartProps> = ({
         <defs>
           {series.map((s, si) => (
             <linearGradient key={si} id={`groupGrad-${si}-${instanceId}`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={s.color || Theme.chartColors[si % Theme.chartColors.length]} />
-              <stop offset="100%" stopColor={s.color || Theme.chartColors[si % Theme.chartColors.length]} stopOpacity={0.85} />
+              <stop offset="0%" stopColor={s.color || T.colors[si % T.colors.length]} />
+              <stop offset="100%" stopColor={s.color || T.colors[si % T.colors.length]} stopOpacity={0.85} />
             </linearGradient>
           ))}
         </defs>
@@ -107,7 +112,7 @@ export const GroupedBarChart: React.FC<GroupedBarChartProps> = ({
             {series.map((s, si) => (
               <g key={si} transform={`translate(${-(series.length - 1 - si) * 350}, 0)`}>
                 <rect width={30} height={30} fill={`url(#groupGrad-${si}-${instanceId})`} rx={4} />
-                <text x={45} y={22} style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.textSecondary, fontWeight: 500, fontFamily: Theme.typography.fontFamily }}>{s.name}</text>
+                <text x={45} y={22} style={{ fontSize: Theme.typography.axis.size, fill: T.textMuted, fontWeight: 500, fontFamily: Theme.typography.fontFamily }}>{s.name}</text>
               </g>
             ))}
           </g>
@@ -119,7 +124,7 @@ export const GroupedBarChart: React.FC<GroupedBarChartProps> = ({
             const y = chartTop + plotHeight - v * plotHeight;
             return (
               <React.Fragment key={v}>
-                <line x1={margin} y1={y} x2={width - margin} y2={y} stroke={Theme.colors.grid} strokeWidth={1} />
+                <line x1={margin} y1={y} x2={width - margin} y2={y} stroke={T.grid} strokeWidth={1} />
                 <text x={margin - 20} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.ui.axisText, fontFamily: Theme.typography.fontFamily }}>{formatValue(v * maxValue)}</text>
               </React.Fragment>
             );
@@ -147,7 +152,7 @@ export const GroupedBarChart: React.FC<GroupedBarChartProps> = ({
                       style={{ filter: isGroupHighlighted ? `brightness(${Theme.effects.highlightScale})` : 'none' }}
                     />
                     {showValues && groupProgress > 0.9 && (
-                      <text x={x + barWidth/2} y={y - 15} textAnchor="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>{formatValue(s.values[ci])}</text>
+                      <text x={x + barWidth/2} y={y - 15} textAnchor="middle" style={{ fontSize: Theme.typography.axis.size, fill: T.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>{formatValue(s.values[ci])}</text>
                     )}
                   </g>
                 );

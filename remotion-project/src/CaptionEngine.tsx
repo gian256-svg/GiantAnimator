@@ -17,6 +17,7 @@ export const CaptionEngine: React.FC<{
   captions: RemotionWord[];
 }> = ({ videoSrc, audioSrc, captions }) => {
   const frame = useCurrentFrame();
+  const T = resolveTheme(theme ?? 'dark');
   const { fps } = useVideoConfig();
   const currentTime = frame / fps;
 

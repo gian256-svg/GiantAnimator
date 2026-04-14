@@ -5,6 +5,7 @@ import { CircularArrow } from '../components/CircularArrow';
 
 export const CircularFlow: React.FC<{ data: any }> = ({ data }) => {
   const frame = useCurrentFrame();
+  const T = resolveTheme(theme ?? 'dark');
 
   return (
     <AbsoluteFill style={{ backgroundColor: 'transparent' }}>

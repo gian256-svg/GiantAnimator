@@ -6,7 +6,7 @@ import {
   interpolate,
   AbsoluteFill,
 } from "remotion";
-import { Theme } from "../theme";
+import { Theme, resolveTheme } from '../theme';
 
 export interface SparklineItem {
   label: string;
@@ -20,6 +20,10 @@ export interface SparklineChartProps {
   subtitle?: string;
   columns?: number;
   backgroundColor?: string;
+  theme?: string;
+  backgroundColor?: string;
+  colors?: string[];
+  textColor?: string;
 }
 
 const Sparkline: React.FC<{
@@ -35,7 +39,7 @@ const Sparkline: React.FC<{
   const min = Math.min(...data, 0);
   const max = Math.max(...data, 1);
   const range = max - min || 1;
-  const color = item.color || Theme.chartColors[index % Theme.chartColors.length];
+  const color = item.color || T.colors[index % T.colors.length];
 
   const getX = (i: number) => (i / (data.length - 1 || 1)) * width;
   const getY = (val: number) => height - ((val - min) / range) * height;
@@ -49,10 +53,10 @@ const Sparkline: React.FC<{
 
   return (
     <g>
-      <text x={0} y={-20} style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.textSecondary, fontWeight: 600, fontFamily: Theme.typography.fontFamily }}>{item.label}</text>
+      <text x={0} y={-20} style={{ fontSize: Theme.typography.axis.size, fill: T.textMuted, fontWeight: 600, fontFamily: Theme.typography.fontFamily }}>{item.label}</text>
       <polyline points={points} fill="none" stroke={color} strokeWidth={4} strokeLinecap="round" strokeLinejoin="round" />
       <circle cx={getX(count-1)} cy={getY(data[count-1])} r={6} fill={color} />
-      <text x={width + 20} y={height / 2} dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily, opacity: reveal }}>
+      <text x={width + 20} y={height / 2} dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: T.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily, opacity: reveal }}>
         {lastVal.toLocaleString()}
       </text>
     </g>
@@ -64,9 +68,10 @@ export const SparklineChart: React.FC<SparklineChartProps> = ({
   title,
   subtitle,
   columns = 2,
-  backgroundColor = Theme.colors.background,
+  backgroundColor ?? T.background,
 }) => {
   const { width, height } = useVideoConfig();
+  const T = resolveTheme(theme ?? 'dark');
   const instanceId = useId().replace(/:/g, "");
 
   // Safe Zone 4K
@@ -78,7 +83,7 @@ export const SparklineChart: React.FC<SparklineChartProps> = ({
   const itemHeight = 150;
 
   return (
-    <AbsoluteFill style={{ backgroundColor }}>
+    <AbsoluteFill style={{ backgroundColor ?? T.background }}>
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',
         opacity: interpolate(useCurrentFrame(), [0, 15], [0, 1])

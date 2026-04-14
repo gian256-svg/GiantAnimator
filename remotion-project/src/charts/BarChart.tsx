@@ -6,28 +6,47 @@ import {
   interpolate,
   AbsoluteFill,
 } from "remotion";
-import { Theme } from "../theme";
+import { Theme, resolveTheme } from "../theme";
 
 interface BarChartProps {
   data?: { label: string; value: number }[];
   title?: string;
   subtitle?: string;
+  colors?: string[];
+  theme?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  unit?: string;  // ex: '%', 'k', 'R$', etc — vem do dado original
 }
 
-const format = (n: number) => {
-  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + "M";
-  if (n >= 1_000) return (n / 1_000).toFixed(1) + "k";
-  return String(Math.round(n));
+const format = (n: number, unit = '') => {
+  if (!unit) {
+    if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
+    if (n >= 1_000)     return (n / 1_000).toFixed(1) + 'k';
+  }
+  const rounded = Number.isInteger(n) ? String(n) : n.toFixed(1);
+  return unit ? `${rounded}${unit}` : rounded;
 };
 
 export const BarChart: React.FC<BarChartProps> = ({
   data = [],
   title = "",
   subtitle = "",
+  colors,
+  theme = "dark",
+  backgroundColor,
+  textColor,
+  unit = '',
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
   const instanceId = useId().replace(/:/g, "");
+
+  // Resolve tema — fonte única de verdade
+  const T = resolveTheme(theme);
+  const resolvedBg    = backgroundColor ?? T.background;
+  const resolvedText  = textColor       ?? T.text;
+  const resolvedColors = colors && colors.length > 0 ? colors : [...T.colors];
 
   // ─── Guarda contra dados vazios ───────────────────────
   const safeData = Array.isArray(data) && data.length > 0 ? data : [
@@ -63,7 +82,7 @@ export const BarChart: React.FC<BarChartProps> = ({
   });
 
   return (
-    <AbsoluteFill style={{ backgroundColor: Theme.colors.background }}>
+    <AbsoluteFill style={{ backgroundColor: resolvedBg }}>
 
       {/* ── HEADER ── */}
       <div
@@ -81,7 +100,7 @@ export const BarChart: React.FC<BarChartProps> = ({
             style={{
               fontSize: fs(36),
               fontWeight: 700,
-              color: Theme.colors.text,
+              color: resolvedText,
               letterSpacing: "-0.5px",
             }}
           >
@@ -92,7 +111,7 @@ export const BarChart: React.FC<BarChartProps> = ({
           <div
             style={{
               fontSize: fs(18),
-              color: Theme.colors.textSecondary,
+              color: T.textMuted,
               marginTop: fs(6),
             }}
           >
@@ -116,11 +135,11 @@ export const BarChart: React.FC<BarChartProps> = ({
             >
               <stop
                 offset="0%"
-                stopColor={Theme.chartColors[i % Theme.chartColors.length]}
+                stopColor={resolvedColors[i % resolvedColors.length]}
               />
               <stop
                 offset="100%"
-                stopColor={Theme.chartColors[i % Theme.chartColors.length]}
+                stopColor={resolvedColors[i % resolvedColors.length]}
                 stopOpacity={0.65}
               />
             </linearGradient>
@@ -147,7 +166,7 @@ export const BarChart: React.FC<BarChartProps> = ({
               <line
                 x1={plotLeft} y1={y}
                 x2={plotLeft + plotWidth} y2={y}
-                stroke={Theme.colors.grid}
+                stroke={T.grid}
                 strokeWidth={Math.max(1, fs(1.5))}
                 opacity={op}
               />
@@ -158,12 +177,11 @@ export const BarChart: React.FC<BarChartProps> = ({
                 dominantBaseline="middle"
                 style={{
                   fontSize: fs(14),
-                  fill: Theme.colors.textSecondary,
+                  fill: T.textMuted,
                   fontFamily: Theme.typography.fontFamily,
-                  opacity: op,
                 }}
               >
-                {format(v * maxVal)}
+                {format(v * maxVal, unit)}
               </text>
             </React.Fragment>
           );
@@ -173,7 +191,7 @@ export const BarChart: React.FC<BarChartProps> = ({
         <line
           x1={plotLeft} y1={plotTop + plotHeight}
           x2={plotLeft + plotWidth} y2={plotTop + plotHeight}
-          stroke={Theme.colors.grid}
+          stroke={T.axis}
           strokeWidth={Math.max(1, fs(2))}
           opacity={0.6}
         />
@@ -187,7 +205,7 @@ export const BarChart: React.FC<BarChartProps> = ({
             config: {
               damping: 80,
               stiffness: 200,
-              overshoot_clamp: true
+              overshootClamping: true
             },
           });
 
@@ -202,7 +220,6 @@ export const BarChart: React.FC<BarChartProps> = ({
             { extrapolateRight: "clamp" }
           );
 
-          const color = Theme.chartColors[i % Theme.chartColors.length];
 
           return (
             <g key={i}>
@@ -210,7 +227,7 @@ export const BarChart: React.FC<BarChartProps> = ({
               <rect
                 x={bX + fs(2)} y={bY + fs(4)}
                 width={barWidth} height={currentH}
-                fill={color}
+                fill={resolvedColors[i % resolvedColors.length]}
                 rx={fs(6)}
                 opacity={0.2}
                 filter={`url(#glow-${instanceId})`}
@@ -240,15 +257,15 @@ export const BarChart: React.FC<BarChartProps> = ({
                 opacity={labelOpacity}
                 style={{
                   fontSize: fs(15),
-                  fill: Theme.colors.text,
+                  fill: resolvedText,
                   fontWeight: 700,
                   fontFamily: Theme.typography.fontFamily,
                 }}
               >
-                {format(d.value)}
+                {format(d.value, unit)}
               </text>
 
-              {/* Label eixo X */}
+              {/* X axis label */}
               <text
                 x={bX + barWidth / 2}
                 y={plotTop + plotHeight + fs(28)}
@@ -256,7 +273,7 @@ export const BarChart: React.FC<BarChartProps> = ({
                 opacity={labelOpacity}
                 style={{
                   fontSize: fs(13),
-                  fill: Theme.colors.textSecondary,
+                  fill: T.textMuted,
                   fontFamily: Theme.typography.fontFamily,
                 }}
               >

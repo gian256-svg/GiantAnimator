@@ -6,7 +6,7 @@ import {
   interpolate,
   AbsoluteFill,
 } from "remotion";
-import { Theme } from "../theme";
+import { Theme, resolveTheme } from '../theme';
 
 export interface ComparativeItem {
   label: string;
@@ -21,18 +21,24 @@ export interface ComparativeBarChartProps {
   title: string;
   subtitle?: string;
   backgroundColor?: string;
+  theme?: string;
+  backgroundColor?: string;
+  colors?: string[];
+  textColor?: string;
 }
 
 export const ComparativeBarChart: React.FC<ComparativeBarChartProps> = ({
+  theme = 'dark',
   data = [],
   leftLabel = "Grupo A",
   rightLabel = "Grupo B",
   title,
   subtitle,
-  backgroundColor = Theme.colors.background,
+  backgroundColor ?? T.background,
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
+  const T = resolveTheme(theme ?? 'dark');
   const instanceId = useId().replace(/:/g, "");
 
   // Safe Zone 4K
@@ -45,8 +51,8 @@ export const ComparativeBarChart: React.FC<ComparativeBarChartProps> = ({
 
   if (data.length === 0) {
     return (
-      <AbsoluteFill style={{ backgroundColor, justifyContent: 'center', alignItems: 'center' }}>
-        <p style={{ color: Theme.colors.text, fontSize: Theme.typography.category.size }}>Nenhum dado para exibir.</p>
+      <AbsoluteFill style={{ backgroundColor ?? T.background, justifyContent: 'center', alignItems: 'center' }}>
+        <p style={{ color: T.text, fontSize: Theme.typography.category.size }}>Nenhum dado para exibir.</p>
       </AbsoluteFill>
     );
   }
@@ -58,7 +64,7 @@ export const ComparativeBarChart: React.FC<ComparativeBarChartProps> = ({
   const barGap = (plotHeight / data.length) * 0.3;
 
   return (
-    <AbsoluteFill style={{ backgroundColor }}>
+    <AbsoluteFill style={{ backgroundColor ?? T.background }}>
       {/* ZONA 1 — Cabeçalho */}
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',
@@ -82,21 +88,21 @@ export const ComparativeBarChart: React.FC<ComparativeBarChartProps> = ({
       <svg width={width} height={height} style={{ overflow: 'visible' }}>
         <defs>
           <linearGradient id={`leftGrad-${instanceId}`} x1="1" y1="0" x2="0" y2="0">
-            <stop offset="0%" stopColor={Theme.chartColors[0]} />
-            <stop offset="100%" stopColor={Theme.chartColors[0]} stopOpacity={0.8} />
+            <stop offset="0%" stopColor={T.colors[0]} />
+            <stop offset="100%" stopColor={T.colors[0]} stopOpacity={0.8} />
           </linearGradient>
           <linearGradient id={`rightGrad-${instanceId}`} x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor={Theme.chartColors[1]} />
-            <stop offset="100%" stopColor={Theme.chartColors[1]} stopOpacity={0.8} />
+            <stop offset="0%" stopColor={T.colors[1]} />
+            <stop offset="100%" stopColor={T.colors[1]} stopOpacity={0.8} />
           </linearGradient>
         </defs>
 
         {/* Labels de Lado */}
-        <text x={centerX - 100} y={chartTop - 30} textAnchor="end" style={{ fontSize: Theme.typography.subtitle.size, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>{leftLabel.toUpperCase()}</text>
-        <text x={centerX + 100} y={chartTop - 30} textAnchor="start" style={{ fontSize: Theme.typography.subtitle.size, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>{rightLabel.toUpperCase()}</text>
+        <text x={centerX - 100} y={chartTop - 30} textAnchor="end" style={{ fontSize: Theme.typography.subtitle.size, fill: T.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>{leftLabel.toUpperCase()}</text>
+        <text x={centerX + 100} y={chartTop - 30} textAnchor="start" style={{ fontSize: Theme.typography.subtitle.size, fill: T.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>{rightLabel.toUpperCase()}</text>
 
         {/* Eixo Central */}
-        <line x1={centerX} y1={chartTop} x2={centerX} y2={chartTop + plotHeight} stroke={Theme.colors.grid} strokeWidth={2} opacity={0.5} />
+        <line x1={centerX} y1={chartTop} x2={centerX} y2={chartTop + plotHeight} stroke={T.grid} strokeWidth={2} opacity={0.5} />
 
         {data.map((d, i) => {
           const y = chartTop + i * (barHeight + barGap) + barHeight / 2;
@@ -107,7 +113,7 @@ export const ComparativeBarChart: React.FC<ComparativeBarChartProps> = ({
 
           return (
             <g key={i}>
-              <text x={centerX} y={y} textAnchor="middle" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.textSecondary, fontWeight: 600, fontFamily: Theme.typography.fontFamily }}>{d.label}</text>
+              <text x={centerX} y={y} textAnchor="middle" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: T.textMuted, fontWeight: 600, fontFamily: Theme.typography.fontFamily }}>{d.label}</text>
 
               <rect
                 x={centerX - 100 - leftW * pop} y={y - barHeight / 2} width={leftW * pop} height={barHeight}
@@ -120,8 +126,8 @@ export const ComparativeBarChart: React.FC<ComparativeBarChartProps> = ({
 
               {pop > 0.9 && (
                 <>
-                  <text x={centerX - 120 - leftW} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>{d.leftValue.toLocaleString()}</text>
-                  <text x={centerX + 120 + rightW} y={y} textAnchor="start" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>{d.rightValue.toLocaleString()}</text>
+                  <text x={centerX - 120 - leftW} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: T.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>{d.leftValue.toLocaleString()}</text>
+                  <text x={centerX + 120 + rightW} y={y} textAnchor="start" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: T.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>{d.rightValue.toLocaleString()}</text>
                 </>
               )}
             </g>

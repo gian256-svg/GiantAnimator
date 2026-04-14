@@ -12,7 +12,11 @@ export interface BubbleChartProps {
   subtitle?: string;
   series: {
     label: string;
-    data: { x: number; y: number; r: number }[];
+    data: { x: number; y: number; r: number   theme?: string;
+  backgroundColor?: string;
+  colors?: string[];
+  textColor?: string;
+}[];
     color?: string;
   }[];
   xLabel?: string;
@@ -32,6 +36,7 @@ export const BubbleChart: React.FC<BubbleChartProps> = ({
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
+  const T = resolveTheme(theme ?? 'dark');
 
   // Layout 4K
   const MARGIN = { top: 160, right: 300, bottom: 200, left: 240 };

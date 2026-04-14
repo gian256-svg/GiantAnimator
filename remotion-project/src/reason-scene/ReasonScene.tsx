@@ -7,6 +7,7 @@ const CHART_H = staticFile("ADS13-PAGINA/INGR0002-Grafico-4-Mobile-1.png");
 
 const TextLine: React.FC<{ children: React.ReactNode, delay: number, size: number, weight: number, color?: string, italic?: boolean }> = ({ children, delay, size, weight, color = '#ffffff', italic = false }) => {
     const frame = useCurrentFrame();
+  const T = resolveTheme(theme ?? 'dark');
     const { fps } = useVideoConfig();
     const t = frame - delay;
     const entry = spring({ frame: t, fps, config: { damping: 15, stiffness: 40, mass: 1.2 } });

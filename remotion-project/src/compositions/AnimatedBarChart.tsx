@@ -29,6 +29,7 @@ export const AnimatedBarChart: React.FC<Props> = ({
   datasets,
 }) => {
   const frame = useCurrentFrame();
+  const T = resolveTheme(theme ?? 'dark');
   const { fps } = useVideoConfig();
 
   // Se datasets for undefined/null/vazio, use fallback default vazio
