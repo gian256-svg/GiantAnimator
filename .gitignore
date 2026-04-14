@@ -63,3 +63,8 @@ knowledge-base/
 .idea/
 *.swp
 *.swo
+
+# --- Projetos Específicos ---
+uploads/
+server/cache/
+.agent/cache/

@@ -1,4 +1,5 @@
 // server/agent.ts
+import "dotenv/config";
 import fs   from "fs";
 import path from "path";
 import { GoogleGenAI, type Chat } from "@google/genai";
@@ -16,6 +17,7 @@ function buildSystemPrompt(): string {
     ".agent/knowledge/remotion-charts.md",
     ".agent/knowledge/remotion-spring.md",
     ".agent/knowledge/highcharts-visual-rules.md",  // ✅ Regras de Ouro
+    "TRAINING_LOG.md",                              // ✅ APRENDIZADOS E UI/UX PRO MAX
     "agent-backup/SYSTEM_PROMPT.md",
   ];
 
@@ -129,7 +131,8 @@ export class GiantAnimatorAgent {
 
     try {
       const response = await this.sendWithRetry(userMessage);
-      return response.text ?? "Sem resposta do modelo.";
+      const text = response.candidates?.[0]?.content?.parts?.[0]?.text ?? (response as any).text ?? "";
+      return text || "Sem resposta do modelo.";
     } catch (err) {
       const msg = `Erro no agente: ${String(err)}`;
       console.error(`❌ [Agent] ${msg}`);
@@ -188,7 +191,8 @@ export class GiantAnimatorAgent {
         imagePart as any,
       ]);
 
-      return response.text ?? "Sem resposta do modelo.";
+      const text = response.candidates?.[0]?.content?.parts?.[0]?.text ?? (response as any).text ?? "";
+      return text || "Sem resposta do modelo.";
     } catch (err) {
       throw new Error(`Análise de imagem falhou: ${String(err)}`);
     }
@@ -226,7 +230,10 @@ REGRAS:
 - Se houver 1 coluna de tempo/data + 1 numérica -> prefira LineChart
 - Se os valores somam ~100% -> prefira PieChart ou DonutChart
 - Se houver múltiplas séries numéricas -> prefira GroupedBarChart ou LineChart
-- Cores seguem o padrão Mango/Lychee UHD
+- Cores seguem o padrão Mango/Lychee UHD + UI/UX Pro Max (Heuristic Palettes)
+- Tipografia: Usar fontes Inter, Roboto ou OpenSans com pesos variados (400/600/700)
+- Ícones: SE usar ícones, apenas nomes de ícones Lucide (ex: "TrendingUp") — NUNCA emojis
+- Contraste: Garantir legibilidade máxima (High Contrast)
 - Saída ESTRITAMENTE em JSON, sem markdown, sem texto extra
 
 FORMATO DE SAÍDA OBRIGATÓRIO:
@@ -245,8 +252,8 @@ FORMATO DE SAÍDA OBRIGATÓRIO:
 
     try {
       const response = await this.sendWithRetry(prompt);
-      const text = response.text?.trim() || "{}";
-      const clean = text.replace(/```json|```/g, '').trim();
+      const text = (response.candidates?.[0]?.content?.parts?.[0]?.text ?? (response as any).text ?? "").trim();
+      const clean = (text || "{}").replace(/```json|```/g, '').trim();
       return JSON.parse(clean);
     } catch (err) {
       throw new Error(`Falha na análise da tabela pelo Gemini: ${String(err)}`);

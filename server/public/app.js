@@ -1,409 +1,371 @@
-// server/public/app.js — v3 (Split-Screen & Property Panel)
+/* ═══════════════════════════════════════════════════════════════
+   APP LOGIC — GiantAnimator
+═══════════════════════════════════════════════════════════════ */
 
-// ─── Estado global ──────────────────────────────────────────
-let currentJob = null;
-let currentProps = {};
-let originalProps = {};
-let debounceTimer = null;
-const activeUploads = new Map();
+const state = {
+  files: [],
+  history: [],
+  currentVideo: null,
+  isRendering: false,
+  eventSource: null,
+  currentJobId: null
+};
 
-// ─── Inicialização ──────────────────────────────────────────
+function uid() { return Math.random().toString(36).slice(2, 9); }
+
+function fmt(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1048576) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/1048576).toFixed(1) + ' MB';
+}
+
+function now() {
+  return new Date().toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+}
+
+function toast(msg, type = 'info') {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  container.appendChild(el);
+  setTimeout(() => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(10px)';
+    el.style.transition = 'all 0.3s ease';
+    setTimeout(() => el.remove(), 300);
+  }, 4000);
+}
+
+function log(msg, type = 'info') {
+  const con = document.getElementById('log-console');
+  if (!con) return;
+  const line = document.createElement('div');
+  line.className = `log-line ${type}`;
+  line.innerHTML = `<span class="log-time">[${now()}]</span><span class="log-msg">${msg}</span>`;
+  con.appendChild(line);
+  con.scrollTop = con.scrollHeight;
+}
+
+function setProgress(pct, stage) {
+  const bar = document.getElementById('progress-bar');
+  const pctEl = document.getElementById('progress-pct');
+  const stageEl = document.getElementById('progress-stage');
+  
+  if (bar) bar.style.width = pct + '%';
+  if (pctEl) pctEl.textContent = pct + '%';
+  if (stage && stageEl) stageEl.textContent = stage;
+}
+
+function fileIcon(name) {
+  const ext = name.split('.').pop().toLowerCase();
+  if (['xlsx','xls','csv'].includes(ext)) return '📊';
+  if (ext === 'json') return '{ }';
+  if (['png','jpg','jpeg','webp'].includes(ext)) return '🖼';
+  return '📄';
+}
+
+function renderFileQueue() {
+  const el = document.getElementById('file-queue');
+  if (!el) return;
+  if (!state.files.length) { el.innerHTML = ''; return; }
+  el.innerHTML = state.files.map(f => `
+    <div class="file-item">
+      <div class="file-icon">${fileIcon(f.name)}</div>
+      <div class="file-name">${f.name}</div>
+      <div class="file-status ${f.status}">${f.status === 'pending' ? 'Aguardando' : f.status === 'processing' ? 'Processando...' : f.status === 'done' ? '✓ Concluído' : '✕ Erro'}</div>
+      ${f.status === 'pending' ? `<button class="file-remove" onclick="removeFile('${f.id}')" style="background:none; border:none; cursor:pointer; color:#888;">✕</button>` : ''}
+    </div>
+  `).join('');
+  
+  const btnRender = document.getElementById('btn-render');
+  if (btnRender) {
+    btnRender.disabled = !state.files.some(f => f.status === 'pending') || state.isRendering;
+  }
+}
+
+window.removeFile = function(id) {
+  state.files = state.files.filter(f => f.id !== id);
+  renderFileQueue();
+};
+
+function addFiles(fileList) {
+  Array.from(fileList).forEach(file => {
+    state.files.push({ id: uid(), file, name: file.name, size: file.size, status: 'pending' });
+    log(`📎 Arquivo adicionado: ${file.name}`);
+  });
+  renderFileQueue();
+}
+
+// ─── DOM EVENTS ───────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-    connectSSE();
-    refreshHistory();
-    initAccordion();
-});
+  const dz = document.getElementById('drop-zone');
+  const fi = document.getElementById('file-input');
+  const btnRender = document.getElementById('btn-render');
+  const btnDownload4k = document.getElementById('btn-download4k');
 
-// ─── SSE (Eventos em tempo real) ─────────────────────────────
-function connectSSE() {
-    const dot = document.getElementById('connection-dot');
-    const statusText = document.getElementById('status-text');
-    
-    const evtSource = new EventSource('/events');
-    
-    evtSource.onopen = () => {
-        dot.className = 'dot';
-        statusText.textContent = 'Pronto';
-    };
+  if (dz && fi) {
+    dz.addEventListener('click', () => fi.click());
+    fi.addEventListener('change', e => addFiles(e.target.files));
+    dz.addEventListener('dragover', e => { e.preventDefault(); dz.style.borderColor = '#111'; dz.style.backgroundColor = '#F0F0F0'; });
+    dz.addEventListener('dragleave', () => { dz.style.borderColor = ''; dz.style.backgroundColor = ''; });
+    dz.addEventListener('drop', e => { e.preventDefault(); dz.style.borderColor = ''; dz.style.backgroundColor = ''; addFiles(e.dataTransfer.files); });
+  }
 
-    evtSource.onmessage = (e) => {
-        const data = JSON.parse(e.data);
-        console.log('📡 [SSE]', data);
+  if (btnRender) {
+    btnRender.addEventListener('click', async () => {
+      const pending = state.files.filter(f => f.status === 'pending');
+      if (!pending.length) return;
+      state.isRendering = true;
+      btnRender.disabled = true;
 
-        if (data.type === 'processing') {
-            showToast(`⏳ Analisando: ${data.filename}`);
-            document.getElementById('processing-section').style.display = 'flex';
-            document.getElementById('processing-filename').textContent = `Analisando ${data.filename}...`;
-            dot.className = 'dot loading';
-        } 
-        else if (data.type === 'render_complete' || data.type === 'done') {
-            showToast(`✅ Pronto: ${data.filename}`, 'success');
-            document.getElementById('processing-section').style.display = 'none';
-            dot.className = 'dot';
-            
-            // Preview do vídeo
-            if (data.videoUrl || data.outputFile) {
-                const videoUrl = data.videoUrl || `/download/${data.outputFile}`;
-                showPreview(videoUrl, data.props, data.id || data.jobId);
-            }
-            refreshHistory();
-        } 
-        else if (data.type === 'error') {
-            showToast(`❌ Erro: ${data.message}`, 'error');
-            document.getElementById('processing-section').style.display = 'none';
-            dot.className = 'dot error';
+      for (const f of pending) {
+        f.status = 'processing';
+        renderFileQueue();
+        const fd = new FormData();
+        fd.append('file', f.file);
+        fd.append('chartType', document.getElementById('chart-type').value);
+        fd.append('chartTheme', document.getElementById('chart-theme').value);
+
+        try {
+          log(`🚀 Enviando: ${f.name}`);
+          const res = await fetch('/upload', { method: 'POST', body: fd });
+          const data = await res.json();
+          startSSE(data.jobId, f.name);
+          f.status = 'done';
+          renderFileQueue();
+        } catch (err) {
+          f.status = 'error';
+          renderFileQueue();
+          log(`✕ Erro: ${err.message}`, 'error');
+          state.isRendering = false;
         }
-    };
-
-    evtSource.onerror = () => {
-        dot.className = 'dot error';
-        statusText.textContent = 'Desconectado';
-        evtSource.close();
-        setTimeout(connectSSE, 5000);
-    };
-}
-
-// ─── Preview & Painel ────────────────────────────────────────
-function showPreview(url, props, id) {
-    const video = document.getElementById('preview-video');
-    const previewSection = document.getElementById('preview-section');
-    
-    currentJob = { id, videoUrl: url, props };
-    video.src = `${url}?t=${Date.now()}`;
-    previewSection.style.display = 'flex';
-
-    if (props) {
-        initPanel(props);
-    }
-}
-
-// ─── Painel de Propriedades (Snippet do Usuário) ─────────────
-function initAccordion() {
-    document.querySelectorAll('.prop-block-title').forEach(title => {
-        title.addEventListener('click', (e) => {
-            if (e.target.classList.contains('btn-reset-block')) return;
-            const targetId = title.dataset.target;
-            const body     = document.getElementById(targetId);
-            const chevron  = title.querySelector('.chevron');
-            const collapsed = body.classList.toggle('collapsed');
-            chevron.textContent = collapsed ? '▼' : '▲';
-        });
+      }
     });
-}
+  }
 
-function bindColorPair(pickerId, hexId, propKey) {
-    const picker = document.getElementById(pickerId);
-    const hex    = document.getElementById(hexId);
-    if (!picker || !hex) return;
+  if (btnDownload4k) {
+    btnDownload4k.addEventListener('click', async () => {
+      const jobId = state.currentJobId;
+      if (!jobId) { toast('Nenhuma animação carregada', 'warn'); return; }
 
-    picker.addEventListener('input', () => {
-        hex.value = picker.value;
-        setProp(propKey, picker.value);
-    });
+      btnDownload4k.disabled = true;
 
-    hex.addEventListener('input', () => {
-        if (/^#[0-9a-fA-F]{6}$/.test(hex.value)) {
-            picker.value = hex.value;
-            setProp(propKey, hex.value);
-        }
-    });
-}
+      log('🔷 Solicitando render 4K...');
+      toast('Render 4K iniciado! Aguarde...', 'info');
 
-bindColorPair('prop-bg-color',    'prop-bg-color-hex',    'backgroundColor');
-bindColorPair('prop-text-color',  'prop-text-color-hex',  'textColor');
-bindColorPair('prop-muted-color', 'prop-muted-color-hex', 'mutedColor');
-
-const scaleInput = document.getElementById('prop-scale');
-const scaleLabel = document.getElementById('scale-value-label');
-
-scaleInput?.addEventListener('input', () => {
-    const val = parseFloat(scaleInput.value);
-    scaleLabel.textContent = val.toFixed(2) + '×';
-    setProp('scale', val);
-});
-
-document.getElementById('prop-title')?.addEventListener('input', (e) => {
-    setProp('title', e.target.value);
-});
-
-function setProp(key, value) {
-    currentProps[key] = value;
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(applyProps, 500);
-}
-
-async function applyProps() {
-    if (!currentJob || !currentProps) return;
-    try {
-        const res = await fetch('/rerender', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                jobId: currentJob.id, 
-                props: { ...currentJob.props, ...currentProps } 
-            })
-        });
-        if (res.ok) {
-            const result = await res.json();
-            const video = document.getElementById('preview-video');
-            video.src = `/download/${result.outputFile}?t=${Date.now()}`;
-            showToast('🔄 Atualizado', 'success');
-        }
-    } catch (err) {
-        console.warn('Erro ao aplicar props:', err);
-    }
-}
-
-function buildDataFields(data = []) {
-    const container = document.getElementById('dynamic-data-fields');
-    if (!container) return;
-    container.innerHTML = '';
-    const grid = document.createElement('div');
-    grid.className = 'data-grid';
-
-    data.forEach((item, i) => {
-        const labelRow = document.createElement('div');
-        labelRow.className = 'prop-row';
-        labelRow.innerHTML = `<label>Label ${i + 1}</label><input type="text" value="${item.label ?? ''}" data-index="${i}" data-field="label">`;
-        const valRow = document.createElement('div');
-        valRow.className = 'prop-row';
-        valRow.innerHTML = `<label>Val ${i + 1}</label><input type="number" value="${item.value ?? ''}" data-index="${i}" data-field="value">`;
-        grid.appendChild(labelRow); grid.appendChild(valRow);
-    });
-    container.appendChild(grid);
-    container.querySelectorAll('input').forEach(input => {
-        input.addEventListener('input', () => {
-            const idx   = parseInt(input.dataset.index);
-            const field = input.dataset.field;
-            if (!currentProps.data) currentProps.data = JSON.parse(JSON.stringify(currentJob.props.data));
-            currentProps.data[idx][field] = field === 'value' ? parseFloat(input.value) : input.value;
-            setProp('data', currentProps.data);
-        });
-    });
-}
-
-function buildColorFields(data = [], colors = []) {
-    const container = document.getElementById('dynamic-color-fields');
-    if (!container) return;
-    container.innerHTML = '';
-    if (data.length === 0) return;
-
-    const sep = document.createElement('div');
-    sep.className = 'prop-separator'; sep.textContent = 'Cores dos elementos';
-    container.appendChild(sep);
-
-    data.forEach((item, i) => {
-        const defaultColor = colors[i] ?? '#7c6af7';
-        const row = document.createElement('div');
-        row.className = 'prop-row';
-        row.innerHTML = `
-            <label>${item.label ?? 'Item ' + (i + 1)}</label>
-            <div class="color-input-group">
-                <input type="color"  id="el-color-${i}" value="${defaultColor}">
-                <input type="text"   id="el-color-hex-${i}" value="${defaultColor}" maxlength="7">
-            </div>
-        `;
-        container.appendChild(row);
-        const picker = row.querySelector(`#el-color-${i}`);
-        const hex    = row.querySelector(`#el-color-hex-${i}`);
-        picker.addEventListener('input', () => { hex.value = picker.value; setElementColor(i, picker.value); });
-        hex.addEventListener('input', () => { if (/^#[0-9a-fA-F]{6}$/.test(hex.value)) { picker.value = hex.value; setElementColor(i, hex.value); } });
-    });
-}
-
-function setElementColor(index, value) {
-    if (!currentProps.elementColors) currentProps.elementColors = [...(currentJob.props.elementColors || [])];
-    currentProps.elementColors[index] = value;
-    setProp('elementColors', currentProps.elementColors);
-}
-
-function initPanel(props) {
-    currentProps  = {};
-    originalProps = JSON.parse(JSON.stringify(props));
-    document.getElementById('right-panel').style.display = 'flex';
-    refreshPanelFromProps(props);
-    buildDataFields(props.data ?? []);
-    buildColorFields(props.data ?? [], props.elementColors ?? props.colors ?? []);
-}
-
-function refreshPanelFromProps(p) {
-    if (p.title !== undefined) document.getElementById('prop-title').value = p.title ?? '';
-    if (p.backgroundColor) {
-        document.getElementById('prop-bg-color').value = p.backgroundColor;
-        document.getElementById('prop-bg-color-hex').value = p.backgroundColor;
-    }
-    if (p.textColor) {
-        document.getElementById('prop-text-color').value = p.textColor;
-        document.getElementById('prop-text-color-hex').value = p.textColor;
-    }
-    if (p.scale !== undefined) {
-        scaleInput.value = p.scale;
-        scaleLabel.textContent = parseFloat(p.scale).toFixed(2) + '×';
-    }
-}
-
-// ─── Upload Tabs ─────────────────────────────────────────────
-document.querySelectorAll('.upload-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-        document.querySelectorAll('.upload-tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-
-        const isTable = tab.dataset.tab === 'table';
-        document.getElementById('drop-zone-image').style.display = isTable ? 'none' : 'flex';
-        document.getElementById('drop-zone-table').style.display = isTable ? 'flex' : 'none';
-    });
-});
-
-// ─── Drop Zone: Imagem ───────────────────────────────────────
-const dzImage = document.getElementById('drop-zone-image');
-dzImage?.addEventListener('click', () =>
-    document.getElementById('file-input-image').click()
-);
-dzImage?.addEventListener('dragover', e => {
-    e.preventDefault(); dzImage.classList.add('drag-over');
-});
-dzImage?.addEventListener('dragleave', () => dzImage.classList.remove('drag-over'));
-dzImage?.addEventListener('drop', e => {
-    e.preventDefault(); dzImage.classList.remove('drag-over');
-    const file = e.dataTransfer.files[0];
-    if (file) uploadImage(file);
-});
-document.getElementById('file-input-image')?.addEventListener('change', e => {
-    if (e.target.files[0]) uploadImage(e.target.files[0]);
-});
-
-// ─── Drop Zone: Tabela ───────────────────────────────────────
-const dzTable = document.getElementById('drop-zone-table');
-dzTable?.addEventListener('click', () =>
-    document.getElementById('file-input-table').click()
-);
-dzTable?.addEventListener('dragover', e => {
-    e.preventDefault(); dzTable.classList.add('drag-over');
-});
-dzTable?.addEventListener('dragleave', () => dzTable.classList.remove('drag-over'));
-dzTable?.addEventListener('drop', e => {
-    e.preventDefault(); dzTable.classList.remove('drag-over');
-    const file = e.dataTransfer.files[0];
-    if (file) uploadTable(file);
-});
-document.getElementById('file-input-table')?.addEventListener('change', e => {
-    if (e.target.files[0]) uploadTable(e.target.files[0]);
-});
-
-// ─── Paste global (imagem) ───────────────────────────────────
-window.addEventListener('paste', e => {
-    const item = e.clipboardData?.items[0];
-    if (item?.type.includes('image')) uploadImage(item.getAsFile());
-});
-
-// ─── Upload de Imagem ────────────────────────────────────────
-async function uploadImage(file) {
-    showProcessing(file.name);
-    const formData = new FormData();
-    formData.append('image', file);
-    try {
-        const res = await fetch('/upload', { method: 'POST', body: formData });
+      try {
+        const res = await fetch(`/render4k/${jobId}`, { method: 'POST' });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error);
-    } catch (err) {
-        showToast(`❌ ${err.message}`, 'error');
-        hideProcessing();
-    }
+
+        if (data.status === 'ready' && data.video4kUrl) {
+          log('✅ 4K já disponível — baixando...');
+          triggerDownload4K(data.video4kUrl);
+          btnDownload4k.disabled = false;
+          return;
+        }
+
+        document.getElementById('render4k-overlay').style.display = 'flex';
+        startSSE4K(jobId);
+      } catch (err) {
+        toast(`Erro ao iniciar 4K: ${err.message}`, 'error');
+        btnDownload4k.disabled = false;
+      }
+    });
+  }
+
+  // Load history on start
+  refreshHistory();
+  // Status check
+  setInterval(checkStatus, 10000);
+  checkStatus();
+});
+
+/* ═══════════════════════════════════════════════════════════════
+   SSE 720p
+═══════════════════════════════════════════════════════════════ */
+function startSSE(jobId, fileName) {
+  if (state.eventSource) state.eventSource.close();
+
+  const es = new EventSource(`/progress/${jobId}`);
+  state.eventSource = es;
+  state.currentJobId = jobId;
+
+  es.onmessage = (e) => {
+    try {
+      const msg = JSON.parse(e.data);
+
+      if (msg.progress !== undefined) {
+        setProgress(msg.progress, msg.stage || '');
+        if (msg.log) log(msg.log, msg.logType || 'info');
+      }
+
+      if (msg.status === 'done') {
+        es.close();
+        state.isRendering = false;
+        setProgress(100, 'Preview 720p pronto ✓');
+        log(`🎬 Preview pronto: ${msg.videoUrl}`, 'success');
+        toast('Preview 720p gerado!', 'success');
+        loadVideo(msg.videoUrl, fileName, msg.duration || '');
+        document.getElementById('btn-render').disabled = false;
+        refreshHistory();
+      }
+
+      if (msg.status === 'error') {
+        es.close();
+        state.isRendering = false;
+        log(`✕ Erro: ${msg.error}`, 'error');
+        toast(`Erro: ${msg.error}`, 'error');
+        setProgress(0, 'Erro ✕');
+        document.getElementById('btn-render').disabled = false;
+      }
+    } catch(err) { /* ignore */ }
+  };
+
+  es.onerror = () => {
+    log('⚠ Conexão SSE perdida', 'warn');
+    es.close();
+    state.isRendering = false;
+    document.getElementById('btn-render').disabled = false;
+  };
 }
 
-// ─── Upload de Tabela ────────────────────────────────────────
-async function uploadTable(file) {
-    const validExts = ['.xlsx', '.xls', '.csv', '.ods'];
-    const ext = '.' + file.name.split('.').pop().toLowerCase();
+/* ═══════════════════════════════════════════════════════════════
+   SSE 4K
+═══════════════════════════════════════════════════════════════ */
+function startSSE4K(jobId) {
+  const es     = new EventSource(`/progress4k/${jobId}`);
+  const bar    = document.getElementById('4k-bar');
+  const pctEl  = document.getElementById('4k-pct');
+  const stage  = document.getElementById('4k-stage');
+  const overlay = document.getElementById('render4k-overlay');
+  const btn    = document.getElementById('btn-download4k');
 
-    if (!validExts.includes(ext)) {
-        showToast(`❌ Formato inválido. Use: ${validExts.join(', ')}`, 'error');
+  es.onmessage = (e) => {
+    try {
+      const msg = JSON.parse(e.data);
+
+      if (msg.progress !== undefined) {
+        if (bar) bar.style.width  = msg.progress + '%';
+        if (pctEl) pctEl.textContent = msg.progress + '%';
+        if (msg.stage && stage) stage.textContent = msg.stage;
+        if (msg.log) log(msg.log, msg.logType || 'info');
+      }
+
+      if (msg.status === 'done') {
+        es.close();
+        if (overlay) overlay.style.display = 'none';
+        log('🔷 Render 4K concluído! Baixando...', 'success');
+        toast('Render 4K pronto! Iniciando download...', 'success');
+        triggerDownload4K(msg.video4kUrl);
+        btn.disabled = false;
+      }
+
+      if (msg.status === 'error') {
+        es.close();
+        if (overlay) overlay.style.display = 'none';
+        log(`✕ Erro 4K: ${msg.error}`, 'error');
+        toast(`Erro no render 4K: ${msg.error}`, 'error');
+        btn.disabled = false;
+      }
+    } catch(err) { /* ignore */ }
+  };
+
+  es.onerror = () => {
+    log('⚠ SSE 4K perdido', 'warn');
+    es.close();
+    if (overlay) overlay.style.display = 'none';
+    btn.disabled = false;
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   VIDEO PLAYER
+═══════════════════════════════════════════════════════════════ */
+function loadVideo(url, name, duration) {
+  const video       = document.getElementById('preview-video');
+  const placeholder = document.getElementById('player-placeholder');
+  const meta        = document.getElementById('video-meta');
+  const btn4k       = document.getElementById('btn-download4k');
+
+  if (!video) return;
+
+  video.src = url;
+  video.style.display = 'block';
+  if (placeholder) placeholder.style.display = 'none';
+  state.currentVideo = { url, name };
+
+  if (duration && meta) meta.textContent = `⏱ ${duration}  ·  720p preview`;
+
+  if (btn4k) btn4k.disabled = false;
+}
+
+function triggerDownload4K(url) {
+  const name = (state.currentVideo?.name || 'animacao').replace(/\.[^.]+$/, '');
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `${name}_4K.mp4`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   HISTORY
+═══════════════════════════════════════════════════════════════ */
+async function refreshHistory() {
+  try {
+    // Note: The server index.ts doesn't explicitly show a /history route in the first 100 lines, 
+    // but the previous app.js used it. Let's assume it exists or the logic works with empty for now.
+    // If it doesn't exist, we can implement it or just keep current session history.
+    const res = await fetch('/history').catch(() => null);
+    if (!res || !res.ok) {
+        renderHistory();
         return;
     }
-
-    showProcessing(file.name, '📊');
-    const formData = new FormData();
-    formData.append('table', file);
-
-    try {
-        const res = await fetch('/upload-table', { method: 'POST', body: formData });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error);
-    } catch (err) {
-        showToast(`❌ ${err.message}`, 'error');
-        hideProcessing();
-    }
+    const items = await res.json();
+    state.history = items;
+    renderHistory();
+  } catch (err) { console.error(err); }
 }
 
-function showProcessing(filename, icon = '⚙️') {
-    document.getElementById('processing-section').style.display = 'flex';
-    document.getElementById('processing-filename').textContent = `${icon} Processando: ${filename}`;
+function renderHistory() {
+  const el = document.getElementById('history-list');
+  const countEl = document.getElementById('history-count');
+  if (!el) return;
+
+  if (countEl) countEl.textContent = `${state.history.length} / 10`;
+  if (!state.history.length) return;
+
+  el.innerHTML = state.history.map(h => `
+    <div class="history-item" onclick="loadVideo('${h.videoUrl || '/output/'+h.outputFile}', '${h.filename || h.name}', '${h.duration || ''}')">
+      <div class="hist-thumb">${fileIcon(h.filename || h.name)}</div>
+      <div class="hist-info">
+        <div class="hist-name">${h.filename || h.name}</div>
+        <div class="hist-meta">${new Date(h.createdAt).toLocaleString('pt-BR')}</div>
+      </div>
+    </div>
+  `).join('');
 }
 
-function hideProcessing() {
-    document.getElementById('processing-section').style.display = 'none';
+window.loadVideo = loadVideo; // expose to onclick
+
+/* ═══════════════════════════════════════════════════════════════
+   STATUS
+═══════════════════════════════════════════════════════════════ */
+async function checkStatus() {
+  try {
+    const res = await fetch('/health');
+    const online = res.ok;
+    const dot = document.getElementById('status-dot');
+    const txt = document.getElementById('status-text');
+    if (dot) dot.style.backgroundColor = online ? '#22C55E' : '#EF4444';
+    if (txt) txt.textContent = online ? 'Servidor online' : 'Servidor offline';
+  } catch {
+    const dot = document.getElementById('status-dot');
+    const txt = document.getElementById('status-text');
+    if (dot) dot.style.backgroundColor = '#EF4444';
+    if (txt) txt.textContent = 'Servidor offline';
+  }
 }
-
-// ─── Histórico ───────────────────────────────────────────────
-async function refreshHistory() {
-    try {
-        const items = await fetch('/history').then(r => r.json());
-        const list = document.getElementById('history-list');
-        list.innerHTML = items.map(item => `
-            <div class="history-item" onclick="loadFromHistory('${item.id}')">
-                <div class="thumb">🎞️</div>
-                <div class="info">
-                    <div class="name">${item.filename}</div>
-                    <div class="time">${new Date(item.createdAt).toLocaleTimeString()}</div>
-                </div>
-            </div>
-        `).join('');
-    } catch (err) { console.error(err); }
-}
-
-async function loadFromHistory(id) {
-    try {
-        const items = await fetch('/history').then(r => r.json());
-        const item = items.find(i => i.id === id);
-        if (item) {
-            showPreview(`/download/${item.outputFile}`, item.props, item.id);
-            showToast('📂 Carregado');
-        }
-    } catch (err) { console.error(err); }
-}
-
-// ─── Utilitários ─────────────────────────────────────────────
-function showToast(msg, type = 'info') {
-    let t = document.getElementById('toast');
-    if (!t) {
-        t = document.createElement('div');
-        t.id = 'toast';
-        t.style.cssText = `
-            position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
-            background:#1c1c26; border:1px solid #2a2a3a; color:#e8e8f0;
-            padding:8px 18px; border-radius:20px; font-size:12px;
-            z-index:9999; transition:opacity 0.3s;
-        `;
-        document.body.appendChild(t);
-    }
-    t.textContent = msg;
-    t.style.opacity = '1';
-    t.style.borderLeft = type === 'error' ? '4px solid #f87171' : (type === 'success' ? '4px solid #34d399' : '1px solid #2a2a3a');
-    clearTimeout(t._timer);
-    t._timer = setTimeout(() => t.style.opacity = '0', 3000);
-}
-
-document.getElementById('btn-download')?.addEventListener('click', () => {
-    if (currentJob) window.open(currentJob.videoUrl, '_blank');
-});
-
-document.getElementById('btn-copy-json')?.addEventListener('click', () => {
-    if (currentJob) {
-        navigator.clipboard.writeText(JSON.stringify(currentJob.props, null, 2));
-        showToast('📋 JSON Copiado', 'success');
-    }
-});
-
-document.getElementById('btn-rerender')?.addEventListener('click', applyProps);
-
-window.GiantAnimator = { initPanel, buildDataFields, buildColorFields, showToast };

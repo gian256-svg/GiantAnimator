@@ -4,6 +4,29 @@
 > **Hierarquia ativa:** Filosofia 4K > Padrões Multi-Fonte (Mango / Lychee / Papaya) > Dados Originais
 
 ---
+### REGRA PERMANENTE — CONVENÇÃO UI/UX PRO MAX (OBRIGATÓRIA)
+Data: 2026-04-14
+Escopo: TODOS os componentes e interfaces do GiantAnimator
+
+Todo trabalho visual DEVE seguir os padrões do UI/UX Pro Max:
+1. **Ícones**: PROIBIDO uso de emojis como ícones. Usar apenas SVG (Lucide / Heroicons).
+2. **Interação**: Todo elemento clicável DEVE ter `cursor: pointer`.
+3. **Transições**: Transições de hover devem ter entre 150-300ms (ex: `transition: all 0.2s ease`).
+4. **Estabilidade**: PROIBIDO usar `transform: scale()` que cause deslocamento de layout (layout shift) no hover.
+5. **Contraste**: Texto em Light Mode deve ter contraste mínimo de 4.5:1 (Slate-900 para corpo, Slate-600 para muted).
+6. **Responsividade**: Validar em 4 breakpoints: 375px, 768px, 1024px, 1440px.
+7. **Acessibilidade**: Focar estados visíveis (`:focus`) e respeitar `prefers-reduced-motion`.
+
+---
+### FLUXO OBRIGATÓRIO — GERAÇÃO DE GRÁFICOS
+Data: 2026-04-14
+
+Sempre que gerar um novo tipo de gráfico ou refatorar um existente, o Agente DEVE:
+1. Executar `python .agent/skills/ui-ux-pro-max/scripts/search.py "<tipo_do_grafico> <estilo>" --design-system` para obter recomendações.
+2. Aplicar a paleta de cores (Heuristic Palettes) e tipografia sugeridas no `theme.ts` ou via props.
+3. Seguir os Atos de Animação do DNA Mango (Ato 1: Estrutura, Ato 2: Dados, Ato 3: Labels).
+
+---
 ### REGRA PERMANENTE — Animação Fluida (obrigatória em todos os componentes)
 Data: 2026-04-09
 Escopo: TODOS os componentes presentes e futuros do GiantAnimator

@@ -9,23 +9,23 @@ import {
 import { Theme } from "../theme";
 
 interface BarChartProps {
-  data?:     { label: string; value: number }[];
-  title?:    string;
+  data?: { label: string; value: number }[];
+  title?: string;
   subtitle?: string;
 }
 
 const format = (n: number) => {
   if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + "M";
-  if (n >= 1_000)     return (n / 1_000).toFixed(1) + "k";
+  if (n >= 1_000) return (n / 1_000).toFixed(1) + "k";
   return String(Math.round(n));
 };
 
 export const BarChart: React.FC<BarChartProps> = ({
-  data     = [],
-  title    = "",
+  data = [],
+  title = "",
   subtitle = "",
 }) => {
-  const frame      = useCurrentFrame();
+  const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
   const instanceId = useId().replace(/:/g, "");
 
@@ -37,22 +37,22 @@ export const BarChart: React.FC<BarChartProps> = ({
   ];
 
   // ─── Layout responsivo baseado na resolução real ──────
-  const pad     = width * 0.04;   // 4% de padding
-  const padTop  = height * 0.12;  // 12% para o header
-  const padBot  = height * 0.12;  // 12% para eixo X
+  const pad = width * 0.04;   // 4% de padding
+  const padTop = height * 0.12;  // 12% para o header
+  const padBot = height * 0.12;  // 12% para eixo X
 
-  const plotLeft   = pad + width * 0.06;   // espaço eixo Y
-  const plotTop    = padTop;
-  const plotWidth  = width  - plotLeft - pad;
+  const plotLeft = pad + width * 0.06;   // espaço eixo Y
+  const plotTop = padTop;
+  const plotWidth = width - plotLeft - pad;
   const plotHeight = height - padTop - padBot;
 
   // Escala de fonte baseada na resolução
   const fs = (base: number) => Math.round(base * (width / 1280));
 
-  const maxVal        = Math.max(...safeData.map(d => d.value), 1);
+  const maxVal = Math.max(...safeData.map(d => d.value), 1);
   const categoryWidth = plotWidth / safeData.length;
-  const barGap        = 0.28;
-  const barWidth      = categoryWidth * (1 - barGap);
+  const barGap = 0.28;
+  const barWidth = categoryWidth * (1 - barGap);
 
   const getY = (v: number) =>
     plotTop + plotHeight - (v / maxVal) * plotHeight;
@@ -79,9 +79,9 @@ export const BarChart: React.FC<BarChartProps> = ({
         {title && (
           <div
             style={{
-              fontSize:   fs(36),
+              fontSize: fs(36),
               fontWeight: 700,
-              color:      Theme.colors.text,
+              color: Theme.colors.text,
               letterSpacing: "-0.5px",
             }}
           >
@@ -92,7 +92,7 @@ export const BarChart: React.FC<BarChartProps> = ({
           <div
             style={{
               fontSize: fs(18),
-              color:    Theme.colors.textSecondary,
+              color: Theme.colors.textSecondary,
               marginTop: fs(6),
             }}
           >
@@ -157,10 +157,10 @@ export const BarChart: React.FC<BarChartProps> = ({
                 textAnchor="end"
                 dominantBaseline="middle"
                 style={{
-                  fontSize:   fs(14),
-                  fill:       Theme.colors.textSecondary,
+                  fontSize: fs(14),
+                  fill: Theme.colors.textSecondary,
                   fontFamily: Theme.typography.fontFamily,
-                  opacity:    op,
+                  opacity: op,
                 }}
               >
                 {format(v * maxVal)}
@@ -184,10 +184,10 @@ export const BarChart: React.FC<BarChartProps> = ({
           const progress = spring({
             frame: frame - delay,
             fps,
-            config: { 
-              damping: 80, 
-              stiffness: 200, 
-              overshoot_clamp: true 
+            config: {
+              damping: 80,
+              stiffness: 200,
+              overshoot_clamp: true
             },
           });
 
@@ -209,7 +209,7 @@ export const BarChart: React.FC<BarChartProps> = ({
               {/* Sombra/glow da barra */}
               <rect
                 x={bX + fs(2)} y={bY + fs(4)}
-                width={barWidth} height={bH}
+                width={barWidth} height={currentH}
                 fill={color}
                 rx={fs(6)}
                 opacity={0.2}
@@ -219,7 +219,7 @@ export const BarChart: React.FC<BarChartProps> = ({
               {/* Barra principal */}
               <rect
                 x={bX} y={bY}
-                width={barWidth} height={bH}
+                width={barWidth} height={currentH}
                 fill={`url(#barGrad-${i}-${instanceId})`}
                 rx={fs(6)}
               />
@@ -227,7 +227,7 @@ export const BarChart: React.FC<BarChartProps> = ({
               {/* Highlight topo da barra */}
               <rect
                 x={bX + barWidth * 0.1} y={bY}
-                width={barWidth * 0.8} height={Math.min(bH, fs(6))}
+                width={barWidth * 0.8} height={Math.min(currentH, fs(6))}
                 fill="rgba(255,255,255,0.25)"
                 rx={fs(6)}
               />
@@ -239,8 +239,8 @@ export const BarChart: React.FC<BarChartProps> = ({
                 textAnchor="middle"
                 opacity={labelOpacity}
                 style={{
-                  fontSize:   fs(15),
-                  fill:       Theme.colors.text,
+                  fontSize: fs(15),
+                  fill: Theme.colors.text,
                   fontWeight: 700,
                   fontFamily: Theme.typography.fontFamily,
                 }}
@@ -255,8 +255,8 @@ export const BarChart: React.FC<BarChartProps> = ({
                 textAnchor="middle"
                 opacity={labelOpacity}
                 style={{
-                  fontSize:   fs(13),
-                  fill:       Theme.colors.textSecondary,
+                  fontSize: fs(13),
+                  fill: Theme.colors.textSecondary,
                   fontFamily: Theme.typography.fontFamily,
                 }}
               >

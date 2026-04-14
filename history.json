@@ -1,5 +1,80 @@
 [
   {
+    "filename": "bar-chart-example.jpg",
+    "outputFile": "09f6e2ec-8c47-4bf3-841c-bfe783c444ef_720p.mp4",
+    "status": "done",
+    "duration": 20,
+    "props": {
+      "title": "Market Share Comparison of Smartphone Brands",
+      "data": [
+        {
+          "label": "Product 1",
+          "value": 1
+        },
+        {
+          "label": "Product 2",
+          "value": 2
+        },
+        {
+          "label": "Product 3",
+          "value": 7
+        },
+        {
+          "label": "Product 4",
+          "value": 12
+        },
+        {
+          "label": "Product 5",
+          "value": 15
+        },
+        {
+          "label": "Product 6",
+          "value": 28
+        },
+        {
+          "label": "Product 7",
+          "value": 24
+        },
+        {
+          "label": "Product 8",
+          "value": 9
+        },
+        {
+          "label": "Product 9",
+          "value": 8
+        },
+        {
+          "label": "Product 10",
+          "value": 4
+        }
+      ],
+      "backgroundColor": "#ffffff",
+      "textColor": "#333333",
+      "seriesColors": [
+        "#66d9ef",
+        "#1e90ff",
+        "#3498db",
+        "#f1c40f",
+        "#ffa500",
+        "#800080",
+        "#e74c3c",
+        "#90ee90",
+        "#8a2be2",
+        "#f682c2"
+      ],
+      "borderRadius": 4,
+      "showValueLabels": true,
+      "chartType": "BarChart",
+      "theme": "dark",
+      "width": 1280,
+      "height": 720,
+      "fps": 30,
+      "durationInSeconds": 8
+    },
+    "id": "fefe3209-4fdb-4c41-aa3b-faaad2f0aca6",
+    "createdAt": "2026-04-14T20:08:51.357Z"
+  },
+  {
     "filename": "1775678174_image.png",
     "outputFile": "render-1775678192.mp4",
     "status": "done",

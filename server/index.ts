@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express, { Request, Response, NextFunction } from 'express';
 import multer from 'multer';
 import path from 'path';
@@ -8,6 +9,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { bundle } from '@remotion/bundler';
 import { renderMedia, selectComposition } from '@remotion/renderer';
 import { analyzeChartImage } from './visionService.js';
+import { getHistory, addJob } from './historyService.js';
+
 
 // ─── UTILS ───────────────────────────────────────────────────
 function sanitizeFilename(filename: string): string {
@@ -104,6 +107,11 @@ app.use('/output', express.static(OUTPUT_DIR));
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', uptime: process.uptime(), jobs: jobs.size });
 });
+
+app.get('/history', (_req, res) => {
+  res.json(getHistory());
+});
+
 
 // ─── UPLOAD + RENDER 720p ─────────────────────────────────────
 app.post('/upload', upload.single('file'), async (req: Request, res: Response) => {
@@ -241,6 +249,16 @@ async function processJob720p(
     });
 
     console.log(`✅ [${jobId}] 720p concluído → ${job.videoUrl}`);
+
+    // Persiste no histórico
+    addJob({
+      filename:   file.originalname,
+      outputFile: outFile720,
+      status:     'done',
+      duration:   Number(composition.durationInFrames / (composition.fps as number)),
+      props:      inputProps,
+    });
+
 
     // Limpa upload
     fs.unlink(file.path, () => {});
@@ -608,4 +626,9 @@ app.listen(PORT, () => {
   console.log('  ✦ ─────────────────────────────────────── ✦');
   console.log('');
   getBundle().catch(e => console.warn('⚠️  Warm-up falhou:', e.message));
+  
+  // ✅ Inicializar agente Gemini
+  import('./agent.js').then(({ agent }) => {
+    agent.initialize().catch(e => console.error('❌ Erro ao inicializar agente:', e));
+  });
 });
