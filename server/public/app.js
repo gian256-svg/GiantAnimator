@@ -123,28 +123,26 @@ async function loadCSVPreview(file) {
   ];
 
   try {
-    // 1. Faz upload simples pra garantir que o arquivo esteja no servidor
     const fd = new FormData();
     fd.append('file', file);
-    const uploadRes = await fetch('/api/upload-simple', { method: 'POST', body: fd });
-    const { filename } = await uploadRes.json();
-
-    // 2. Busca preview do arquivo
-    const previewRes = await fetch(`/api/preview-csv?file=${encodeURIComponent(filename)}`);
-    const data = await previewRes.json();
-
-    if (!data.ok) throw new Error(data.error);
+    
+    // Chamada unificada para o novo endpoint /preview-data
+    const res = await fetch('/preview-data', { method: 'POST', body: fd });
+    if (!res.ok) throw new Error('Falha ao analisar arquivo');
+    
+    const data = await res.json();
+    const summary = data.summary;
 
     // Meta Info
     const metaHtml = `
-      <div class="csv-meta-badge accent">${data.totalCols} Colunas</div>
-      <div class="csv-meta-badge ok">${data.totalRows} Linhas</div>
-      <div class="csv-meta-badge">Delimitador: ${data.delimiterLabel}</div>
+      <div class="csv-meta-badge accent">${summary.totalCols} Colunas</div>
+      <div class="csv-meta-badge ok">${summary.totalRows} Linhas</div>
+      <div class="csv-meta-badge">Delimitador: ${data.detectedDelimiter || 'Auto'}</div>
       <div class="csv-meta-badge">Formato: ${data.shape === 'wide' ? 'Wide (Múltiplas séries)' : 'Long (Série simples)'}</div>
     `;
     document.getElementById('csv-meta-info').innerHTML = metaHtml;
 
-    // Mapeamento de cores por coluna (estilo Rainbow CSV)
+    // Mapeamento de cores por coluna
     const colColors = {};
     data.headers.forEach((h, i) => {
       colColors[h] = RAINBOW[i % RAINBOW.length];
@@ -152,7 +150,7 @@ async function loadCSVPreview(file) {
 
     let colsHtml = '';
     data.headers.forEach(h => {
-        const isNum = data.numericColumns.includes(h);
+        const isNum = summary.numericColumns.includes(h);
         const color = colColors[h];
         colsHtml += `
           <div class="csv-col-chip" style="border-color: ${color}44; background: ${color}15; color: ${color}">
@@ -170,11 +168,11 @@ async function loadCSVPreview(file) {
     });
     sampleHtml += '</tr></thead><tbody>';
 
-    data.sample.forEach(row => {
+    summary.sample.forEach(row => {
       sampleHtml += '<tr>';
       data.headers.forEach(h => {
         const val = row[h] !== undefined && row[h] !== null ? row[h] : '';
-        const isNum = data.numericColumns.includes(h);
+        const isNum = summary.numericColumns.includes(h);
         const color = colColors[h];
         sampleHtml += `<td class="${isNum ? 'col-num' : ''}" style="color: ${isNum ? color : 'inherit'}" title="${val}">${val}</td>`;
       });
@@ -183,15 +181,9 @@ async function loadCSVPreview(file) {
     sampleHtml += '</tbody>';
     document.getElementById('csv-sample-table').innerHTML = sampleHtml;
 
-    // Sugere tipo de gráfico
-    const chartTypeSelect = document.getElementById('chart-type');
-    if (chartTypeSelect && data.suggestedChartType && chartTypeSelect.value === 'auto') {
-      chartTypeSelect.value = data.suggestedChartType;
-    }
-    
     document.getElementById('csv-suggestion').innerHTML = `
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-      Detectamos uma estrutura <strong>${data.shape}</strong>. Sugerimos o gráfico: <strong>${data.suggestedChartType}</strong>.
+      Estrutura <strong>${data.shape}</strong> identificada. Mapeamento de dados 4K pronto.
     `;
 
   } catch (err) {
