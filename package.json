@@ -1,0 +1,40 @@
+{
+  "name": "giant-animator",
+  "version": "1.0.0",
+  "description": "GiantAnimator — Servidor de geração de vídeos com Remotion + Gemini",
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "dev": "tsx watch server/index.ts",
+    "start": "tsx server/index.ts",
+    "build": "tsc --project server/tsconfig.server.json"
+  },
+  "dependencies": {
+    "@google/genai": "^1.48.0",
+    "@google/generative-ai": "^0.24.1",
+    "@remotion/bundler": "^4.0.446",
+    "@remotion/compositor-win32-x64-msvc": "^4.0.446",
+    "@remotion/google-fonts": "^4.0.446",
+    "@remotion/renderer": "^4.0.446",
+    "chokidar": "^3.6.0",
+    "cors": "^2.8.6",
+    "dotenv": "^16.6.1",
+    "express": "^4.22.1",
+    "multer": "^2.1.1",
+    "sharp": "^0.34.5",
+    "uuid": "^13.0.0",
+    "xlsx": "^0.18.5",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/multer": "^2.1.0",
+    "@types/node": "^22.19.17",
+    "@types/uuid": "^10.0.0",
+    "@types/xlsx": "^0.0.35"
+  }
+}
