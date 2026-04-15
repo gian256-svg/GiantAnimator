@@ -308,6 +308,10 @@ async function processJob4K(
     const outFile4K  = `${jobId}_4K.mp4`;
     const outPath4K  = path.join(OUTPUT_DIR, outFile4K);
 
+    if (process.env.VERCEL) {
+      throw new Error('Ambiente Vercel detectado. O Vercel não possui Google Chrome instalado para renderização nativa de vídeo MP4. Recomendamos usar uma VPS ou configurar o Remotion Lambda.');
+    }
+
     emit(40, 'Renderizando em 4K...', '🎬 Iniciando renderização UHD...', 'warn');
 
     await renderMedia({
@@ -358,9 +362,10 @@ async function processJob4K(
     fs.unlink(file.path, () => {});
 
   } catch (err: any) {
-    console.error(`❌ [${jobId}] Erro 4K:`, err);
-    updateJob(jobId, { status: 'error', error: err?.message || String(err) });
-    jobBus.emit(jobId + ':done', { status: 'error', error: err?.message || String(err) });
+    const errMsg = err?.message || String(err);
+    console.error(`❌ [${jobId}] Erro 4K:`, errMsg);
+    updateJob(jobId, { status: 'error', error: errMsg });
+    jobBus.emit(jobId + ':done', { status: 'error', error: errMsg });
   }
 }
 
