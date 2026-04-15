@@ -11,6 +11,8 @@ import { renderMedia, selectComposition } from '@remotion/renderer';
 
 import { getHistory, addJob, clearHistory } from './historyService.js';
 import { analyzeChartImage } from './visionService.js';
+import { tableParserService } from './tableParserService.js';
+import { agent } from './agent.js';
 
 const app = express();
 const portStr = process.env.PORT || '3000';
@@ -75,18 +77,48 @@ async function processJob(jobId: string, fileData: Buffer, originalName: string,
   saveJob(job);
 
   try {
-    const filePath = path.join(UPLOADS_DIR, `${jobId}.png`);
+    const ext = path.extname(originalName).toLowerCase();
+    const isData = ['.csv', '.xlsx', '.xls', '.json'].includes(ext);
+    const filePath = path.join(UPLOADS_DIR, `${jobId}${ext}`);
     fs.writeFileSync(filePath, fileData);
 
-    const analysis = await analyzeChartImage(filePath);
+    let analysis: any;
+
+    if (isData) {
+      job.stage = 'Processando Dados...';
+      job.progress = 20;
+      saveJob(job);
+
+      const parsed = tableParserService.parse(filePath);
+      const aiResponse = await agent.analyzeTable(parsed);
+      
+      analysis = {
+        componentId: aiResponse.type || 'BarChart',
+        suggestedName: (aiResponse.title || 'DataChart').replace(/\s+/g, ''),
+        reasoning: 'Análise de dados concluída via Gemini Table Parser',
+        props: {
+          ...aiResponse,
+          data: aiResponse.data || [],
+          unit: parsed.summary.unit || ''
+        }
+      };
+    } else {
+      job.stage = 'IA Vision: Analisando Gráfico...';
+      job.progress = 25;
+      saveJob(job);
+      analysis = await analyzeChartImage(filePath);
+    }
+
     job.progress = 40;
     job.stage = 'IA: Estrutura Identificada';
     job.log = `Componente: ${analysis.componentId}`;
     saveJob(job);
 
     if (IS_VERCEL) {
-      job.status = 'error';
-      job.error = "Análise concluída! No Vercel não é possível gerar MP4. Use o link da Rede Local.";
+      job.status = 'done'; // Permitimos terminar no Vercel para mostrar metadados
+      job.progress = 100;
+      job.stage = isData ? 'Dados Analisados!' : 'Imagem Analisada!';
+      job.log = "No Vercel não é possível gerar MP4. Use o link da Rede Local para renderizar.";
       saveJob(job);
       return;
     }
@@ -103,7 +135,7 @@ async function processJob(jobId: string, fileData: Buffer, originalName: string,
       inputProps: { ...analysis.props, theme: chartTheme }
     });
 
-    const summary = (analysis as any).suggestedName || 'GiantAnimation';
+    const summary = analysis.suggestedName || 'GiantAnimation';
     const cleanOriginal = originalName.replace(/\.[^.]+$/, '').replace(/\s+/g, '_');
     const outputName = `${summary}_AN_${cleanOriginal}.mp4`;
     const outputPath = path.join(OUTPUT_DIR, outputName);
@@ -158,16 +190,40 @@ app.get('/progress/:jobId', (req: Request, res: Response) => {
   res.json(job);
 });
 
+// ✅ Rota adicional para prever dados (usada pelo CSV Preview do frontend)
+app.post('/preview-data', upload.single('file'), async (req: Request, res: Response) => {
+    if (!req.file) return res.status(400).json({ error: 'No file' });
+    const tempPath = path.join(UPLOADS_DIR, `preview_${uuidv4()}${path.extname(req.file.originalname)}`);
+    fs.writeFileSync(tempPath, req.file.buffer);
+    try {
+        const parsed = tableParserService.parse(tempPath);
+        res.json(parsed);
+    } catch (err: any) {
+        res.status(500).json({ error: err.message });
+    } finally {
+        if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+    }
+});
+
 app.get('/history', (_req, res) => res.json(getHistory()));
 app.post('/history/clear', (_req, res) => { clearHistory(); res.json({ success: true }); });
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 
-app.listen(port, '0.0.0.0', () => {
-  console.log(`
+// Inicialização do Agente e Servidor
+(async () => {
+    try {
+        await agent.initialize();
+        app.listen(port, '0.0.0.0', () => {
+            console.log(`
   ✦ ───────────────────────────────────────── ✦
   🎬 GiantAnimator ONLINE NA REDE INTERNA 🌎
   🔗 http://10.120.5.21:3000
   ✦ ───────────────────────────────────────── ✦
-  `);
-  if (!IS_VERCEL) getBundle();
-});
+            `);
+            if (!IS_VERCEL) getBundle();
+        });
+    } catch (err) {
+        console.error("❌ Falha crítica ao iniciar agente:", err);
+        process.exit(1);
+    }
+})();
