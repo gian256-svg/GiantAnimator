@@ -15,7 +15,6 @@
     "@google/genai": "^1.48.0",
     "@google/generative-ai": "^0.24.1",
     "@remotion/bundler": "^4.0.446",
-    "@remotion/compositor-win32-x64-msvc": "^4.0.446",
     "@remotion/google-fonts": "^4.0.446",
     "@remotion/renderer": "^4.0.446",
     "chokidar": "^3.6.0",
