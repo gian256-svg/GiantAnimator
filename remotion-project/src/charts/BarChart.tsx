@@ -9,7 +9,7 @@ import {
 import { Theme, resolveTheme, formatValue } from "../theme";
 
 interface BarChartProps {
-  data?: { label: string; value: number }[];
+  data?: any;
   series?: { label: string; data: number[]; color?: string }[];
   labels?: string[];
   title?: string;
@@ -22,159 +22,117 @@ interface BarChartProps {
   showValueLabels?: boolean;
 }
 
+export const BarChart: React.FC<BarChartProps> = (props) => {
+  const {
+    data: rawData = [],
+    series: propsSeries,
+    labels: propsLabels,
+    title = "",
+    subtitle = "",
+    colors,
+    theme = "dark",
+    backgroundColor,
+    textColor,
+    unit = '',
+    showValueLabels = false,
+  } = props;
 
-
-export const BarChart: React.FC<BarChartProps> = ({
-  data = [],
-  series,
-  labels,
-  title = "",
-  subtitle = "",
-  colors,
-  theme = "dark",
-  backgroundColor,
-  textColor,
-  unit = '',
-  showValueLabels = false,
-}) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
   const instanceId = useId().replace(/:/g, "");
 
-  // Resolve tema — fonte única de verdade
+  // Resolve tema
   const T = resolveTheme(theme);
   const resolvedBg    = backgroundColor ?? T.background;
   const resolvedText  = textColor       ?? T.text;
   const resolvedColors = colors && colors.length > 0 ? colors : [...T.colors];
 
-  // Unificar dados (Single vs Multi)
-  const normalizedSeries = series || [
-    { label: title, data: data.map(d => d.value) }
-  ];
-  const xAxisLabels = labels || data.map(d => d.label);
+  // Normalização de dados
+  let normalizedSeries: { label: string; data: number[]; color?: string }[] = [];
+  let xAxisLabels: string[] = [];
+
+  if (propsSeries && propsLabels) {
+    normalizedSeries = propsSeries;
+    xAxisLabels = propsLabels;
+  } else if (rawData.labels && rawData.datasets) {
+    normalizedSeries = rawData.datasets;
+    xAxisLabels = rawData.labels;
+  } else if (Array.isArray(rawData)) {
+    normalizedSeries = [{ label: title, data: rawData.map((d: any) => d.value) }];
+    xAxisLabels = rawData.map((d: any) => d.label);
+  }
 
   const safeDataCount = xAxisLabels.length || 1;
   const seriesCount   = normalizedSeries.length;
+  if (safeDataCount === 0) return <AbsoluteFill style={{ backgroundColor: resolvedBg }} />;
 
-  // ─── SMART UNIT HANDLING ──────────────────────────────
-  // Se a unidade for muito longa, removemos das barras e eixos e movemos para uma nota global.
+  // ─── SMART UNIT HANDLING ───
   const isLongUnit  = unit.length > 6;
   const displayUnit = isLongUnit ? "" : unit;
   const unitNote    = isLongUnit ? `Unidade: ${unit}` : "";
 
-  // ─── Layout responsivo baseado na resolução real ──────
-  const pad = width * 0.04;   // 4% de padding
-  const padTop = height * 0.22;  // Espaço para o header + Unit Note
-  const padBot = height * 0.16;  // Espaço para eixo X
+  // ─── Layout responsivo ───
+  const fs = (base: number) => Math.round(base * (width / 1280));
+  const pad = width * 0.04;
+  const padTop = height * 0.22;
+  const padBot = height * 0.16;
 
-  // Aumentamos plotLeft se for uma unidade longa ou se o número for grande
   const plotLeft = pad + width * (isLongUnit ? 0.12 : 0.08);   
   const plotTop = padTop;
   const plotWidth = width - plotLeft - (pad * 1.5); 
   const plotHeight = height - padTop - padBot;
 
-  // Escala de fonte baseada na resolução
-  const fs = (base: number) => Math.round(base * (width / 1280));
-
-  const maxVal = Math.max(...normalizedSeries.flatMap(s => s.data), 1);
+  const allValues = normalizedSeries.flatMap(s => s.data);
+  const dataRawMax = Math.max(...allValues, 1);
+  const maxVal = dataRawMax * 1.15; 
   
   const categoryWidth = plotWidth / safeDataCount;
-  const groupGap      = 0.3; // gap entre grupos de colunas
-  const innerGap      = 0.05; // gap entre colunas do mesmo grupo
-  
+  const groupGap      = 0.3;
+  const innerGap      = 0.05;
   const availableW    = categoryWidth * (1 - groupGap);
   const barWidth      = (availableW / seriesCount) * (1 - innerGap);
 
-  // Rotação do Label do Eixo X se houver muitos dados
-  const shouldRotateLabels = safeDataCount > 6;
-
-  const getY = (v: number) =>
-    plotTop + plotHeight - (v / maxVal) * plotHeight;
-
-  // Animação de entrada do header
-  const headerOpacity = interpolate(frame, [0, 20], [0, 1], {
-    extrapolateRight: "clamp",
-  });
+  const shouldRotateLabels = safeDataCount > 8;
+  const getY = (v: number) => plotTop + plotHeight - (v / maxVal) * plotHeight;
 
   return (
-    <AbsoluteFill style={{ backgroundColor: resolvedBg }}>
-
-
-      {/* ── SVG CHART ── */}
-      <svg
-        width={width}
-        height={height}
-        style={{ position: "absolute", top: 0, left: 0 }}
-      >
+    <AbsoluteFill style={{ backgroundColor: resolvedBg, fontFamily: Theme.typography.fontFamily }}>
+      <svg width={width} height={height} style={{ position: "absolute", top: 0, left: 0 }}>
         <defs>
           {normalizedSeries.map((_, i) => (
-            <linearGradient
-              key={i}
-              id={`barGrad-${i}-${instanceId}`}
-              x1="0" y1="0" x2="0" y2="1"
-            >
+            <linearGradient key={i} id={`barGrad-${i}-${instanceId}`} x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor={resolvedColors[i % resolvedColors.length]} />
               <stop offset="100%" stopColor={resolvedColors[i % resolvedColors.length]} stopOpacity={0.65} />
             </linearGradient>
           ))}
-
-          {/* Glow filter */}
           <filter id={`glow-${instanceId}`} x="-20%" y="-20%" width="140%" height="140%">
             <feGaussianBlur stdDeviation={fs(3)} result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
+            <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
           </filter>
         </defs>
 
-        {/* ── GRID Y ── */}
+        {/* GRID Y */}
         {[0, 0.25, 0.5, 0.75, 1].map((v) => {
           const y = getY(v * maxVal);
-          const op = interpolate(frame, [5, 25], [0, 0.45], {
-            extrapolateRight: "clamp",
-          });
+          const op = interpolate(frame, [5, 25], [0, 0.45], { extrapolateRight: "clamp" });
           return (
             <React.Fragment key={v}>
-              <line
-                x1={plotLeft} y1={y}
-                x2={plotLeft + plotWidth} y2={y}
-                stroke={T.grid}
-                strokeWidth={Math.max(1, fs(1.5))}
-                opacity={op}
-              />
-              <text
-                x={plotLeft - fs(15)}
-                y={y}
-                textAnchor="end"
-                dominantBaseline="middle"
-                style={{
-                  fontSize: fs(shouldRotateLabels ? 12 : 14),
-                  fill: T.textMuted,
-                  fontFamily: Theme.typography.fontFamily,
-                  ...Theme.typography.tabularNums
-                }}
-              >
+              <line x1={plotLeft} y1={y} x2={plotLeft + plotWidth} y2={y} stroke={T.grid} strokeWidth={Math.max(1, fs(1.5))} opacity={op} />
+              <text x={plotLeft - fs(15)} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: fs(14), fill: T.textMuted, opacity: op, ...Theme.typography.tabularNums }}>
                 {formatValue(v * maxVal, displayUnit)}
               </text>
             </React.Fragment>
           );
         })}
 
-        {/* ── AXIS LINE ── */}
-        <line
-          x1={plotLeft} y1={plotTop + plotHeight}
-          x2={plotLeft + plotWidth} y2={plotTop + plotHeight}
-          stroke={T.axis}
-          strokeWidth={Math.max(1, fs(2))}
-          opacity={0.6}
-        />
+        {/* AXIS LINE */}
+        <line x1={plotLeft} y1={plotTop + plotHeight} x2={plotLeft + plotWidth} y2={plotTop + plotHeight} stroke={T.axis} strokeWidth={Math.max(1, fs(2))} opacity={0.6} />
 
-        {/* ── BARS (GROUPED) ── */}
-        {xAxisLabels.map((label, groupIdx) => {
-          return normalizedSeries.map((s, seriesIdx) => {
+        {/* BARS */}
+        {xAxisLabels.map((label, groupIdx) => (
+          normalizedSeries.map((s, seriesIdx) => {
             const val = s.data[groupIdx] || 0;
-            const delay = 20 + groupIdx * 3 + seriesIdx * 2;
+            const delay = 20 + groupIdx * 2 + seriesIdx * 1;
             const progress = spring({
               frame: frame - delay,
               fps,
@@ -190,114 +148,43 @@ export const BarChart: React.FC<BarChartProps> = ({
 
             return (
               <g key={`${groupIdx}-${seriesIdx}`}>
-                {/* Bar */}
-                <rect 
-                  x={bX} y={bY} width={barWidth} height={currentH} 
-                  fill={normalizedSeries.length > 1 ? `url(#barGrad-${seriesIdx}-${instanceId})` : resolvedColors[groupIdx % resolvedColors.length]} 
-                  rx={fs(4)} 
-                />
-                
-                {/* Highlight top */}
-                <rect x={bX + barWidth * 0.1} y={bY} width={barWidth * 0.8} height={Math.min(currentH, fs(4))} fill="rgba(255,255,255,0.2)" rx={fs(2)} />
-
-                {/* Value label */}
-                {showValueLabels && (
-                  <text 
-                    x={bX + barWidth / 2} 
-                    y={bY - fs(8)} 
-                    textAnchor="middle" 
-                    opacity={op} 
-                    style={{ 
-                      fontSize: fs(shouldRotateLabels ? 11 : 14), 
-                      fill: resolvedText, 
-                      fontWeight: 700, 
-                      fontFamily: Theme.typography.fontFamily,
-                      ...Theme.typography.tabularNums
-                    }}
-                  >
-                      {formatValue(val, displayUnit)}
+                <rect x={bX} y={bY} width={barWidth} height={currentH} fill={seriesCount > 1 ? `url(#barGrad-${seriesIdx}-${instanceId})` : (s.color || resolvedColors[groupIdx % resolvedColors.length])} rx={fs(4)} />
+                {showValueLabels && progress > 0.8 && (
+                  <text x={bX + barWidth / 2} y={bY - fs(8)} textAnchor="middle" style={{ fontSize: fs(shouldRotateLabels ? 11 : 14), fill: resolvedText, fontWeight: 700, opacity: op, ...Theme.typography.tabularNums }}>
+                    {formatValue(val, displayUnit)}
                   </text>
                 )}
-
-                {/* X axis (one per group) */}
                 {seriesIdx === 0 && (
-                  <text 
-                    x={groupX + availableW / 2} 
-                    y={plotTop + plotHeight + fs(shouldRotateLabels ? 12 : 28)} 
-                    textAnchor={shouldRotateLabels ? "end" : "middle"} 
-                    transform={shouldRotateLabels ? `rotate(-35, ${groupX + availableW / 2}, ${plotTop + plotHeight + fs(15)})` : ""}
-                    opacity={op} 
-                    style={{ 
-                      fontSize: fs(shouldRotateLabels ? 11 : 12), 
-                      fill: T.textMuted, 
-                      fontFamily: Theme.typography.fontFamily 
-                    }}
-                  >
+                  <text x={groupX + availableW / 2} y={plotTop + plotHeight + fs(shouldRotateLabels ? 12 : 28)} textAnchor={shouldRotateLabels ? "end" : "middle"} transform={shouldRotateLabels ? `rotate(-35, ${groupX + availableW / 2}, ${plotTop + plotHeight + fs(15)})` : ""} opacity={interpolate(frame, [20, 40], [0, 1])} style={{ fontSize: fs(shouldRotateLabels ? 12 : 14), fill: T.textMuted }}>
                     {label}
                   </text>
                 )}
               </g>
             );
-          });
-        })}
+          })
+        ))}
       </svg>
 
+      {/* HEADER */}
+      <div style={{ position: "absolute", top: height * 0.05, width: "100%", textAlign: "center", opacity: interpolate(frame, [0, 20], [0, 1]), pointerEvents: 'none' }}>
+        {title && <div style={{ fontSize: fs(44), fontWeight: 800, color: resolvedText, letterSpacing: "-0.5px" }}>{title}</div>}
+        {subtitle && <div style={{ fontSize: fs(24), color: T.textMuted, marginTop: fs(10), fontWeight: 500 }}>{subtitle}</div>}
+        {unitNote && <div style={{ fontSize: fs(18), color: T.textMuted, marginTop: fs(12), fontStyle: 'italic', opacity: 0.8 }}>*{unitNote}</div>}
+      </div>
 
-      {/* ── LEGEND (BOTTOM) ── */}
+      {/* LEGEND */}
       {seriesCount > 1 && (
-        <div style={{
-          position: 'absolute',
-          bottom: height * 0.04,
-          width: '100%',
-          display: 'flex',
-          justifyContent: 'center',
-          flexWrap: 'wrap',
-          gap: fs(40),
-          opacity: interpolate(frame, [40, 60], [0, 1])
-        }}>
+        <div style={{ position: 'absolute', bottom: height * 0.05, width: '100%', display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: fs(40), opacity: interpolate(frame, [40, 60], [0, 1]), pointerEvents: 'none' }}>
           {normalizedSeries.map((s, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: fs(14) }}>
-              <div style={{ width: fs(22), height: fs(22), borderRadius: '50%', backgroundColor: resolvedColors[i % resolvedColors.length], border: `${fs(3)}px solid #fff`, boxShadow: '0 0 10px rgba(0,0,0,0.3)' }} />
-              <div style={{ fontSize: fs(28), color: resolvedText, fontFamily: Theme.typography.fontFamily, fontWeight: 500 }}>{s.label}</div>
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: fs(10) }}>
+              <div style={{ width: fs(16), height: fs(16), borderRadius: '4px', backgroundColor: s.color || resolvedColors[i % resolvedColors.length], boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }} />
+              <div style={{ fontSize: fs(20), color: resolvedText, fontWeight: 600 }}>{s.label}</div>
             </div>
           ))}
         </div>
       )}
-
-      <div
-        style={{
-          position: "absolute",
-          top: height * 0.05,
-          width: "100%",
-          textAlign: "center",
-          opacity: headerOpacity,
-          fontFamily: Theme.typography.fontFamily,
-          pointerEvents: 'none'
-        }}
-      >
-        {title && (
-          <div style={{ fontSize: fs(44), fontWeight: 800, color: resolvedText, letterSpacing: "-0.5px" }}>
-            {title}
-          </div>
-        )}
-        {subtitle && (
-          <div style={{ fontSize: fs(24), color: T.textMuted, marginTop: fs(10), fontWeight: 500 }}>
-            {subtitle}
-          </div>
-        )}
-        {unitNote && (
-          <div style={{ 
-            fontSize: fs(18), 
-            color: T.textMuted, 
-            marginTop: fs(12), 
-            fontStyle: 'italic',
-            opacity: 0.8
-          }}>
-            *{unitNote}
-          </div>
-        )}
-      </div>
-
     </AbsoluteFill>
   );
 };
+
+export default BarChart;

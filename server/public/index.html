@@ -51,7 +51,7 @@
             </svg>
           </div>
           <div class="drop-text">Arraste arquivos ou clique para selecionar</div>
-          <div class="drop-hint">XLSX · CSV · JSON · PNG · JPG</div>
+          <div id="drop-hint" class="drop-hint">PNG · JPG · WEBP</div>
           <div class="drop-paste-badge">
             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -62,7 +62,7 @@
           </div>
         </div>
         <input type="file" id="file-input" multiple
-               accept=".xlsx,.xls,.csv,.json,.png,.jpg,.jpeg,.webp"
+               accept=".png,.jpg,.jpeg,.webp"
                style="display:none;" />
         <div id="file-queue"></div>
       </section>
@@ -112,6 +112,11 @@
                 <option value="minimal">Minimal</option>
                 <option value="corporate">Corporate</option>
                 <option value="light">Light (Off-white)</option>
+                <option value="obsidian">Obsidian (Cyber/Bloomberg)</option>
+                <option value="champagne">Champagne (Luxury/Finance)</option>
+                <option value="emerald">Emerald (ESG/Nature)</option>
+                <option value="volcano">Volcano (Impact/News)</option>
+                <option value="frost">Frost (Clean Tech)</option>
               </select>
             </div>
 

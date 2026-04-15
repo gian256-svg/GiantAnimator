@@ -415,6 +415,116 @@ export const THEMES: Record<string, ThemeConfig> = {
     positive: '#059669',
     negative: '#dc2626',
   },
+
+  // ── Obsidian (Cyber Financial — Bloomberg/Terminal Style) ────────────────
+  obsidian: {
+    background: '#080808',
+    surface:    '#121212',
+    text:       '#00ffea', // Ciano elétrico
+    textMuted:  '#5d5d5d',
+    grid:       'rgba(0,255,234,0.05)',
+    axis:       'rgba(0,255,234,0.2)',
+    colors: [
+      '#00ffea', // Ciano
+      '#ff0055', // Magenta
+      '#00ffa2', // Menta
+      '#7000ff', // Roxo
+      '#ffd500', // Sol
+      '#0084ff', // Azul
+      '#ff6200', // Laranja
+      '#ffffff', // Branco
+    ],
+    positive: '#00ffa2',
+    negative: '#ff0055',
+  },
+
+  // ── Champagne (Executive Luxury — WSJ / High-End Finance) ───────────────
+  champagne: {
+    background: '#F9F5F0',
+    surface:    '#ffffff',
+    text:       '#1A1A1A',
+    textMuted:  '#666666',
+    grid:       'rgba(26,26,26,0.06)',
+    axis:       'rgba(26,26,26,0.15)',
+    colors: [
+      '#003366', // Marinho Real
+      '#C5A021', // Ouro Velho
+      '#4A4A4A', // Grafite
+      '#800000', // Bordeaux
+      '#006600', // Hunter Green
+      '#666666', // Cinza
+      '#996633', // Bronze
+      '#333333', // Preto
+    ],
+    positive: '#006600',
+    negative: '#800000',
+  },
+
+  // ── Emerald (ESG Eco-Growth — Nature & Sustainability) ──────────────────
+  emerald: {
+    background: '#0B1A12',
+    surface:    '#122A1E',
+    text:       '#E2F3E7',
+    textMuted:  '#4ADE80',
+    grid:       'rgba(74,222,128,0.08)',
+    axis:       'rgba(74,222,128,0.2)',
+    colors: [
+      '#10B981', // Esmeralda
+      '#4ADE80', // Lima
+      '#34D399', // Menta
+      '#059669', // Floresta
+      '#D1FAE5', // Menta gelo
+      '#14B8A6', // Teal
+      '#84CC16', // Citrus
+      '#FACC15', // Amarelo sol
+    ],
+    positive: '#4ADE80',
+    negative: '#F87171',
+  },
+
+  // ── Volcano (Social Impact / Hot News — Breaking Impact) ───────────────
+  volcano: {
+    background: '#1C0505',
+    surface:    '#2D0808',
+    text:       '#FFFFFF',
+    textMuted:  '#FFA500',
+    grid:       'rgba(255,165,0,0.1)',
+    axis:       'rgba(255,165,0,0.25)',
+    colors: [
+      '#FF4500', // Laranja Vulcão
+      '#FF0000', // Vermelho Sangue
+      '#FFD700', // Ouro
+      '#8B0000', // Dark Red
+      '#FFA500', // Orange
+      '#FF6347', // Tomato
+      '#FF7F50', // Coral
+      '#FFFFFF', // White
+    ],
+    positive: '#FFD700',
+    negative: '#FF4500',
+  },
+
+  // ── Frost (Tech Startup Clean — Stripe / Modern Minimal) ───────────────
+  frost: {
+    background: '#F0F4F8',
+    surface:    '#FFFFFF',
+    text:       '#1E293B',
+    textMuted:  '#64748B',
+    grid:       'rgba(30,41,59,0.05)',
+    axis:       'rgba(30,41,59,0.15)',
+    colors: [
+      '#0061FF', // Azul Cobalto
+      '#6366F1', // Lavanda
+      '#3B82F6', // Azul Sky
+      '#10B981', // Esmeralda
+      '#0EA5E9', // Ciano
+      '#8B5CF6', // Roxo
+      '#F43F5E', // Rose
+      '#F59E0B', // Amber
+    ],
+    positive: '#10B981',
+    negative: '#F43F5E',
+  },
 };
 
 /**
@@ -425,7 +535,8 @@ export const THEMES: Record<string, ThemeConfig> = {
  * @returns ThemeConfig com todas as cores necessárias
  */
 export function resolveTheme(theme?: string): ThemeConfig {
-  return THEMES[theme ?? 'dark'] ?? THEMES['dark'];
+  const normalizedTheme = (theme || 'dark').toLowerCase();
+  return THEMES[normalizedTheme] ?? THEMES['dark'];
 }
 
 /**

@@ -48,15 +48,39 @@ export const ChartRenderer: React.FC<ChartCompositionProps> = (props) => {
   switch (safeData.type) {
     case 'bar':
     case 'histogram':
-      return <BarChart data={safeData} animation={props.animation} />;
+      return (
+        <BarChart 
+          data={safeData} 
+          animation={props.animation} 
+          theme={safeData.theme}
+          backgroundColor={safeData.backgroundColor}
+          textColor={safeData.textColor}
+        />
+      );
 
     case 'line':
     case 'area':
-      return <LineChart data={safeData} animation={props.animation} />;
+      return (
+        <LineChart 
+          data={safeData} 
+          animation={props.animation} 
+          theme={safeData.theme}
+          backgroundColor={safeData.backgroundColor}
+          textColor={safeData.textColor}
+        />
+      );
 
     case 'pie':
     case 'donut':
-      return <PieChart data={safeData} animation={props.animation} />;
+      return (
+        <PieChart 
+          data={safeData} 
+          animation={props.animation} 
+          theme={safeData.theme}
+          backgroundColor={safeData.backgroundColor}
+          textColor={safeData.textColor}
+        />
+      );
 
     default:
       console.warn(`[ChartRenderer] Tipo desconhecido: "${safeData.type}" — usando BarChart como fallback`);

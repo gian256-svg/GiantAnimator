@@ -15,8 +15,9 @@ const state = {
 function updateUploadUI() {
   const dz = document.getElementById('drop-zone');
   if (!dz) return;
-  const hint = dz.querySelector('.drop-hint');
+  const hint = document.getElementById('drop-hint') || dz.querySelector('.drop-hint');
   const text = dz.querySelector('.drop-text');
+  const fileInput = document.getElementById('file-input');
   
   const btnVision = document.getElementById('btn-mode-vision');
   const btnData = document.getElementById('btn-mode-data');
@@ -27,10 +28,12 @@ function updateUploadUI() {
   if (state.uploadMode === 'vision') {
     if (text) text.textContent = 'Arraste uma referência visual ou clique';
     if (hint) hint.textContent = 'Formatos: PNG · JPG · JPEG · WEBP';
+    if (fileInput) fileInput.accept = '.png,.jpg,.jpeg,.webp';
     log("🎨 Modo: Referência Visual ativado.");
   } else {
     if (text) text.textContent = 'Arraste sua planilha ou clique';
     if (hint) hint.textContent = 'Formatos: XLSX · CSV · XLS · JSON';
+    if (fileInput) fileInput.accept = '.xlsx,.xls,.csv,.json';
     log("📊 Modo: Dados Diretos ativado.");
   }
 }

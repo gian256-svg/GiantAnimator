@@ -1,0 +1,74 @@
+{
+  "componentId": "PieChart",
+  "suggestedName": "VendasProdutosCiclismo",
+  "reasoning": "O gráfico é um gráfico de pizza, representando a distribuição percentual de diferentes produtos. A unidade presente nos rótulos é '%'. As categorias e seus respectivos valores foram extraídos diretamente da legenda e dos rótulos que apontam para as fatias da pizza. A opção `showValueLabels` é `true` pois os valores percentuais estão visíveis na imagem.",
+  "props": {
+    "title": null,
+    "subtitle": null,
+    "data": [
+      {
+        "label": "Others",
+        "value": 27
+      },
+      {
+        "label": "Mountain-200",
+        "value": 17
+      },
+      {
+        "label": "Mountain-100",
+        "value": 15
+      },
+      {
+        "label": "Road-250",
+        "value": 12
+      },
+      {
+        "label": "Road-650",
+        "value": 10
+      },
+      {
+        "label": "Touring-1000",
+        "value": 6
+      },
+      {
+        "label": "Road-550-W",
+        "value": 5
+      },
+      {
+        "label": "HL Mountain Frame",
+        "value": 4
+      },
+      {
+        "label": "Road-350-W",
+        "value": 4
+      }
+    ],
+    "unit": "%",
+    "labels": [
+      "Others",
+      "Mountain-200",
+      "Mountain-100",
+      "Road-250",
+      "Road-650",
+      "Touring-1000",
+      "Road-550-W",
+      "HL Mountain Frame",
+      "Road-350-W"
+    ],
+    "series": [],
+    "backgroundColor": "white",
+    "textColor": "black",
+    "seriesColors": [
+      "#808080",
+      "#1f3d7a",
+      "#7c3a91",
+      "#b64590",
+      "#d4588c",
+      "#f86a80",
+      "#ff8a68",
+      "#fdbd34",
+      "#ffff76"
+    ],
+    "showValueLabels": true
+  }
+}

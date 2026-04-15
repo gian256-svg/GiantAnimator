@@ -66,23 +66,39 @@ export const tableParserService = {
         if (ext === '.csv') {
             const buffer = fs.readFileSync(filePath);
             let content = "";
-            
-            // Tenta UTF-8 primeiro
-            try {
-                content = buffer.toString('utf-8');
-                // Se o conteúdo tiver bytes estranhos ou não tiver separadores e for UTF-8, o XLSX costuma se perder.
-            } catch {
-                content = buffer.toString('latin1');
-            }
+            try { content = buffer.toString('utf-8'); } catch { content = buffer.toString('latin1'); }
 
             const delimiter = detectDelimiter(content);
             console.log(`📌 [Parser] CSV Detectado. Delimitador: "${delimiter}"`);
             
-            // Nota: XLSX.read(string) respeita o FS (Field Separator)
-            workbook = XLSX.read(content, { 
-                type: 'string', 
-                FS: delimiter 
-            });
+            try {
+                // Tentativa 1: XLSX
+                workbook = XLSX.read(content, { type: 'string', FS: delimiter });
+            } catch (err) {
+                console.error("⚠️ [Parser] XLSX falhou. Usando Fallback Manual...", err);
+                // Fallback: Leitura manual pura
+                const lines = content.split(/\r?\n/).filter(line => line.trim() !== "");
+                const headers = lines[0].split(delimiter).map(h => h.trim());
+                const rows = lines.slice(1).map(line => {
+                    const values = line.split(delimiter);
+                    const obj: any = {};
+                    headers.forEach((h, i) => {
+                        let v = (values[i] || "").trim();
+                        const num = Number(v.replace(/[%\$]|R\$/g, '').replace(',', '.'));
+                        obj[h] = !isNaN(num) && v !== "" ? num : v;
+                    });
+                    return obj;
+                });
+
+                const summary = internalGenerateSummary(rows, headers);
+                return {
+                    headers,
+                    rows,
+                    summary,
+                    shape: internalDetectShape(summary),
+                    detectedDelimiter: delimiter
+                };
+            }
 
             (workbook as any)._detectedDelimiter = delimiter;
         } else {
@@ -169,26 +185,13 @@ export const tableParserService = {
         // Se não detectou nos valores, tenta nos headers
         if (!detectedUnit) detectedUnit = detectUnitInHeaders(headers);
 
-        // Infere shape
-        const shape: 'wide' | 'long' =
-            categoricalColumns.length >= 1 && numericColumns.length >= 1
-                ? 'wide'
-                : 'long';
-
+        const summary = internalGenerateSummary(rows, headers);
         return {
             headers,
             rows,
-            shape,
+            summary,
+            shape: internalDetectShape(summary),
             detectedDelimiter: (workbook as any)._detectedDelimiter,
-            summary: {
-                totalRows: rows.length,
-                totalCols: headers.length,
-                numericColumns,
-                categoricalColumns,
-                unit: detectedUnit,
-                // Máximo 5 linhas de amostra para o prompt
-                sample: rows.slice(0, 5),
-            }
         };
     },
 
@@ -221,6 +224,62 @@ export const tableParserService = {
         }));
     }
 };
+
+/**
+ * Funções auxiliares internas para garantir DRY entre Parse e Fallback
+ */
+function internalGenerateSummary(rows: any[], headers: string[]) {
+    const numericColumns: string[] = [];
+    const categoricalColumns: string[] = [];
+    let detectedUnit = '';
+
+    headers.forEach(h => {
+        const lower = h.toLowerCase();
+        const isTimeHeader = lower.includes('ano') || lower.includes('year') || lower.includes('data') || lower.includes('date');
+        
+        let columnUnit = '';
+        const isNumeric = rows.slice(0, 10).every(row => {
+            const v = row[h];
+            if (v === undefined || v === null || v === '') return true;
+            if (typeof v === 'number') return true;
+            const s = String(v);
+            const cleaned = s.replace(/[%\$]|R\$/g, '').replace(',', '.').trim();
+            if (s.includes('%')) columnUnit = '%';
+            else if (s.includes('$')) columnUnit = '$';
+            return !isNaN(Number(cleaned)) && cleaned !== '';
+        });
+
+        if (isNumeric && !isTimeHeader) {
+            numericColumns.push(h);
+            if (columnUnit) detectedUnit = columnUnit;
+        } else {
+            categoricalColumns.push(h);
+        }
+    });
+
+    if (!detectedUnit) {
+        // Fallback: busca nos headers
+        const headerText = headers.join(' ').toLowerCase();
+        if (headerText.includes('%')) detectedUnit = '%';
+        else if (headerText.includes('$') || headerText.includes('usd')) detectedUnit = '$';
+        else if (headerText.includes('r$')) detectedUnit = 'R$';
+    }
+
+    return {
+        totalRows: rows.length,
+        totalCols: headers.length,
+        numericColumns,
+        categoricalColumns,
+        unit: detectedUnit,
+        sample: rows.slice(0, 5)
+    };
+}
+
+function internalDetectShape(summary: any): 'wide' | 'long' {
+    return summary.categoricalColumns.length >= 1 && summary.numericColumns.length >= 1
+        ? 'wide'
+        : 'long';
+}
 
 /**
  * Tenta detectar uma unidade de medida comum nos headers.

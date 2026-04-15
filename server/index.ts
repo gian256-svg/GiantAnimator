@@ -11,6 +11,8 @@ import { renderMedia, selectComposition } from '@remotion/renderer';
 
 import { getHistory, addJob, clearHistory } from './historyService.js';
 import { analyzeChartImage } from './visionService.js';
+// server/index.ts
+import { dataTransformationService } from './dataTransformationService.js';
 import { tableParserService } from './tableParserService.js';
 import { agent } from './agent.js';
 
@@ -90,16 +92,58 @@ async function processJob(jobId: string, fileData: Buffer, originalName: string,
       saveJob(job);
 
       try {
-        const parsed = tableParserService.parse(filePath);
+        let parsed = tableParserService.parse(filePath);
+        
+        // 🔥 Skill: Data Extraction & Transformation
+        parsed = dataTransformationService.transform(parsed);
+
         const aiResponse = await agent.analyzeTable(parsed);
         
+        // Mapeamento de DADOS REAIS (Sobrescreve qualquer invenção da IA)
+        const labelCol = parsed.summary.categoricalColumns[0] || parsed.headers[0];
+        const numericCols = parsed.summary.numericColumns;
+
+        let props: any = { ...aiResponse };
+
+        // REGRA DE OURO: Os dados vêm do PARSER, não da resposta da IA
+        props.labels = parsed.rows.map(row => String(row[labelCol]));
+        
+        if (numericCols.length > 1) {
+          props.series = numericCols.map(col => ({
+             label: col,
+             data: parsed.rows.map(row => {
+                let val = Number(row[col]);
+                // PARANOIA 4K: Se for porcentagem e o valor parecer um ano (ex: 2023), descarta ou trata.
+                if (parsed.summary.unit === '%' && val > 1900 && val < 2100) {
+                    console.log(`🛡️ [Safety] Bloqueando ano detectado como dado: ${val}`);
+                    return 0; 
+                }
+                return isNaN(val) ? 0 : val;
+             })
+          }));
+          delete props.data;
+        } else {
+          const valCol = numericCols[0] || parsed.headers[1];
+          props.data = parsed.rows.map(row => ({
+            label: String(row[labelCol]),
+            value: Number(row[valCol])
+          }));
+          delete props.series; // Remove series para não conflitar
+        }
+
+        // 🔥 Final Pass
+        props = dataTransformationService.prepareFor4K(props);
+        
+        // Diagnóstico Final: Grava as props que serão enviadas para o Remotion
+        fs.writeFileSync(path.join(process.cwd(), 'current_props.json'), JSON.stringify(props, null, 2));
+
         analysis = {
-          componentId: aiResponse.type || 'BarChart',
+          componentId: aiResponse.type || (numericCols.length > 1 ? 'LineChart' : 'BarChart'),
           suggestedName: (aiResponse.title || 'DataChart').replace(/\s+/g, ''),
-          reasoning: 'Análise de dados concluída via Gemini Table Parser',
+          reasoning: 'Análise de dados concluída via Data Ingestion Pipeline (Valores Reais Preservados)',
           props: {
-            ...aiResponse,
-            data: aiResponse.data || [],
+            ...props,
+            title: aiResponse.title || 'Visualização de Dados Inteligente',
             unit: parsed.summary.unit || ''
           }
         };

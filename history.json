@@ -1,5 +1,54 @@
 [
   {
+    "filename": "VendasProdutosCiclismo_AN_imagem_colada_1776289861309.mp4",
+    "outputFile": "VendasProdutosCiclismo_AN_imagem_colada_1776289861309.mp4",
+    "status": "done",
+    "id": "3f656447-37b3-43c6-a537-3c6a7102abe3",
+    "createdAt": "2026-04-15T21:51:58.890Z"
+  },
+  {
+    "filename": "RetornoAnualdeNVDAeS&P500_AN_nvidia_vs_sp500_retorno_anual.mp4",
+    "outputFile": "RetornoAnualdeNVDAeS&P500_AN_nvidia_vs_sp500_retorno_anual.mp4",
+    "status": "done",
+    "id": "3c865977-4c95-4060-8ce6-b1ce0c79f1dc",
+    "createdAt": "2026-04-15T21:33:56.744Z"
+  },
+  {
+    "filename": "RetornoAnualdeNVDAeS&P500_AN_nvidia_vs_sp500_retorno_anual.mp4",
+    "outputFile": "RetornoAnualdeNVDAeS&P500_AN_nvidia_vs_sp500_retorno_anual.mp4",
+    "status": "done",
+    "id": "51f41bce-a5a8-4820-8862-737c0869e332",
+    "createdAt": "2026-04-15T21:29:29.974Z"
+  },
+  {
+    "filename": "RetornoAnualdeNVDAeS&P500_AN_nvidia_vs_sp500_retorno_anual.mp4",
+    "outputFile": "RetornoAnualdeNVDAeS&P500_AN_nvidia_vs_sp500_retorno_anual.mp4",
+    "status": "done",
+    "id": "debd22ab-9e00-4edc-8002-cc1725c329b2",
+    "createdAt": "2026-04-15T21:24:00.951Z"
+  },
+  {
+    "filename": "RetornoAnualdeNVDAeS&P500_AN_nvidia_vs_sp500_retorno_anual.mp4",
+    "outputFile": "RetornoAnualdeNVDAeS&P500_AN_nvidia_vs_sp500_retorno_anual.mp4",
+    "status": "done",
+    "id": "9c780fd1-071b-4f14-b716-27bf75d728ea",
+    "createdAt": "2026-04-15T21:21:01.577Z"
+  },
+  {
+    "filename": "RetornoAnualdeNVDAeS&P500_AN_nvidia_vs_sp500_retorno_anual.mp4",
+    "outputFile": "RetornoAnualdeNVDAeS&P500_AN_nvidia_vs_sp500_retorno_anual.mp4",
+    "status": "done",
+    "id": "3974d499-aed4-4b94-83cc-3b2ebe72df29",
+    "createdAt": "2026-04-15T21:17:54.091Z"
+  },
+  {
+    "filename": "RetornoAnualdeNVDAeS&P500_AN_nvidia_vs_sp500_retorno_anual.mp4",
+    "outputFile": "RetornoAnualdeNVDAeS&P500_AN_nvidia_vs_sp500_retorno_anual.mp4",
+    "status": "done",
+    "id": "de2f5a8e-0f1a-4341-96a0-02ed7cd74f08",
+    "createdAt": "2026-04-15T21:11:07.917Z"
+  },
+  {
     "id": "3397faf2-dc95-46d3-be0d-df93cef1c79f",
     "name": "imagem_colada_1776279622886.png",
     "filename": "giant-51f77938-5a5d-4c7a-b739-8c8eb3b8c4bb.mp4",
@@ -19,314 +68,5 @@
     "filename": "giant-53a8dca1-4083-4739-a543-49b4afb0440d.mp4",
     "videoUrl": "/output/giant-53a8dca1-4083-4739-a543-49b4afb0440d.mp4",
     "createdAt": "2026-04-15T18:52:20.920Z"
-  },
-  {
-    "id": "5afc23a3-bd38-437c-9c65-e3dcf0eb9a66",
-    "name": "imagem_colada_1776278551763.png",
-    "filename": "giant-32b93931-e286-421d-a311-8b4fe8fee9d6.mp4",
-    "videoUrl": "/output/giant-32b93931-e286-421d-a311-8b4fe8fee9d6.mp4",
-    "createdAt": "2026-04-15T18:43:18.370Z"
-  },
-  {
-    "id": "8fc3dbe6-5cef-44ae-aad6-21da9338a362",
-    "name": "imagem_colada_1776273519958.png",
-    "filename": "giant-272b804c-58b9-4d6f-9ffc-e802f7182878.mp4",
-    "videoUrl": "/output/giant-272b804c-58b9-4d6f-9ffc-e802f7182878.mp4",
-    "createdAt": "2026-04-15T17:19:22.400Z"
-  },
-  {
-    "id": "f905fdac-b617-4156-a089-3528f39fa6ce",
-    "name": "unnamed.png",
-    "filename": "giant-e86c504e-430c-4155-94cb-acf70a3c74fc.mp4",
-    "videoUrl": "/output/giant-e86c504e-430c-4155-94cb-acf70a3c74fc.mp4",
-    "createdAt": "2026-04-15T17:17:30.917Z"
-  },
-  {
-    "filename": "imagem_colada_1776270934225.png",
-    "outputFile": "27c59671-9aac-4eb1-824e-4370f46fde15_4K.mp4",
-    "status": "done",
-    "duration": 20,
-    "props": {
-      "title": null,
-      "subtitle": null,
-      "labels": [
-        "2019",
-        "2020",
-        "2021",
-        "2022",
-        "2023",
-        "2024",
-        "2025",
-        "2026"
-      ],
-      "series": [
-        {
-          "label": "Series 1",
-          "data": [
-            80,
-            250,
-            320,
-            270,
-            270,
-            410,
-            640,
-            780
-          ],
-          "color": "#00bcd4"
-        }
-      ],
-      "backgroundColor": "#0f1117",
-      "textColor": "#e8eaf6",
-      "seriesColors": [
-        "#00bcd4"
-      ],
-      "showValueLabels": false,
-      "data": [],
-      "chartType": "HorizontalBarChart",
-      "theme": "dark",
-      "colors": [
-        "#7c3aed",
-        "#06b6d4",
-        "#a855f7",
-        "#22c55e",
-        "#f59e0b",
-        "#ef4444"
-      ],
-      "width": 3840,
-      "height": 2160,
-      "fps": 30,
-      "durationInSeconds": 8
-    },
-    "id": "6590b1c7-1012-467d-8dc3-263ea547036a",
-    "createdAt": "2026-04-15T16:36:14.597Z"
-  },
-  {
-    "filename": "imagem_colada_1776270845693.png",
-    "outputFile": "c3395bf2-2b51-4216-9212-179f2baedf1b_4K.mp4",
-    "status": "done",
-    "duration": 20,
-    "props": {
-      "title": "Largest Annual Growth Rate in Coffee Exporting Countries",
-      "data": [
-        {
-          "label": "Thailand",
-          "value": 12.3
-        },
-        {
-          "label": "Vietnam",
-          "value": 8.6
-        },
-        {
-          "label": "Indonesia",
-          "value": 7.7
-        },
-        {
-          "label": "Philippines",
-          "value": 7.6
-        },
-        {
-          "label": "India",
-          "value": 5.1
-        },
-        {
-          "label": "Columbia",
-          "value": 3.2
-        },
-        {
-          "label": "Ethiopia",
-          "value": 2.6
-        }
-      ],
-      "unit": "%",
-      "backgroundColor": "#0f1117",
-      "textColor": "#e8eaf6",
-      "seriesColors": [
-        "#e8a225",
-        "#4e7c14"
-      ],
-      "showValueLabels": true,
-      "chartType": "HorizontalBarChart",
-      "theme": "dark",
-      "colors": [
-        "#7c3aed",
-        "#06b6d4",
-        "#a855f7",
-        "#22c55e",
-        "#f59e0b",
-        "#ef4444"
-      ],
-      "width": 3840,
-      "height": 2160,
-      "fps": 30,
-      "durationInSeconds": 8
-    },
-    "id": "6fe862f7-4cc1-463e-bc6c-411dc1647373",
-    "createdAt": "2026-04-15T16:34:56.681Z"
-  },
-  {
-    "filename": "imagem_colada_1776265800173.png",
-    "outputFile": "70bc5b92-cbc6-44c7-8831-22c747a8ea72_4K.mp4",
-    "status": "done",
-    "duration": 20,
-    "props": {
-      "title": "Drivers de aumento de eficiência com gráfico de barras horizontais",
-      "data": [
-        {
-          "label": "Driver 5",
-          "value": 75
-        },
-        {
-          "label": "Driver 4",
-          "value": 55
-        },
-        {
-          "label": "Driver 3",
-          "value": 45
-        },
-        {
-          "label": "Driver 2",
-          "value": 35
-        },
-        {
-          "label": "Driver 1",
-          "value": 25
-        }
-      ],
-      "backgroundColor": "#FAF9F6",
-      "textColor": "#0f172a",
-      "seriesColors": [
-        "#2D4B92",
-        "#18BDD2",
-        "#F16881",
-        "#FFB436",
-        "#A1D03C"
-      ],
-      "showValueLabels": true,
-      "chartType": "HorizontalBarChart",
-      "theme": "light",
-      "colors": [
-        "#2563eb",
-        "#059669",
-        "#d97706",
-        "#dc2626",
-        "#7c3aed",
-        "#0891b2"
-      ],
-      "width": 3840,
-      "height": 2160,
-      "fps": 30,
-      "durationInSeconds": 8
-    },
-    "id": "8c9fee7d-4e40-4607-8c62-51d8e002c7b7",
-    "createdAt": "2026-04-15T15:10:46.506Z"
-  },
-  {
-    "filename": "imagem_colada_1776264956688.png",
-    "outputFile": "ad494264-611b-4f12-88ca-497b811f7229_4K.mp4",
-    "status": "done",
-    "duration": 20,
-    "props": {
-      "title": "Gráfico de barras horizontais de impulsionadores e barreiras de crescimento",
-      "data": [
-        {
-          "label": "Growth Driver 10",
-          "value": 14
-        },
-        {
-          "label": "Growth Driver 09",
-          "value": 11
-        },
-        {
-          "label": "Growth Driver 08",
-          "value": 8
-        },
-        {
-          "label": "Growth Driver 07",
-          "value": 7
-        },
-        {
-          "label": "Growth Driver 06",
-          "value": 9
-        },
-        {
-          "label": "Growth Driver 05",
-          "value": 5
-        },
-        {
-          "label": "Growth Driver 04",
-          "value": 11
-        },
-        {
-          "label": "Growth Driver 03",
-          "value": 10
-        },
-        {
-          "label": "Growth Driver 02",
-          "value": 6
-        },
-        {
-          "label": "Growth Driver 01",
-          "value": 15
-        }
-      ],
-      "unit": "%",
-      "backgroundColor": "#FAF9F6",
-      "textColor": "#0f172a",
-      "seriesColors": [
-        "#56B9D9",
-        "#1F4E79"
-      ],
-      "series": [
-        {
-          "label": "Barrier",
-          "data": [
-            14,
-            11,
-            8,
-            7,
-            9,
-            5,
-            11,
-            10,
-            6,
-            15
-          ],
-          "color": "#56B9D9"
-        },
-        {
-          "label": "Drivers",
-          "data": [
-            12,
-            9,
-            6,
-            4,
-            6,
-            4,
-            11,
-            10,
-            8,
-            12
-          ],
-          "color": "#1F4E79"
-        }
-      ],
-      "showValueLabels": true,
-      "chartType": "HorizontalBarChart",
-      "theme": "light",
-      "colors": [
-        "#2563eb",
-        "#059669",
-        "#d97706",
-        "#dc2626",
-        "#7c3aed",
-        "#0891b2"
-      ],
-      "width": 3840,
-      "height": 2160,
-      "fps": 30,
-      "durationInSeconds": 8
-    },
-    "id": "834b6e95-72e4-4470-9883-98cdf456cd6b",
-    "createdAt": "2026-04-15T14:56:43.552Z"
   }
 ]

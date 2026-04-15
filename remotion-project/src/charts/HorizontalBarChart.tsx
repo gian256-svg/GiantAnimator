@@ -45,11 +45,12 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
 
   const instanceId = useId().replace(/:/g, "");
 
+  const safeData = Array.isArray(data) ? data : [];
   // Unificar dados (Single vs Multi)
   const normalizedSeries = series || [
-    { label: title, data: data.map(d => d.value) }
+    { label: title, data: safeData.map(d => d.value) }
   ];
-  const xAxisLabels = labels || data.map(d => d.label);
+  const xAxisLabels = labels || safeData.map(d => d.label);
 
   const safeDataCount = xAxisLabels.length || 1;
   const seriesCount   = normalizedSeries.length;
@@ -75,7 +76,8 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
   const plotHeight     = height - padTop - padBot;
 
   const allValues = normalizedSeries.flatMap(s => s.data);
-  const maxVal    = Math.max(...allValues, 1);
+  const dataRawMax = Math.max(...allValues, 1);
+  const maxVal = dataRawMax * 1.15; // 15% de respiro lateral (Regra Premium)
   
   const categoryHeight = plotHeight / safeDataCount;
   const groupedGap     = 0.25; // gap entre grupos
