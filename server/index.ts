@@ -13,7 +13,8 @@ import { getHistory, addJob, clearHistory } from './historyService.js';
 import { analyzeChartImage } from './visionService.js';
 
 const app = express();
-const port = process.env.PORT || 3000;
+const portStr = process.env.PORT || '3000';
+const port = parseInt(portStr, 10);
 const IS_VERCEL = !!process.env.VERCEL;
 
 app.use(cors());
@@ -36,7 +37,7 @@ const REMOTION_ROOT = path.resolve('remotion-project');
 const REMOTION_ENTRY = path.join(REMOTION_ROOT, 'src/index.ts');
 
 // ─── ESTADO PERSISTENTE ───────────────────────────────────────
-type Job = {
+type PipelineJob = {
   id: string;
   status: 'pending' | 'processing' | 'done' | 'error';
   progress: number;
@@ -46,10 +47,10 @@ type Job = {
   log?: string;
 };
 
-function saveJob(job: Job) {
+function saveJob(job: PipelineJob) {
   fs.writeFileSync(path.join(JOBS_DIR, `${job.id}.json`), JSON.stringify(job));
 }
-function loadJob(id: string): Job | null {
+function loadJob(id: string): PipelineJob | null {
   const p = path.join(JOBS_DIR, `${id}.json`);
   if (!fs.existsSync(p)) return null;
   return JSON.parse(fs.readFileSync(p, 'utf-8'));
@@ -70,7 +71,7 @@ async function getBundle() {
 }
 
 async function processJob(jobId: string, fileData: Buffer, originalName: string, chartTheme: string) {
-  const job: Job = { id: jobId, status: 'processing', progress: 10, stage: 'Iniciando...' };
+  const job: PipelineJob = { id: jobId, status: 'processing', progress: 10, stage: 'Iniciando...' };
   saveJob(job);
 
   try {
@@ -116,7 +117,11 @@ async function processJob(jobId: string, fileData: Buffer, originalName: string,
     });
 
     const videoUrl = `/output/${outputName}`;
-    addJob({ id: jobId, name: originalName, filename: outputName, videoUrl, createdAt: new Date().toISOString() });
+    addJob({ 
+      filename: outputName, 
+      outputFile: outputName, 
+      status: 'done' 
+    });
 
     job.status = 'done';
     job.progress = 100;
@@ -139,7 +144,7 @@ app.use('/output', express.static(OUTPUT_DIR));
 app.post('/upload', upload.single('file'), async (req: Request, res: Response) => {
   if (!req.file) return res.status(400).json({ error: 'No file' });
   const jobId = uuidv4();
-  const job: Job = { id: jobId, status: 'pending', progress: 0, stage: 'Aguardando...' };
+  const job: PipelineJob = { id: jobId, status: 'pending', progress: 0, stage: 'Aguardando...' };
   saveJob(job);
 
   processJob(jobId, req.file.buffer, req.file.originalname, req.body.chartTheme || 'dark');
@@ -147,7 +152,7 @@ app.post('/upload', upload.single('file'), async (req: Request, res: Response) =
 });
 
 app.get('/progress/:jobId', (req: Request, res: Response) => {
-  const { jobId } = req.params;
+  const jobId = String(req.params.jobId);
   const job = loadJob(jobId);
   if (!job) return res.status(404).json({ error: 'Job not found' });
   res.json(job);
