@@ -15,8 +15,9 @@ export async function analyzeChartImage(imagePath: string): Promise<ChartAnalysi
   const rawImageData = fs.readFileSync(imagePath);
 
   // ─── MD5 Cache ───────────────────────────────────────────────
+  const IS_VERCEL = !!process.env.VERCEL;
   const hash      = crypto.createHash("md5").update(rawImageData).digest("hex");
-  const cacheDir  = path.join(process.cwd(), "cache");
+  const cacheDir  = IS_VERCEL ? "/tmp/cache" : path.join(process.cwd(), "cache");
   if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
   const cacheFile = path.join(cacheDir, `${hash}.json`);
 

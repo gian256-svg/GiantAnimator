@@ -8,7 +8,7 @@ import { EventEmitter } from 'events';
 import { v4 as uuidv4 } from 'uuid';
 import { bundle } from '@remotion/bundler';
 import { renderMedia, selectComposition } from '@remotion/renderer';
-import { analyzeChartImage } from './visionService.js';
+import { PATHS } from './paths.js';
 import { getHistory, addJob, clearHistory } from './historyService.js';
 
 
@@ -26,16 +26,18 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
 
 // ─── PATHS ───────────────────────────────────────────────────
-const IS_VERCEL      = !!process.env.VERCEL;
-const ROOT           = path.resolve(__dirname, '..');
 const PUBLIC_DIR     = path.join(__dirname, 'public');
-const UPLOADS_DIR    = IS_VERCEL ? '/tmp/uploads' : path.join(ROOT, 'uploads');
-const OUTPUT_DIR     = IS_VERCEL ? '/tmp/output' : path.join(ROOT, 'output');
-const REMOTION_ENTRY = path.join(ROOT, 'remotion-project', 'src', 'index.ts');
+const UPLOADS_DIR    = path.join(PATHS.input, 'uploads'); // Centralizado no PATHS.input
+const OUTPUT_DIR     = PATHS.output;
+const REMOTION_ENTRY = path.join(PATHS.remotion, 'src', 'index.ts');
 
 [UPLOADS_DIR, OUTPUT_DIR].forEach(d => {
-  if (!fs.existsSync(d)) {
-    fs.mkdirSync(d, { recursive: true });
+  try {
+    if (!fs.existsSync(d)) {
+      fs.mkdirSync(d, { recursive: true });
+    }
+  } catch (e) {
+    console.warn(`⚠️ Erro ao criar pasta no index: ${d}`, e);
   }
 });
 
