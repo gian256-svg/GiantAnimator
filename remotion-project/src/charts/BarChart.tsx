@@ -19,6 +19,7 @@ interface BarChartProps {
   backgroundColor?: string;
   textColor?: string;
   unit?: string;
+  showValueLabels?: boolean;
 }
 
 
@@ -34,6 +35,7 @@ export const BarChart: React.FC<BarChartProps> = ({
   backgroundColor,
   textColor,
   unit = '',
+  showValueLabels = false,
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
@@ -199,21 +201,23 @@ export const BarChart: React.FC<BarChartProps> = ({
                 <rect x={bX + barWidth * 0.1} y={bY} width={barWidth * 0.8} height={Math.min(currentH, fs(4))} fill="rgba(255,255,255,0.2)" rx={fs(2)} />
 
                 {/* Value label */}
-                <text 
-                  x={bX + barWidth / 2} 
-                  y={bY - fs(8)} 
-                  textAnchor="middle" 
-                  opacity={op} 
-                  style={{ 
-                    fontSize: fs(shouldRotateLabels ? 11 : 14), 
-                    fill: resolvedText, 
-                    fontWeight: 700, 
-                    fontFamily: Theme.typography.fontFamily,
-                    ...Theme.typography.tabularNums
-                  }}
-                >
-                    {formatValue(val, displayUnit)}
-                </text>
+                {showValueLabels && (
+                  <text 
+                    x={bX + barWidth / 2} 
+                    y={bY - fs(8)} 
+                    textAnchor="middle" 
+                    opacity={op} 
+                    style={{ 
+                      fontSize: fs(shouldRotateLabels ? 11 : 14), 
+                      fill: resolvedText, 
+                      fontWeight: 700, 
+                      fontFamily: Theme.typography.fontFamily,
+                      ...Theme.typography.tabularNums
+                    }}
+                  >
+                      {formatValue(val, displayUnit)}
+                  </text>
+                )}
 
                 {/* X axis (one per group) */}
                 {seriesIdx === 0 && (

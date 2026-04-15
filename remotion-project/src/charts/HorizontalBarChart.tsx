@@ -19,6 +19,7 @@ interface HorizontalBarChartProps {
   title?:    string;
   subtitle?: string;
   unit?:     string;
+  showValueLabels?: boolean;
 }
 
 
@@ -32,6 +33,7 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
   subtitle = "",
   unit     = "",
   colors,
+  showValueLabels = false,
 }) => {
   const frame      = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
@@ -157,22 +159,24 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
                 />
 
                 {/* Value Label (Inside if possible, else After) */}
-                <text 
-                  x={bW > fs(70) ? plotLeft + bW - fs(12) : plotLeft + bW + fs(10)} 
-                  y={bY + barHeight/2} 
-                  textAnchor={bW > fs(70) ? "end" : "start"}
-                  dominantBaseline="middle" 
-                  opacity={labelOp} 
-                  style={{ 
-                    fontSize: fs(15), 
-                    fill: bW > fs(70) ? "#fff" : resolvedText, 
-                    fontWeight: 700, 
-                    fontFamily: Theme.typography.fontFamily,
-                    ...Theme.typography.tabularNums
-                  }}
-                >
-                  {formatValue(val, displayUnit)}
-                </text>
+                {showValueLabels && (
+                  <text 
+                    x={bW > fs(70) ? plotLeft + bW - fs(12) : plotLeft + bW + fs(10)} 
+                    y={bY + barHeight/2} 
+                    textAnchor={bW > fs(70) ? "end" : "start"}
+                    dominantBaseline="middle" 
+                    opacity={labelOp} 
+                    style={{ 
+                      fontSize: fs(15), 
+                      fill: bW > fs(70) ? "#fff" : resolvedText, 
+                      fontWeight: 700, 
+                      fontFamily: Theme.typography.fontFamily,
+                      ...Theme.typography.tabularNums
+                    }}
+                  >
+                    {formatValue(val, displayUnit)}
+                  </text>
+                )}
               </g>
             );
           });
