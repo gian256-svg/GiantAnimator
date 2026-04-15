@@ -54,12 +54,19 @@ export const BarChart: React.FC<BarChartProps> = ({
   const safeDataCount = xAxisLabels.length || 1;
   const seriesCount   = normalizedSeries.length;
 
+  // ─── SMART UNIT HANDLING ──────────────────────────────
+  // Se a unidade for muito longa, removemos das barras e eixos e movemos para uma nota global.
+  const isLongUnit  = unit.length > 6;
+  const displayUnit = isLongUnit ? "" : unit;
+  const unitNote    = isLongUnit ? `Unidade: ${unit}` : "";
+
   // ─── Layout responsivo baseado na resolução real ──────
   const pad = width * 0.04;   // 4% de padding
-  const padTop = height * 0.20;  // Espaço para o header (aumentado de 0.12)
-  const padBot = height * 0.14;  // Espaço para eixo X (aumentado de 0.12)
+  const padTop = height * 0.22;  // Espaço para o header + Unit Note
+  const padBot = height * 0.16;  // Espaço para eixo X
 
-  const plotLeft = pad + width * 0.06;   // espaço eixo Y
+  // Aumentamos plotLeft se o número for grande para não cortar
+  const plotLeft = pad + width * 0.08;   
   const plotTop = padTop;
   const plotWidth = width - plotLeft - pad;
   const plotHeight = height - padTop - padBot;
@@ -75,6 +82,9 @@ export const BarChart: React.FC<BarChartProps> = ({
   
   const availableW    = categoryWidth * (1 - groupGap);
   const barWidth      = (availableW / seriesCount) * (1 - innerGap);
+
+  // Rotação do Label do Eixo X se houver muitos dados
+  const shouldRotateLabels = safeDataCount > 6;
 
   const getY = (v: number) =>
     plotTop + plotHeight - (v / maxVal) * plotHeight;
@@ -132,18 +142,18 @@ export const BarChart: React.FC<BarChartProps> = ({
                 opacity={op}
               />
               <text
-                x={plotLeft - fs(12)}
+                x={plotLeft - fs(15)}
                 y={y}
                 textAnchor="end"
                 dominantBaseline="middle"
                 style={{
-                  fontSize: fs(14),
+                  fontSize: fs(shouldRotateLabels ? 12 : 14),
                   fill: T.textMuted,
                   fontFamily: Theme.typography.fontFamily,
                   ...Theme.typography.tabularNums
                 }}
               >
-                {formatValue(v * maxVal, unit)}
+                {formatValue(v * maxVal, displayUnit)}
               </text>
             </React.Fragment>
           );
@@ -195,21 +205,30 @@ export const BarChart: React.FC<BarChartProps> = ({
                   textAnchor="middle" 
                   opacity={op} 
                   style={{ 
-                    fontSize: fs(14), 
+                    fontSize: fs(shouldRotateLabels ? 11 : 14), 
                     fill: resolvedText, 
                     fontWeight: 700, 
                     fontFamily: Theme.typography.fontFamily,
                     ...Theme.typography.tabularNums
                   }}
                 >
-                    {formatValue(val, unit)}
+                    {formatValue(val, displayUnit)}
                 </text>
 
                 {/* X axis (one per group) */}
                 {seriesIdx === 0 && (
-                  <text x={groupX + availableW / 2} y={plotTop + plotHeight + fs(28)} textAnchor="middle" opacity={op} style={{ 
-                    fontSize: fs(12), fill: T.textMuted, fontFamily: Theme.typography.fontFamily 
-                  }}>
+                  <text 
+                    x={groupX + availableW / 2} 
+                    y={plotTop + plotHeight + fs(shouldRotateLabels ? 12 : 28)} 
+                    textAnchor={shouldRotateLabels ? "end" : "middle"} 
+                    transform={shouldRotateLabels ? `rotate(-35, ${groupX + availableW / 2}, ${plotTop + plotHeight + fs(15)})` : ""}
+                    opacity={op} 
+                    style={{ 
+                      fontSize: fs(shouldRotateLabels ? 11 : 12), 
+                      fill: T.textMuted, 
+                      fontFamily: Theme.typography.fontFamily 
+                    }}
+                  >
                     {label}
                   </text>
                 )}
@@ -258,8 +277,19 @@ export const BarChart: React.FC<BarChartProps> = ({
           </div>
         )}
         {subtitle && (
-          <div style={{ fontSize: fs(20), color: T.textMuted, marginTop: fs(10) }}>
+          <div style={{ fontSize: fs(24), color: T.textMuted, marginTop: fs(10), fontWeight: 500 }}>
             {subtitle}
+          </div>
+        )}
+        {unitNote && (
+          <div style={{ 
+            fontSize: fs(18), 
+            color: T.textMuted, 
+            marginTop: fs(12), 
+            fontStyle: 'italic',
+            opacity: 0.8
+          }}>
+            *{unitNote}
           </div>
         )}
       </div>
