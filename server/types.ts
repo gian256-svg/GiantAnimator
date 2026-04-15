@@ -10,6 +10,7 @@ export interface ChartAnalysis {
   componentId: string;
   props: any; // Props variam drasticamente entre os 31 componentes
   reasoning: string;
+  suggestedName?: string; // Três palavras sem espaço resumindo o gráfico
 }
 
 export interface ChartProps {

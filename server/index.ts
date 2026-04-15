@@ -102,7 +102,9 @@ async function processJob(jobId: string, fileData: Buffer, originalName: string,
       inputProps: { ...analysis.props, theme: chartTheme }
     });
 
-    const outputName = `giant-${jobId}.mp4`;
+    const summary = (analysis as any).suggestedName || 'GiantAnimation';
+    const cleanOriginal = originalName.replace(/\.[^.]+$/, '').replace(/\s+/g, '_');
+    const outputName = `${summary}_AN_${cleanOriginal}.mp4`;
     const outputPath = path.join(OUTPUT_DIR, outputName);
 
     await renderMedia({
