@@ -113,14 +113,17 @@ async function processJob(jobId: string, fileData: Buffer, originalName: string,
     job.stage = 'IA: Estrutura Identificada';
     job.log = `Componente: ${analysis.componentId}`;
     
-    // Normalização de Estilo Original
+    // Normalização de Estilo Original e Redução de Ruído
     if (analysis.props) {
         if (analysis.props.seriesColors && !analysis.props.colors) {
             analysis.props.colors = analysis.props.seriesColors;
         }
-        // Se a IA detectou um tema claro/escuro, podemos sugerir ou forçar
-        if (analysis.props.detectedTheme && chartTheme === 'original') {
-            // Mantemos 'original' como tema, mas os componentes usam os overriden colors
+        
+        // REGRA ABSOLUTA: Se a unidade for longa, NUNCA mostrar labels nas barras
+        const unit = analysis.props.unit || "";
+        if (unit.length > 6) {
+           analysis.props.showValueLabels = false;
+           console.log("🎨 Regra de Minimalismo: Unidade longa detectada, ocultando labels das barras.");
         }
     }
 

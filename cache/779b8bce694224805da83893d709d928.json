@@ -1,0 +1,40 @@
+{
+  "componentId": "BarChart",
+  "reasoning": "O gráfico exibe barras verticais representando valores em um eixo categórico. Detectei o símbolo 'M' (milhões) associado aos valores, definindo a unidade como 'M'.",
+  "props": {
+    "title": "Sales",
+    "data": [
+      {
+        "label": "Nordic",
+        "value": 47.69
+      },
+      {
+        "label": "USA",
+        "value": 28.16
+      },
+      {
+        "label": "Japan",
+        "value": 11.85
+      },
+      {
+        "label": "UK",
+        "value": 10.38
+      },
+      {
+        "label": "Spain",
+        "value": 3.45
+      },
+      {
+        "label": "Germany",
+        "value": 3.32
+      }
+    ],
+    "unit": "M",
+    "backgroundColor": "#ffffff",
+    "textColor": "#000000",
+    "seriesColors": [
+      "#3a7bb1"
+    ],
+    "showValueLabels": true
+  }
+}

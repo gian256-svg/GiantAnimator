@@ -69,7 +69,7 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
 
   const maxLabelLen = Math.max(...xAxisLabels.map(l => l.length), 1);
   const labelAreaWidth = Math.min(width * 0.35, maxLabelLen * fs(12));
-  const plotLeft       = pad + labelAreaWidth;
+  const plotLeft       = pad + labelAreaWidth + (isLongUnit ? width * 0.05 : 0);
   const plotTop        = padTop;
   const plotWidth      = width - plotLeft - pad - fs(45);
   const plotHeight     = height - padTop - padBot;

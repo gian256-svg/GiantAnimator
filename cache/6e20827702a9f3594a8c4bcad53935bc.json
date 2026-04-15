@@ -1,0 +1,45 @@
+{
+  "componentId": "HorizontalBarChart",
+  "reasoning": "O gráfico exibe barras orientadas horizontalmente, categorizadas por país. Portanto, o componente apropriado é HorizontalBarChart. Os rótulos são os nomes dos países e os valores são as taxas de crescimento anuais, que são apresentadas com o símbolo '%'. Detectei o símbolo '%' nos datalabels, definindo unit como '%'.",
+  "props": {
+    "title": "Largest Annual Growth Rate in Coffee Exporting Countries",
+    "data": [
+      {
+        "label": "Thailand",
+        "value": 12.3
+      },
+      {
+        "label": "Vietnam",
+        "value": 8.6
+      },
+      {
+        "label": "Indonesia",
+        "value": 7.7
+      },
+      {
+        "label": "Philippines",
+        "value": 7.6
+      },
+      {
+        "label": "India",
+        "value": 5.1
+      },
+      {
+        "label": "Columbia",
+        "value": 3.2
+      },
+      {
+        "label": "Ethiopia",
+        "value": 2.6
+      }
+    ],
+    "unit": "%",
+    "backgroundColor": "#ffffff",
+    "textColor": "#333333",
+    "seriesColors": [
+      "#e8a225",
+      "#4e7c14"
+    ],
+    "showValueLabels": true
+  }
+}

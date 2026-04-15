@@ -1,5 +1,169 @@
 [
   {
+    "id": "3397faf2-dc95-46d3-be0d-df93cef1c79f",
+    "name": "imagem_colada_1776279622886.png",
+    "filename": "giant-51f77938-5a5d-4c7a-b739-8c8eb3b8c4bb.mp4",
+    "videoUrl": "/output/giant-51f77938-5a5d-4c7a-b739-8c8eb3b8c4bb.mp4",
+    "createdAt": "2026-04-15T19:01:04.428Z"
+  },
+  {
+    "id": "276da2a5-04d3-4d26-97d2-edaade69de47",
+    "name": "imagem_colada_1776279552280.png",
+    "filename": "giant-31941b6b-9853-437e-aae0-2b21b3103e20.mp4",
+    "videoUrl": "/output/giant-31941b6b-9853-437e-aae0-2b21b3103e20.mp4",
+    "createdAt": "2026-04-15T18:59:54.161Z"
+  },
+  {
+    "id": "87348a19-0af7-4c26-b4ac-69caf19a278b",
+    "name": "imagem_colada_1776279091840.png",
+    "filename": "giant-53a8dca1-4083-4739-a543-49b4afb0440d.mp4",
+    "videoUrl": "/output/giant-53a8dca1-4083-4739-a543-49b4afb0440d.mp4",
+    "createdAt": "2026-04-15T18:52:20.920Z"
+  },
+  {
+    "id": "5afc23a3-bd38-437c-9c65-e3dcf0eb9a66",
+    "name": "imagem_colada_1776278551763.png",
+    "filename": "giant-32b93931-e286-421d-a311-8b4fe8fee9d6.mp4",
+    "videoUrl": "/output/giant-32b93931-e286-421d-a311-8b4fe8fee9d6.mp4",
+    "createdAt": "2026-04-15T18:43:18.370Z"
+  },
+  {
+    "id": "8fc3dbe6-5cef-44ae-aad6-21da9338a362",
+    "name": "imagem_colada_1776273519958.png",
+    "filename": "giant-272b804c-58b9-4d6f-9ffc-e802f7182878.mp4",
+    "videoUrl": "/output/giant-272b804c-58b9-4d6f-9ffc-e802f7182878.mp4",
+    "createdAt": "2026-04-15T17:19:22.400Z"
+  },
+  {
+    "id": "f905fdac-b617-4156-a089-3528f39fa6ce",
+    "name": "unnamed.png",
+    "filename": "giant-e86c504e-430c-4155-94cb-acf70a3c74fc.mp4",
+    "videoUrl": "/output/giant-e86c504e-430c-4155-94cb-acf70a3c74fc.mp4",
+    "createdAt": "2026-04-15T17:17:30.917Z"
+  },
+  {
+    "filename": "imagem_colada_1776270934225.png",
+    "outputFile": "27c59671-9aac-4eb1-824e-4370f46fde15_4K.mp4",
+    "status": "done",
+    "duration": 20,
+    "props": {
+      "title": null,
+      "subtitle": null,
+      "labels": [
+        "2019",
+        "2020",
+        "2021",
+        "2022",
+        "2023",
+        "2024",
+        "2025",
+        "2026"
+      ],
+      "series": [
+        {
+          "label": "Series 1",
+          "data": [
+            80,
+            250,
+            320,
+            270,
+            270,
+            410,
+            640,
+            780
+          ],
+          "color": "#00bcd4"
+        }
+      ],
+      "backgroundColor": "#0f1117",
+      "textColor": "#e8eaf6",
+      "seriesColors": [
+        "#00bcd4"
+      ],
+      "showValueLabels": false,
+      "data": [],
+      "chartType": "HorizontalBarChart",
+      "theme": "dark",
+      "colors": [
+        "#7c3aed",
+        "#06b6d4",
+        "#a855f7",
+        "#22c55e",
+        "#f59e0b",
+        "#ef4444"
+      ],
+      "width": 3840,
+      "height": 2160,
+      "fps": 30,
+      "durationInSeconds": 8
+    },
+    "id": "6590b1c7-1012-467d-8dc3-263ea547036a",
+    "createdAt": "2026-04-15T16:36:14.597Z"
+  },
+  {
+    "filename": "imagem_colada_1776270845693.png",
+    "outputFile": "c3395bf2-2b51-4216-9212-179f2baedf1b_4K.mp4",
+    "status": "done",
+    "duration": 20,
+    "props": {
+      "title": "Largest Annual Growth Rate in Coffee Exporting Countries",
+      "data": [
+        {
+          "label": "Thailand",
+          "value": 12.3
+        },
+        {
+          "label": "Vietnam",
+          "value": 8.6
+        },
+        {
+          "label": "Indonesia",
+          "value": 7.7
+        },
+        {
+          "label": "Philippines",
+          "value": 7.6
+        },
+        {
+          "label": "India",
+          "value": 5.1
+        },
+        {
+          "label": "Columbia",
+          "value": 3.2
+        },
+        {
+          "label": "Ethiopia",
+          "value": 2.6
+        }
+      ],
+      "unit": "%",
+      "backgroundColor": "#0f1117",
+      "textColor": "#e8eaf6",
+      "seriesColors": [
+        "#e8a225",
+        "#4e7c14"
+      ],
+      "showValueLabels": true,
+      "chartType": "HorizontalBarChart",
+      "theme": "dark",
+      "colors": [
+        "#7c3aed",
+        "#06b6d4",
+        "#a855f7",
+        "#22c55e",
+        "#f59e0b",
+        "#ef4444"
+      ],
+      "width": 3840,
+      "height": 2160,
+      "fps": 30,
+      "durationInSeconds": 8
+    },
+    "id": "6fe862f7-4cc1-463e-bc6c-411dc1647373",
+    "createdAt": "2026-04-15T16:34:56.681Z"
+  },
+  {
     "filename": "imagem_colada_1776265800173.png",
     "outputFile": "70bc5b92-cbc6-44c7-8831-22c747a8ea72_4K.mp4",
     "status": "done",
@@ -164,119 +328,5 @@
     },
     "id": "834b6e95-72e4-4470-9883-98cdf456cd6b",
     "createdAt": "2026-04-15T14:56:43.552Z"
-  },
-  {
-    "filename": "imagem_colada_1776263950795.png",
-    "outputFile": "19741e49-638b-4371-804f-d2c785717e47_4K.mp4",
-    "status": "done",
-    "duration": 20,
-    "props": {
-      "title": "Drivers de aumento de eficiência com gráfico de barras horizontais",
-      "data": [
-        {
-          "label": "Driver 5",
-          "value": 75
-        },
-        {
-          "label": "Driver 4",
-          "value": 55
-        },
-        {
-          "label": "Driver 3",
-          "value": 45
-        },
-        {
-          "label": "Driver 2",
-          "value": 35
-        },
-        {
-          "label": "Driver 1",
-          "value": 25
-        }
-      ],
-      "backgroundColor": "#FAF9F6",
-      "textColor": "#0f172a",
-      "seriesColors": [
-        "#2D4B92",
-        "#18BDD2",
-        "#F16881",
-        "#FFB436",
-        "#A1D03C"
-      ],
-      "showValueLabels": true,
-      "chartType": "HorizontalBarChart",
-      "theme": "light",
-      "colors": [
-        "#2563eb",
-        "#059669",
-        "#d97706",
-        "#dc2626",
-        "#7c3aed",
-        "#0891b2"
-      ],
-      "width": 3840,
-      "height": 2160,
-      "fps": 30,
-      "durationInSeconds": 8
-    },
-    "id": "be05e2ac-b5b2-4c96-ac90-96516f598496",
-    "createdAt": "2026-04-15T14:39:53.062Z"
-  },
-  {
-    "filename": "imagem_colada_1776263888359.png",
-    "outputFile": "a3646f1a-f95a-4bc4-9c40-1d1d90ddfe0f_4K.mp4",
-    "status": "done",
-    "duration": 20,
-    "props": {
-      "title": "Drivers de aumento de eficiência com gráfico de barras horizontais",
-      "data": [
-        {
-          "label": "Driver 5",
-          "value": 75
-        },
-        {
-          "label": "Driver 4",
-          "value": 55
-        },
-        {
-          "label": "Driver 3",
-          "value": 45
-        },
-        {
-          "label": "Driver 2",
-          "value": 35
-        },
-        {
-          "label": "Driver 1",
-          "value": 25
-        }
-      ],
-      "backgroundColor": "#0f1117",
-      "textColor": "#e8eaf6",
-      "seriesColors": [
-        "#2D4B92",
-        "#18BDD2",
-        "#F16881",
-        "#FFB436",
-        "#A1D03C"
-      ],
-      "showValueLabels": true,
-      "chartType": "HorizontalBarChart",
-      "theme": "dark",
-      "colors": [
-        "#7c3aed",
-        "#06b6d4",
-        "#a855f7",
-        "#22c55e",
-        "#f59e0b",
-        "#ef4444"
-      ],
-      "width": 3840,
-      "height": 2160,
-      "fps": 30,
-      "durationInSeconds": 8
-    },
-    "id": "137199ed-fa85-46f4-9a74-c1e29ba9e649",
-    "createdAt": "2026-04-15T14:38:49.436Z"
   }
 ]

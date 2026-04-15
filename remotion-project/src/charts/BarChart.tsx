@@ -67,10 +67,10 @@ export const BarChart: React.FC<BarChartProps> = ({
   const padTop = height * 0.22;  // Espaço para o header + Unit Note
   const padBot = height * 0.16;  // Espaço para eixo X
 
-  // Aumentamos plotLeft se o número for grande para não cortar
-  const plotLeft = pad + width * 0.08;   
+  // Aumentamos plotLeft se for uma unidade longa ou se o número for grande
+  const plotLeft = pad + width * (isLongUnit ? 0.12 : 0.08);   
   const plotTop = padTop;
-  const plotWidth = width - plotLeft - pad;
+  const plotWidth = width - plotLeft - (pad * 1.5); 
   const plotHeight = height - padTop - padBot;
 
   // Escala de fonte baseada na resolução

@@ -1,0 +1,38 @@
+{
+  "componentId": "PieChart",
+  "reasoning": "O gráfico é um gráfico de pizza, onde as fatias representam a proporção de cada item no estoque. Cada fatia tem um rótulo com a porcentagem e a quantidade em kg. A legenda, com as cores e os nomes dos produtos, confirma que se trata de um gráfico de pizza. Detectei o símbolo '%' nos dados, definindo unit como '%'.",
+  "props": {
+    "title": "Quantidade de itens do estoque em kg:",
+    "data": [
+      {
+        "label": "Trigo",
+        "value": 13.3
+      },
+      {
+        "label": "Arroz",
+        "value": 33.3
+      },
+      {
+        "label": "Feijão",
+        "value": 26.7
+      },
+      {
+        "label": "Batata",
+        "value": 16
+      },
+      {
+        "label": "Aipim",
+        "value": 10.7
+      }
+    ],
+    "unit": "%",
+    "seriesColors": [
+      "#1f77b4",
+      "#ff7f0e",
+      "#2ca02c",
+      "#d62728",
+      "#9467bd"
+    ],
+    "showValueLabels": true
+  }
+}
