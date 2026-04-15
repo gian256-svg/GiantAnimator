@@ -50,19 +50,38 @@ export async function analyzeChartImage(imagePath: string): Promise<ChartAnalysi
   const registryJson = JSON.stringify(COMPONENT_REGISTRY, null, 2);
   const prompt       = buildImageAnalysisPrompt(registryJson);
 
-  // ─── Chamada Gemini ──────────────────────────────────────────
-  const response = await ai.models.generateContent({
-    model: GEMINI_MODEL_VISION || "models/gemini-2.0-flash",
-    contents: [
-      {
-        role: "user",
-        parts: [
-          { inlineData: { data: imageBase64, mimeType: "image/png" } },
-          { text: prompt },
+  // ─── Chamada Gemini com Retry ────────────────────────────────
+  let response;
+  let retries = 0;
+  const MAX_RETRIES = 3;
+
+  while (retries <= MAX_RETRIES) {
+    try {
+      response = await ai.models.generateContent({
+        model: GEMINI_MODEL_VISION || "models/gemini-2.0-flash",
+        contents: [
+          {
+            role: "user",
+            parts: [
+              { inlineData: { data: imageBase64, mimeType: "image/png" } },
+              { text: prompt },
+            ],
+          },
         ],
-      },
-    ],
-  });
+      });
+      break; // Sucesso!
+    } catch (err: any) {
+      if (err.message?.includes("503") || err.status === 503) {
+        retries++;
+        if (retries > MAX_RETRIES) throw err;
+        const delay = Math.pow(2, retries) * 1000;
+        console.warn(`⚠️ [VISION] Gemini 503 (Demanda Alta). Tentativa ${retries}/${MAX_RETRIES} em ${delay}ms...`);
+        await new Promise(r => setTimeout(r, delay));
+      } else {
+        throw err; // Erro real (400, 401, etc) - não tenta de novo
+      }
+    }
+  }
 
   // ─── ✅ FIX: extrair texto corretamente ───────────────────────
   const responseText =
