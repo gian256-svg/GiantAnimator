@@ -9,6 +9,9 @@
   "scripts": {
     "dev": "tsx watch server/index.ts",
     "start": "tsx server/index.ts",
+    "tunnel": "concurrently \"npm run dev\" \"npx --yes localtunnel --port 3000\"",
+    "tunnel:cf": "concurrently \"npm run dev\" \"npx --yes cloudflared tunnel --url http://localhost:3000 --protocol http2\"",
+    "tunnel:safe": "concurrently \"npm run dev\" \"npx serve-handler --port 3000\"", 
     "build": "exit 0"
   },
   "dependencies": {
@@ -26,7 +29,9 @@
     "uuid": "^13.0.0",
     "xlsx": "^0.18.5",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "concurrently": "^9.1.0",
+    "localtunnel": "^2.0.2"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",

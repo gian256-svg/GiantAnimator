@@ -278,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
           log(`🚀 Enviando: ${f.name}`);
           const res = await fetch('/upload', { method: 'POST', body: fd });
           const data = await res.json();
-          startSSE(data.jobId, f.name);
+          startPolling(data.jobId, f.name);
           f.status = 'done';
           renderFileQueue();
         } catch (err) {
@@ -319,16 +319,20 @@ document.addEventListener('DOMContentLoaded', () => {
 /* ═══════════════════════════════════════════════════════════════
    SSE 720p
 ═══════════════════════════════════════════════════════════════ */
-function startSSE(jobId, fileName) {
-  if (state.eventSource) state.eventSource.close();
-
-  const es = new EventSource(`/progress/${jobId}`);
-  state.eventSource = es;
+/* ═══════════════════════════════════════════════════════════════
+   POLLING — Resiliência Total
+═══════════════════════════════════════════════════════════════ */
+function startPolling(jobId, fileName) {
+  if (state.pollInterval) clearInterval(state.pollInterval);
   state.currentJobId = jobId;
 
-  es.onmessage = (e) => {
+  const interval = setInterval(async () => {
     try {
-      const msg = JSON.parse(e.data);
+      const res = await fetch(`/progress/${jobId}`);
+      if (!res.ok) return;
+
+      const msg = await res.json();
+      console.log('Polling Update:', msg);
 
       if (msg.progress !== undefined) {
         setProgress(msg.progress, msg.stage || '');
@@ -336,37 +340,33 @@ function startSSE(jobId, fileName) {
       }
 
       if (msg.status === 'done') {
-        es.close();
+        clearInterval(interval);
         state.isRendering = false;
         setProgress(100, 'Vídeo 4K pronto ✓');
         log(`🎬 Vídeo UHD pronto: ${msg.videoUrl}`, 'success');
         toast('Renderização 4K concluída!', 'success');
         loadVideo(msg.videoUrl, fileName, msg.duration || '');
-        
-        // Automatic Download / Save
         triggerDownload(msg.videoUrl, fileName, jobId);
-
         document.getElementById('btn-render').disabled = false;
         refreshHistory();
       }
 
       if (msg.status === 'error') {
-        es.close();
+        clearInterval(interval);
         state.isRendering = false;
-        log(`✕ Erro 4K: ${msg.error}`, 'error');
-        toast(`Erro: ${msg.error}`, 'error');
+        const errMsg = msg.error || 'Erro interno desconhecido do servidor';
+        log(`✕ Erro 4K: ${errMsg}`, 'error');
+        toast(`Erro: ${errMsg}`, 'error');
         setProgress(0, 'Erro ✕');
         document.getElementById('btn-render').disabled = false;
+        alert(`Status: ${errMsg}`);
       }
-    } catch(err) { /* ignore */ }
-  };
+    } catch(err) {
+      console.error('Polling Error:', err);
+    }
+  }, 2000);
 
-  es.onerror = () => {
-    log('⚠ Conexão SSE perdida', 'warn');
-    es.close();
-    state.isRendering = false;
-    document.getElementById('btn-render').disabled = false;
-  };
+  state.pollInterval = interval;
 }
 
 /* ═══════════════════════════════════════════════════════════════
