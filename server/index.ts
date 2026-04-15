@@ -26,7 +26,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
 
 // ─── PATHS ───────────────────────────────────────────────────
-const PUBLIC_DIR     = path.join(__dirname, 'public');
+const PUBLIC_DIR     = path.resolve(__dirname, 'public');
 const UPLOADS_DIR    = path.join(PATHS.input, 'uploads'); // Centralizado no PATHS.input
 const OUTPUT_DIR     = PATHS.output;
 const REMOTION_ENTRY = path.join(PATHS.remotion, 'src', 'index.ts');
