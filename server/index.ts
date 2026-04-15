@@ -26,13 +26,18 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
 
 // ─── PATHS ───────────────────────────────────────────────────
+const IS_VERCEL      = !!process.env.VERCEL;
 const ROOT           = path.resolve(__dirname, '..');
 const PUBLIC_DIR     = path.join(__dirname, 'public');
-const UPLOADS_DIR    = path.join(ROOT, 'uploads');
-const OUTPUT_DIR     = path.join(ROOT, 'output');
+const UPLOADS_DIR    = IS_VERCEL ? '/tmp/uploads' : path.join(ROOT, 'uploads');
+const OUTPUT_DIR     = IS_VERCEL ? '/tmp/output' : path.join(ROOT, 'output');
 const REMOTION_ENTRY = path.join(ROOT, 'remotion-project', 'src', 'index.ts');
 
-[UPLOADS_DIR, OUTPUT_DIR].forEach(d => fs.mkdirSync(d, { recursive: true }));
+[UPLOADS_DIR, OUTPUT_DIR].forEach(d => {
+  if (!fs.existsSync(d)) {
+    fs.mkdirSync(d, { recursive: true });
+  }
+});
 
 // ─── JOB STORE ───────────────────────────────────────────────
 interface Job {
@@ -720,6 +725,18 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
   res.status(500).json({ error: err.message });
 });
 
+// ✅ Inicializar agente Gemini (Top-level para Vercel e Local)
+const initAgent = async () => {
+  try {
+    const { agent } = await import('./agent.js');
+    await agent.initialize();
+    console.log('🤖 Agente Gemini pronto.');
+  } catch (e) {
+    console.error('❌ Erro ao inicializar agente:', e);
+  }
+};
+initAgent();
+
 // ─── START ────────────────────────────────────────────────────
 if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
   app.listen(PORT, () => {
@@ -729,11 +746,6 @@ if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
     console.log('  ✦ ─────────────────────────────────────── ✦');
     console.log('');
     getBundle().catch(e => console.warn('⚠️  Warm-up falhou:', e.message));
-    
-    // ✅ Inicializar agente Gemini
-    import('./agent.js').then(({ agent }) => {
-      agent.initialize().catch(e => console.error('❌ Erro ao inicializar agente:', e));
-    });
   });
 }
 
