@@ -720,16 +720,20 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
 });
 
 // ─── START ────────────────────────────────────────────────────
-app.listen(PORT, () => {
-  console.log('');
-  console.log('  ✦ ─────────────────────────────────────── ✦');
-  console.log(`  🎬  GiantAnimator  →  http://localhost:${PORT}`);
-  console.log('  ✦ ─────────────────────────────────────── ✦');
-  console.log('');
-  getBundle().catch(e => console.warn('⚠️  Warm-up falhou:', e.message));
-  
-  // ✅ Inicializar agente Gemini
-  import('./agent.js').then(({ agent }) => {
-    agent.initialize().catch(e => console.error('❌ Erro ao inicializar agente:', e));
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log('');
+    console.log('  ✦ ─────────────────────────────────────── ✦');
+    console.log(`  🎬  GiantAnimator  →  http://localhost:${PORT}`);
+    console.log('  ✦ ─────────────────────────────────────── ✦');
+    console.log('');
+    getBundle().catch(e => console.warn('⚠️  Warm-up falhou:', e.message));
+    
+    // ✅ Inicializar agente Gemini
+    import('./agent.js').then(({ agent }) => {
+      agent.initialize().catch(e => console.error('❌ Erro ao inicializar agente:', e));
+    });
   });
-});
+}
+
+export default app;

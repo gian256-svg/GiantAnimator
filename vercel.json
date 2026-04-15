@@ -10,6 +10,6 @@
     { "src": "/api/(.*)", "dest": "server/index.ts" },
     { "src": "/upload", "dest": "server/index.ts" },
     { "src": "/progress/(.*)", "dest": "server/index.ts" },
-    { "src": "/(.*)", "dest": "server/public/index.html" }
+    { "src": "/(.*)", "dest": "server/index.ts" }
   ]
 }
