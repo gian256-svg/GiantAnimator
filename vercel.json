@@ -1,7 +1,11 @@
 {
   "version": 2,
   "builds": [
-    { "src": "server/index.ts", "use": "@vercel/node" }
+    { 
+      "src": "server/index.ts", 
+      "use": "@vercel/node",
+      "config": { "transpileOnly": true }
+    }
   ],
   "routes": [
     { "src": "/assets/(.*)", "dest": "server/public/assets/$1" },
