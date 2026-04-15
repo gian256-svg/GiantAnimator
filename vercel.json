@@ -7,14 +7,16 @@
       "config": { "transpileOnly": true }
     }
   ],
-  "routes": [
-    { "src": "/assets/(.*)", "dest": "/server/public/assets/$1" },
-    { "src": "/style.css", "dest": "/server/public/style.css" },
-    { "src": "/app.js", "dest": "/server/public/app.js" },
-    { "src": "/api/(.*)", "dest": "/server/index.ts" },
-    { "src": "/upload", "dest": "/server/index.ts" },
-    { "src": "/health", "dest": "/server/index.ts" },
-    { "src": "/progress/(.*)", "dest": "/server/index.ts" },
-    { "src": "/(.*)", "dest": "/server/index.ts" }
+  "rewrites": [
+    { "source": "/style.css", "destination": "/server/public/style.css" },
+    { "source": "/app.js", "destination": "/server/public/app.js" },
+    { "source": "/assets/(.*)", "destination": "/server/public/assets/$1" },
+    { "source": "/api/(.*)", "destination": "/server/index.ts" },
+    { "source": "/upload", "destination": "/server/index.ts" },
+    { "source": "/health", "destination": "/server/index.ts" },
+    { "source": "/progress/(.*)", "destination": "/server/index.ts" },
+    { "source": "/output/(.*)", "destination": "/server/index.ts" },
+    { "source": "/", "destination": "/server/public/index.html" },
+    { "source": "/(.*)", "destination": "/server/index.ts" }
   ]
 }
