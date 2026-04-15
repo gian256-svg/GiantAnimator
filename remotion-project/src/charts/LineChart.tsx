@@ -81,6 +81,11 @@ export const LineChart: React.FC<LineChartProps> = ({
   const getX = (i: number) => plotLeft + (i / (xAxisLabels.length - 1)) * plotWidth;
   const getY = (v: number) => plotTop + plotHeight - ((v - minV) / range) * plotHeight;
 
+  // Animação de entrada do header
+  const headerOpacity = interpolate(frame, [0, 20], [0, 1], {
+    extrapolateRight: "clamp",
+  });
+
   // Animação de reveal (DNA GiantAnimator)
   // Animação de reveal Suave (Easy-in Easy-out)
   const progress = interpolate(
