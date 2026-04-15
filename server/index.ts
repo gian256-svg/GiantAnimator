@@ -213,18 +213,36 @@ app.get('/progress/:jobId', (req: Request, res: Response) => {
   res.json(job);
 });
 
-// ✅ Rota adicional para prever dados (usada pelo CSV Preview do frontend)
 app.post('/preview-data', upload.single('file'), async (req: Request, res: Response) => {
-    if (!req.file) return res.status(400).json({ error: 'No file' });
-    const tempPath = path.join(UPLOADS_DIR, `preview_${uuidv4()}${path.extname(req.file.originalname)}`);
-    fs.writeFileSync(tempPath, req.file.buffer);
+    const debugLog = path.resolve(ROOT, 'debug_preview.log');
+    if (!req.file) {
+        fs.appendFileSync(debugLog, `[${new Date().toISOString()}] Erro: Nenhum arquivo recebido\n`);
+        return res.status(400).json({ error: 'No file' });
+    }
+    
+    const ext = path.extname(req.file.originalname);
+    const tempPath = path.join(UPLOADS_DIR, `preview_${uuidv4()}${ext}`);
+    
+    fs.appendFileSync(debugLog, `[${new Date().toISOString()}] Recebido: ${req.file.originalname} (Size: ${req.file.size}) -> Salvando em: ${tempPath}\n`);
+    
     try {
+        fs.writeFileSync(tempPath, req.file.buffer);
+        fs.appendFileSync(debugLog, `[${new Date().toISOString()}] Arquivo salvo. Iniciando Parser...\n`);
+        
         const parsed = tableParserService.parse(tempPath);
+        
+        fs.appendFileSync(debugLog, `[${new Date().toISOString()}] Sucesso no Parser! Colunas: ${parsed.headers.length}\n`);
         res.json(parsed);
     } catch (err: any) {
+        const errorStack = err.stack || err.message;
+        fs.appendFileSync(debugLog, `[${new Date().toISOString()}] CRITICAL ERROR: ${errorStack}\n`);
+        console.error("Preview Error:", err);
         res.status(500).json({ error: err.message });
     } finally {
-        if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+        if (fs.existsSync(tempPath)) {
+            fs.unlinkSync(tempPath);
+            fs.appendFileSync(debugLog, `[${new Date().toISOString()}] Temp file removido.\n`);
+        }
     }
 });
 

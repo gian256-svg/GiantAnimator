@@ -170,10 +170,17 @@ async function loadCSVPreview(file) {
     fd.append('file', file);
     
     // Chamada unificada para o novo endpoint /preview-data
+    console.log('📡 [Fetch] Enviando para /preview-data...');
     const res = await fetch('/preview-data', { method: 'POST', body: fd });
-    if (!res.ok) throw new Error('Falha ao analisar arquivo');
+    
+    if (!res.ok) {
+        const errorText = await res.text();
+        console.error('❌ [Fetch] Erro:', res.status, errorText);
+        throw new Error(`Servidor retornou ${res.status}: ${errorText || 'Falha ao analisar arquivo'}`);
+    }
     
     const data = await res.json();
+    console.log('✅ [Fetch] Dados recebidos:', data);
     const summary = data.summary;
 
     // Meta Info
