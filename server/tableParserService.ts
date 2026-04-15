@@ -63,28 +63,22 @@ export const tableParserService = {
         let workbook: XLSX.WorkBook;
 
         if (ext === '.csv') {
-            const content = fs.readFileSync(filePath, 'utf-8');
-            const delimiter = detectDelimiter(content);
-
-            // Para delimitadores não-padrão (;, tab, |), precisamos informar ao XLSX
-            if (delimiter === ',') {
-                workbook = XLSX.read(content, { type: 'string' });
-            } else {
-                // Converte para CSV com vírgula para o XLSX entender
-                const normalized = content
-                    .split('\n')
-                    .map(line => {
-                        // Divide por delimitador e re-junta com vírgula, preservando aspas
-                        return line.split(delimiter)
-                            .map(cell => {
-                                const v = cell.trim();
-                                return v.includes(',') ? `"${v}"` : v;
-                            })
-                            .join(',');
-                    })
-                    .join('\n');
-                workbook = XLSX.read(normalized, { type: 'string' });
+            let content: string;
+            try {
+               content = fs.readFileSync(filePath, 'utf-8');
+               // Se contiver caracteres estranhos (), tenta Latin1
+               if (content.includes('')) throw new Error('Encoding error');
+            } catch {
+               content = fs.readFileSync(filePath, 'latin1');
             }
+
+            const delimiter = detectDelimiter(content);
+            
+            // Usamos o motor do XLSX com o Field Separator (FS) detectado
+            workbook = XLSX.read(content, { 
+                type: 'string', 
+                FS: delimiter 
+            });
 
             // Guarda o delimitador detectado para retornar ao chamador
             (workbook as any)._detectedDelimiter = delimiter;
@@ -100,11 +94,11 @@ export const tableParserService = {
         // Converte para array de objetos
         const rows = XLSX.utils.sheet_to_json<Record<string, string | number>>(
             sheet,
-            { defval: 0 }
+            { defval: 0, blankrows: false, raw: false }
         );
 
-        if (rows.length === 0) {
-            throw new Error('Planilha vazia ou sem dados reconhecíveis.');
+        if (!rows || rows.length === 0) {
+            throw new Error('Não foi possível extrair dados desta planilha. Verifique se o arquivo possui cabeçalhos e valores numéricos.');
         }
 
         const headers = Object.keys(rows[0]);
