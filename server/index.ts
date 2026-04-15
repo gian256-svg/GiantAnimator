@@ -364,6 +364,10 @@ async function processJob4K(
   } catch (err: any) {
     const errMsg = err?.message || String(err);
     console.error(`❌ [${jobId}] Erro 4K:`, errMsg);
+    
+    // Manda pro log do console na interface também
+    emit(0, 'Erro fatal ✕', errMsg, 'error');
+    
     updateJob(jobId, { status: 'error', error: errMsg });
     jobBus.emit(jobId + ':done', { status: 'error', error: errMsg });
   }
