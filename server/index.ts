@@ -24,11 +24,11 @@ app.use(express.json());
 app.use(express.static('server/public'));
 
 // ─── DIRETÓRIOS ──────────────────────────────────────────────
-const ROOT = process.cwd();
-const WRITABLE_BASE = IS_VERCEL ? '/tmp' : ROOT;
-const JOBS_DIR    = path.join(WRITABLE_BASE, 'jobs');
-const OUTPUT_DIR  = path.join(WRITABLE_BASE, 'output');
-const UPLOADS_DIR = path.join(WRITABLE_BASE, 'uploads');
+const SERVER_DIR = path.dirname(new URL(import.meta.url).pathname).replace(/^\/([a-zA-Z]:)/, '$1'); // Fix Windows paths
+const ROOT = path.resolve(SERVER_DIR, '..');
+const JOBS_DIR    = path.resolve(ROOT, 'jobs');
+const OUTPUT_DIR  = path.resolve(ROOT, 'output');
+const UPLOADS_DIR = path.resolve(ROOT, 'uploads');
 
 if (!fs.existsSync(JOBS_DIR)) fs.mkdirSync(JOBS_DIR, { recursive: true });
 if (!fs.existsSync(OUTPUT_DIR)) fs.mkdirSync(OUTPUT_DIR, { recursive: true });
@@ -89,24 +89,32 @@ async function processJob(jobId: string, fileData: Buffer, originalName: string,
       job.progress = 20;
       saveJob(job);
 
-      const parsed = tableParserService.parse(filePath);
-      const aiResponse = await agent.analyzeTable(parsed);
-      
-      analysis = {
-        componentId: aiResponse.type || 'BarChart',
-        suggestedName: (aiResponse.title || 'DataChart').replace(/\s+/g, ''),
-        reasoning: 'Análise de dados concluída via Gemini Table Parser',
-        props: {
-          ...aiResponse,
-          data: aiResponse.data || [],
-          unit: parsed.summary.unit || ''
-        }
-      };
+      try {
+        const parsed = tableParserService.parse(filePath);
+        const aiResponse = await agent.analyzeTable(parsed);
+        
+        analysis = {
+          componentId: aiResponse.type || 'BarChart',
+          suggestedName: (aiResponse.title || 'DataChart').replace(/\s+/g, ''),
+          reasoning: 'Análise de dados concluída via Gemini Table Parser',
+          props: {
+            ...aiResponse,
+            data: aiResponse.data || [],
+            unit: parsed.summary.unit || ''
+          }
+        };
+      } catch (err: any) {
+        throw new Error(`Falha ao analisar dados da planilha: ${err.message}`);
+      }
     } else {
       job.stage = 'IA Vision: Analisando Gráfico...';
       job.progress = 25;
       saveJob(job);
-      analysis = await analyzeChartImage(filePath, chartTheme);
+      try {
+        analysis = await analyzeChartImage(filePath, chartTheme);
+      } catch (err: any) {
+        throw new Error(`Falha ao analisar imagem como gráfico: ${err.message}`);
+      }
     }
 
     job.progress = 40;

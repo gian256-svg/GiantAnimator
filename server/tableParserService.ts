@@ -65,13 +65,22 @@ export const tableParserService = {
 
         if (ext === '.csv') {
             const buffer = fs.readFileSync(filePath);
-            const content = buffer.toString('binary'); 
+            let content = "";
+            
+            // Tenta UTF-8 primeiro
+            try {
+                content = buffer.toString('utf-8');
+                // Se o conteúdo tiver bytes estranhos ou não tiver separadores e for UTF-8, o XLSX costuma se perder.
+            } catch {
+                content = buffer.toString('latin1');
+            }
+
             const delimiter = detectDelimiter(content);
             console.log(`📌 [Parser] CSV Detectado. Delimitador: "${delimiter}"`);
             
-            // Usamos o motor do XLSX com o Field Separator (FS) detectado
-            workbook = XLSX.read(buffer, { 
-                type: 'buffer', 
+            // Nota: XLSX.read(string) respeita o FS (Field Separator)
+            workbook = XLSX.read(content, { 
+                type: 'string', 
                 FS: delimiter 
             });
 
@@ -86,18 +95,48 @@ export const tableParserService = {
         const sheet = workbook.Sheets[sheetName];
         console.log(`📖 [Parser] Lendo aba: ${sheetName}`);
 
-        // Converte para array de objetos
-        const rows = XLSX.utils.sheet_to_json<Record<string, string | number>>(
-            sheet,
-            { defval: 0, blankrows: false, raw: false }
-        );
-        console.log(`✅ [Parser] ${rows.length} linhas extraídas.`);
+        // Converte para array de objetos com limpeza agressiva
+        const rawRows = XLSX.utils.sheet_to_json<Record<string, any>>(sheet, { 
+            defval: '', 
+            blankrows: false, 
+            raw: false 
+        });
+
+        // Limpeza de chaves e valores (Remover %, $, etc dos nomes das colunas e valores)
+        const rows = rawRows.map(row => {
+            const newRow: Record<string, string | number> = {};
+            for (const key in row) {
+                // Limpa a chave (header)
+                const cleanKey = key.trim();
+                let val = row[key];
+                
+                if (typeof val === 'string') {
+                    val = val.trim();
+                    // Se parece um número com %, limpa e converte
+                    if (val.includes('%') || val.includes('$') || val.includes('R$')) {
+                        const cleanedVal = val.replace(/[%\$]|R\$/g, '').replace(',', '.').trim();
+                        if (!isNaN(Number(cleanedVal)) && cleanedVal !== '') {
+                            val = Number(cleanedVal);
+                        }
+                    } else {
+                        // Tenta converter qualquer string numérica
+                        const num = Number(val.replace(',', '.'));
+                        if (!isNaN(num) && val !== '') val = num;
+                    }
+                }
+                newRow[cleanKey] = val;
+            }
+            return newRow;
+        });
+
+        console.log(`✅ [Parser] ${rows.length} linhas processadas.`);
 
         if (!rows || rows.length === 0) {
-            throw new Error('Não foi possível extrair dados desta planilha. Verifique se o arquivo possui cabeçalhos e valores numéricos.');
+            throw new Error('Planilha vazia ou sem dados legíveis.');
         }
 
         const headers = Object.keys(rows[0]);
+        console.log(`📊 [Parser] Colunas: ${headers.join(', ')}`);
         let detectedUnit = '';
         
         // Detecta colunas numéricas vs categóricas
