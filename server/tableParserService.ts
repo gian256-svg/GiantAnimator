@@ -58,29 +58,23 @@ export interface NormalizedTableData {
 export const tableParserService = {
 
     parse(filePath: string): NormalizedTableData {
+        console.log(`📊 [Parser] Iniciando análise: ${path.basename(filePath)}`);
         const ext = path.extname(filePath).toLowerCase();
 
         let workbook: XLSX.WorkBook;
 
         if (ext === '.csv') {
-            let content: string;
-            try {
-               content = fs.readFileSync(filePath, 'utf-8');
-               // Se contiver caracteres estranhos (), tenta Latin1
-               if (content.includes('')) throw new Error('Encoding error');
-            } catch {
-               content = fs.readFileSync(filePath, 'latin1');
-            }
-
+            const buffer = fs.readFileSync(filePath);
+            const content = buffer.toString('binary'); 
             const delimiter = detectDelimiter(content);
+            console.log(`📌 [Parser] CSV Detectado. Delimitador: "${delimiter}"`);
             
             // Usamos o motor do XLSX com o Field Separator (FS) detectado
-            workbook = XLSX.read(content, { 
-                type: 'string', 
+            workbook = XLSX.read(buffer, { 
+                type: 'buffer', 
                 FS: delimiter 
             });
 
-            // Guarda o delimitador detectado para retornar ao chamador
             (workbook as any)._detectedDelimiter = delimiter;
         } else {
             // .xlsx, .xls, .ods
@@ -90,12 +84,14 @@ export const tableParserService = {
         // Usa a primeira aba
         const sheetName = workbook.SheetNames[0];
         const sheet = workbook.Sheets[sheetName];
+        console.log(`📖 [Parser] Lendo aba: ${sheetName}`);
 
         // Converte para array de objetos
         const rows = XLSX.utils.sheet_to_json<Record<string, string | number>>(
             sheet,
             { defval: 0, blankrows: false, raw: false }
         );
+        console.log(`✅ [Parser] ${rows.length} linhas extraídas.`);
 
         if (!rows || rows.length === 0) {
             throw new Error('Não foi possível extrair dados desta planilha. Verifique se o arquivo possui cabeçalhos e valores numéricos.');

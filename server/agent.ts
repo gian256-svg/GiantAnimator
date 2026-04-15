@@ -104,14 +104,17 @@ export class GiantAnimatorAgent {
         if (!this.chat) throw new Error("Chat não inicializado.");
         return await this.chat.sendMessage({ message: parts });
       } catch (err: any) {
-        const is429 = 
+        const isRetryable = 
           err?.status === 429 || 
           err?.message?.includes("429") || 
-          err?.message?.includes("RESOURCE_EXHAUSTED");
+          err?.message?.includes("RESOURCE_EXHAUSTED") ||
+          err?.status === 503 ||
+          err?.message?.includes("503") ||
+          err?.message?.includes("UNAVAILABLE");
 
-        if (is429 && i < retries - 1) {
-          const wait = (i + 1) * 10000;
-          console.warn(`⏳ [GEMINI] 429 (Cota Excedida) — Tentativa ${i + 1}/${retries}. Aguardando ${wait / 1000}s...`);
+        if (isRetryable && i < retries - 1) {
+          const wait = (i + 1) * (err?.status === 503 ? 2000 : 10000);
+          console.warn(`⏳ [GEMINI] Erro temporário (${err?.status || '503'}) — Tentativa ${i + 1}/${retries}. Aguardando ${wait / 1000}s...`);
           await new Promise((r) => setTimeout(r, wait));
         } else {
           throw err;
