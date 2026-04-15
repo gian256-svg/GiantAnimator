@@ -8,12 +8,13 @@
     }
   ],
   "routes": [
-    { "src": "/assets/(.*)", "dest": "server/public/assets/$1" },
-    { "src": "/style.css", "dest": "server/public/style.css" },
-    { "src": "/app.js", "dest": "server/public/app.js" },
-    { "src": "/api/(.*)", "dest": "server/index.ts" },
-    { "src": "/upload", "dest": "server/index.ts" },
-    { "src": "/progress/(.*)", "dest": "server/index.ts" },
-    { "src": "/(.*)", "dest": "server/index.ts" }
+    { "src": "/assets/(.*)", "dest": "/server/public/assets/$1" },
+    { "src": "/style.css", "dest": "/server/public/style.css" },
+    { "src": "/app.js", "dest": "/server/public/app.js" },
+    { "src": "/api/(.*)", "dest": "/server/index.ts" },
+    { "src": "/upload", "dest": "/server/index.ts" },
+    { "src": "/health", "dest": "/server/index.ts" },
+    { "src": "/progress/(.*)", "dest": "/server/index.ts" },
+    { "src": "/(.*)", "dest": "/server/index.ts" }
   ]
 }
