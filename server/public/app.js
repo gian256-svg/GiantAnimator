@@ -8,8 +8,32 @@ const state = {
   currentVideo: null,
   isRendering: false,
   eventSource: null,
-  currentJobId: null
+  currentJobId: null,
+  uploadMode: 'vision' // 'vision' ou 'data'
 };
+
+function updateUploadUI() {
+  const dz = document.getElementById('drop-zone');
+  if (!dz) return;
+  const hint = dz.querySelector('.drop-hint');
+  const text = dz.querySelector('.drop-text');
+  
+  const btnVision = document.getElementById('btn-mode-vision');
+  const btnData = document.getElementById('btn-mode-data');
+
+  if (btnVision) btnVision.classList.toggle('active', state.uploadMode === 'vision');
+  if (btnData) btnData.classList.toggle('active', state.uploadMode === 'data');
+
+  if (state.uploadMode === 'vision') {
+    if (text) text.textContent = 'Arraste uma referência visual ou clique';
+    if (hint) hint.textContent = 'Formatos: PNG · JPG · JPEG · WEBP';
+    log("🎨 Modo: Referência Visual ativado.");
+  } else {
+    if (text) text.textContent = 'Arraste sua planilha ou clique';
+    if (hint) hint.textContent = 'Formatos: XLSX · CSV · XLS · JSON';
+    log("📊 Modo: Dados Diretos ativado.");
+  }
+}
 
 function uid() { return Math.random().toString(36).slice(2, 9); }
 
@@ -94,16 +118,35 @@ window.removeFile = function(id) {
 };
 
 function addFiles(fileList) {
-  Array.from(fileList).forEach(file => {
+  const files = Array.from(fileList);
+  
+  files.forEach(file => {
+    const ext = file.name.split('.').pop().toLowerCase();
+    const isImage = ['png','jpg','jpeg','webp'].includes(ext);
+    const isData = ['xlsx','xls','csv','json'].includes(ext);
+
+    // Validação de Modo
+    if (state.uploadMode === 'vision' && !isImage) {
+        toast(`O modo atual é IMAGEM. "${file.name}" não é suportado aqui.`, 'error');
+        return;
+    }
+    if (state.uploadMode === 'data' && !isData) {
+        toast(`O modo atual é DADOS. "${file.name}" não é uma planilha válida.`, 'error');
+        return;
+    }
+
     state.files.push({ id: uid(), file, name: file.name, size: file.size, status: 'pending' });
     log(`📎 Arquivo adicionado: ${file.name}`);
   });
+  
   renderFileQueue();
   
-  // Se houver uma tabela (CSV/XLSX), força a visualização do preview
-  const firstTable = Array.from(fileList).find(f => f.name.match(/\.(csv|xlsx|xls|ods)$/i));
-  if (firstTable) {
-    loadCSVPreview(firstTable);
+  // Se for modo de dados, força a visualização do preview do primeiro arquivo compatível
+  if (state.uploadMode === 'data') {
+    const firstTable = files.find(f => f.name.match(/\.(csv|xlsx|xls|json)$/i));
+    if (firstTable) {
+        loadCSVPreview(firstTable);
+    }
   }
 }
 
@@ -206,13 +249,27 @@ document.addEventListener('DOMContentLoaded', () => {
   const dz = document.getElementById('drop-zone');
   const fi = document.getElementById('file-input');
   const btnRender = document.getElementById('btn-render');
+  const btnVision = document.getElementById('btn-mode-vision');
+  const btnData = document.getElementById('btn-mode-data');
+
+  if (btnVision && btnData) {
+    btnVision.addEventListener('click', () => { state.uploadMode = 'vision'; updateUploadUI(); });
+    btnData.addEventListener('click', () => { state.uploadMode = 'data'; updateUploadUI(); });
+  }
 
   if (dz && fi) {
     dz.addEventListener('click', () => fi.click());
-    fi.addEventListener('change', e => addFiles(e.target.files));
-    dz.addEventListener('dragover', e => { e.preventDefault(); dz.style.borderColor = '#111'; dz.style.backgroundColor = '#F0F0F0'; });
-    dz.addEventListener('dragleave', () => { dz.style.borderColor = ''; dz.style.backgroundColor = ''; });
-    dz.addEventListener('drop', e => { e.preventDefault(); dz.style.borderColor = ''; dz.style.backgroundColor = ''; addFiles(e.dataTransfer.files); });
+    fi.addEventListener('change', e => {
+        addFiles(e.target.files);
+        fi.value = ''; // Reset para permitir subir o mesmo arquivo
+    });
+    dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+    dz.addEventListener('dragleave', () => { dz.classList.remove('drag-over'); });
+    dz.addEventListener('drop', e => { 
+        e.preventDefault(); 
+        dz.classList.remove('drag-over'); 
+        addFiles(e.dataTransfer.files); 
+    });
   }
 
   // ─── CTRL+V / PASTE ────────────────────────────────────────

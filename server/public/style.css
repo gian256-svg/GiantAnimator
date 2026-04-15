@@ -181,6 +181,44 @@ header {
     transition: var(--transition);
 }
 
+/* ─── UPLOAD MODES ───────────────────────────────────────────── */
+.upload-modes {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.mode-btn {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: var(--transition);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.mode-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text);
+}
+
+.mode-btn.active {
+    background: rgba(225, 29, 72, 0.12);
+    border-color: rgba(225, 29, 72, 0.3);
+    color: var(--accent);
+    box-shadow: 0 4px 12px rgba(225, 29, 72, 0.1);
+}
+
 /* ─── UPLOAD ZONE ────────────────────────────────────────────── */
 #drop-zone {
     position: relative;
