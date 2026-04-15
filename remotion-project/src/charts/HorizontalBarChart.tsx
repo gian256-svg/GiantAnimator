@@ -35,7 +35,12 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
 }) => {
   const frame      = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
-  const T = resolveTheme(theme ?? 'dark');
+  // Resolve tema — fonte única de verdade
+  const T = resolveTheme(theme);
+  const resolvedBg    = backgroundColor ?? T.background;
+  const resolvedText  = textColor       ?? T.text;
+  const resolvedColors = colors && colors.length > 0 ? colors : [...T.colors];
+
   const instanceId = useId().replace(/:/g, "");
 
   // Unificar dados (Single vs Multi)
@@ -47,16 +52,21 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
   const safeDataCount = xAxisLabels.length || 1;
   const seriesCount   = normalizedSeries.length;
 
+  // ─── SMART UNIT HANDLING ──────────────────────────────
+  const isLongUnit  = unit.length > 6;
+  const displayUnit = isLongUnit ? "" : unit;
+  const unitNote    = isLongUnit ? `Unidade: ${unit}` : "";
+
   // ─── Layout responsivo ────────────────────────────────
   const pad     = width * 0.05;
-  const padTop  = height * 0.22; // Aumentado de 0.14 para evitar sobreposição
-  const padBot  = height * 0.14; // Aumentado de 0.10 para acomodar legendas e eixos
+  const padTop  = height * 0.22; 
+  const padBot  = height * 0.14; 
   
   // Escala de fonte
   const fs = (base: number) => Math.round(base * (width / 1280));
 
   const maxLabelLen = Math.max(...xAxisLabels.map(l => l.length), 1);
-  const labelAreaWidth = Math.min(width * 0.32, maxLabelLen * fs(11));
+  const labelAreaWidth = Math.min(width * 0.35, maxLabelLen * fs(12));
   const plotLeft       = pad + labelAreaWidth;
   const plotTop        = padTop;
   const plotWidth      = width - plotLeft - pad - fs(45);
@@ -75,7 +85,7 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
   const headerOpacity = interpolate(frame, [0, 20], [0, 1], { extrapolateRight: "clamp" });
 
   return (
-    <AbsoluteFill style={{ backgroundColor: T.background }}>
+    <AbsoluteFill style={{ backgroundColor: resolvedBg }}>
       
 
       <svg width={width} height={height} style={{ position: "absolute", top: 0, left: 0 }}>
@@ -103,7 +113,7 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
                 fontSize: fs(14), fill: T.textMuted, fontFamily: Theme.typography.fontFamily, 
                 opacity: op, ...Theme.typography.tabularNums 
               }}>
-                {formatValue(v * maxVal, unit)}
+                {formatValue(v * maxVal, displayUnit)}
               </text>
             </React.Fragment>
           );
@@ -133,7 +143,7 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
                 {/* Category Label (only once per group) */}
                 {seriesIdx === 0 && (
                   <text x={plotLeft - fs(15)} y={groupY + availableH/2} textAnchor="end" dominantBaseline="middle" opacity={labelOp} style={{ 
-                    fontSize: fs(14), fill: T.text, fontWeight: 600, fontFamily: Theme.typography.fontFamily 
+                    fontSize: fs(14), fill: resolvedText, fontWeight: 600, fontFamily: Theme.typography.fontFamily 
                   }}>
                     {label}
                   </text>
@@ -155,13 +165,13 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
                   opacity={labelOp} 
                   style={{ 
                     fontSize: fs(15), 
-                    fill: bW > fs(70) ? "#fff" : T.text, 
+                    fill: bW > fs(70) ? "#fff" : resolvedText, 
                     fontWeight: 700, 
                     fontFamily: Theme.typography.fontFamily,
                     ...Theme.typography.tabularNums
                   }}
                 >
-                  {formatValue(val, unit)}
+                  {formatValue(val, displayUnit)}
                 </text>
               </g>
             );
@@ -201,8 +211,13 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
         opacity: headerOpacity, fontFamily: Theme.typography.fontFamily,
         pointerEvents: 'none'
       }}>
-        {title && <div style={{ fontSize: fs(44), fontWeight: 800, color: T.text, letterSpacing: '-0.5px' }}>{title}</div>}
-        {subtitle && <div style={{ fontSize: fs(20), color: T.textMuted, marginTop: fs(10) }}>{subtitle}</div>}
+        {title && <div style={{ fontSize: fs(44), fontWeight: 800, color: resolvedText, letterSpacing: '-0.5px' }}>{title}</div>}
+        {subtitle && <div style={{ fontSize: fs(24), color: T.textMuted, marginTop: fs(10), fontWeight: 500 }}>{subtitle}</div>}
+        {unitNote && (
+          <div style={{ fontSize: fs(18), color: T.textMuted, marginTop: fs(12), fontStyle: 'italic', opacity: 0.8 }}>
+            *{unitNote}
+          </div>
+        )}
       </div>
 
     </AbsoluteFill>

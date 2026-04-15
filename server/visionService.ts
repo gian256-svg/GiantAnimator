@@ -11,7 +11,7 @@ import { type ChartAnalysis } from "./types.js";
 /**
  * Serviço de Visão Compartilhado para análise de imagens de gráficos.
  */
-export async function analyzeChartImage(imagePath: string): Promise<ChartAnalysis> {
+export async function analyzeChartImage(imagePath: string, requestedTheme?: string): Promise<ChartAnalysis> {
   const rawImageData = fs.readFileSync(imagePath);
 
   // ─── MD5 Cache ───────────────────────────────────────────────
@@ -48,7 +48,17 @@ export async function analyzeChartImage(imagePath: string): Promise<ChartAnalysi
 
   const imageBase64  = optimizedBuffer.toString("base64");
   const registryJson = JSON.stringify(COMPONENT_REGISTRY, null, 2);
-  const prompt       = buildImageAnalysisPrompt(registryJson);
+  let prompt       = buildImageAnalysisPrompt(registryJson);
+
+  if (requestedTheme === 'original') {
+    prompt += `
+### INSTRUÇÃO DE PRESERVAÇÃO DE ESTILO (PRIORIDADE MÁXIMA):
+O usuário deseja que a animação tenha a mesma identidade visual da imagem.
+1. Analise a LUMINÂNCIA: Se o fundo for branco/claro, retorne backgroundColor aproximado e defina o tema base como "light". Se for escuro, defina tema como "dark".
+2. EXTRAÇÃO DE CORES: Extraia os códigos Hex exatos da primeira barra/série e coloque em 'seriesColors'. Se o gráfico for multicor, extraia as cores das 5 principais colunas e coloque no array 'seriesColors'.
+3. OUTPUT: Preencha obrigatoriamente 'backgroundColor', 'textColor' e 'seriesColors' com os valores reais da imagem fornecida.
+`;
+  }
 
   // ─── Chamada Gemini com Retry ────────────────────────────────
   let response;

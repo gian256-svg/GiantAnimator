@@ -106,12 +106,24 @@ async function processJob(jobId: string, fileData: Buffer, originalName: string,
       job.stage = 'IA Vision: Analisando Gráfico...';
       job.progress = 25;
       saveJob(job);
-      analysis = await analyzeChartImage(filePath);
+      analysis = await analyzeChartImage(filePath, chartTheme);
     }
 
     job.progress = 40;
     job.stage = 'IA: Estrutura Identificada';
     job.log = `Componente: ${analysis.componentId}`;
+    
+    // Normalização de Estilo Original
+    if (analysis.props) {
+        if (analysis.props.seriesColors && !analysis.props.colors) {
+            analysis.props.colors = analysis.props.seriesColors;
+        }
+        // Se a IA detectou um tema claro/escuro, podemos sugerir ou forçar
+        if (analysis.props.detectedTheme && chartTheme === 'original') {
+            // Mantemos 'original' como tema, mas os componentes usam os overriden colors
+        }
+    }
+
     saveJob(job);
 
     if (IS_VERCEL) {
