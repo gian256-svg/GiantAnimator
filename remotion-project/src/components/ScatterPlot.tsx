@@ -6,22 +6,21 @@ import {
   interpolate,
   spring,
 } from "remotion";
+import { Theme, resolveTheme } from "../theme";
 
 export interface ScatterPlotProps {
   title: string;
   subtitle?: string;
   series: {
     label: string;
-    data: { x: number; y: number; r?: number   theme?: string;
-  backgroundColor?: string;
-  colors?: string[];
-  textColor?: string;
-}[];
+    data: { x: number; y: number; r?: number }[];
     color?: string;
   }[];
   xLabel?: string;
   yLabel?: string;
+  theme?: string;
   backgroundColor?: string;
+  colors?: string[];
   textColor?: string;
 }
 
@@ -31,12 +30,15 @@ export const ScatterPlot: React.FC<ScatterPlotProps> = ({
   series = [],
   xLabel = "Eixo X",
   yLabel = "Eixo Y",
-  backgroundColor = "#111827",
-  textColor = "#FFFFFF",
+  theme = "dark",
+  backgroundColor,
+  textColor,
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
   const T = resolveTheme(theme ?? 'dark');
+  const resolvedBg = backgroundColor ?? T.background;
+  const resolvedText = textColor ?? T.text;
 
   // Layout 4K - Margens ampliadas para legibilidade
   const MARGIN = { top: 160, right: 300, bottom: 200, left: 240 };
@@ -60,15 +62,15 @@ export const ScatterPlot: React.FC<ScatterPlotProps> = ({
   const toPixelY = (y: number) => MARGIN.top + (1 - (y - yMin) / yRange) * plotHeight;
 
   return (
-    <AbsoluteFill style={{ backgroundColor, color: textColor, fontFamily: "sans-serif" }}>
+    <AbsoluteFill style={{ backgroundColor: resolvedBg, color: resolvedText, fontFamily: Theme.typography.fontFamily }}>
       {/* 1. TÍTULO */}
       <div style={{
         position: "absolute", top: 60, width: "100%", textAlign: "center",
-        fontSize: 84, fontWeight: 800, opacity: interpolate(frame, [0, 20], [0, 1])
+        fontSize: Theme.typography.title.size, fontWeight: Theme.typography.title.weight, opacity: interpolate(frame, [0, 20], [0, 1])
       }}>
         {title}
       </div>
-      {subtitle && <div style={{ position: "absolute", top: 160, width: "100%", textAlign: "center", fontSize: 36, opacity: 0.7 }}>{subtitle}</div>}
+      {subtitle && <div style={{ position: "absolute", top: 160, width: "100%", textAlign: "center", fontSize: Theme.typography.subtitle.size, opacity: 0.7 }}>{subtitle}</div>}
 
       <svg width={width} height={height} style={{ overflow: "visible" }}>
         {/* 2 & 3. GRID & AXIS TICKS */}
@@ -82,14 +84,14 @@ export const ScatterPlot: React.FC<ScatterPlotProps> = ({
             return (
               <React.Fragment key={i}>
                 {/* Grid Horiz */}
-                <line x1={MARGIN.left} y1={yPos} x2={MARGIN.left + plotWidth} y2={yPos} stroke="rgba(255,255,255,0.1)" strokeWidth={3} />
-                <text x={MARGIN.left - 40} y={yPos} textAnchor="end" dominantBaseline="middle" style={{ fontSize: 36, fill: textColor, opacity: 0.7 }}>
+                <line x1={MARGIN.left} y1={yPos} x2={MARGIN.left + plotWidth} y2={yPos} stroke={T.grid} strokeWidth={3} />
+                <text x={MARGIN.left - 40} y={yPos} textAnchor="end" dominantBaseline="middle" style={{ fontSize: 36, fill: resolvedText, opacity: 0.7 }}>
                   {yVal.toFixed(1).replace(".0", "")}
                 </text>
 
                 {/* Grid Vert */}
-                <line x1={xPos} y1={MARGIN.top} x2={xPos} y2={MARGIN.top + plotHeight} stroke="rgba(255,255,255,0.1)" strokeWidth={3} />
-                <text x={xPos} y={MARGIN.top + plotHeight + 60} textAnchor="middle" style={{ fontSize: 36, fill: textColor, opacity: 0.7 }}>
+                <line x1={xPos} y1={MARGIN.top} x2={xPos} y2={MARGIN.top + plotHeight} stroke={T.grid} strokeWidth={3} />
+                <text x={xPos} y={MARGIN.top + plotHeight + 60} textAnchor="middle" style={{ fontSize: 36, fill: resolvedText, opacity: 0.7 }}>
                   {xVal.toFixed(1).replace(".0", "")}
                 </text>
               </React.Fragment>
@@ -98,20 +100,20 @@ export const ScatterPlot: React.FC<ScatterPlotProps> = ({
         </g>
 
         {/* 7 & 8. AXIS LABELS */}
-        <text x={MARGIN.left + plotWidth / 2} y={MARGIN.top + plotHeight + 160} textAnchor="middle" style={{ fontSize: 48, fontWeight: 600, fill: textColor }}>
+        <text x={MARGIN.left + plotWidth / 2} y={MARGIN.top + plotHeight + 160} textAnchor="middle" style={{ fontSize: 48, fontWeight: 600, fill: resolvedText }}>
           {xLabel}
         </text>
         <text
           x={80} y={MARGIN.top + plotHeight / 2} textAnchor="middle"
           transform={`rotate(-90, 80, ${MARGIN.top + plotHeight / 2})`}
-          style={{ fontSize: 48, fontWeight: 600, fill: textColor }}
+          style={{ fontSize: 48, fontWeight: 600, fill: resolvedText }}
         >
           {yLabel}
         </text>
 
         {/* 9. DATA POINTS */}
         {series.map((s, sIdx) => {
-          const color = s.color || "#3B82F6";
+          const color = s.color || T.colors[sIdx % T.colors.length];
           return (
             <g key={sIdx}>
               {s.data.map((p, pIdx) => {
@@ -119,7 +121,7 @@ export const ScatterPlot: React.FC<ScatterPlotProps> = ({
                 const pop = spring({
                   frame: frame - delay,
                   fps,
-                  config: { damping: 80, stiffness: 200, overshoot_clamp: true }
+                  config: { damping: 80, stiffness: 200, overshootClamping: true }
                 });
                 if (pop <= 0) return null;
 
@@ -144,8 +146,8 @@ export const ScatterPlot: React.FC<ScatterPlotProps> = ({
         <g transform={`translate(${width - MARGIN.right + 40}, ${MARGIN.top})`}>
           {series.map((s, i) => (
             <g key={i} transform={`translate(0, ${i * 60})`}>
-              <rect width={40} height={24} fill={s.color || "#3B82F6"} rx={4} />
-              <text x={55} y={20} style={{ fontSize: 32, fill: textColor, fontWeight: 500 }}>{s.label}</text>
+              <rect width={40} height={24} fill={s.color || T.colors[i % T.colors.length]} rx={4} />
+              <text x={55} y={20} style={{ fontSize: 32, fill: resolvedText, fontWeight: 500 }}>{s.label}</text>
             </g>
           ))}
         </g>

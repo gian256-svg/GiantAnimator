@@ -40,12 +40,10 @@ interface Job {
   status:      'pending' | 'processing' | 'done' | 'error';
   progress:    number;
   stage:       string;
-  videoUrl?:   string;   // preview 720p
-  video4kUrl?: string;   // 4K — preenchido após render4k
+  videoUrl?:   string;   // URL do vídeo final (4K)
   error?:      string;
   fileName:    string;
   createdAt:   Date;
-  // dados para re-render 4K
   inputProps?: object;
   compositionId?: string;
   _lastLog?:   { log: string; logType: string };
@@ -215,7 +213,7 @@ app.post('/upload', upload.single('file'), async (req: Request, res: Response) =
 
     res.json({ jobId, fileName: req.file.originalname });
 
-    processJob720p(jobId, req.file, chartType, chartTheme).catch(err => {
+    processJob4K(jobId, req.file, chartType, chartTheme).catch(err => {
       console.error(`❌ [${jobId}] Erro fatal:`, err);
       updateJob(jobId, { status: 'error', error: String(err.message || err) });
     });
@@ -226,8 +224,8 @@ app.post('/upload', upload.single('file'), async (req: Request, res: Response) =
   }
 });
 
-// ─── PROCESS JOB 720p ────────────────────────────────────────
-async function processJob720p(
+// ─── PROCESS JOB 4K ──────────────────────────────────────────
+async function processJob4K(
   jobId:      string,
   file:       Express.Multer.File,
   chartType:  string,
@@ -256,7 +254,6 @@ async function processJob720p(
       const analysis = await analyzeChartImage(file.path);
       resolvedType = chartType === 'auto' ? analysis.componentId : chartType;
 
-      // Paletas por tema — identidade visual única por tema
       const themeMap: Record<string, { colors: string[]; backgroundColor: string; textColor: string }> = {
         dark:      { colors: ['#7c3aed','#06b6d4','#a855f7','#22c55e','#f59e0b','#ef4444'], backgroundColor: '#0f1117', textColor: '#e8eaf6' },
         neon:      { colors: ['#00ff88','#00ccff','#ff00ff','#f9f871','#ff6600','#00e5ff'], backgroundColor: '#060614', textColor: '#f0fff4' },
@@ -264,6 +261,7 @@ async function processJob720p(
         sunset:    { colors: ['#f97316','#ef4444','#ec4899','#f59e0b','#fb923c','#fbbf24'], backgroundColor: '#1a0800', textColor: '#fff7ed' },
         minimal:   { colors: ['#64748b','#94a3b8','#475569','#334155','#cbd5e1','#e2e8f0'], backgroundColor: '#f8fafc', textColor: '#0f172a' },
         corporate: { colors: ['#1e40af','#3b82f6','#60a5fa','#1d4ed8','#2563eb','#93c5fd'], backgroundColor: '#ffffff', textColor: '#111827' },
+        light:     { colors: ['#2563eb','#059669','#d97706','#dc2626','#7c3aed','#0891b2'], backgroundColor: '#FAF9F6', textColor: '#0f172a' },
       };
       const themeConfig = themeMap[chartTheme] || themeMap.dark;
 
@@ -274,8 +272,8 @@ async function processJob720p(
         colors:          themeConfig.colors,
         backgroundColor: themeConfig.backgroundColor,
         textColor:       themeConfig.textColor,
-        width:           1280,
-        height:          720,
+        width:           3840, // 4K Nativo
+        height:          2160,
         fps:             30,
         durationInSeconds: 8,
       };
@@ -285,52 +283,49 @@ async function processJob720p(
       const inputData = await analyzeFile(file);
       emit(20, 'Arquivo analisado ✓', `📊 ${inputData.rowCount} linhas detectadas`);
       resolvedType = chartType === 'auto' ? inputData.suggestedChart : chartType;
-      inputProps = buildInputProps(inputData, resolvedType, chartTheme, 1280, 720, file.originalname);
+      // buildInputProps deve ser atualizada ou injetamos width/height aqui
+      inputProps = buildInputProps(inputData, resolvedType, chartTheme, 3840, 2160, file.originalname);
     }
 
     const compId = resolveCompositionId(resolvedType);
-    emit(30, 'Props montadas ✓', `🎨 Tipo: ${resolvedType} | Tema: ${chartTheme}`, 'accent');
+    emit(30, 'Configurando render 4K...', `🎨 Tipo: ${resolvedType} | Tema: ${chartTheme}`, 'accent');
 
-    // 3. Bundle
-    emit(35, 'Preparando bundle...');
+    // 2. Bundle
     const serveUrl = await getBundle();
-    emit(45, 'Bundle pronto ✓');
 
-    // 4. Composição
-    emit(50, 'Selecionando composição...');
+    // 3. Composição
     const composition = await selectComposition({ serveUrl, id: compId, inputProps });
-    emit(55, `Composição: ${compId} ✓`);
 
-    // 5. Render 720p
-    const outFile720  = `${jobId}_720p.mp4`;
-    const outPath720  = path.join(OUTPUT_DIR, outFile720);
+    // 4. Render 4K Direto
+    const outFile4K  = `${jobId}_4K.mp4`;
+    const outPath4K  = path.join(OUTPUT_DIR, outFile4K);
 
-    emit(60, 'Renderizando preview 720p...', '🎬 Render 720p iniciado...', 'warn');
+    emit(40, 'Renderizando em 4K...', '🎬 Iniciando renderização UHD...', 'warn');
 
     await renderMedia({
       composition,
       serveUrl,
       codec:          'h264',
-      outputLocation: outPath720,
+      outputLocation: outPath4K,
       inputProps,
-      crf:            23,
+      crf:            18, // Qualidade Máxima
       onProgress: ({ progress: pct }) => {
-        const mapped = 60 + Math.round(pct * 38); // 60% → 98%
+        const mapped = 40 + Math.round(pct * 58); // 40% → 98%
         const job    = jobs.get(jobId)!;
         job.progress = mapped;
-        job.stage    = `Renderizando 720p... ${Math.round(pct * 100)}%`;
+        job.stage    = `Processando 4K... ${Math.round(pct * 100)}%`;
         jobBus.emit(jobId, job);
       },
     });
 
-    // 6. Salvar props para re-render 4K depois
+    // 5. Finalizar Job
     const job = jobs.get(jobId)!;
     job.inputProps    = inputProps;
     job.compositionId = compId;
     job.status        = 'done';
     job.progress      = 100;
-    job.stage         = 'Preview 720p pronto ✓';
-    job.videoUrl      = `/output/${outFile720}`;
+    job.stage         = 'Render 4K concluído ✓';
+    job.videoUrl      = `/output/${outFile4K}`;
 
     const duration = formatDuration(composition.durationInFrames, composition.fps as number);
 
@@ -340,117 +335,28 @@ async function processJob720p(
       duration,
     });
 
-    console.log(`✅ [${jobId}] 720p concluído → ${job.videoUrl}`);
+    console.log(`✅ [${jobId}] 4K concluído → ${job.videoUrl}`);
 
     // Persiste no histórico
     addJob({
       filename:   file.originalname,
-      outputFile: outFile720,
+      outputFile: outFile4K,
       status:     'done',
       duration:   Number(composition.durationInFrames / (composition.fps as number)),
       props:      inputProps,
     });
 
-
     // Limpa upload
     fs.unlink(file.path, () => {});
 
   } catch (err: any) {
-    console.error(`❌ [${jobId}] Erro:`, err);
-    updateJob(jobId, { status: 'error', error: err.message || String(err) });
-    jobBus.emit(jobId + ':done', { status: 'error', error: err.message });
-  }
-}
-
-// ─── RENDER 4K (sob demanda) ──────────────────────────────────
-app.post('/render4k/:jobId', async (req: Request, res: Response) => {
-  const jobId = req.params.jobId as string;
-  const job = jobs.get(jobId);
-
-  if (!job) {
-    res.status(404).json({ error: 'Job não encontrado' });
-    return;
-  }
-  if (!job.inputProps || !job.compositionId) {
-    res.status(400).json({ error: 'Props do job não disponíveis para re-render' });
-    return;
-  }
-  if (job.video4kUrl) {
-    // 4K já existe — retorna direto sem re-renderizar
-    res.json({ status: 'ready', video4kUrl: job.video4kUrl });
-    return;
-  }
-
-  // Responde imediatamente — o progresso vai via SSE em /progress4k/:jobId
-  res.json({ status: 'started' });
-
-  render4K(jobId).catch(err => {
     console.error(`❌ [${jobId}] Erro 4K:`, err);
-    jobBus.emit(jobId + ':4k', { status: 'error', error: err.message });
-  });
-});
-
-async function render4K(jobId: string) {
-  const job = jobs.get(jobId)!;
-  const emit4k = (progress: number, stage: string) => {
-    jobBus.emit(jobId + ':4k', { progress, stage });
-    console.log(`  🔷 [${jobId}] 4K ${progress}% — ${stage}`);
-  };
-
-  try {
-    emit4k(5, 'Iniciando render 4K...');
-
-    const serveUrl    = await getBundle();
-    emit4k(10, 'Bundle pronto ✓');
-
-    // Overrida width/height para 4K nas props
-    const props4k = { ...job.inputProps as any, width: 3840, height: 2160 };
-
-    const composition = await selectComposition({
-      serveUrl,
-      id:         job.compositionId!,
-      inputProps: props4k,
-    });
-    emit4k(15, `Composição: ${job.compositionId} ✓`);
-
-    const outFile4k = `${jobId}_4k.mp4`;
-    const outPath4k = path.join(OUTPUT_DIR, outFile4k);
-
-    emit4k(20, 'Renderizando em 4K... (pode demorar)');
-
-    await renderMedia({
-      composition,
-      serveUrl,
-      codec:          'h264',
-      outputLocation: outPath4k,
-      inputProps:     props4k,
-      crf:            18, // alta qualidade
-      onProgress: ({ progress: pct }) => {
-        const mapped = 20 + Math.round(pct * 78); // 20% → 98%
-        jobBus.emit(jobId + ':4k', {
-          progress: mapped,
-          stage: `Renderizando 4K... ${Math.round(pct * 100)}%`,
-        });
-      },
-    });
-
-    const video4kUrl = `/output/${outFile4k}`;
-    job.video4kUrl   = video4kUrl;
-
-    jobBus.emit(jobId + ':4k', {
-      status:     'done',
-      video4kUrl,
-      progress:   100,
-      stage:      'Render 4K concluído ✓',
-    });
-
-    console.log(`✅ [${jobId}] 4K concluído → ${video4kUrl}`);
-
-  } catch (err: any) {
-    jobBus.emit(jobId + ':4k', { status: 'error', error: err.message });
-    throw err;
+    updateJob(jobId, { status: 'error', error: err?.message || String(err) });
+    jobBus.emit(jobId + ':done', { status: 'error', error: err?.message || String(err) });
   }
 }
+
+// Render 4K (removido pois agora é o padrão direto em processJob4K)
 
 // ─── SSE PROGRESS (720p) ──────────────────────────────────────
 app.get('/progress/:jobId', (req: Request, res: Response) => {
@@ -552,8 +458,8 @@ async function analyzeFile(file: Express.Multer.File): Promise<FileAnalysis> {
   const ext = path.extname(file.originalname).toLowerCase();
 
   if (ext === '.json')              return analyzeJSON(file.path);
-  if (ext === '.csv')               return analyzeCSV(file.path);
-  if (['.xlsx', '.xls'].includes(ext)) return analyzeXLSX(file.path);
+  if (ext === '.csv')               return await analyzeCSV(file.path);
+  if (['.xlsx', '.xls'].includes(ext)) return await analyzeXLSX(file.path);
 
   if (['.png', '.jpg', '.jpeg', '.webp'].includes(ext)) {
     const analysis = await analyzeChartImage(file.path);
@@ -601,40 +507,70 @@ function analyzeJSON(filePath: string): FileAnalysis {
   };
 }
 
-function analyzeCSV(filePath: string): FileAnalysis {
-  const text  = fs.readFileSync(filePath, 'utf-8');
-  const lines = text.trim().split('\n').filter(Boolean);
-  if (lines.length < 2) throw new Error('CSV sem dados');
-  const sep    = lines[0].includes(';') ? ';' : ',';
-  const header = lines[0].split(sep).map(h => h.trim().replace(/^["']|["']$/g, ''));
-  const rows   = lines.slice(1).map(l => l.split(sep).map(v => v.trim().replace(/^["']|["']$/g, '')));
-  const numCols = header.slice(1).filter((_, i) => rows.some(r => !isNaN(Number(r[i+1]))));
+async function analyzeCSV(filePath: string): Promise<FileAnalysis> {
+  const { tableParserService } = await import('./tableParserService.js');
+  const parsed = tableParserService.parse(filePath);
+  const labels = parsed.rows.map(r => String(r[parsed.summary.categoricalColumns[0] || parsed.headers[0]]));
+  const datasets = parsed.summary.numericColumns.map(col => ({
+    label: col,
+    values: parsed.rows.map(r => Number(r[col]) || 0)
+  }));
+
   return {
-    rowCount:       rows.length,
-    labels:         rows.map(r => r[0]),
-    datasets:       numCols.map((col, ci) => ({ label: col, values: rows.map(r => Number(r[ci+1]) || 0) })),
-    suggestedChart: numCols.length > 1 ? 'line' : 'bar',
-    title:          header[0] || 'CSV',
+    rowCount: parsed.summary.totalRows,
+    labels,
+    datasets,
+    suggestedChart: datasets.length > 2 ? 'line' : 'bar',
+    title: parsed.headers[0] || 'CSV Data',
+    unit: parsed.summary.unit || ''
   };
 }
 
 async function analyzeXLSX(filePath: string): Promise<FileAnalysis> {
-  const XLSX = await import('xlsx');
-  const wb   = XLSX.read(fs.readFileSync(filePath), { type: 'buffer' });
-  const ws   = wb.Sheets[wb.SheetNames[0]];
-  const data: any[][] = XLSX.utils.sheet_to_json(ws, { header: 1 });
-  if (data.length < 2) throw new Error('Planilha vazia');
-  const header  = data[0].map(String);
-  const rows    = data.slice(1).filter(r => r.some((v: any) => v != null && v !== ''));
-  const numCols = header.slice(1).filter((_, i) => rows.some(r => !isNaN(Number(r[i+1]))));
+  const { tableParserService } = await import('./tableParserService.js');
+  const parsed = tableParserService.parse(filePath);
+  const labels = parsed.rows.map(r => String(r[parsed.summary.categoricalColumns[0] || parsed.headers[0]]));
+  const datasets = parsed.summary.numericColumns.map(col => ({
+    label: col,
+    values: parsed.rows.map(r => Number(r[col]) || 0)
+  }));
+
   return {
-    rowCount:       rows.length,
-    labels:         rows.map(r => String(r[0] ?? '')),
-    datasets:       numCols.map((col, ci) => ({ label: col, values: rows.map(r => Number(r[ci+1]) || 0) })),
-    suggestedChart: numCols.length > 2 ? 'line' : numCols.length === 0 ? 'pie' : 'bar',
-    title:          wb.SheetNames[0] || 'Planilha',
+    rowCount: parsed.summary.totalRows,
+    labels,
+    datasets,
+    suggestedChart: datasets.length > 2 ? 'line' : datasets.length === 0 ? 'pie' : 'bar',
+    title:  'Planilha',
+    unit: parsed.summary.unit || ''
   };
 }
+
+// ─── ENDPOINT: SAVE TO PATH ─────────────────────────────────
+app.post('/api/save-to-path', (req: Request, res: Response) => {
+  const { jobId, targetDir } = req.body;
+  const job = jobs.get(jobId);
+
+  if (!job || job.status !== 'done' || !job.videoUrl) {
+    return res.status(400).json({ error: 'Job não encontrado ou não finalizado.' });
+  }
+
+  try {
+    if (!fs.existsSync(targetDir)) {
+      fs.mkdirSync(targetDir, { recursive: true });
+    }
+
+    const videoFilename = path.basename(job.videoUrl);
+    const sourcePath = path.join(OUTPUT_DIR, videoFilename);
+    const targetPath = path.join(targetDir, videoFilename);
+
+    fs.copyFileSync(sourcePath, targetPath);
+    console.log(`💾 Vídeo salvo automaticamente em: ${targetPath}`);
+    res.json({ success: true, path: targetPath });
+  } catch (err: any) {
+    console.error('❌ Erro ao salvar vídeo em pasta personalizada:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // ─── BUILD PROPS ──────────────────────────────────────────────
 function buildInputProps(
@@ -675,6 +611,11 @@ function buildInputProps(
       colors:          ['#1e40af','#3b82f6','#60a5fa','#1d4ed8','#2563eb','#93c5fd'],
       backgroundColor: '#ffffff',
       textColor:       '#111827',
+    },
+    light: {
+      colors:          ['#2563eb','#059669','#d97706','#dc2626','#7c3aed','#0891b2'],
+      backgroundColor: '#FAF9F6',
+      textColor:       '#0f172a',
     },
   };
 
@@ -722,17 +663,30 @@ function resolveCompositionId(chartType: string): string {
     heatmap:        'HeatmapChart',
     radar:          'RadarChart',
 
-    // Vision / agent values
-    vertical_bar:   'BarChart',
-    horizontal_bar: 'HorizontalBarChart',
-    bar_h:          'HorizontalBarChart',
-    bar_v:          'BarChart',
-    bar_grouped:    'GroupedBarChart',
-    bar_stacked:    'StackedBarChart',
-    grouped_bar:    'GroupedBarChart',
-    stacked_bar:    'StackedBarChart',
-    multiline:      'MultiLineChart',
-    waterfall:      'WaterfallChart',
+    // Vision / agent values / Canonical IDs
+    vertical_bar:        'BarChart',
+    horizontal_bar:      'HorizontalBarChart',
+    barchart:            'BarChart',
+    horizontalbarchart:  'HorizontalBarChart',
+    linechart:           'LineChart',
+    piechart:            'PieChart',
+    donutchart:          'DonutChart',
+    areachart:           'AreaChart',
+    radarchart:          'RadarChart',
+    waterfallchart:      'WaterfallChart',
+    scatterplot:         'ScatterPlot',
+    bubblechart:         'BubbleChart',
+    stackedbarchart:     'StackedBarChart',
+    groupedbarchart:     'GroupedBarChart',
+    sankeychart:         'SankeyChart',
+    bar_h:               'HorizontalBarChart',
+    bar_v:               'BarChart',
+    bar_grouped:         'GroupedBarChart',
+    bar_stacked:         'StackedBarChart',
+    grouped_bar:         'GroupedBarChart',
+    stacked_bar:         'StackedBarChart',
+    multiline:           'MultiLineChart',
+    waterfall:           'WaterfallChart',
     candlestick:    'CandlestickChart',
     gauge:          'GaugeChart',
     funnel:         'FunnelChart',

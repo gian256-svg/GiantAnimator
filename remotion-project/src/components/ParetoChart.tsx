@@ -19,7 +19,6 @@ export interface ParetoChartProps {
   subtitle?: string;
   backgroundColor?: string;
   theme?: string;
-  backgroundColor?: string;
   colors?: string[];
   textColor?: string;
 }
@@ -29,7 +28,7 @@ export const ParetoChart: React.FC<ParetoChartProps> = ({
   data = [],
   title,
   subtitle,
-  backgroundColor ?? T.background,
+  backgroundColor,
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
@@ -57,7 +56,7 @@ export const ParetoChart: React.FC<ParetoChartProps> = ({
 
   if (processedData.length === 0) {
     return (
-      <AbsoluteFill style={{ backgroundColor ?? T.background, justifyContent: 'center', alignItems: 'center' }}>
+      <AbsoluteFill style={{ backgroundColor: backgroundColor ?? T.background,  justifyContent: 'center', alignItems: 'center' }}>
         <p style={{ color: T.text }}>Dados insuficientes.</p>
       </AbsoluteFill>
     );
@@ -70,7 +69,7 @@ export const ParetoChart: React.FC<ParetoChartProps> = ({
   const barWidth = (plotWidth / processedData.length) * 0.8;
 
   return (
-    <AbsoluteFill style={{ backgroundColor ?? T.background }}>
+    <AbsoluteFill style={{ backgroundColor: backgroundColor ?? T.background }}>
       {/* ZONA 1 — Cabeçalho */}
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',

@@ -21,7 +21,6 @@ export interface TreemapChartProps {
   subtitle?: string;
   backgroundColor?: string;
   theme?: string;
-  backgroundColor?: string;
   colors?: string[];
   textColor?: string;
 }
@@ -38,7 +37,7 @@ export const TreemapChart: React.FC<TreemapChartProps> = ({
   data: propData = [],
   title,
   subtitle,
-  backgroundColor ?? T.background,
+  backgroundColor,
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
@@ -113,7 +112,7 @@ export const TreemapChart: React.FC<TreemapChartProps> = ({
   const groups = Array.from(new Set(data.map(d => d.group || "default")));
 
   return (
-    <AbsoluteFill style={{ backgroundColor ?? T.background }}>
+    <AbsoluteFill style={{ backgroundColor: backgroundColor ?? T.background }}>
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',
         opacity: interpolate(frame, [0, 15], [0, 1])

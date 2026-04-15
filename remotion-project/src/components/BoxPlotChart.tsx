@@ -22,7 +22,6 @@ export interface BoxPlotChartProps {
   data: BoxSet[];
   title: string;
   subtitle?: string;
-  backgroundColor?: string;
   theme?: string;
   backgroundColor?: string;
   colors?: string[];
@@ -33,26 +32,27 @@ export const BoxPlotChart: React.FC<BoxPlotChartProps> = ({
   data: propData = [],
   title,
   subtitle,
-  backgroundColor ?? T.background,
+  theme = 'dark',
+  backgroundColor,
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
-  const T = resolveTheme(theme ?? 'dark');
+  const T = resolveTheme(theme);
   const instanceId = useId().replace(/:/g, "");
 
   const data = useMemo(() => (Array.isArray(propData) ? propData : []), [propData]);
 
   if (data.length === 0) {
     return (
-      <AbsoluteFill style={{ backgroundColor ?? T.background, justifyContent: 'center', alignItems: 'center' }}>
-        <p style={{ color: T.text, fontSize: Theme.typography.category.size }}>Nenhum dado para exibir.</p>
+      <AbsoluteFill style={{ backgroundColor: backgroundColor ?? T.background, justifyContent: 'center', alignItems: 'center' }}>
+        <p style={{ color: T.text, fontSize: Theme.typography.subtitle.size }}>Nenhum dado para exibir.</p>
       </AbsoluteFill>
     );
   }
 
   // Safe Zone 4K (D2)
-  const margin = Theme.spacing.padding || 128;
-  const titleHeight = Theme.spacing.titleHeight || 160;
+  const margin = 128;
+  const titleHeight = 160;
   const plotWidth = width - margin * 2 - 100;
   const plotHeight = height - margin * 2 - titleHeight - 100;
   const chartTop = margin + titleHeight;
@@ -69,7 +69,7 @@ export const BoxPlotChart: React.FC<BoxPlotChartProps> = ({
   const boxWidth = 120; // 4K Scale
 
   return (
-    <AbsoluteFill style={{ backgroundColor ?? T.background }}>
+    <AbsoluteFill style={{ backgroundColor: backgroundColor ?? T.background }}>
       {/* ZONA 1 — Cabeçalho */}
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',
@@ -108,7 +108,7 @@ export const BoxPlotChart: React.FC<BoxPlotChartProps> = ({
             return (
               <React.Fragment key={v}>
                 <line x1={chartLeft} y1={y} x2={chartLeft + plotWidth} y2={y} stroke={T.grid} strokeWidth={1} />
-                <text x={chartLeft - 20} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.ui.axisText, fontFamily: Theme.typography.fontFamily }}>
+                <text x={chartLeft - 20} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: T.textMuted, fontFamily: Theme.typography.fontFamily }}>
                   {Math.round(val).toLocaleString()}
                 </text>
               </React.Fragment>
@@ -129,10 +129,10 @@ export const BoxPlotChart: React.FC<BoxPlotChartProps> = ({
 
           return (
             <g key={i}>
-              <line x1={x} y1={yMedian} x2={x} y2={yMedian + (yMin - yMedian) * whiskerPop} stroke={Theme.colors.ui.axisLine} strokeWidth={3} />
-              <line x1={x} y1={yMedian} x2={x} y2={yMedian + (yMax - yMedian) * whiskerPop} stroke={Theme.colors.ui.axisLine} strokeWidth={3} />
-              <line x1={x - 30} y1={yMin} x2={x + 30} y2={yMin} stroke={Theme.colors.ui.axisLine} strokeWidth={3} opacity={whiskerPop} />
-              <line x1={x - 30} y1={yMax} x2={x + 30} y2={yMax} stroke={Theme.colors.ui.axisLine} strokeWidth={3} opacity={whiskerPop} />
+              <line x1={x} y1={yMedian} x2={x} y2={yMedian + (yMin - yMedian) * whiskerPop} stroke={T.grid} strokeWidth={3} />
+              <line x1={x} y1={yMedian} x2={x} y2={yMedian + (yMax - yMedian) * whiskerPop} stroke={T.grid} strokeWidth={3} />
+              <line x1={x - 30} y1={yMin} x2={x + 30} y2={yMin} stroke={T.grid} strokeWidth={3} opacity={whiskerPop} />
+              <line x1={x - 30} y1={yMax} x2={x + 30} y2={yMax} stroke={T.grid} strokeWidth={3} opacity={whiskerPop} />
 
               <rect
                 x={x - boxWidth / 2}
@@ -149,11 +149,11 @@ export const BoxPlotChart: React.FC<BoxPlotChartProps> = ({
                 const yOut = getY(out);
                 const outPop = spring({ frame: frame - 60 - i * 5 - oIdx * 3, fps, config: { damping: 10, stiffness: 100 } });
                 return (
-                   <circle key={oIdx} cx={x} cy={yOut} r={10 * outPop} fill={Theme.colors.semantic.negative} opacity={outPop} />
+                   <circle key={oIdx} cx={x} cy={yOut} r={10 * outPop} fill="#EF4444" opacity={outPop} />
                 );
               })}
 
-              <text x={x} y={chartTop + plotHeight + 60} textAnchor="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.ui.axisText, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>
+              <text x={x} y={chartTop + plotHeight + 60} textAnchor="middle" style={{ fontSize: Theme.typography.axis.size, fill: T.textMuted, fontWeight: 700, fontFamily: Theme.typography.fontFamily }}>
                 {d.label}
               </text>
             </g>

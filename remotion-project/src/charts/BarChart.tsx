@@ -6,30 +6,27 @@ import {
   interpolate,
   AbsoluteFill,
 } from "remotion";
-import { Theme, resolveTheme } from "../theme";
+import { Theme, resolveTheme, formatValue } from "../theme";
 
 interface BarChartProps {
   data?: { label: string; value: number }[];
+  series?: { label: string; data: number[]; color?: string }[];
+  labels?: string[];
   title?: string;
   subtitle?: string;
   colors?: string[];
   theme?: string;
   backgroundColor?: string;
   textColor?: string;
-  unit?: string;  // ex: '%', 'k', 'R$', etc — vem do dado original
+  unit?: string;
 }
 
-const format = (n: number, unit = '') => {
-  if (!unit) {
-    if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
-    if (n >= 1_000)     return (n / 1_000).toFixed(1) + 'k';
-  }
-  const rounded = Number.isInteger(n) ? String(n) : n.toFixed(1);
-  return unit ? `${rounded}${unit}` : rounded;
-};
+
 
 export const BarChart: React.FC<BarChartProps> = ({
   data = [],
+  series,
+  labels,
   title = "",
   subtitle = "",
   colors,
@@ -48,17 +45,19 @@ export const BarChart: React.FC<BarChartProps> = ({
   const resolvedText  = textColor       ?? T.text;
   const resolvedColors = colors && colors.length > 0 ? colors : [...T.colors];
 
-  // ─── Guarda contra dados vazios ───────────────────────
-  const safeData = Array.isArray(data) && data.length > 0 ? data : [
-    { label: "A", value: 10 },
-    { label: "B", value: 20 },
-    { label: "C", value: 15 },
+  // Unificar dados (Single vs Multi)
+  const normalizedSeries = series || [
+    { label: title, data: data.map(d => d.value) }
   ];
+  const xAxisLabels = labels || data.map(d => d.label);
+
+  const safeDataCount = xAxisLabels.length || 1;
+  const seriesCount   = normalizedSeries.length;
 
   // ─── Layout responsivo baseado na resolução real ──────
   const pad = width * 0.04;   // 4% de padding
-  const padTop = height * 0.12;  // 12% para o header
-  const padBot = height * 0.12;  // 12% para eixo X
+  const padTop = height * 0.20;  // Espaço para o header (aumentado de 0.12)
+  const padBot = height * 0.14;  // Espaço para eixo X (aumentado de 0.12)
 
   const plotLeft = pad + width * 0.06;   // espaço eixo Y
   const plotTop = padTop;
@@ -68,10 +67,14 @@ export const BarChart: React.FC<BarChartProps> = ({
   // Escala de fonte baseada na resolução
   const fs = (base: number) => Math.round(base * (width / 1280));
 
-  const maxVal = Math.max(...safeData.map(d => d.value), 1);
-  const categoryWidth = plotWidth / safeData.length;
-  const barGap = 0.28;
-  const barWidth = categoryWidth * (1 - barGap);
+  const maxVal = Math.max(...normalizedSeries.flatMap(s => s.data), 1);
+  
+  const categoryWidth = plotWidth / safeDataCount;
+  const groupGap      = 0.3; // gap entre grupos de colunas
+  const innerGap      = 0.05; // gap entre colunas do mesmo grupo
+  
+  const availableW    = categoryWidth * (1 - groupGap);
+  const barWidth      = (availableW / seriesCount) * (1 - innerGap);
 
   const getY = (v: number) =>
     plotTop + plotHeight - (v / maxVal) * plotHeight;
@@ -84,41 +87,6 @@ export const BarChart: React.FC<BarChartProps> = ({
   return (
     <AbsoluteFill style={{ backgroundColor: resolvedBg }}>
 
-      {/* ── HEADER ── */}
-      <div
-        style={{
-          position: "absolute",
-          top: height * 0.03,
-          width: "100%",
-          textAlign: "center",
-          opacity: headerOpacity,
-          fontFamily: Theme.typography.fontFamily,
-        }}
-      >
-        {title && (
-          <div
-            style={{
-              fontSize: fs(36),
-              fontWeight: 700,
-              color: resolvedText,
-              letterSpacing: "-0.5px",
-            }}
-          >
-            {title}
-          </div>
-        )}
-        {subtitle && (
-          <div
-            style={{
-              fontSize: fs(18),
-              color: T.textMuted,
-              marginTop: fs(6),
-            }}
-          >
-            {subtitle}
-          </div>
-        )}
-      </div>
 
       {/* ── SVG CHART ── */}
       <svg
@@ -127,21 +95,14 @@ export const BarChart: React.FC<BarChartProps> = ({
         style={{ position: "absolute", top: 0, left: 0 }}
       >
         <defs>
-          {safeData.map((_, i) => (
+          {normalizedSeries.map((_, i) => (
             <linearGradient
               key={i}
               id={`barGrad-${i}-${instanceId}`}
               x1="0" y1="0" x2="0" y2="1"
             >
-              <stop
-                offset="0%"
-                stopColor={resolvedColors[i % resolvedColors.length]}
-              />
-              <stop
-                offset="100%"
-                stopColor={resolvedColors[i % resolvedColors.length]}
-                stopOpacity={0.65}
-              />
+              <stop offset="0%" stopColor={resolvedColors[i % resolvedColors.length]} />
+              <stop offset="100%" stopColor={resolvedColors[i % resolvedColors.length]} stopOpacity={0.65} />
             </linearGradient>
           ))}
 
@@ -179,9 +140,10 @@ export const BarChart: React.FC<BarChartProps> = ({
                   fontSize: fs(14),
                   fill: T.textMuted,
                   fontFamily: Theme.typography.fontFamily,
+                  ...Theme.typography.tabularNums
                 }}
               >
-                {format(v * maxVal, unit)}
+                {formatValue(v * maxVal, unit)}
               </text>
             </React.Fragment>
           );
@@ -196,93 +158,111 @@ export const BarChart: React.FC<BarChartProps> = ({
           opacity={0.6}
         />
 
-        {/* ── BARS ── */}
-        {safeData.map((d, i) => {
-          const delay = 20 + i * 3;
-          const progress = spring({
-            frame: frame - delay,
-            fps,
-            config: {
-              damping: 80,
-              stiffness: 200,
-              overshootClamping: true
-            },
+        {/* ── BARS (GROUPED) ── */}
+        {xAxisLabels.map((label, groupIdx) => {
+          return normalizedSeries.map((s, seriesIdx) => {
+            const val = s.data[groupIdx] || 0;
+            const delay = 20 + groupIdx * 3 + seriesIdx * 2;
+            const progress = spring({
+              frame: frame - delay,
+              fps,
+              config: { damping: 80, stiffness: 200, overshootClamping: true },
+            });
+
+            const currentH = Math.max(0, (val / maxVal) * plotHeight * progress);
+            const groupX = plotLeft + groupIdx * categoryWidth + (categoryWidth * groupGap) / 2;
+            const bX = groupX + seriesIdx * (barWidth * (1 + innerGap));
+            const bY = plotTop + plotHeight - currentH;
+
+            const op = interpolate(frame, [delay + 10, delay + 20], [0, 1], { extrapolateRight: "clamp" });
+
+            return (
+              <g key={`${groupIdx}-${seriesIdx}`}>
+                {/* Bar */}
+                <rect 
+                  x={bX} y={bY} width={barWidth} height={currentH} 
+                  fill={normalizedSeries.length > 1 ? `url(#barGrad-${seriesIdx}-${instanceId})` : resolvedColors[groupIdx % resolvedColors.length]} 
+                  rx={fs(4)} 
+                />
+                
+                {/* Highlight top */}
+                <rect x={bX + barWidth * 0.1} y={bY} width={barWidth * 0.8} height={Math.min(currentH, fs(4))} fill="rgba(255,255,255,0.2)" rx={fs(2)} />
+
+                {/* Value label */}
+                <text 
+                  x={bX + barWidth / 2} 
+                  y={bY - fs(8)} 
+                  textAnchor="middle" 
+                  opacity={op} 
+                  style={{ 
+                    fontSize: fs(14), 
+                    fill: resolvedText, 
+                    fontWeight: 700, 
+                    fontFamily: Theme.typography.fontFamily,
+                    ...Theme.typography.tabularNums
+                  }}
+                >
+                    {formatValue(val, unit)}
+                </text>
+
+                {/* X axis (one per group) */}
+                {seriesIdx === 0 && (
+                  <text x={groupX + availableW / 2} y={plotTop + plotHeight + fs(28)} textAnchor="middle" opacity={op} style={{ 
+                    fontSize: fs(12), fill: T.textMuted, fontFamily: Theme.typography.fontFamily 
+                  }}>
+                    {label}
+                  </text>
+                )}
+              </g>
+            );
           });
-
-          const currentH = Math.max(0, (d.value / maxVal) * plotHeight * progress);
-          const bX = plotLeft + i * categoryWidth + (categoryWidth * barGap) / 2;
-          const bY = plotTop + plotHeight - currentH;
-
-          const labelOpacity = interpolate(
-            frame,
-            [delay + 10, delay + 20],
-            [0, 1],
-            { extrapolateRight: "clamp" }
-          );
-
-
-          return (
-            <g key={i}>
-              {/* Sombra/glow da barra */}
-              <rect
-                x={bX + fs(2)} y={bY + fs(4)}
-                width={barWidth} height={currentH}
-                fill={resolvedColors[i % resolvedColors.length]}
-                rx={fs(6)}
-                opacity={0.2}
-                filter={`url(#glow-${instanceId})`}
-              />
-
-              {/* Barra principal */}
-              <rect
-                x={bX} y={bY}
-                width={barWidth} height={currentH}
-                fill={`url(#barGrad-${i}-${instanceId})`}
-                rx={fs(6)}
-              />
-
-              {/* Highlight topo da barra */}
-              <rect
-                x={bX + barWidth * 0.1} y={bY}
-                width={barWidth * 0.8} height={Math.min(currentH, fs(6))}
-                fill="rgba(255,255,255,0.25)"
-                rx={fs(6)}
-              />
-
-              {/* Valor em cima da barra */}
-              <text
-                x={bX + barWidth / 2}
-                y={bY - fs(10)}
-                textAnchor="middle"
-                opacity={labelOpacity}
-                style={{
-                  fontSize: fs(15),
-                  fill: resolvedText,
-                  fontWeight: 700,
-                  fontFamily: Theme.typography.fontFamily,
-                }}
-              >
-                {format(d.value, unit)}
-              </text>
-
-              {/* X axis label */}
-              <text
-                x={bX + barWidth / 2}
-                y={plotTop + plotHeight + fs(28)}
-                textAnchor="middle"
-                opacity={labelOpacity}
-                style={{
-                  fontSize: fs(13),
-                  fill: T.textMuted,
-                  fontFamily: Theme.typography.fontFamily,
-                }}
-              >
-                {d.label}
-              </text>
-            </g>
-          );
         })}
       </svg>
+
+
+      {/* ── LEGEND (BOTTOM) ── */}
+      {seriesCount > 1 && (
+        <div style={{
+          position: 'absolute',
+          bottom: height * 0.04,
+          width: '100%',
+          display: 'flex',
+          justifyContent: 'center',
+          flexWrap: 'wrap',
+          gap: fs(40),
+          opacity: interpolate(frame, [40, 60], [0, 1])
+        }}>
+          {normalizedSeries.map((s, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: fs(14) }}>
+              <div style={{ width: fs(22), height: fs(22), borderRadius: '50%', backgroundColor: resolvedColors[i % resolvedColors.length], border: `${fs(3)}px solid #fff`, boxShadow: '0 0 10px rgba(0,0,0,0.3)' }} />
+              <div style={{ fontSize: fs(28), color: resolvedText, fontFamily: Theme.typography.fontFamily, fontWeight: 500 }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div
+        style={{
+          position: "absolute",
+          top: height * 0.05,
+          width: "100%",
+          textAlign: "center",
+          opacity: headerOpacity,
+          fontFamily: Theme.typography.fontFamily,
+          pointerEvents: 'none'
+        }}
+      >
+        {title && (
+          <div style={{ fontSize: fs(44), fontWeight: 800, color: resolvedText, letterSpacing: "-0.5px" }}>
+            {title}
+          </div>
+        )}
+        {subtitle && (
+          <div style={{ fontSize: fs(20), color: T.textMuted, marginTop: fs(10) }}>
+            {subtitle}
+          </div>
+        )}
+      </div>
 
     </AbsoluteFill>
   );

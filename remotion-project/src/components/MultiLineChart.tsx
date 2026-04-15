@@ -1,4 +1,4 @@
-import React, { useMemo, useId } from "react";
+import React, { useMemo } from "react";
 import {
   spring,
   useCurrentFrame,
@@ -14,14 +14,14 @@ export interface MultiLineChartProps {
     label: string;
     data: number[];
     color?: string;
-    theme?: string;
-  backgroundColor?: string;
-  colors?: string[];
-  textColor?: string;
-}[];
+  }[];
   labels: string[];
   title?: string;
   subtitle?: string;
+  theme?: string;
+  backgroundColor?: string;
+  colors?: string[];
+  textColor?: string;
   highlightSeries?: string;
   legendMode?: 'inline' | 'classic';
 }
@@ -31,14 +31,13 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
   labels = [],
   title = "Multi-Line Chart",
   subtitle,
+  theme = "dark",
   highlightSeries,
   legendMode = 'inline',
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
   const T = resolveTheme(theme ?? 'dark');
-  const instanceId = useId().replace(/:/g, "");
-  const ANIMATION_FRAMES = Theme.animation.animationFrames;
 
   const series = useMemo(() => {
     return Array.isArray(propSeries) ? propSeries : [];
@@ -47,14 +46,14 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
   if (series.length === 0 || labels.length < 2) {
     return (
       <AbsoluteFill style={{ backgroundColor: T.background, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <p style={{ color: T.text, fontSize: Theme.typography.category.size }}>Aguardando dados...</p>
+        <p style={{ color: T.text, fontSize: Theme.typography.subtitle.size }}>Aguardando dados...</p>
       </AbsoluteFill>
     );
   }
 
   // Safe Zone 4K (D2 + Spacing)
-  const margin = Theme.spacing.padding; // 128px
-  const titleHeight = Theme.spacing.titleHeight; // 160px
+  const margin = 128; // 128px
+  const titleHeight = 160; // 160px
   const paddingRight = legendMode === 'inline' ? 400 : margin; // Espaço para labels inline 4K
   const plotWidth = width - margin - paddingRight;
   const plotHeight = height - margin * 2 - titleHeight - 100;
@@ -78,7 +77,7 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
       index: i,
       label: s.label,
       y: getY(s.data[s.data.length - 1]),
-      color: s.color || Theme.colors.categorical[i % Theme.colors.categorical.length]
+      color: s.color || T.colors[i % T.colors.length]
     })).sort((a, b) => a.y - b.y);
 
     const minGap = 45; // Threshold colisão 4K
@@ -128,7 +127,7 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
                 <line x1={chartLeft} y1={y} x2={chartLeft + plotWidth} y2={y} stroke={T.grid} strokeWidth={1} />
                 <text 
                   x={chartLeft - 20} y={y} textAnchor="end" dominantBaseline="middle" 
-                  style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.ui.axisText, fontFamily: Theme.typography.fontFamily }}
+                  style={{ fontSize: Theme.typography.axis.size, fill: T.textMuted, fontFamily: Theme.typography.fontFamily }}
                 >
                   {val >= 1000 ? `${(val / 1000).toFixed(1)}k` : Math.round(val)}
                 </text>
@@ -140,7 +139,7 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
         {/* Linhas de Dados (Cascade Stagger 10f) */}
         {series.map((s, sIndex) => {
           const isFocused = !highlightSeries || s.label === highlightSeries;
-          const lineColor = s.color || Theme.colors.categorical[sIndex % Theme.colors.categorical.length];
+          const lineColor = s.color || T.colors[sIndex % T.colors.length];
           const strokeWidth = isFocused ? 4 : 2;
           const opacity = isFocused ? 1 : 0.25;
 
@@ -153,7 +152,7 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
             config: { 
               damping: 80, 
               stiffness: 200, 
-              overshoot_clamp: true 
+              overshootClamping: true 
             },
           });
 
@@ -176,13 +175,13 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
                   config: { 
                     damping: 80, 
                     stiffness: 200, 
-                    overshoot_clamp: true 
+                    overshootClamping: true 
                   }
                 });
                 if (dotPop <= 0) return null;
                 return (
                   <circle
-                    key={pIndex} cx={getX(pIndex)} cy={getY(val)} r={Theme.spacing.dotRadius * dotPop}
+                    key={pIndex} cx={getX(pIndex)} cy={getY(val)} r={10 * dotPop}
                     fill="#fff" stroke={lineColor} strokeWidth={2.5}
                   />
                 );
@@ -200,8 +199,8 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
               key={i} x={chartLeft + plotWidth + 30} y={lbl.y}
               dominantBaseline="middle"
               style={{ 
-                fontSize: Theme.typography.legend.size, 
-                fontWeight: Theme.typography.legend.weight, 
+                fontSize: Theme.typography.legendSize, 
+                fontWeight: Theme.typography.weightMedium, 
                 fill: lbl.color,
                 fontFamily: Theme.typography.fontFamily,
                 opacity 
@@ -221,11 +220,11 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
         }}>
           {series.map((s, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={{ width: 24, height: 24, borderRadius: 4, backgroundColor: s.color || Theme.colors.categorical[i % Theme.colors.categorical.length] }} />
+              <div style={{ width: 24, height: 24, borderRadius: 4, backgroundColor: s.color || T.colors[i % T.colors.length] }} />
               <span style={{ 
-                fontSize: Theme.typography.legend.size,
-                fontWeight: Theme.typography.legend.weight,
-                color: Theme.typography.legend.color,
+                fontSize: Theme.typography.legendSize,
+                fontWeight: Theme.typography.weightMedium,
+                color: T.text,
                 fontFamily: Theme.typography.fontFamily
               }}>{s.label}</span>
             </div>

@@ -905,4 +905,169 @@ não existe — o Remotion rejeita com erro de runtime, não de compilação.
 **Contexto:** O Agente estava gerando subtítulos automáticos como "5 registros · tema dark". Isso deve ser evitado se o arquivo original não possuir um subtítulo explícito. Preferir string vazia para manter a neutralidade e proximidade com o print original.
 **Aplicar quando:** Na lógica de montagem de props no servidor.
 
+---
+### REGRA PERMANENTE — LEGENDA OBRIGATÓRIA (ATIVA)
+Data: 2026-04-15
+Escopo: TODOS os componentes de gráfico
 
+**Regra**: Todo gráfico que contenha múltiplas séries de dados DEVE incluir uma legenda visível.
+- **Posição**: Preferencialmente abaixo do título e subtítulo, centralizada de forma horizontal.
+- **Estilo**: Deve usar os padrões 4K do Theme (legendSize: 28px, weightMedium: 500).
+- **Animação**: A legenda deve surgir via fade-in (Ato 3: frames 150–210).
+- **Justificativa**: Garante a inteligibilidade total da informação em vídeos UHD.
+
+---
+### REGRA PERMANENTE — DURAÇÃO DA ANIMAÇÃO DE DADOS (LINECHART)
+Data: 2026-04-15
+
+**Regra**: Em gráficos de linha complexos, a animação de "crescimento" (reveal) deve durar entre 4 e 6 segundos para permitir a assimilação da evolução temporal dos dados.
+- **Range recomendado**: [30, 180] frames.
+- **Easing**: Easing.inOut(Easing.ease).
+
+---
+### 🎓 APRENDIZADO — VISIBILIDADE DE LEGENDAS (Z-INDEX)
+Data: 2026-04-15
+Contexto: Mesmo após implementar a lógica de legenda, elas não apareciam nos renders 4K.
+**Aprendi:** No Remotion/React, elementos HTML `absolute` dentro de um `AbsoluteFill` que vêm antes de um `<svg>` de tamanho total podem ser sobrepostos pelo SVG, mesmo com `zIndex`.
+- **Solução**: Sempre renderizar o container de Título/Legenda **APÓS** o elemento `<svg>` no código para garantir que ele esteja no topo da pilha de renderização.
+- **Aprimoramento**: Adicionado `pointer-events: none` no container de texto para evitar interferência em interações futuras.
+
+---
+### 🎓 APRENDIZADO — EXTRAÇÃO DE MÚLTIPLAS SÉRIES (PROMPT)
+Data: 2026-04-15
+Contexto: O Gemini Vision estava retornando um array plano de "data" mesmo para gráficos de múltiplas linhas, o que omitia as legendas.
+**Aprendi:** O prompt de análise de imagem deve ser explícito sobre a estrutura JSON para diferentes tipos de gráfico.
+- **Regra**: Use `series: [{label, data}]` para Line/Area/Radar e `data: [{label, value}]` apenas para série única (Bar/Pie).
+- **Acompanhamento**: Atualizado `server/prompts/imageAnalyzer.ts` com template JSON multi-série.
+---
+### REGRA PERMANENTE — UNIDADES DE MEDIDA MANDATÓRIAS
+Data: 2026-04-15
+Escopo: Extração e Renderização
+
+**Regra**: Números em datalabels e eixos DEVEM sempre exibir a unidade de medida (Ex: %, $, R$, M, k) correspondente à referência original.
+- **Extração**: O Agente de Visão DEVE identificar o símbolo e passá-lo na prop `unit`.
+- **Renderização**: Todos os componentes DEVEM utilizar a função `format(value, unit)` para garantir a exibição correta.
+- **Justificativa**: Precisão técnica e fidelidade total ao input do usuário.
+
+---
+### REGRA PERMANENTE — FIDELIDADE DE ORIENTAÇÃO (HORIZONTAL VS VERTICAL)
+Data: 2026-04-15
+Escopo: Escolha de Componente no Analyzer
+
+**Regra**: Se as barras na imagem original forem horizontais, o componente DEVE ser `HorizontalBarChart`. Se forem verticais, `BarChart`.
+- **Aviso**: O Agente não deve simplificar a escolha baseado apenas no termo "barra". Deve avaliar o layout visual.
+- **Erro Comum**: Usar `BarChart` para referências horizontais.
+
+---
+### 🎓 APRENDIZADO — AUDITORIA HORIZONTALBARCHART
+Data: 2026-04-15
+Contexto: O componente HorizontalBarChart estava defasado em relação às melhorias de 4K e legendas feitas no BarChart.
+**Aprendi**: Melhorias em um tipo de gráfico (ex: posicionamento de legenda, scaling fs()) devem ser propagadas para seus pares (Bar -> HorizontalBar).
+---
+### 🎓 APRENDIZADO — RESOLUÇÃO DE COMPOSIÇÃO (FALLBACK BUG)
+Data: 2026-04-15
+Contexto: Mesmo com a IA identificando `HorizontalBarChart`, o sistema renderizava colunas verticais.
+**Descoberta**: O `resolveCompositionId` em `server/index.ts` usava um mapa que não continha os IDs canônicos (ID original do Registro) como chaves. Como o fallback do mapa era `BarChart`, qualquer ID não explicitamente mapeado em letras minúsculas resultava no gráfico padrão vertical.
+- **Correção**: Adicionadas todas as chaves de IDs canônicos (ex: `horizontalbarchart`) ao mapa de resolução.
+- **Regra**: Todo novo componente adicionado ao Registry DEVE ter sua chave correspondente (em lowercase) adicionada ao `map` em `server/index.ts`.
+
+---
+### REGRA PERMANENTE — POSICIONAMENTO DE LEGENDAS (ANTI-OVERLAP)
+Data: 2026-04-15
+Escopo: Todos os componentes
+
+**Regra**: Em gráficos com muitas séries (mais de 4) ou orientados horizontalmente (`HorizontalBarChart`), a legenda DEVE ser posicionada no RODAPÉ (Bottom) do vídeo.
+- **Justificativa**: Evitar sobreposição com o título e permitir que o layout respire em resoluções 4K.
+- **Padrão**: Centralizada, abaixo do SVG principal, respeitando o `padBot`.
+
+---
+### 🎓 APRENDIZADO — UPGRADE HORIZONTALBARCHART (GROUPED)
+Data: 2026-04-15
+Contexto: Gráficos horizontais eram limitados a uma única série, mas referências de usuários frequentemente mostram dados comparativos (ex: Barrier vs Drivers).
+**Aprendi**: O componente `HorizontalBarChart` deve ser um cidadão de primeira classe com suporte total a `series` e `labels` (Grouped Bars), assim como o `LineChart`.
+- **Ação**: Refatorado `HorizontalBarChart.tsx` para suporte multi-série e movida a legenda para a base do layout.
+
+---
+### 🏆 REGRA DE OURO — LAYOUT 4K PREMIUM (ZONA DE SEGURANÇA)
+Data: 2026-04-15
+Escopo: Design System / TODOS os componentes
+
+**Regra**: Para garantir qualidade broadcast e zero sobreposição, todos os gráficos DEVEM seguir a estrutura de 3 Zonas Específicas:
+1.  **ZONA 1 (Header - Topo)**: Reservada para Título e Subtítulo.
+    - `top: height * 0.04`
+    - Fonte escalada com `fs()`.
+2.  **ZONA 2 (Data - Centro)**: Área reservada para o SVG do gráfico.
+    - Deve respeitar o `padTop` e `padBot` para nunca tocar o Header ou o Footer.
+3.  **ZONA 3 (Footer - Rodapé)**: Reservada exclusivamente para a Legenda.
+    - `bottom: height * 0.04`
+    - Itens centralizados em `flex wrap`.
+- **Margem de Segurança**: NUNCA encostar elementos nas bordas laterais (mínimo `width * 0.05`).
+- **Posicionamento**: Esta regra substitui qualquer posicionamento lateral ou flutuante anterior, a menos que a referência seja explicitamente diferente e não cause sobreposição.
+
+---
+### 🎓 APRENDIZADO — PADRONIZAÇÃO DE COMPONENTES
+Data: 2026-04-15
+**Aprendi**: A consistência visual entre BarChart, LineChart e HorizontalBarChart é o que dá a percepção de um produto premium.
+- **Ação**: Sincronizei os 3 componentes principais para usar exatamente as mesmas props (`series`, `labels`, `data`) e o mesmo sistema de layout UHD.
+
+---
+### 🏆 REGRA PERMANENTE — Z-STACKING EM 4K (HEADER NO TOPO)
+Data: 2026-04-15
+Escopo: React / Remotion Components
+
+**Regra**: Todo conteúdo de texto (Títulos, Subtítulos, Legendas) deve ser renderizado **APÓS** os elementos `<svg>` ou `<video>` no código JSX.
+- **Motivo**: Garante visibilidade total sem dependência exclusiva de `zIndex`, evitando sobreposições em renders de alta resolução (UHD).
+- **Aplicação**: Aplicado em todos os componentes de gráfico cartesianos e circulares.
+
+---
+### 🎓 APRENDIZADO — UTILS COMPARTILHADAS (THEME SINGLE SOURCE)
+Data: 2026-04-15
+**Aprendi**: Manter funções de formatação locais em cada componente gera divergência de lógica (ex: uns usam toLocaleString, outros não).
+- **Ação**: Centralizada a função `formatValue` no arquivo `remotion-project/src/theme.ts`.
+- **Regra**: Novos componentes DEVEM importar `formatValue` e `resolveTheme` do Theme central.
+
+---
+### 🌈 FEATURE — PREVIEW RAINBOW CSV
+Data: 2026-04-15
+**Implementação**: O painel de preview de dados agora usa o estilo "Rainbow CSV".
+- **Lógica**: Cada coluna do CSV recebe uma cor única e consistente em toda a UI.
+- **Visual**: Chips de coluna e colunas na tabela de amostra compartilham a mesma identidade cromática, facilitando a identificação rápida do mapeamento x/y.
+- **Impacto**: Melhora drasticamente a UX na fase de pré-animação.
+
+---
+### 🎨 NOVO TEMA — LIGHT (OFF-WHITE)
+Data: 2026-04-15
+**Implementação**: Adicionado suporte ao tema `light` em todo o pipeline.
+- **Estética**: Fundo Off-white quente (`#FAF9F6`) com texto Slate-900.
+- **Consistência**: Mapeado no `theme.ts` (Remotion) e `server/index.ts` (Vision/Analysis).
+
+---
+### 💎 REGRA DE OURO — ESTÉTICA E POSICIONAMENTO
+Data: 2026-04-15
+**Regra**: O posicionamento do Header (Título/Subtítulo) deve priorizar a FIDELIDADE À REFERÊNCIA.
+- **Alinhamento**: Na ausência de instrução contrária ou se a referência for centrada, use `textAlign: center`. Reservar o alinhamento à esquerda com marker apenas para layouts que explicitamente o utilizem.
+- **Zona de Segurança (Anti-Overlap)**: Para vídeos 4K, o `padTop` deve ser de pelo menos **20% a 22%** da altura total. Isso garante que títulos longos (2+ linhas) não sobreponham os dados.
+- **Z-Index**: Manter a regra de renderizar o Header **APÓS** o SVG no código.
+- **Tipografia**: Headers premium usam `fs: 44px`, `fontWeight: 800` e `letterSpacing: -0.5px`.
+
+### 🎨 REGRA PERMANENTE — CORES EM SÉRIE ÚNICA
+Data: 2026-04-15
+**Regra**: Em gráficos de barra (Vertical/Horizontal) com apenas uma série, CADA BARRA deve receber uma cor diferente da paleta do tema (`T.colors[i % n]`).
+- **Justificativa**: Evita o visual "flat" monocromático e aumenta o apelo visual (Rainbow style).
+
+### 🔢 REGRA PERMANENTE — FIDELIDADE NUMÉRICA (TABULAR & UNITS)
+Data: 2026-04-15
+**Regra**: Toda e qualquer unidade de medida detectada (%) ou ($) DEVE ser renderizada.
+- **Tabular Nums**: Usar `font-variant-numeric: tabular-nums` em todos os campos de dados para evitar "jitter" em contagem.
+- **Detecção**: O parser de tabela agora limpa símbolos para detectar números sem perder a unidade.
+
+### [2026-04-15] PERSONALIDADE — "GIANT"
+- **Nome**: O agente agora atende pelo nome de **Giant**.
+- **Tom de Voz**: Informal, direto e focado em eficiência ("papo reto").
+- **Identidade**: Alinhada ao novo mascote no cabeçalho da UI.
+
+### [2026-04-15] FIX DEFINITIVO: Símbolos e Unidades (Fidelidade 100%)
+- **Problema**: IA de visão falhando em extrair o símbolo unitário (%) mesmo quando presente na imagem.
+- **Solução 1 (Prompt)**: Atualizado `imageAnalyzer.ts` com seção "SÍMBOLOS SÃO OBRIGATÓRIOS" e punição por erro crítico se omitido.
+- **Solução 2 (Heurística)**: Implementada camada de segurança em `visionService.ts`. Se o `unit` vier vazio mas existirem símbolos (%, $) no título, subtítulo ou labels, o sistema força a aplicação da unidade correta.
+- **Aplicação**: Todos os componentes devem usar `formatValue(val, unit)` que agora é o padrão inabalável do projeto.

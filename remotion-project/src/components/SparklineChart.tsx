@@ -21,7 +21,6 @@ export interface SparklineChartProps {
   columns?: number;
   backgroundColor?: string;
   theme?: string;
-  backgroundColor?: string;
   colors?: string[];
   textColor?: string;
 }
@@ -68,7 +67,7 @@ export const SparklineChart: React.FC<SparklineChartProps> = ({
   title,
   subtitle,
   columns = 2,
-  backgroundColor ?? T.background,
+  backgroundColor,
 }) => {
   const { width, height } = useVideoConfig();
   const T = resolveTheme(theme ?? 'dark');
@@ -83,7 +82,7 @@ export const SparklineChart: React.FC<SparklineChartProps> = ({
   const itemHeight = 150;
 
   return (
-    <AbsoluteFill style={{ backgroundColor ?? T.background }}>
+    <AbsoluteFill style={{ backgroundColor: backgroundColor ?? T.background }}>
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',
         opacity: interpolate(useCurrentFrame(), [0, 15], [0, 1])

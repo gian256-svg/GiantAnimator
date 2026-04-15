@@ -117,6 +117,11 @@ async function loadCSVPreview(file) {
   document.getElementById('csv-sample-table').innerHTML = '';
   document.getElementById('csv-suggestion').innerHTML = '';
 
+  const RAINBOW = [
+    '#F87171', '#FB923C', '#FBBF24', '#34D399', '#22D3EE', 
+    '#60A5FA', '#818CF8', '#A78BFA', '#F472B6'
+  ];
+
   try {
     // 1. Faz upload simples pra garantir que o arquivo esteja no servidor
     const fd = new FormData();
@@ -139,33 +144,43 @@ async function loadCSVPreview(file) {
     `;
     document.getElementById('csv-meta-info').innerHTML = metaHtml;
 
-    // Colunas (Rainbow CSV style: azul para cat, verde para num)
-    let colsHtml = '';
-    data.categoricalColumns.forEach(c => {
-      colsHtml += \`<div class="csv-col-chip categorical"><span class="chip-type">TEXT</span>\${c}</div>\`;
+    // Mapeamento de cores por coluna (estilo Rainbow CSV)
+    const colColors = {};
+    data.headers.forEach((h, i) => {
+      colColors[h] = RAINBOW[i % RAINBOW.length];
     });
-    data.numericColumns.forEach(c => {
-      colsHtml += \`<div class="csv-col-chip numeric"><span class="chip-type">NUM</span>\${c}</div>\`;
+
+    let colsHtml = '';
+    data.headers.forEach(h => {
+        const isNum = data.numericColumns.includes(h);
+        const color = colColors[h];
+        colsHtml += `
+          <div class="csv-col-chip" style="border-color: ${color}44; background: ${color}15; color: ${color}">
+            <span class="chip-type" style="opacity: 0.6">${isNum ? 'NUM' : 'TEXT'}</span>
+            ${h}
+          </div>`;
     });
     document.getElementById('csv-cols-row').innerHTML = colsHtml;
 
     // Tabela Amostra
-    let sampleHtml = '<tr>';
+    let sampleHtml = '<thead><tr>';
     data.headers.forEach(h => {
-      const isNum = data.numericColumns.includes(h);
-      sampleHtml += \`<th class="\${isNum ? 'col-num' : 'col-cat'}">\${h}</th>\`;
+      const color = colColors[h];
+      sampleHtml += `<th style="color: ${color}; border-bottom: 2px solid ${color}33;">${h}</th>`;
     });
-    sampleHtml += '</tr>';
+    sampleHtml += '</tr></thead><tbody>';
 
     data.sample.forEach(row => {
       sampleHtml += '<tr>';
       data.headers.forEach(h => {
         const val = row[h] !== undefined && row[h] !== null ? row[h] : '';
         const isNum = data.numericColumns.includes(h);
-        sampleHtml += \`<td class="\${isNum ? 'col-num' : ''}" title="\${val}">\${val}</td>\`;
+        const color = colColors[h];
+        sampleHtml += `<td class="${isNum ? 'col-num' : ''}" style="color: ${isNum ? color : 'inherit'}" title="${val}">${val}</td>`;
       });
       sampleHtml += '</tr>';
     });
+    sampleHtml += '</tbody>';
     document.getElementById('csv-sample-table').innerHTML = sampleHtml;
 
     // Sugere tipo de gráfico
@@ -174,13 +189,13 @@ async function loadCSVPreview(file) {
       chartTypeSelect.value = data.suggestedChartType;
     }
     
-    document.getElementById('csv-suggestion').innerHTML = \`
+    document.getElementById('csv-suggestion').innerHTML = `
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-      A estrutura indica que sugerimos o gráfico: <strong>\${data.suggestedChartType}</strong>. Autoselecionado.
-    \`;
+      Detectamos uma estrutura <strong>${data.shape}</strong>. Sugerimos o gráfico: <strong>${data.suggestedChartType}</strong>.
+    `;
 
   } catch (err) {
-    document.getElementById('csv-meta-info').innerHTML = \`<div class="csv-meta-badge accent">Erro ao prever estrutura: \${err.message}</div>\`;
+    document.getElementById('csv-meta-info').innerHTML = `<div class="csv-meta-badge accent">Erro ao prever estrutura: ${err.message}</div>`;
   }
 }
 
@@ -199,7 +214,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const dz = document.getElementById('drop-zone');
   const fi = document.getElementById('file-input');
   const btnRender = document.getElementById('btn-render');
-  const btnDownload4k = document.getElementById('btn-download4k');
 
   if (dz && fi) {
     dz.addEventListener('click', () => fi.click());
@@ -234,6 +248,17 @@ document.addEventListener('DOMContentLoaded', () => {
     toast('Imagem colada do clipboard!', 'success');
   });
 
+  // ─── DOWNLOAD PATH PERSISTENCE ─────────────────────────────
+  const downloadPathInput = document.getElementById('download-path');
+  if (downloadPathInput) {
+    const savedPath = localStorage.getItem('giantanimator_download_path');
+    if (savedPath) downloadPathInput.value = savedPath;
+    
+    downloadPathInput.addEventListener('input', () => {
+      localStorage.setItem('giantanimator_download_path', downloadPathInput.value);
+    });
+  }
+
   if (btnRender) {
     btnRender.addEventListener('click', async () => {
       const pending = state.files.filter(f => f.status === 'pending');
@@ -261,37 +286,8 @@ document.addEventListener('DOMContentLoaded', () => {
           renderFileQueue();
           log(`✕ Erro: ${err.message}`, 'error');
           state.isRendering = false;
+          btnRender.disabled = false;
         }
-      }
-    });
-  }
-
-  if (btnDownload4k) {
-    btnDownload4k.addEventListener('click', async () => {
-      const jobId = state.currentJobId;
-      if (!jobId) { toast('Nenhuma animação carregada', 'warn'); return; }
-
-      btnDownload4k.disabled = true;
-
-      log('🔷 Solicitando render 4K...');
-      toast('Render 4K iniciado! Aguarde...', 'info');
-
-      try {
-        const res = await fetch(`/render4k/${jobId}`, { method: 'POST' });
-        const data = await res.json();
-
-        if (data.status === 'ready' && data.video4kUrl) {
-          log('✅ 4K já disponível — baixando...');
-          triggerDownload4K(data.video4kUrl);
-          btnDownload4k.disabled = false;
-          return;
-        }
-
-        document.getElementById('render4k-overlay').style.display = 'flex';
-        startSSE4K(jobId);
-      } catch (err) {
-        toast(`Erro ao iniciar 4K: ${err.message}`, 'error');
-        btnDownload4k.disabled = false;
       }
     });
   }
@@ -342,10 +338,14 @@ function startSSE(jobId, fileName) {
       if (msg.status === 'done') {
         es.close();
         state.isRendering = false;
-        setProgress(100, 'Preview 720p pronto ✓');
-        log(`🎬 Preview pronto: ${msg.videoUrl}`, 'success');
-        toast('Preview 720p gerado!', 'success');
+        setProgress(100, 'Vídeo 4K pronto ✓');
+        log(`🎬 Vídeo UHD pronto: ${msg.videoUrl}`, 'success');
+        toast('Renderização 4K concluída!', 'success');
         loadVideo(msg.videoUrl, fileName, msg.duration || '');
+        
+        // Automatic Download / Save
+        triggerDownload(msg.videoUrl, fileName, jobId);
+
         document.getElementById('btn-render').disabled = false;
         refreshHistory();
       }
@@ -353,7 +353,7 @@ function startSSE(jobId, fileName) {
       if (msg.status === 'error') {
         es.close();
         state.isRendering = false;
-        log(`✕ Erro: ${msg.error}`, 'error');
+        log(`✕ Erro 4K: ${msg.error}`, 'error');
         toast(`Erro: ${msg.error}`, 'error');
         setProgress(0, 'Erro ✕');
         document.getElementById('btn-render').disabled = false;
@@ -372,51 +372,7 @@ function startSSE(jobId, fileName) {
 /* ═══════════════════════════════════════════════════════════════
    SSE 4K
 ═══════════════════════════════════════════════════════════════ */
-function startSSE4K(jobId) {
-  const es     = new EventSource(`/progress4k/${jobId}`);
-  const bar    = document.getElementById('4k-bar');
-  const pctEl  = document.getElementById('4k-pct');
-  const stage  = document.getElementById('4k-stage');
-  const overlay = document.getElementById('render4k-overlay');
-  const btn    = document.getElementById('btn-download4k');
-
-  es.onmessage = (e) => {
-    try {
-      const msg = JSON.parse(e.data);
-
-      if (msg.progress !== undefined) {
-        if (bar) bar.style.width  = msg.progress + '%';
-        if (pctEl) pctEl.textContent = msg.progress + '%';
-        if (msg.stage && stage) stage.textContent = msg.stage;
-        if (msg.log) log(msg.log, msg.logType || 'info');
-      }
-
-      if (msg.status === 'done') {
-        es.close();
-        if (overlay) overlay.style.display = 'none';
-        log('🔷 Render 4K concluído! Baixando...', 'success');
-        toast('Render 4K pronto! Iniciando download...', 'success');
-        triggerDownload4K(msg.video4kUrl);
-        btn.disabled = false;
-      }
-
-      if (msg.status === 'error') {
-        es.close();
-        if (overlay) overlay.style.display = 'none';
-        log(`✕ Erro 4K: ${msg.error}`, 'error');
-        toast(`Erro no render 4K: ${msg.error}`, 'error');
-        btn.disabled = false;
-      }
-    } catch(err) { /* ignore */ }
-  };
-
-  es.onerror = () => {
-    log('⚠ SSE 4K perdido', 'warn');
-    es.close();
-    if (overlay) overlay.style.display = 'none';
-    btn.disabled = false;
-  };
-}
+// SSE 4K removido — agora unificado no SSE principal em 4K
 
 /* ═══════════════════════════════════════════════════════════════
    VIDEO PLAYER
@@ -425,7 +381,6 @@ function loadVideo(url, name, duration) {
   const video       = document.getElementById('preview-video');
   const placeholder = document.getElementById('player-placeholder');
   const meta        = document.getElementById('video-meta');
-  const btn4k       = document.getElementById('btn-download4k');
 
   if (!video) return;
 
@@ -434,19 +389,48 @@ function loadVideo(url, name, duration) {
   if (placeholder) placeholder.style.display = 'none';
   state.currentVideo = { url, name };
 
-  if (duration && meta) meta.textContent = `⏱ ${duration}  ·  720p preview`;
-
-  if (btn4k) btn4k.disabled = false;
+  if (duration && meta) meta.textContent = `⏱ ${duration}  ·  UHD 4K Video`;
 }
 
-function triggerDownload4K(url) {
-  const name = (state.currentVideo?.name || 'animacao').replace(/\.[^.]+$/, '');
+function triggerDownload(url, filename, jobId) {
+  const targetDir = document.getElementById('download-path')?.value;
+
+  if (targetDir && targetDir.trim() !== '') {
+    // Se há uma pasta pré-determinada, pede pro servidor salvar lá automaticamente
+    fetch('/api/save-to-path', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ jobId, targetDir })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        log(`💾 Salvo automaticamente em: ${data.path}`, 'success');
+        toast('Vídeo salvo na pasta escolhida!', 'success');
+      } else {
+        throw new Error(data.error);
+      }
+    })
+    .catch(err => {
+      log(`⚠️ Erro ao salvar na pasta: ${err.message}. Iniciando download padrão...`, 'warn');
+      // Fallback para download padrão do navegador
+      standardDownload(url, filename);
+    });
+  } else {
+    // Caso contrário, "popa a janela" (comportamento padrão do navegador)
+    standardDownload(url, filename);
+  }
+}
+
+function standardDownload(url, filename) {
+  const cleanName = filename.replace(/\.[^.]+$/, '');
   const a    = document.createElement('a');
   a.href     = url;
-  a.download = `${name}_4K.mp4`;
+  a.download = `${cleanName}_GiantAnimator_4K.mp4`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
+  toast('Download iniciado!', 'info');
 }
 
 /* ═══════════════════════════════════════════════════════════════

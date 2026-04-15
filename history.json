@@ -1,323 +1,267 @@
 [
   {
-    "filename": "imagem_colada_1776201168428.png",
-    "outputFile": "3652f914-53ff-481e-b1ad-b704db5cc6ab_720p.mp4",
+    "filename": "imagem_colada_1776265800173.png",
+    "outputFile": "70bc5b92-cbc6-44c7-8831-22c747a8ea72_4K.mp4",
     "status": "done",
     "duration": 20,
     "props": {
-      "title": "Vendas por Subcategoria",
+      "title": "Drivers de aumento de eficiência com gráfico de barras horizontais",
       "data": [
         {
-          "label": "Guarda roupas",
+          "label": "Driver 5",
+          "value": 75
+        },
+        {
+          "label": "Driver 4",
+          "value": 55
+        },
+        {
+          "label": "Driver 3",
+          "value": 45
+        },
+        {
+          "label": "Driver 2",
           "value": 35
         },
         {
-          "label": "Mesas",
-          "value": 30
-        },
-        {
-          "label": "Armario de cozinha",
-          "value": 20
-        },
-        {
-          "label": "Cama",
-          "value": 8
-        },
-        {
-          "label": "Armario aereo",
-          "value": 7
+          "label": "Driver 1",
+          "value": 25
         }
       ],
-      "backgroundColor": "#0c1b33",
-      "textColor": "#e0f2fe",
+      "backgroundColor": "#FAF9F6",
+      "textColor": "#0f172a",
       "seriesColors": [
-        "#29a8ff",
-        "#000080",
-        "#ff7f0e",
-        "#800080",
-        "#ff69b4"
+        "#2D4B92",
+        "#18BDD2",
+        "#F16881",
+        "#FFB436",
+        "#A1D03C"
       ],
-      "chartType": "pie",
-      "theme": "ocean",
+      "showValueLabels": true,
+      "chartType": "HorizontalBarChart",
+      "theme": "light",
       "colors": [
-        "#0ea5e9",
-        "#38bdf8",
-        "#7dd3fc",
-        "#22d3ee",
-        "#0284c7",
-        "#bae6fd"
+        "#2563eb",
+        "#059669",
+        "#d97706",
+        "#dc2626",
+        "#7c3aed",
+        "#0891b2"
       ],
-      "width": 1280,
-      "height": 720,
+      "width": 3840,
+      "height": 2160,
       "fps": 30,
       "durationInSeconds": 8
     },
-    "id": "82df4c4f-56e4-4a59-ac3a-69edaee8ae9f",
-    "createdAt": "2026-04-14T21:13:31.002Z"
+    "id": "8c9fee7d-4e40-4607-8c62-51d8e002c7b7",
+    "createdAt": "2026-04-15T15:10:46.506Z"
   },
   {
-    "filename": "imagem_colada_1776201025845.png",
-    "outputFile": "28d14fef-c635-403f-ac43-51cac807e6fd_720p.mp4",
+    "filename": "imagem_colada_1776264956688.png",
+    "outputFile": "ad494264-611b-4f12-88ca-497b811f7229_4K.mp4",
     "status": "done",
     "duration": 20,
     "props": {
-      "title": "Vendas por Subcategoria",
+      "title": "Gráfico de barras horizontais de impulsionadores e barreiras de crescimento",
       "data": [
         {
-          "label": "Guarda roupas",
-          "value": 35
+          "label": "Growth Driver 10",
+          "value": 14
         },
         {
-          "label": "Mesas",
-          "value": 30
+          "label": "Growth Driver 09",
+          "value": 11
         },
         {
-          "label": "Armario de cozinha",
-          "value": 20
-        },
-        {
-          "label": "Cama",
+          "label": "Growth Driver 08",
           "value": 8
         },
         {
-          "label": "Armario aereo",
+          "label": "Growth Driver 07",
           "value": 7
+        },
+        {
+          "label": "Growth Driver 06",
+          "value": 9
+        },
+        {
+          "label": "Growth Driver 05",
+          "value": 5
+        },
+        {
+          "label": "Growth Driver 04",
+          "value": 11
+        },
+        {
+          "label": "Growth Driver 03",
+          "value": 10
+        },
+        {
+          "label": "Growth Driver 02",
+          "value": 6
+        },
+        {
+          "label": "Growth Driver 01",
+          "value": 15
         }
       ],
-      "backgroundColor": "#0c1b33",
-      "textColor": "#e0f2fe",
+      "unit": "%",
+      "backgroundColor": "#FAF9F6",
+      "textColor": "#0f172a",
       "seriesColors": [
-        "#29a8ff",
-        "#000080",
-        "#ff7f0e",
-        "#800080",
-        "#ff69b4"
+        "#56B9D9",
+        "#1F4E79"
       ],
-      "chartType": "line",
-      "theme": "ocean",
+      "series": [
+        {
+          "label": "Barrier",
+          "data": [
+            14,
+            11,
+            8,
+            7,
+            9,
+            5,
+            11,
+            10,
+            6,
+            15
+          ],
+          "color": "#56B9D9"
+        },
+        {
+          "label": "Drivers",
+          "data": [
+            12,
+            9,
+            6,
+            4,
+            6,
+            4,
+            11,
+            10,
+            8,
+            12
+          ],
+          "color": "#1F4E79"
+        }
+      ],
+      "showValueLabels": true,
+      "chartType": "HorizontalBarChart",
+      "theme": "light",
       "colors": [
-        "#0ea5e9",
-        "#38bdf8",
-        "#7dd3fc",
-        "#22d3ee",
-        "#0284c7",
-        "#bae6fd"
+        "#2563eb",
+        "#059669",
+        "#d97706",
+        "#dc2626",
+        "#7c3aed",
+        "#0891b2"
       ],
-      "width": 1280,
-      "height": 720,
+      "width": 3840,
+      "height": 2160,
       "fps": 30,
       "durationInSeconds": 8
     },
-    "id": "964960c4-2ecb-41fb-a1f6-591f6773326b",
-    "createdAt": "2026-04-14T21:11:51.062Z"
+    "id": "834b6e95-72e4-4470-9883-98cdf456cd6b",
+    "createdAt": "2026-04-15T14:56:43.552Z"
   },
   {
-    "filename": "imagem_colada_1776200370693.png",
-    "outputFile": "556fbab5-1b2b-4dbd-92ec-33739821aa5a_720p.mp4",
+    "filename": "imagem_colada_1776263950795.png",
+    "outputFile": "19741e49-638b-4371-804f-d2c785717e47_4K.mp4",
     "status": "done",
     "duration": 20,
     "props": {
-      "title": "Vendas por Subcategoria",
+      "title": "Drivers de aumento de eficiência com gráfico de barras horizontais",
       "data": [
         {
-          "label": "Guarda roupas",
+          "label": "Driver 5",
+          "value": 75
+        },
+        {
+          "label": "Driver 4",
+          "value": 55
+        },
+        {
+          "label": "Driver 3",
+          "value": 45
+        },
+        {
+          "label": "Driver 2",
           "value": 35
         },
         {
-          "label": "Mesas",
-          "value": 30
-        },
-        {
-          "label": "Armario de cozinha",
-          "value": 20
-        },
-        {
-          "label": "Cama",
-          "value": 8
-        },
-        {
-          "label": "Armario aereo",
-          "value": 7
+          "label": "Driver 1",
+          "value": 25
         }
       ],
-      "backgroundColor": "#0c1b33",
-      "textColor": "#e0f2fe",
+      "backgroundColor": "#FAF9F6",
+      "textColor": "#0f172a",
       "seriesColors": [
-        "#29a8ff",
-        "#000080",
-        "#ff7f0e",
-        "#800080",
-        "#ff69b4"
+        "#2D4B92",
+        "#18BDD2",
+        "#F16881",
+        "#FFB436",
+        "#A1D03C"
       ],
-      "chartType": "line",
-      "theme": "ocean",
+      "showValueLabels": true,
+      "chartType": "HorizontalBarChart",
+      "theme": "light",
       "colors": [
-        "#0ea5e9",
-        "#38bdf8",
-        "#7dd3fc",
-        "#22d3ee",
-        "#0284c7",
-        "#bae6fd"
+        "#2563eb",
+        "#059669",
+        "#d97706",
+        "#dc2626",
+        "#7c3aed",
+        "#0891b2"
       ],
-      "width": 1280,
-      "height": 720,
+      "width": 3840,
+      "height": 2160,
       "fps": 30,
       "durationInSeconds": 8
     },
-    "id": "1d1e7221-9a04-42e0-8039-60ef3f19051b",
-    "createdAt": "2026-04-14T21:00:13.420Z"
+    "id": "be05e2ac-b5b2-4c96-ac90-96516f598496",
+    "createdAt": "2026-04-15T14:39:53.062Z"
   },
   {
-    "filename": "imagem_colada_1776200301158.png",
-    "outputFile": "943ec5c9-8058-4873-86bf-54ce9b7c6e94_720p.mp4",
+    "filename": "imagem_colada_1776263888359.png",
+    "outputFile": "a3646f1a-f95a-4bc4-9c40-1d1d90ddfe0f_4K.mp4",
     "status": "done",
     "duration": 20,
     "props": {
-      "title": "Vendas por Subcategoria",
+      "title": "Drivers de aumento de eficiência com gráfico de barras horizontais",
       "data": [
         {
-          "label": "Guarda roupas",
+          "label": "Driver 5",
+          "value": 75
+        },
+        {
+          "label": "Driver 4",
+          "value": 55
+        },
+        {
+          "label": "Driver 3",
+          "value": 45
+        },
+        {
+          "label": "Driver 2",
           "value": 35
         },
         {
-          "label": "Mesas",
-          "value": 30
-        },
-        {
-          "label": "Armario de cozinha",
-          "value": 20
-        },
-        {
-          "label": "Cama",
-          "value": 8
-        },
-        {
-          "label": "Armario aereo",
-          "value": 7
-        }
-      ],
-      "backgroundColor": "#060614",
-      "textColor": "#f0fff4",
-      "seriesColors": [
-        "#29a8ff",
-        "#000080",
-        "#ff7f0e",
-        "#800080",
-        "#ff69b4"
-      ],
-      "chartType": "line",
-      "theme": "neon",
-      "colors": [
-        "#00ff88",
-        "#00ccff",
-        "#ff00ff",
-        "#f9f871",
-        "#ff6600",
-        "#00e5ff"
-      ],
-      "width": 1280,
-      "height": 720,
-      "fps": 30,
-      "durationInSeconds": 8
-    },
-    "id": "28da8b5d-7b50-46d0-80da-7745716d5124",
-    "createdAt": "2026-04-14T20:59:12.518Z"
-  },
-  {
-    "filename": "imagem_colada_1776200244297.png",
-    "outputFile": "0db4ea5e-0ad4-4543-ae5c-dbf1639147c3_720p.mp4",
-    "status": "done",
-    "duration": 20,
-    "props": {
-      "title": "Vendas por Subcategoria",
-      "data": [
-        {
-          "label": "Guarda roupas",
-          "value": 35
-        },
-        {
-          "label": "Mesas",
-          "value": 30
-        },
-        {
-          "label": "Armario de cozinha",
-          "value": 20
-        },
-        {
-          "label": "Cama",
-          "value": 8
-        },
-        {
-          "label": "Armario aereo",
-          "value": 7
-        }
-      ],
-      "backgroundColor": "#1a0800",
-      "textColor": "#fff7ed",
-      "seriesColors": [
-        "#29a8ff",
-        "#000080",
-        "#ff7f0e",
-        "#800080",
-        "#ff69b4"
-      ],
-      "chartType": "pie",
-      "theme": "sunset",
-      "colors": [
-        "#f97316",
-        "#ef4444",
-        "#ec4899",
-        "#f59e0b",
-        "#fb923c",
-        "#fbbf24"
-      ],
-      "width": 1280,
-      "height": 720,
-      "fps": 30,
-      "durationInSeconds": 8
-    },
-    "id": "12f57a04-7314-4f77-a2c6-6589223c29d4",
-    "createdAt": "2026-04-14T20:58:08.616Z"
-  },
-  {
-    "filename": "imagem_colada_1776200169960.png",
-    "outputFile": "88897ac4-180b-4bb0-9522-0212ad6921ed_720p.mp4",
-    "status": "done",
-    "duration": 20,
-    "props": {
-      "title": "Vendas por Subcategoria",
-      "data": [
-        {
-          "label": "Guarda roupas",
-          "value": 35
-        },
-        {
-          "label": "Mesas",
-          "value": 30
-        },
-        {
-          "label": "Armario de cozinha",
-          "value": 20
-        },
-        {
-          "label": "Cama",
-          "value": 8
-        },
-        {
-          "label": "Armario aereo",
-          "value": 7
+          "label": "Driver 1",
+          "value": 25
         }
       ],
       "backgroundColor": "#0f1117",
       "textColor": "#e8eaf6",
       "seriesColors": [
-        "#29a8ff",
-        "#000080",
-        "#ff7f0e",
-        "#800080",
-        "#ff69b4"
+        "#2D4B92",
+        "#18BDD2",
+        "#F16881",
+        "#FFB436",
+        "#A1D03C"
       ],
-      "chartType": "PieChart",
+      "showValueLabels": true,
+      "chartType": "HorizontalBarChart",
       "theme": "dark",
       "colors": [
         "#7c3aed",
@@ -327,269 +271,12 @@
         "#f59e0b",
         "#ef4444"
       ],
-      "width": 1280,
-      "height": 720,
+      "width": 3840,
+      "height": 2160,
       "fps": 30,
       "durationInSeconds": 8
     },
-    "id": "957bcc9f-0202-4840-8dba-f11f146cfc2b",
-    "createdAt": "2026-04-14T20:57:02.783Z"
-  },
-  {
-    "filename": "imagem_colada_1776199400408.png",
-    "outputFile": "bce4151e-c47e-4407-ba41-fb641a945e9d_720p.mp4",
-    "status": "done",
-    "duration": 20,
-    "props": {
-      "title": "Quantidade de itens do estoque em kg:",
-      "data": [
-        {
-          "label": "Trigo",
-          "value": 100
-        },
-        {
-          "label": "Arroz",
-          "value": 250
-        },
-        {
-          "label": "Feijão",
-          "value": 200
-        },
-        {
-          "label": "Batata",
-          "value": 119
-        },
-        {
-          "label": "Aipim",
-          "value": 80
-        }
-      ],
-      "backgroundColor": "#0f1117",
-      "textColor": "#e8eaf6",
-      "seriesColors": [
-        "#1f77b4",
-        "#ff7f0e",
-        "#2ca02c",
-        "#d62728",
-        "#9467bd"
-      ],
-      "showValueLabels": true,
-      "chartType": "pie",
-      "theme": "sunset",
-      "colors": [
-        "#f97316",
-        "#ef4444",
-        "#ec4899",
-        "#f59e0b",
-        "#dc2626",
-        "#fb923c"
-      ],
-      "width": 1280,
-      "height": 720,
-      "fps": 30,
-      "durationInSeconds": 8
-    },
-    "id": "b73ae225-50fb-4b5a-af87-e2cc6d145688",
-    "createdAt": "2026-04-14T20:44:12.186Z"
-  },
-  {
-    "filename": "bar-chart-example.jpg",
-    "outputFile": "de110ac7-b02d-46c3-bd85-43fe21376d0b_720p.mp4",
-    "status": "done",
-    "duration": 20,
-    "props": {
-      "title": "Market Share Comparison of Smartphone Brands",
-      "data": [
-        {
-          "label": "Product 1",
-          "value": 1
-        },
-        {
-          "label": "Product 2",
-          "value": 2
-        },
-        {
-          "label": "Product 3",
-          "value": 7
-        },
-        {
-          "label": "Product 4",
-          "value": 12
-        },
-        {
-          "label": "Product 5",
-          "value": 15
-        },
-        {
-          "label": "Product 6",
-          "value": 28
-        },
-        {
-          "label": "Product 7",
-          "value": 24
-        },
-        {
-          "label": "Product 8",
-          "value": 9
-        },
-        {
-          "label": "Product 9",
-          "value": 8
-        },
-        {
-          "label": "Product 10",
-          "value": 4
-        }
-      ],
-      "backgroundColor": "#ffffff",
-      "textColor": "#333333",
-      "seriesColors": [
-        "#66d9ef",
-        "#1e90ff",
-        "#3498db",
-        "#f1c40f",
-        "#ffa500",
-        "#800080",
-        "#e74c3c",
-        "#90ee90",
-        "#8a2be2",
-        "#f682c2"
-      ],
-      "borderRadius": 4,
-      "showValueLabels": true,
-      "chartType": "BarChart",
-      "theme": "neon",
-      "width": 1280,
-      "height": 720,
-      "fps": 30,
-      "durationInSeconds": 8
-    },
-    "id": "abadb3a4-8a3d-4801-b4bf-956bf11be3cf",
-    "createdAt": "2026-04-14T20:11:47.486Z"
-  },
-  {
-    "filename": "bar-chart-example.jpg",
-    "outputFile": "09f6e2ec-8c47-4bf3-841c-bfe783c444ef_720p.mp4",
-    "status": "done",
-    "duration": 20,
-    "props": {
-      "title": "Market Share Comparison of Smartphone Brands",
-      "data": [
-        {
-          "label": "Product 1",
-          "value": 1
-        },
-        {
-          "label": "Product 2",
-          "value": 2
-        },
-        {
-          "label": "Product 3",
-          "value": 7
-        },
-        {
-          "label": "Product 4",
-          "value": 12
-        },
-        {
-          "label": "Product 5",
-          "value": 15
-        },
-        {
-          "label": "Product 6",
-          "value": 28
-        },
-        {
-          "label": "Product 7",
-          "value": 24
-        },
-        {
-          "label": "Product 8",
-          "value": 9
-        },
-        {
-          "label": "Product 9",
-          "value": 8
-        },
-        {
-          "label": "Product 10",
-          "value": 4
-        }
-      ],
-      "backgroundColor": "#ffffff",
-      "textColor": "#333333",
-      "seriesColors": [
-        "#66d9ef",
-        "#1e90ff",
-        "#3498db",
-        "#f1c40f",
-        "#ffa500",
-        "#800080",
-        "#e74c3c",
-        "#90ee90",
-        "#8a2be2",
-        "#f682c2"
-      ],
-      "borderRadius": 4,
-      "showValueLabels": true,
-      "chartType": "BarChart",
-      "theme": "dark",
-      "width": 1280,
-      "height": 720,
-      "fps": 30,
-      "durationInSeconds": 8
-    },
-    "id": "fefe3209-4fdb-4c41-aa3b-faaad2f0aca6",
-    "createdAt": "2026-04-14T20:08:51.357Z"
-  },
-  {
-    "filename": "1775678174_image.png",
-    "outputFile": "render-1775678192.mp4",
-    "status": "done",
-    "duration": 54.2,
-    "props": {
-      "title": null,
-      "backgroundColor": "#F8F8F8",
-      "textColor": "#333333",
-      "seriesColors": [
-        "#1A3263",
-        "#007BFF",
-        "#5599FF",
-        "#A0BADB",
-        "#DDE5EF",
-        "#203C70"
-      ],
-      "borderRadius": 0,
-      "showValueLabels": true,
-      "data": [
-        {
-          "label": "Netflix",
-          "value": 34
-        },
-        {
-          "label": "YouTube",
-          "value": 20
-        },
-        {
-          "label": "Hulu",
-          "value": 11
-        },
-        {
-          "label": "Amazon",
-          "value": 8
-        },
-        {
-          "label": "Disney+",
-          "value": 4
-        },
-        {
-          "label": "Other",
-          "value": 23
-        }
-      ],
-      "componentId": "PieChart"
-    },
-    "id": "c7d6a2cf-3594-4e4c-94e6-1e552c8b4c0a",
-    "createdAt": "2026-04-08T19:57:10.094Z"
+    "id": "137199ed-fa85-46f4-9a74-c1e29ba9e649",
+    "createdAt": "2026-04-15T14:38:49.436Z"
   }
 ]

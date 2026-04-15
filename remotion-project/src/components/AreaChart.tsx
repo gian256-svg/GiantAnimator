@@ -9,11 +9,11 @@ import {
 import { Theme, resolveTheme } from '../theme';
 
 export interface AreaChartProps {
-  data?: { label: string; value: number   theme?: string;
+  data?: { label: string; value: number }[];
+  theme?: string;
   backgroundColor?: string;
   colors?: string[];
   textColor?: string;
-}[];
   series?: { label: string; data: number[]; color?: string }[];
   labels?: string[];
   title: string;
@@ -75,7 +75,7 @@ export const AreaChart: React.FC<AreaChartProps> = ({
   const progress = spring({
     frame: frame - 20,
     fps,
-    config: { damping: 80, stiffness: 200, overshoot_clamp: true },
+    config: { damping: 80, stiffness: 200, overshootClamping: true },
   });
 
   const rawCount = Math.min(Math.ceil(progress * xAxisLabels.length), xAxisLabels.length);

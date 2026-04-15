@@ -22,7 +22,6 @@ export interface RadarChartProps {
   backgroundColor?: string;
   textColor?: string;
   theme?: string;
-  backgroundColor?: string;
   colors?: string[];
   textColor?: string;
 }

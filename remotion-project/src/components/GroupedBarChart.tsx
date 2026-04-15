@@ -25,7 +25,6 @@ export interface GroupedBarChartProps {
   highlightGroup?: number;
   backgroundColor?: string;
   theme?: string;
-  backgroundColor?: string;
   colors?: string[];
   textColor?: string;
 }
@@ -39,7 +38,7 @@ export const GroupedBarChart: React.FC<GroupedBarChartProps> = ({
   showLegend = true,
   showValues = true,
   highlightGroup,
-  backgroundColor ?? T.background,
+  backgroundColor,
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
@@ -55,7 +54,7 @@ export const GroupedBarChart: React.FC<GroupedBarChartProps> = ({
 
   if (categories.length === 0 || series.length === 0) {
     return (
-      <AbsoluteFill style={{ backgroundColor ?? T.background, justifyContent: 'center', alignItems: 'center' }}>
+      <AbsoluteFill style={{ backgroundColor: backgroundColor ?? T.background,  justifyContent: 'center', alignItems: 'center' }}>
         <p style={{ color: T.text }}>Dados insuficientes.</p>
       </AbsoluteFill>
     );
@@ -75,7 +74,7 @@ export const GroupedBarChart: React.FC<GroupedBarChartProps> = ({
   };
 
   return (
-    <AbsoluteFill style={{ backgroundColor ?? T.background }}>
+    <AbsoluteFill style={{ backgroundColor: backgroundColor ?? T.background }}>
       {/* ZONA 1 — Cabeçalho */}
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',

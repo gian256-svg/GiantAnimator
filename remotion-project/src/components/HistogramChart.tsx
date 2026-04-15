@@ -17,7 +17,6 @@ export interface HistogramChartProps {
   backgroundColor?: string;
   showValueLabels?: boolean;
   theme?: string;
-  backgroundColor?: string;
   colors?: string[];
   textColor?: string;
 }
@@ -28,7 +27,7 @@ export const HistogramChart: React.FC<HistogramChartProps> = ({
   showKDE = true,
   title,
   subtitle,
-  backgroundColor ?? T.background,
+  backgroundColor,
   showValueLabels = true,
 }) => {
   const frame = useCurrentFrame();
@@ -68,7 +67,7 @@ export const HistogramChart: React.FC<HistogramChartProps> = ({
   const barWidth = plotWidth / binCount;
 
   return (
-    <AbsoluteFill style={{ backgroundColor ?? T.background }}>
+    <AbsoluteFill style={{ backgroundColor: backgroundColor ?? T.background }}>
       {/* ZONA 1 — Cabeçalho */}
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',

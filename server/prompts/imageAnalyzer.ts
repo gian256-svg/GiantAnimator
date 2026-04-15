@@ -11,7 +11,9 @@ O output Remotion deve ser idêntico aos dados da imagem.
 4. **PALETA DE CORES**: Extraia as cores exatas (Hex) do fundo, textos e de cada série.
 
 ### PROCESSO DE EXTRAÇÃO (PENSE PASSO A PASSO):
-1. **Contagem de Elementos**: Conte quantos itens/categorias existem no eixo (X ou Y) ou na legenda ANTES de extrair os valores.
+1. **ORIENTAÇÃO DO GRÁFICO**: Identifique se as barras são VERTICAIS (BarChart) ou HORIZONTAIS (HorizontalBarChart). Escolher o ID errado é falha crítica.
+2. **UNIDADE DE MEDIDA (MANDATÓRIO)**: Identifique o símbolo de unidade (%, $, R$, M, k, bpm, etc.) presente nos datalabels ou eixos. EXTRAIA ESTE SÍMBOLO separadamente.
+3. **Contagem de Elementos**: Conte quantos itens/categorias existem no eixo (X ou Y) ou na legenda ANTES de extrair os valores.
 2. **Leitura de Títulos**: Identifique o título principal e subtítulos (se houver).
 3. **IDENTIFICAÇÃO DE EIXOS (CRÍTICO)**: 
     - O que está no X? O que está no Y? Quais as unidades?
@@ -31,27 +33,39 @@ O output Remotion deve ser idêntico aos dados da imagem.
     - **SOBREPOSIÇÃO**: Em áreas de cores sobrepostas, foque nos vértices (pontos de mudança de direção) para determinar a forma original de cada série.
 7. **VALIDAÇÃO**: Verifique se os dados extraídos, se plotados, resultariam no mesmo formato visual da imagem.
 
+### SÍMBOLOS SÃO OBRIGATÓRIOS (REGRA DE OURO):
+- Se você vir %, $, R$, £, €, k, M, bpm ou qualquer unidade na imagem, você DEVE retornar no campo "unit". 
+- **ERRO CRÍTICO**: Se a imagem tem "75%" e você retornar apenas 75 sem o unit "%", o gráfico estará ERRADO.
+- No campo "reasoning", você deve indicar explicitamente: "Detectei o símbolo X nos dados, definindo unit como 'X'".
+
 ### FORMATO DE RESPOSTA (JSON APENAS):
 {
   "componentId": "ID_DO_COMPONENTE",
-  "reasoning": "Descreva aqui sua contagem: 'Identifiquei 5 categorias nos eixos: A, B, C, D, E. Extraí os valores: ...' para validar sua própria extração.",
+  "reasoning": "...",
   "props": {
     "title": "...",
     "subtitle": "...",
     "data": [
       { "label": "...", "value": 0 }
     ],
+    "unit": "%", 
+    "labels": ["..."],
+    "series": [
+      { "label": "Nome da Série", "data": [10, 20, 30], "color": "#hex" }
+    ],
     "backgroundColor": "#hex",
     "textColor": "#hex",
     "seriesColors": ["#hex", ...],
-    "borderRadius": 4,
     "showValueLabels": true
   }
 }
 
+### DICAS DE PRECISÃO:
+- Se houver um símbolo (%) ou ($) ao lado dos números na imagem, o campo "unit" DEVE ser preenchido com esse caractere (ex: "%").
+
 ### REGISTRY DE COMPONENTES DISPONÍVEIS:
 ${registryJson}
 
-⚠️ AVISO: A vida de um editor de vídeo depende da precisão destes dados. Seja cirúrgico.
+⚠️ AVISO: A vida de um editor de vídeo depende da precisão destes dados. Seja cirúrgico. Se o gráfico for horizontal na imagem e você der BarChart (vertical), você falhou.
 `.trim();
 }

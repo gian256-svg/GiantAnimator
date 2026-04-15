@@ -27,6 +27,7 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
   data: propData = [],
   title,
   subtitle,
+  theme = 'dark',
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
@@ -61,14 +62,14 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
   if (waterfallData.length <= 1) {
     return (
       <AbsoluteFill style={{ backgroundColor: T.background, justifyContent: 'center', alignItems: 'center' }}>
-        <p style={{ color: T.text, fontSize: Theme.typography.category.size }}>Aguardando dados...</p>
+        <p style={{ color: T.text, fontSize: Theme.typography.subtitle.size }}>Aguardando dados...</p>
       </AbsoluteFill>
     );
   }
 
   // Safe Zone 4K
-  const margin = Theme.spacing.padding;
-  const titleHeight = Theme.spacing.titleHeight;
+  const margin = 128;
+  const titleHeight = 160;
   const plotWidth = width - margin * 2;
   const plotHeight = height - margin * 2 - titleHeight - 100;
   const chartTop = margin + titleHeight;
@@ -94,9 +95,9 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
   };
 
   const getColor = (type: string) => {
-    if (type === "positive") return Theme.colors.semantic.positive;
-    if (type === "negative") return Theme.colors.semantic.negative;
-    return Theme.colors.categorical[0];
+    if (type === "positive") return "#10b981";
+    if (type === "negative") return "#ef4444";
+    return T.colors[0];
   };
 
   return (
@@ -140,7 +141,7 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
             return (
               <React.Fragment key={v}>
                 <line x1={chartLeft} y1={y} x2={chartLeft + plotWidth} y2={y} stroke={T.grid} strokeWidth={isZero ? 2 : 1} opacity={isZero ? 1 : 0.6} />
-                <text x={chartLeft - 20} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.ui.axisText, fontFamily: Theme.typography.fontFamily }}>
+                <text x={chartLeft - 20} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: T.textMuted, fontFamily: Theme.typography.fontFamily }}>
                   {formatValue(val)}
                 </text>
               </React.Fragment>
@@ -156,7 +157,7 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
           const progress = spring({
             frame: frame - 20 - (i * 8),
             fps,
-            config: { damping: 14, stiffness: 60 },
+            config: { damping: 14, stiffness: 60, overshootClamping: true },
           });
 
           const yStart = getY(d.start);
@@ -171,14 +172,14 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
               {i < waterfallData.length - 1 && progress > 0.9 && (
                 <line 
                   x1={barX + barWidth} y1={yEnd} x2={barX + categoryWidth + (categoryWidth * barGap) / 2} y2={yEnd} 
-                  stroke={Theme.colors.ui.axisText} strokeDasharray="6 6" opacity={0.5} 
+                  stroke={T.textMuted} strokeDasharray="6 6" opacity={0.5} 
                 />
               )}
               
               <rect
                 x={barX} y={barY} width={barWidth} height={Math.max(barH, 2)}
                 fill={`url(#waterGrad-${i}-${instanceId})`}
-                rx={Theme.spacing.barRadius}
+                rx={6}
               />
 
               {/* Label de Valor (D8) */}
@@ -188,8 +189,8 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
                   y={d.type === "negative" ? barY + barH + 40 : barY - 20}
                   textAnchor="middle"
                   style={{ 
-                    fontSize: Theme.typography.value.size - 4, 
-                    fill: Theme.typography.value.color, 
+                    fontSize: Theme.typography.axis.size - 4, 
+                    fill: T.text, 
                     fontWeight: 700,
                     fontFamily: Theme.typography.fontFamily,
                     opacity: interpolate(progress, [0.8, 1], [0, 1])
@@ -203,7 +204,7 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
               <text
                 x={barX + barWidth / 2} y={chartTop + plotHeight + 60}
                 textAnchor="middle"
-                style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.ui.axisText, fontFamily: Theme.typography.fontFamily }}
+                style={{ fontSize: Theme.typography.axis.size, fill: T.textMuted, fontFamily: Theme.typography.fontFamily }}
               >
                 {d.label}
               </text>

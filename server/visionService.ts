@@ -109,6 +109,20 @@ export async function analyzeChartImage(imagePath: string): Promise<ChartAnalysi
     console.warn(`⚠️  [VISION] props.data ausente, inicializando vazio`);
     analysis.props.data = [];
   }
+  // ─── ✅ Heurística de Unidade (Conserta falhas de extração da IA) ───
+  if (!analysis.props.unit) {
+    const textToSearch = (analysis.props.title || "") + " " + (analysis.props.subtitle || "") + " " + 
+                         analysis.props.data.map(d => d.label).join(" ") + " " +
+                         (analysis.props.labels?.join(" ") || "");
+    
+    if (textToSearch.includes("%")) {
+      console.log(`💡 [VISION] Heurística: Detectado '%' nos textos, forçando unit='%'`);
+      analysis.props.unit = "%";
+    } else if (textToSearch.includes("$") || textToSearch.toLowerCase().includes("vendas")) {
+      console.log(`💡 [VISION] Heurística: Detectado '$' ou 'vendas', sugerindo unit='$'`);
+      analysis.props.unit = "$";
+    }
+  }
 
   // ─── Salvar cache ────────────────────────────────────────────
   fs.writeFileSync(cacheFile, JSON.stringify(analysis, null, 2));

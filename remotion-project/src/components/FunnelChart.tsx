@@ -51,8 +51,8 @@ export const FunnelChart: React.FC<FunnelChartProps> = ({
   };
 
   // Safe Zone 4K
-  const margin = Theme.spacing.padding || 128;
-  const titleHeight = Theme.spacing.titleHeight || 160;
+  const margin = 128;
+  const titleHeight = 160;
   const paddingX = 400;
   const chartTop = margin + titleHeight;
   const plotWidth = width - paddingX * 2;
@@ -62,7 +62,7 @@ export const FunnelChart: React.FC<FunnelChartProps> = ({
   if (data.length === 0) {
     return (
       <AbsoluteFill style={{ backgroundColor: resolvedBg, justifyContent: 'center', alignItems: 'center' }}>
-        <p style={{ color: resolvedText, fontSize: Theme.typography.category.size }}>Nenhum dado para exibir.</p>
+        <p style={{ color: resolvedText, fontSize: Theme.typography.subtitle.size }}>Nenhum dado para exibir.</p>
       </AbsoluteFill>
     );
   }
@@ -79,14 +79,14 @@ export const FunnelChart: React.FC<FunnelChartProps> = ({
         {title && <div style={{ 
           fontSize: Theme.typography.title.size, 
           fontWeight: Theme.typography.title.weight, 
-          color: Theme.typography.title.color,
+          color: T.text,
           fontFamily: Theme.typography.fontFamily,
           marginBottom: 10
         }}>{title}</div>}
         {subtitle && <div style={{ 
           fontSize: Theme.typography.subtitle.size, 
           fontWeight: Theme.typography.subtitle.weight, 
-          color: Theme.typography.subtitle.color,
+          color: T.textMuted,
           fontFamily: Theme.typography.fontFamily
         }}>{subtitle}</div>}
       </div>

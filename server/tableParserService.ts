@@ -50,6 +50,7 @@ export interface NormalizedTableData {
         totalCols: number;
         numericColumns: string[];
         categoricalColumns: string[];
+        unit?: string;
         sample: Record<string, string | number>[];
     };
 }
@@ -107,20 +108,37 @@ export const tableParserService = {
         }
 
         const headers = Object.keys(rows[0]);
-
+        let detectedUnit = '';
+        
         // Detecta colunas numéricas vs categóricas
         const numericColumns: string[] = [];
         const categoricalColumns: string[] = [];
 
         headers.forEach(h => {
             const values = rows.map(r => r[h]);
-            const isNumeric = values.every(v => v !== '' && !isNaN(Number(v)));
+            
+            // Tenta detectar se a coluna é numérica mesmo com símbolos (%, $, etc)
+            let columnUnit = '';
+            const isNumeric = values.every(v => {
+                if (v === '' || v === null || v === undefined) return true;
+                const s = String(v).trim();
+                const cleaned = s.replace(/[%\$]|R\$/g, '').replace(',', '.').trim();
+                if (s.includes('%')) columnUnit = '%';
+                else if (s.includes('$')) columnUnit = '$';
+                // Retorna true se for numérico apo's limpeza
+                return !isNaN(Number(cleaned)) && cleaned !== '';
+            });
+
             if (isNumeric) {
                 numericColumns.push(h);
+                if (columnUnit) detectedUnit = columnUnit;
             } else {
                 categoricalColumns.push(h);
             }
         });
+
+        // Se não detectou nos valores, tenta nos headers
+        if (!detectedUnit) detectedUnit = detectUnitInHeaders(headers);
 
         // Infere shape
         const shape: 'wide' | 'long' =
@@ -138,6 +156,7 @@ export const tableParserService = {
                 totalCols: headers.length,
                 numericColumns,
                 categoricalColumns,
+                unit: detectedUnit,
                 // Máximo 5 linhas de amostra para o prompt
                 sample: rows.slice(0, 5),
             }
@@ -173,3 +192,18 @@ export const tableParserService = {
         }));
     }
 };
+
+/**
+ * Tenta detectar uma unidade de medida comum nos headers.
+ */
+function detectUnitInHeaders(headers: string[]): string {
+  const units = ['%', '$', 'R$', '€', '£', 'bpm', 'kg', 'm', 'km', '°C', '°F'];
+  for (const h of headers) {
+    for (const u of units) {
+      if (h.includes(`(${u})`) || h.includes(` ${u}`) || h.endsWith(u)) {
+        return u;
+      }
+    }
+  }
+  return '';
+}

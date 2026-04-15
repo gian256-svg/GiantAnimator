@@ -1,4 +1,4 @@
-import React, { useMemo, useId } from "react";
+import React, { useMemo } from "react";
 import {
   spring,
   useCurrentFrame,
@@ -27,7 +27,6 @@ export interface SankeyChartProps {
   subtitle?: string;
   backgroundColor?: string;
   theme?: string;
-  backgroundColor?: string;
   colors?: string[];
   textColor?: string;
 }
@@ -37,16 +36,16 @@ export const SankeyChart: React.FC<SankeyChartProps> = ({
   links = [],
   title,
   subtitle,
-  backgroundColor ?? T.background,
+  backgroundColor,
+  theme = 'dark',
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
-  const T = resolveTheme(theme ?? 'dark');
-  const instanceId = useId().replace(/:/g, "");
+  const T = resolveTheme(theme);
 
   // Safe Zone 4K
-  const margin = Theme.spacing.padding || 128;
-  const titleHeight = Theme.spacing.titleHeight || 160;
+  const margin = 128;
+  const titleHeight = 160;
   const nodeWidth = 40;
   const plotWidth = width - margin * 2 - nodeWidth - 400; // Recuo para labels
   const plotHeight = height - margin * 2 - titleHeight - 100;
@@ -104,10 +103,10 @@ export const SankeyChart: React.FC<SankeyChartProps> = ({
     });
 
     return { nodes: nodesLayout, links: linksLayout };
-  }, [nodes, links, plotWidth, plotHeight, margin, chartTop]);
+  }, [nodes, links, plotWidth, plotHeight, margin, chartTop, T.colors]);
 
   return (
-    <AbsoluteFill style={{ backgroundColor ?? T.background }}>
+    <AbsoluteFill style={{ backgroundColor: backgroundColor ?? T.background }}>
       {/* ZONA 1 — Cabeçalho */}
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',
@@ -116,14 +115,14 @@ export const SankeyChart: React.FC<SankeyChartProps> = ({
         {title && <div style={{ 
           fontSize: Theme.typography.title.size, 
           fontWeight: Theme.typography.title.weight, 
-          color: Theme.typography.title.color,
+          color: T.text,
           fontFamily: Theme.typography.fontFamily,
           marginBottom: 10
         }}>{title}</div>}
         {subtitle && <div style={{ 
           fontSize: Theme.typography.subtitle.size, 
           fontWeight: Theme.typography.subtitle.weight, 
-          color: Theme.typography.subtitle.color,
+          color: T.textMuted,
           fontFamily: Theme.typography.fontFamily
         }}>{subtitle}</div>}
       </div>

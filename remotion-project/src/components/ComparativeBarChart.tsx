@@ -22,7 +22,6 @@ export interface ComparativeBarChartProps {
   subtitle?: string;
   backgroundColor?: string;
   theme?: string;
-  backgroundColor?: string;
   colors?: string[];
   textColor?: string;
 }
@@ -34,7 +33,7 @@ export const ComparativeBarChart: React.FC<ComparativeBarChartProps> = ({
   rightLabel = "Grupo B",
   title,
   subtitle,
-  backgroundColor ?? T.background,
+  backgroundColor,
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
@@ -51,7 +50,7 @@ export const ComparativeBarChart: React.FC<ComparativeBarChartProps> = ({
 
   if (data.length === 0) {
     return (
-      <AbsoluteFill style={{ backgroundColor ?? T.background, justifyContent: 'center', alignItems: 'center' }}>
+      <AbsoluteFill style={{ backgroundColor: backgroundColor ?? T.background,  justifyContent: 'center', alignItems: 'center' }}>
         <p style={{ color: T.text, fontSize: Theme.typography.category.size }}>Nenhum dado para exibir.</p>
       </AbsoluteFill>
     );
@@ -64,7 +63,7 @@ export const ComparativeBarChart: React.FC<ComparativeBarChartProps> = ({
   const barGap = (plotHeight / data.length) * 0.3;
 
   return (
-    <AbsoluteFill style={{ backgroundColor ?? T.background }}>
+    <AbsoluteFill style={{ backgroundColor: backgroundColor ?? T.background }}>
       {/* ZONA 1 — Cabeçalho */}
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',

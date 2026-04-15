@@ -100,6 +100,7 @@ export const TYPOGRAPHY = {
     weight: 600,
     color: '#e8eaf6',
   },
+  tabularNums: { fontVariantNumeric: 'tabular-nums' as const },
   axis: {
     size: 30,
     weight: 400,
@@ -392,6 +393,28 @@ export const THEMES: Record<string, ThemeConfig> = {
     positive: '#059669',
     negative: '#dc2626',
   },
+
+  // ── Light (Professional Off-white — Clean & Balanced) ──────────────────
+  light: {
+    background: '#FAF9F6', // Off-white warm
+    surface:    '#ffffff',
+    text:       '#0f172a', // Slate 900
+    textMuted:  '#475569', // Slate 600
+    grid:       'rgba(15,23,42,0.06)',
+    axis:       'rgba(15,23,42,0.12)',
+    colors: [
+      '#2563eb', // Blue 600
+      '#059669', // Emerald 600
+      '#d97706', // Amber 600
+      '#dc2626', // Red 600
+      '#7c3aed', // Violet 600
+      '#0891b2', // Cyan 600
+      '#db2777', // Pink 600
+      '#4f46e5', // Indigo 600
+    ],
+    positive: '#059669',
+    negative: '#dc2626',
+  },
 };
 
 /**
@@ -404,3 +427,16 @@ export const THEMES: Record<string, ThemeConfig> = {
 export function resolveTheme(theme?: string): ThemeConfig {
   return THEMES[theme ?? 'dark'] ?? THEMES['dark'];
 }
+
+/**
+ * formatValue — Utilitário padrão para formatação de números UHD 4K.
+ * Suporta abreviação (k, M) se não houver unidade, e toLocaleString para milhares.
+ */
+export const formatValue = (n: number, unit = '') => {
+  if (!unit) {
+    if (Math.abs(n) >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
+    if (Math.abs(n) >= 1_000)     return (n / 1_000).toFixed(1) + 'k';
+  }
+  const rounded = Number.isInteger(n) ? String(n) : n.toFixed(1);
+  return unit ? `${rounded}${unit}` : n.toLocaleString('pt-BR');
+};

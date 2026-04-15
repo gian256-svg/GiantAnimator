@@ -9,8 +9,8 @@ export interface ComponentEntry {
 export const COMPONENT_REGISTRY: ComponentEntry[] = [
   {
     id: "BarChart",
-    aliases: ["bar chart", "barra", "colunas"],
-    description: "Gráfico de colunas verticais.",
+    aliases: ["vertical bar", "colunas", "barras verticais"],
+    description: "Gráfico de colunas verticais (Vertical).",
     propsSchema: "data: { label: string, value: number }[], title?: string, backgroundColor?: string, textColor?: string, seriesColors?: string[]",
     exampleProps: { title: "Vendas", data: [{ label: "A", value: 10 }] }
   },
@@ -44,10 +44,10 @@ export const COMPONENT_REGISTRY: ComponentEntry[] = [
   },
   {
     id: "HorizontalBarChart",
-    aliases: ["horizontal bar chart", "barra horizontal"],
-    description: "Gráfico de barras horizontais.",
-    propsSchema: "data: { label: string, value: number }[], title?: string, backgroundColor?: string, textColor?: string, seriesColors?: string[]",
-    exampleProps: { title: "Ranking", data: [{ label: "A", value: 100 }] }
+    aliases: ["horizontal bar", "barra horizontal", "horizontal grouped"],
+    description: "Gráfico de barras orientadas horizontalmente (Simples ou Agrupado).",
+    propsSchema: "data?: { label: string, value: number }[], labels?: string[], series?: { label: string, data: number[] }[], title?: string, backgroundColor?: string, textColor?: string, seriesColors?: string[]",
+    exampleProps: { title: "Ranking", series: [{ label: "S1", data: [100, 80] }], labels: ["A", "B"] }
   },
   {
     id: "StackedBarChart",

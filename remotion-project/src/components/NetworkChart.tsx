@@ -30,7 +30,6 @@ export interface NetworkChartProps {
   subtitle?: string;
   backgroundColor?: string;
   theme?: string;
-  backgroundColor?: string;
   colors?: string[];
   textColor?: string;
 }
@@ -40,7 +39,7 @@ export const NetworkChart: React.FC<NetworkChartProps> = ({
   edges = [],
   title,
   subtitle,
-  backgroundColor ?? T.background,
+  backgroundColor,
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
@@ -59,7 +58,7 @@ export const NetworkChart: React.FC<NetworkChartProps> = ({
   const getAbsY = (ry: number) => plotTop + ry * plotHeight;
 
   return (
-    <AbsoluteFill style={{ backgroundColor ?? T.background }}>
+    <AbsoluteFill style={{ backgroundColor: backgroundColor ?? T.background }}>
       {/* ZONA 1 — Cabeçalho */}
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',

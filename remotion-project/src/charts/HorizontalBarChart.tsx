@@ -6,10 +6,12 @@ import {
   interpolate,
   AbsoluteFill,
 } from "remotion";
-import { Theme, resolveTheme } from '../theme';
+import { Theme, resolveTheme, formatValue } from '../theme';
 
 interface HorizontalBarChartProps {
   data?: { label: string; value: number }[];
+  series?: { label: string; data: number[]; color?: string }[];
+  labels?: string[];
   theme?: string;
   backgroundColor?: string;
   colors?: string[];
@@ -19,73 +21,69 @@ interface HorizontalBarChartProps {
   unit?:     string;
 }
 
-const format = (n: number, unit: string = "") => {
-  let val = "";
-  if (n >= 1_000_000) val = (n / 1_000_000).toFixed(1) + "M";
-  else if (n >= 1_000) val = (n / 1_000).toFixed(1) + "k";
-  else val = String(Math.round(n));
-  return val + unit;
-};
+
 
 export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
   theme = 'dark',
   data     = [],
+  series,
+  labels,
   title    = "",
   subtitle = "",
   unit     = "",
+  colors,
 }) => {
   const frame      = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
   const T = resolveTheme(theme ?? 'dark');
   const instanceId = useId().replace(/:/g, "");
 
-  const safeData = Array.isArray(data) && data.length > 0 ? data : [
-    { label: "Categoria A", value: 85 },
-    { label: "Categoria B", value: 65 },
-    { label: "Categoria C", value: 95 },
-    { label: "Categoria D", value: 45 },
+  // Unificar dados (Single vs Multi)
+  const normalizedSeries = series || [
+    { label: title, data: data.map(d => d.value) }
   ];
+  const xAxisLabels = labels || data.map(d => d.label);
+
+  const safeDataCount = xAxisLabels.length || 1;
+  const seriesCount   = normalizedSeries.length;
 
   // ─── Layout responsivo ────────────────────────────────
   const pad     = width * 0.05;
-  const padTop  = height * 0.14;
-  const padBot  = height * 0.10;
+  const padTop  = height * 0.22; // Aumentado de 0.14 para evitar sobreposição
+  const padBot  = height * 0.14; // Aumentado de 0.10 para acomodar legendas e eixos
   
   // Escala de fonte
   const fs = (base: number) => Math.round(base * (width / 1280));
 
-  const maxLabelLen = Math.max(...safeData.map(d => d.label.length));
+  const maxLabelLen = Math.max(...xAxisLabels.map(l => l.length), 1);
   const labelAreaWidth = Math.min(width * 0.32, maxLabelLen * fs(11));
   const plotLeft       = pad + labelAreaWidth;
   const plotTop        = padTop;
-  const plotWidth      = width - plotLeft - pad - fs(40); // folga para valor no final
+  const plotWidth      = width - plotLeft - pad - fs(45);
   const plotHeight     = height - padTop - padBot;
 
-  const maxVal    = Math.max(...safeData.map(d => d.value), 1);
-  const rowHeight = plotHeight / safeData.length;
-  const barGap    = 0.32;
-  const barHeight = rowHeight * (1 - barGap);
+  const allValues = normalizedSeries.flatMap(s => s.data);
+  const maxVal    = Math.max(...allValues, 1);
+  
+  const categoryHeight = plotHeight / safeDataCount;
+  const groupedGap     = 0.25; // gap entre grupos
+  const innerGap       = 0.05; // gap entre barras do mesmo grupo
+  
+  const availableH     = categoryHeight * (1 - groupedGap);
+  const barHeight      = (availableH / seriesCount) * (1 - innerGap);
 
   const headerOpacity = interpolate(frame, [0, 20], [0, 1], { extrapolateRight: "clamp" });
 
   return (
     <AbsoluteFill style={{ backgroundColor: T.background }}>
       
-      {/* ── HEADER ── */}
-      <div style={{
-        position: "absolute", top: height * 0.04, width: "100%", textAlign: "center",
-        opacity: headerOpacity, fontFamily: Theme.typography.fontFamily
-      }}>
-        {title && <div style={{ fontSize: fs(38), fontWeight: 700, color: T.text }}>{title}</div>}
-        {subtitle && <div style={{ fontSize: fs(18), color: T.textMuted, marginTop: fs(4) }}>{subtitle}</div>}
-      </div>
 
       <svg width={width} height={height} style={{ position: "absolute", top: 0, left: 0 }}>
         <defs>
-          {safeData.map((_, i) => (
+          {normalizedSeries.map((_, i) => (
             <linearGradient key={i} id={`hbarGrad-${i}-${instanceId}`} x1="0" y1="0" x2="1" y2="0">
               <stop offset="0%" stopColor={T.colors[i % T.colors.length]} />
-              <stop offset="100%" stopColor={T.colors[i % T.colors.length]} stopOpacity={0.7} />
+              <stop offset="100%" stopColor={T.colors[i % T.colors.length]} stopOpacity={0.8} />
             </linearGradient>
           ))}
           <filter id={`glow-${instanceId}`} x="-20%" y="-20%" width="140%" height="140%">
@@ -101,56 +99,112 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
           return (
             <React.Fragment key={v}>
               <line x1={x} y1={plotTop} x2={x} y2={plotTop + plotHeight} stroke={T.grid} strokeWidth={Math.max(1, fs(1.5))} opacity={op} />
-              <text x={x} y={plotTop + plotHeight + fs(24)} textAnchor="middle" style={{ fontSize: fs(14), fill: T.textMuted, fontFamily: Theme.typography.fontFamily, opacity: op }}>
-                {format(v * maxVal, unit)}
+              <text x={x} y={plotTop + plotHeight + fs(24)} textAnchor="middle" style={{ 
+                fontSize: fs(14), fill: T.textMuted, fontFamily: Theme.typography.fontFamily, 
+                opacity: op, ...Theme.typography.tabularNums 
+              }}>
+                {formatValue(v * maxVal, unit)}
               </text>
             </React.Fragment>
           );
         })}
 
-        {/* ── BARS ── */}
-        {safeData.map((d, i) => {
-          const delay = 25 + i * 4;
-          const progress = spring({ 
-            frame: frame - delay, 
-            fps, 
-            config: { 
-              damping: 80, 
-              stiffness: 200, 
-              overshoot_clamp: true 
-            } 
+        {/* ── BARS (GROUPED) ── */}
+        {xAxisLabels.map((label, groupIdx) => {
+          return normalizedSeries.map((s, seriesIdx) => {
+            const val = s.data[groupIdx] || 0;
+            const delay = 25 + groupIdx * 3 + seriesIdx * 2;
+            const progress = spring({ 
+              frame: frame - delay, 
+              fps, 
+              config: { damping: 80, stiffness: 200, overshootClamping: true } 
+            });
+
+            // Posição no grupo
+            const groupY = plotTop + groupIdx * categoryHeight + (categoryHeight * groupedGap) / 2;
+            const bY = groupY + seriesIdx * (barHeight * (1 + innerGap));
+            const bW = Math.max(0, (val / maxVal) * plotWidth * progress);
+            
+            const labelOp = interpolate(frame, [delay + 10, delay + 25], [0, 1], { extrapolateRight: "clamp" });
+            const color = T.colors[seriesIdx % T.colors.length];
+
+            return (
+              <g key={`${groupIdx}-${seriesIdx}`}>
+                {/* Category Label (only once per group) */}
+                {seriesIdx === 0 && (
+                  <text x={plotLeft - fs(15)} y={groupY + availableH/2} textAnchor="end" dominantBaseline="middle" opacity={labelOp} style={{ 
+                    fontSize: fs(14), fill: T.text, fontWeight: 600, fontFamily: Theme.typography.fontFamily 
+                  }}>
+                    {label}
+                  </text>
+                )}
+
+                {/* Main Bar */}
+                <rect 
+                  x={plotLeft} y={bY} width={bW} height={barHeight} 
+                  fill={normalizedSeries.length > 1 ? `url(#hbarGrad-${seriesIdx}-${instanceId})` : T.colors[groupIdx % T.colors.length]} 
+                  rx={fs(2)} 
+                />
+
+                {/* Value Label (Inside if possible, else After) */}
+                <text 
+                  x={bW > fs(70) ? plotLeft + bW - fs(12) : plotLeft + bW + fs(10)} 
+                  y={bY + barHeight/2} 
+                  textAnchor={bW > fs(70) ? "end" : "start"}
+                  dominantBaseline="middle" 
+                  opacity={labelOp} 
+                  style={{ 
+                    fontSize: fs(15), 
+                    fill: bW > fs(70) ? "#fff" : T.text, 
+                    fontWeight: 700, 
+                    fontFamily: Theme.typography.fontFamily,
+                    ...Theme.typography.tabularNums
+                  }}
+                >
+                  {formatValue(val, unit)}
+                </text>
+              </g>
+            );
           });
-          const bY = plotTop + i * rowHeight + (rowHeight * barGap) / 2;
-          const bW = Math.max(0, (d.value / maxVal) * plotWidth * progress);
-          
-          const labelOp = interpolate(frame, [delay + 10, delay + 25], [0, 1], { extrapolateRight: "clamp" });
-          const color = T.colors[i % T.colors.length];
-
-          return (
-            <g key={i}>
-              {/* Category */}
-              <text x={plotLeft - fs(15)} y={bY + barHeight/2} textAnchor="end" dominantBaseline="middle" opacity={labelOp} style={{ 
-                fontSize: fs(16), fill: T.text, fontWeight: 600, fontFamily: Theme.typography.fontFamily 
-              }}>
-                {d.label}
-              </text>
-
-              {/* Bar Glow */}
-              <rect x={plotLeft} y={bY + fs(3)} width={bW} height={barHeight} fill={color} rx={fs(4)} opacity={0.15} filter={`url(#glow-${instanceId})`} />
-
-              {/* Main Bar */}
-              <rect x={plotLeft} y={bY} width={bW} height={barHeight} fill={`url(#hbarGrad-${i}-${instanceId})`} rx={fs(4)} />
-
-              {/* Value */}
-              <text x={plotLeft + bW + fs(10)} y={bY + barHeight/2} dominantBaseline="middle" opacity={labelOp} style={{ 
-                fontSize: fs(16), fill: T.text, fontWeight: 700, fontFamily: Theme.typography.fontFamily 
-              }}>
-                {format(d.value, unit)}
-              </text>
-            </g>
-          );
         })}
       </svg>
+
+
+      {/* ── LEGEND (BOTTOM) ── */}
+      {seriesCount > 1 && (
+        <div style={{
+          position: 'absolute',
+          bottom: height * 0.04,
+          width: '100%',
+          display: 'flex',
+          justifyContent: 'center',
+          flexWrap: 'wrap',
+          gap: fs(40),
+          opacity: interpolate(frame, [40, 60], [0, 1])
+        }}>
+          {normalizedSeries.map((s, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: fs(14) }}>
+              <div style={{ 
+                width: fs(22), height: fs(22), borderRadius: '50%', 
+                backgroundColor: T.colors[i % T.colors.length],
+                border: `${fs(3)}px solid #fff`, boxShadow: '0 0 10px rgba(0,0,0,0.3)'
+              }} />
+              <div style={{ fontSize: fs(28), color: T.text, fontFamily: Theme.typography.fontFamily, fontWeight: 500 }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── HEADER (Movido para APÓS SVG para Z-Index) ── */}
+      <div style={{
+        position: "absolute", top: height * 0.05, width: "100%", textAlign: 'center',
+        opacity: headerOpacity, fontFamily: Theme.typography.fontFamily,
+        pointerEvents: 'none'
+      }}>
+        {title && <div style={{ fontSize: fs(44), fontWeight: 800, color: T.text, letterSpacing: '-0.5px' }}>{title}</div>}
+        {subtitle && <div style={{ fontSize: fs(20), color: T.textMuted, marginTop: fs(10) }}>{subtitle}</div>}
+      </div>
+
     </AbsoluteFill>
   );
 };

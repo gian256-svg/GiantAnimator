@@ -1,12 +1,13 @@
-import React, { useId } from "react";
+import React from "react";
 import {
   spring,
   useCurrentFrame,
   useVideoConfig,
   interpolate,
   AbsoluteFill,
+  Easing,
 } from "remotion";
-import { Theme, resolveTheme } from "../theme";
+import { Theme, resolveTheme, formatValue } from "../theme";
 
 interface LineChartProps {
   data?: { label: string; value: number }[];
@@ -22,14 +23,7 @@ interface LineChartProps {
   unit?: string;
 }
 
-const format = (n: number, unit = '') => {
-  if (!unit) {
-    if (Math.abs(n) >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
-    if (Math.abs(n) >= 1_000)     return (n / 1_000).toFixed(1) + 'k';
-  }
-  const rounded = Number.isInteger(n) ? String(n) : n.toFixed(1);
-  return unit ? `${rounded}${unit}` : n.toLocaleString();
-};
+
 
 export const LineChart: React.FC<LineChartProps> = ({
   data = [],
@@ -88,15 +82,17 @@ export const LineChart: React.FC<LineChartProps> = ({
   const getY = (v: number) => plotTop + plotHeight - ((v - minV) / range) * plotHeight;
 
   // Animação de reveal (DNA GiantAnimator)
-  const progress = spring({
-    frame: frame - 20,
-    fps,
-    config: { 
-      damping: 80, 
-      stiffness: 200, 
-      overshootClamping: true 
-    },
-  });
+  // Animação de reveal Suave (Easy-in Easy-out)
+  const progress = interpolate(
+    frame,
+    [30, 30 + 4 * fps], // Crescimento dura exatamente 4 segundos após o delay inicial
+    [0, 1],
+    {
+      easing: Easing.inOut(Easing.ease),
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+    }
+  );
 
   const rawCount = Math.min(
     Math.ceil(progress * xAxisLabels.length),
@@ -107,42 +103,20 @@ export const LineChart: React.FC<LineChartProps> = ({
 
   return (
     <AbsoluteFill style={{ backgroundColor: resolvedBg }}>
-      {/* TÍTULO */}
-      <div
-        style={{
-          position: "absolute",
-          top: 40,
-          width: "100%",
-          textAlign: "center",
-          opacity: interpolate(frame, [0, 15], [0, 1]),
-        }}
-      >
-        {title && (
-          <div
-            style={{
-              fontSize: Theme.typography.title.size,
-              fontWeight: Theme.typography.title.weight,
-              color: resolvedText,
-              fontFamily: Theme.typography.fontFamily,
-            }}
-          >
-            {title}
-          </div>
-        )}
-        {subtitle && (
-          <div
-            style={{
-              fontSize: Theme.typography.subtitle.size,
-              color: T.textMuted,
-              fontFamily: Theme.typography.fontFamily,
-            }}
-          >
-            {subtitle}
-          </div>
-        )}
-      </div>
+
 
       <svg width={width} height={height} style={{ overflow: "visible" }}>
+        <defs>
+          <clipPath id="chart-reveal-clip">
+            <rect
+              x={0}
+              y={0}
+              width={plotLeft + plotWidth * progress}
+              height={height}
+            />
+          </clipPath>
+        </defs>
+
         {/* GRID Y E LABELS */}
         <g>
           {[0, 0.25, 0.5, 0.75, 1].map((v) => {
@@ -170,9 +144,10 @@ export const LineChart: React.FC<LineChartProps> = ({
                     fill: T.textMuted,
                     fontFamily: Theme.typography.fontFamily,
                     opacity: gridOpacity,
+                    ...Theme.typography.tabularNums
                   }}
                 >
-                  {format(val, unit)}
+                  {formatValue(val, unit)}
                 </text>
               </React.Fragment>
             );
@@ -181,28 +156,23 @@ export const LineChart: React.FC<LineChartProps> = ({
 
         {/* SÉRIES (LINHAS E ÁREAS) */}
         {normalizedSeries.map((s, sIndex) => {
-          if (stableCount < 1) return null;
-
           const color = s.color || resolvedColors[sIndex % resolvedColors.length];
           const strokeW = Math.max(2, fs(4));
 
-          // Geração da polyline para a linha
+          // Geração da polyline para a linha completa
           const linePoints = s.data
-            .slice(0, stableCount)
             .map((v, i) => `${getX(i)},${getY(v)}`)
             .join(" ");
 
-          // Geração do path para a área
-          const areaPath = stableCount >= 2 
-            ? `M ${getX(0)},${getY(s.data[0])} ` +
-              s.data.slice(1, stableCount).map((v, i) => `L ${getX(i + 1)},${getY(v)}`).join(" ") +
-              ` L ${getX(stableCount - 1)},${plotTop + plotHeight} L ${getX(0)},${plotTop + plotHeight} Z`
-            : "";
+          // Geração do path para a área completa
+          const areaPath = `M ${getX(0)},${getY(s.data[0])} ` +
+            s.data.slice(1).map((v, i) => `L ${getX(i + 1)},${getY(v)}`).join(" ") +
+            ` L ${getX(s.data.length - 1)},${plotTop + plotHeight} L ${getX(0)},${plotTop + plotHeight} Z`;
 
           return (
-            <g key={sIndex}>
+            <g key={sIndex} clipPath="url(#chart-reveal-clip)">
               {/* ÁREA COM GRADIENTE */}
-              {showArea && stableCount >= 2 && (
+              {showArea && (
                 <path
                   d={areaPath}
                   fill={color}
@@ -211,21 +181,17 @@ export const LineChart: React.FC<LineChartProps> = ({
               )}
               
               {/* LINHA PRINCIPAL */}
-              {stableCount >= 2 && (
-                <polyline
-                  points={linePoints}
-                  fill="none"
-                  stroke={color}
-                  strokeWidth={strokeW}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              )}
+              <polyline
+                points={linePoints}
+                fill="none"
+                stroke={color}
+                strokeWidth={strokeW}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
 
-              {/* DOTS (Cada dot aparece via spring individual) */}
+              {/* DOTS (Cada dot aparece via spring individual mas obedece ao clipPath) */}
               {s.data.map((v, i) => {
-                if (i >= stableCount) return null;
-                
                 const dotReveal = spring({
                   frame: frame - (20 + (i * 2)),
                   fps,
@@ -270,6 +236,66 @@ export const LineChart: React.FC<LineChartProps> = ({
           })}
         </g>
       </svg>
+
+      {/* LEGENDAS (ZONA RODAPÉ) — Seguindo Regra Permanente Anti-Overlap */}
+      {(normalizedSeries.length > 1 || series) && (
+        <div style={{
+          position: 'absolute',
+          bottom: height * 0.04,
+          left: 0,
+          right: 0,
+          display: 'flex',
+          justifyContent: 'center',
+          flexWrap: 'wrap',
+          gap: fs(60),
+          opacity: interpolate(frame, [25, 55], [0, 1], { extrapolateLeft: 'clamp' }),
+          pointerEvents: 'none',
+        }}>
+          {normalizedSeries.map((s, i) => {
+            const color = s.color || resolvedColors[i % resolvedColors.length];
+            return (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: fs(16) }}>
+                {/* Ícone Estilo Linha UHD */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: fs(60), height: fs(32) }}>
+                  <div style={{ width: '100%', height: fs(4), backgroundColor: color, borderRadius: fs(2), opacity: 0.8 }} />
+                  <div style={{ 
+                    position: 'absolute', width: fs(18), height: fs(18), borderRadius: '50%', 
+                    backgroundColor: '#fff', border: `${fs(4)}px solid ${color}`, boxShadow: '0 0 10px rgba(0,0,0,0.5)'
+                  }} />
+                </div>
+                <div style={{ fontSize: fs(24), color: resolvedText, fontFamily: Theme.typography.fontFamily, fontWeight: 500 }}>
+                  {s.label}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* TÍTULO E SUBTÍTULO (TOP) — Movido para APÓS SVG para Z-Index */}
+      <div
+        style={{
+          position: "absolute",
+          top: height * 0.05,
+          width: "100%",
+          textAlign: "center",
+          opacity: headerOpacity,
+          fontFamily: Theme.typography.fontFamily,
+          pointerEvents: 'none'
+        }}
+      >
+        {title && (
+          <div style={{ fontSize: fs(44), fontWeight: 800, color: resolvedText, letterSpacing: "-0.5px" }}>
+            {title}
+          </div>
+        )}
+        {subtitle && (
+          <div style={{ fontSize: fs(20), color: T.textMuted, marginTop: fs(10) }}>
+            {subtitle}
+          </div>
+        )}
+      </div>
+
     </AbsoluteFill>
   );
 };

@@ -24,9 +24,6 @@ export interface GanttChartProps {
   totalDays?: number;
   backgroundColor?: string;
   theme?: string;
-  backgroundColor?: string;
-  colors?: string[];
-  textColor?: string;
 }
 
 export const GanttChart: React.FC<GanttChartProps> = ({
@@ -34,7 +31,8 @@ export const GanttChart: React.FC<GanttChartProps> = ({
   title,
   subtitle,
   totalDays: propTotalDays = 0,
-  backgroundColor ?? T.background,
+  backgroundColor,
+  theme = 'dark',
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
@@ -42,8 +40,8 @@ export const GanttChart: React.FC<GanttChartProps> = ({
   const instanceId = useId().replace(/:/g, "");
 
   // Safe Zone 4K
-  const margin = Theme.spacing.padding || 128;
-  const titleHeight = Theme.spacing.titleHeight || 160;
+  const margin = 128;
+  const titleHeight = 160;
   const sidebarWidth = 500;
   
   const totalDays = propTotalDays || Math.max(...tasks.map(t => t.start + t.duration), 1);
@@ -55,7 +53,7 @@ export const GanttChart: React.FC<GanttChartProps> = ({
   const getDayX = (day: number) => sidebarWidth + margin + (day / totalDays) * plotWidth;
 
   return (
-    <AbsoluteFill style={{ backgroundColor ?? T.background }}>
+    <AbsoluteFill style={{ backgroundColor: backgroundColor ?? T.background }}>
       {/* ZONA 1 — Cabeçalho */}
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',
@@ -64,14 +62,14 @@ export const GanttChart: React.FC<GanttChartProps> = ({
         {title && <div style={{ 
           fontSize: Theme.typography.title.size, 
           fontWeight: Theme.typography.title.weight, 
-          color: Theme.typography.title.color,
+          color: T.text,
           fontFamily: Theme.typography.fontFamily,
           marginBottom: 10
         }}>{title}</div>}
         {subtitle && <div style={{ 
           fontSize: Theme.typography.subtitle.size, 
           fontWeight: Theme.typography.subtitle.weight, 
-          color: Theme.typography.subtitle.color,
+          color: T.textMuted,
           fontFamily: Theme.typography.fontFamily
         }}>{subtitle}</div>}
       </div>
@@ -95,7 +93,7 @@ export const GanttChart: React.FC<GanttChartProps> = ({
                 x2={getDayX(i)} y2={margin + titleHeight + plotHeight} 
                 stroke={T.grid} strokeDasharray="8 8" 
               />
-              <text x={getDayX(i)} y={margin + titleHeight + plotHeight + 50} textAnchor="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.ui.axisText, fontFamily: Theme.typography.fontFamily }}>{i}d</text>
+              <text x={getDayX(i)} y={margin + titleHeight + plotHeight + 50} textAnchor="middle" style={{ fontSize: Theme.typography.axis.size, fill: T.textMuted, fontFamily: Theme.typography.fontFamily }}>{i}d</text>
             </React.Fragment>
           ))}
         </g>
@@ -116,7 +114,7 @@ export const GanttChart: React.FC<GanttChartProps> = ({
                 <path
                   key={`${task.id}-${depId}`}
                   d={`M ${x1} ${y1} H ${(x1+x2)/2} V ${y2} H ${x2}`}
-                  fill="none" stroke={Theme.colors.ui.axisLine} strokeWidth={3}
+                  fill="none" stroke={T.textMuted} strokeWidth={3}
                   strokeOpacity={0.5 * linkShow} strokeDasharray="6 6"
                 />
               );

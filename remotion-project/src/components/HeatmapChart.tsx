@@ -35,11 +35,12 @@ export const HeatmapChart: React.FC<HeatmapChartProps> = ({
   yLabels = [],
   title,
   subtitle,
-  seriesColors = [Theme.colors.ui.gridline, Theme.colors.categorical[0]],
+  seriesColors,
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
   const T = resolveTheme(theme ?? 'dark');
+  const resolvedSeriesColors = seriesColors || [T.grid, T.colors[0]];
 
   const minMax = useMemo(() => {
     if (data.length === 0) return { min: 0, max: 1 };
@@ -48,8 +49,8 @@ export const HeatmapChart: React.FC<HeatmapChartProps> = ({
   }, [data]);
 
   // Safe Zone 4K
-  const margin = Theme.spacing.padding;
-  const titleHeight = Theme.spacing.titleHeight;
+  const margin = 128;
+  const titleHeight = 160;
   const paddingLeft = 300; // Espaço para labels Y
   const paddingTop = margin + titleHeight + 80; // Espaço para labels X
   
@@ -62,7 +63,7 @@ export const HeatmapChart: React.FC<HeatmapChartProps> = ({
 
   const getColor = (val: number) => {
     const norm = (val - minMax.min) / (minMax.max - minMax.min || 1);
-    return interpolateColors(norm, [0, 1], [seriesColors[0], seriesColors[1]]);
+    return interpolateColors(norm, [0, 1], [resolvedSeriesColors[0], resolvedSeriesColors[1]]);
   };
 
   return (
@@ -96,7 +97,7 @@ export const HeatmapChart: React.FC<HeatmapChartProps> = ({
             y={paddingTop + i * cellSizeY + cellSizeY / 2}
             textAnchor="end"
             dominantBaseline="middle"
-            style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.ui.axisText, fontFamily: Theme.typography.fontFamily, opacity: interpolate(frame, [10, 25], [0, 1]) }}
+            style={{ fontSize: Theme.typography.axis.size, fill: T.textMuted, fontFamily: Theme.typography.fontFamily, opacity: interpolate(frame, [10, 25], [0, 1]) }}
           >
             {lbl}
           </text>
@@ -109,7 +110,7 @@ export const HeatmapChart: React.FC<HeatmapChartProps> = ({
             x={paddingLeft + i * cellSizeX + cellSizeX / 2}
             y={paddingTop - 30}
             textAnchor="middle"
-            style={{ fontSize: Theme.typography.axis.size - 4, fill: Theme.colors.ui.axisText, fontFamily: Theme.typography.fontFamily, opacity: interpolate(frame, [15, 30], [0, 1]) }}
+            style={{ fontSize: Theme.typography.axis.size - 4, fill: T.textMuted, fontFamily: Theme.typography.fontFamily, opacity: interpolate(frame, [15, 30], [0, 1]) }}
           >
             {lbl}
           </text>
