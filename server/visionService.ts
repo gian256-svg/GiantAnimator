@@ -112,7 +112,7 @@ export async function analyzeChartImage(imagePath: string): Promise<ChartAnalysi
   // ─── ✅ Heurística de Unidade (Conserta falhas de extração da IA) ───
   if (!analysis.props.unit) {
     const textToSearch = (analysis.props.title || "") + " " + (analysis.props.subtitle || "") + " " + 
-                         analysis.props.data.map(d => d.label).join(" ") + " " +
+                         analysis.props.data.map((d: any) => d.label).join(" ") + " " +
                          (analysis.props.labels?.join(" ") || "");
     
     if (textToSearch.includes("%")) {

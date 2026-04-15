@@ -40,7 +40,8 @@ interface Job {
   status:      'pending' | 'processing' | 'done' | 'error';
   progress:    number;
   stage:       string;
-  videoUrl?:   string;   // URL do vídeo final (4K)
+  videoUrl?:   string;   // URL do vídeo final (Preview)
+  video4kUrl?: string;   // URL do vídeo final (4K)
   error?:      string;
   fileName:    string;
   createdAt:   Date;
