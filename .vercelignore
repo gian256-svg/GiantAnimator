@@ -1,0 +1,22 @@
+remotion-project/
+node_modules/
+dist/
+uploads/
+output/
+.git/
+.agent/
+agent-backup/
+audit.txt
+complete_audit.csv
+search_results.csv
+TRAINING_LOG.md
+yt-dlp.exe
+Armatures Presets/
+input/
+logs/
+scratch/
+top15.txt
+tree.txt
+*.csv
+*.ps1
+*.bat
