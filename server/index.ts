@@ -15,6 +15,8 @@ import { analyzeChartImage } from './visionService.js';
 import { dataTransformationService } from './dataTransformationService.js';
 import { tableParserService } from './tableParserService.js';
 import { agent } from './agent.js';
+import { PATHS } from './paths.js';
+import { startWatcher } from './watcherService.js';
 
 const app = express();
 const portStr = process.env.PORT || '8080';
@@ -32,16 +34,13 @@ app.use((req, res, next) => {
 
 app.use(express.static('server/public'));
 
-// ─── DIRETÓRIOS ──────────────────────────────────────────────
-const SERVER_DIR = path.dirname(new URL(import.meta.url).pathname).replace(/^\/([a-zA-Z]:)/, '$1'); // Fix Windows paths
-const ROOT = path.resolve(SERVER_DIR, '..');
-const JOBS_DIR    = path.resolve(ROOT, 'jobs');
-const OUTPUT_DIR  = path.resolve(ROOT, 'output');
-const UPLOADS_DIR = path.resolve(ROOT, 'uploads');
+// ─── DIRETÓRIOS CENTRALIZADOS ────────────────────────────────
+const JOBS_DIR    = path.join(PATHS.root, 'jobs'); // Jobs ficam locais por segurança de performance
+const OUTPUT_DIR  = PATHS.output;
+const UPLOADS_DIR = PATHS.input; // Usando a pasta de input compartilhada para uploads diretos
 
 if (!fs.existsSync(JOBS_DIR)) fs.mkdirSync(JOBS_DIR, { recursive: true });
-if (!fs.existsSync(OUTPUT_DIR)) fs.mkdirSync(OUTPUT_DIR, { recursive: true });
-if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+// OUTPUT e UPLOADS já são garantidos pelo paths.ts
 
 // Root do Remotion
 const REMOTION_ROOT = path.resolve('remotion-project');
@@ -58,8 +57,13 @@ type PipelineJob = {
   log?: string;
 };
 
-function saveJob(job: PipelineJob) {
-  fs.writeFileSync(path.join(JOBS_DIR, `${job.id}.json`), JSON.stringify(job));
+async function saveJob(job: PipelineJob) {
+  const jobPath = path.join(JOBS_DIR, `${job.id}.json`);
+  try {
+    await fs.promises.writeFile(jobPath, JSON.stringify(job, null, 2));
+  } catch (err) {
+    console.error(`❌ [IO] Erro ao salvar Job ${job.id}:`, err);
+  }
 }
 function loadJob(id: string): PipelineJob | null {
   const p = path.join(JOBS_DIR, `${id}.json`);
@@ -89,7 +93,9 @@ async function processJob(jobId: string, fileData: Buffer, originalName: string,
     const ext = path.extname(originalName).toLowerCase();
     const isData = ['.csv', '.xlsx', '.xls', '.json'].includes(ext);
     const filePath = path.join(UPLOADS_DIR, `${jobId}${ext}`);
-    fs.writeFileSync(filePath, fileData);
+    
+    // Escrita assíncrona para não travar a rede em drives lentas (K:)
+    await fs.promises.writeFile(filePath, fileData);
 
     let analysis: any;
 
@@ -141,8 +147,8 @@ async function processJob(jobId: string, fileData: Buffer, originalName: string,
         // 🔥 Final Pass
         props = dataTransformationService.prepareFor4K(props);
         
-        // Diagnóstico Final: Grava as props que serão enviadas para o Remotion
-        fs.writeFileSync(path.join(process.cwd(), 'current_props.json'), JSON.stringify(props, null, 2));
+        // Diagnóstico Final: Grava as props assincronamente
+        fs.promises.writeFile(path.join(process.cwd(), 'current_props.json'), JSON.stringify(props, null, 2)).catch(() => {});
 
         analysis = {
           componentId: aiResponse.type || (numericCols.length > 1 ? 'LineChart' : 'BarChart'),
@@ -244,15 +250,18 @@ async function processJob(jobId: string, fileData: Buffer, originalName: string,
 }
 
 // ─── ROTAS ───────────────────────────────────────────────────
+// Usar memoryStorage para uploads vindos da rede evita timeouts de escrita no drive K:
 const upload = multer({ storage: multer.memoryStorage() });
 app.use('/output', express.static(OUTPUT_DIR));
 
 app.post('/upload', upload.single('file'), async (req: Request, res: Response) => {
+  console.log(`📥 [UPLOAD] Recebido arquivo: ${req.file?.originalname} de IP: ${req.ip}`);
   if (!req.file) return res.status(400).json({ error: 'No file' });
   const jobId = uuidv4();
   const job: PipelineJob = { id: jobId, status: 'pending', progress: 0, stage: 'Aguardando...' };
-  saveJob(job);
+  await saveJob(job); // Assíncrono agora
 
+  // Inicia o processamento em background (não aguarda o fim para responder ao cliente)
   processJob(jobId, req.file.buffer, req.file.originalname, req.body.chartTheme || 'dark');
   res.json({ jobId });
 });
@@ -312,7 +321,11 @@ app.get('/health', (_req, res) => res.json({ status: 'ok' }));
   🔗 http://10.120.5.21:${port}
   ✦ ───────────────────────────────────────── ✦
             `);
-            if (!IS_VERCEL) getBundle();
+            if (!IS_VERCEL) {
+                getBundle();
+                // 🔥 Inicia o Watcher do Drive K: para acesso sem dependência de portas/browser
+                startWatcher(PATHS.input);
+            }
         });
     } catch (err) {
         console.error("❌ Falha crítica ao iniciar agente:", err);
