@@ -12,6 +12,8 @@
     "tunnel": "concurrently \"npm run dev\" \"npx --yes localtunnel --port 3000\"",
     "tunnel:cf": "concurrently \"npm run dev\" \"npx --yes cloudflared tunnel --url http://localhost:3000 --protocol http2\"",
     "tunnel:safe": "concurrently \"npm run dev\" \"npx serve-handler --port 3000\"", 
+    "sync": "powershell -ExecutionPolicy Bypass -File scripts/sync.ps1",
+    "watch-sync": "powershell -ExecutionPolicy Bypass -File scripts/watch-sync.ps1",
     "build": "exit 0"
   },
   "dependencies": {

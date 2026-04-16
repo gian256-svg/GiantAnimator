@@ -1,0 +1,46 @@
+{
+  "componentId": "PieChart",
+  "suggestedName": "PorcentagemServicosStreaming",
+  "reasoning": "Detectei um gráfico de pizza com porcentagens. O campo 'unit' foi definido como '%' com base nos rótulos de dados.",
+  "props": {
+    "title": "Serviços de Streaming Mais Utilizados",
+    "data": [
+      {
+        "label": "Netflix",
+        "value": 23
+      },
+      {
+        "label": "YouTube",
+        "value": 34
+      },
+      {
+        "label": "Hulu",
+        "value": 20
+      },
+      {
+        "label": "Amazon",
+        "value": 11
+      },
+      {
+        "label": "Disney+",
+        "value": 8
+      },
+      {
+        "label": "Other",
+        "value": 4
+      }
+    ],
+    "unit": "%",
+    "backgroundColor": "#ffffff",
+    "textColor": "#000000",
+    "seriesColors": [
+      "#162965",
+      "#1a75f7",
+      "#7ba3f7",
+      "#b3c7f7",
+      "#d4d9e6",
+      "#808080"
+    ],
+    "showValueLabels": true
+  }
+}

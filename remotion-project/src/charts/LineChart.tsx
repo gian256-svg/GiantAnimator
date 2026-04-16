@@ -43,8 +43,8 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
 
   // Resolve tema
   const T = resolveTheme(theme);
-  const resolvedBg     = backgroundColor ?? T.background;
-  const resolvedText   = textColor       ?? T.text;
+  const resolvedBg = backgroundColor ?? T.background;
+  const resolvedText = textColor ?? T.text;
   const resolvedColors = colors && colors.length > 0 ? colors : [...T.colors];
 
   // Normalização de dados

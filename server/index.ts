@@ -17,12 +17,19 @@ import { tableParserService } from './tableParserService.js';
 import { agent } from './agent.js';
 
 const app = express();
-const portStr = process.env.PORT || '3000';
+const portStr = process.env.PORT || '8080';
 const port = parseInt(portStr, 10);
 const IS_VERCEL = !!process.env.VERCEL;
 
 app.use(cors());
 app.use(express.json());
+
+// Middleware de Log para Debug de Rede Local
+app.use((req, res, next) => {
+  console.log(`📡 [${new Date().toLocaleTimeString()}] ${req.method} ${req.url} - IP: ${req.ip}`);
+  next();
+});
+
 app.use(express.static('server/public'));
 
 // ─── DIRETÓRIOS ──────────────────────────────────────────────
@@ -302,7 +309,7 @@ app.get('/health', (_req, res) => res.json({ status: 'ok' }));
             console.log(`
   ✦ ───────────────────────────────────────── ✦
   🎬 GiantAnimator ONLINE NA REDE INTERNA 🌎
-  🔗 http://10.120.5.21:3000
+  🔗 http://10.120.5.21:${port}
   ✦ ───────────────────────────────────────── ✦
             `);
             if (!IS_VERCEL) getBundle();

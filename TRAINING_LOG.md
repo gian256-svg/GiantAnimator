@@ -1071,3 +1071,19 @@ Data: 2026-04-15
 - **Solução 1 (Prompt)**: Atualizado `imageAnalyzer.ts` com seção "SÍMBOLOS SÃO OBRIGATÓRIOS" e punição por erro crítico se omitido.
 - **Solução 2 (Heurística)**: Implementada camada de segurança em `visionService.ts`. Se o `unit` vier vazio mas existirem símbolos (%, $) no título, subtítulo ou labels, o sistema força a aplicação da unidade correta.
 - **Aplicação**: Todos os componentes devem usar `formatValue(val, unit)` que agora é o padrão inabalável do projeto.
+
+---
+
+### [2026-04-16] 🏆 REGRA MESTRA — INICIALIZAÇÃO E SHARING (REDE LOCAL)
+Data: 2026-04-16
+Escopo: Todos os Agentes / Sessões
+
+**Regra 1 (Inicialização)**: Sincronismo total obrigatório. Ao iniciar, ler logs, skills, regras e `git status`.
+**Regra 2 (Rede Local/Sharing)**: O servidor deve rodar em `http://10.120.5.21:3000/`.
+- **Contexto**: Facilita o acesso compartilhado de diferentes IPs na rede interna.
+- **Git Check**: `git log -n 5` obrigatório para situar o agente no histórico de modificações.
+- **Status**: Integrado às `master-rules.md`.
+
+**Regra 3 (Espelhamento K: Shared)**: Inalterabilidade entre local e rede.
+- **Obrigatoriedade**: Toda mudança feita no projeto local deve ser copiada para `K:\Shared\GiantAnimator`.
+- **Propósito**: Garantir que a versão de rede esteja sempre idêntica à de desenvolvimento.
