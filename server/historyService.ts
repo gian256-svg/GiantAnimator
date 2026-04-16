@@ -68,7 +68,7 @@ export function addJob(data: Omit<Job, 'id' | 'createdAt'>): Job {
     const jobs = loadJobs();
     const job: Job = { ...data, id: uuidv4(), createdAt: new Date().toISOString() };
     jobs.unshift(job);
-    if (jobs.length > 10) jobs.splice(10);
+    if (jobs.length > 50) jobs.splice(50);
     saveJobs(jobs);
     return job;
 }

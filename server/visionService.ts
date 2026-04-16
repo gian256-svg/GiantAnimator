@@ -41,22 +41,27 @@ export async function analyzeChartImage(imagePath: string, requestedTheme?: stri
 
   console.log(`🔍 [VISION] Enviando para Gemini Vision...`);
 
-  // ─── Otimizar imagem ─────────────────────────────────────────
+  // ─── Otimizar imagem (UHD-Ready para Vision) ──────────────────
   const optimizedBuffer = await sharp(rawImageData)
-    .resize(1200, 900, { fit: "inside", withoutEnlargement: true })
+    .resize(2560, 1440, { fit: "inside", withoutEnlargement: true })
     .toBuffer();
 
   const imageBase64  = optimizedBuffer.toString("base64");
   const registryJson = JSON.stringify(COMPONENT_REGISTRY, null, 2);
   let prompt       = buildImageAnalysisPrompt(registryJson);
 
+  // Detecção Automática de Tema baseada na Luminância Original
+  prompt += `
+### DETECÇÃO DE AMBIENTE:
+Analise a cor predominante do fundo. 
+- Se o fundo for branco/claro/off-white (como na imagem original), defina backgroundColor como o Hex exato e SEMPRE use o tema "light" ou "corporate" ou "minimal".
+- Se o fundo for preto/escuro, use tema "dark".
+`;
+
   if (requestedTheme === 'original') {
     prompt += `
-### INSTRUÇÃO DE PRESERVAÇÃO DE ESTILO (PRIORIDADE MÁXIMA):
-O usuário deseja que a animação tenha a mesma identidade visual da imagem.
-1. Analise a LUMINÂNCIA: Se o fundo for branco/claro, retorne backgroundColor aproximado e defina o tema base como "light". Se for escuro, defina tema como "dark".
-2. EXTRAÇÃO DE CORES: Extraia os códigos Hex exatos da primeira barra/série e coloque em 'seriesColors'. Se o gráfico for multicor, extraia as cores das 5 principais colunas e coloque no array 'seriesColors'.
-3. OUTPUT: Preencha obrigatoriamente 'backgroundColor', 'textColor' e 'seriesColors' com os valores reais da imagem fornecida.
+### PRESERVAÇÃO RIGOROSA:
+O usuário deseja fidelidade cromática total. Extraia as cores Hex de CADA linha e coloque nos respectivos objetos do array "series".
 `;
   }
 

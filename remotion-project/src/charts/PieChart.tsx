@@ -226,5 +226,3 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
     </AbsoluteFill>
   );
 };
-
-export default PieChart;

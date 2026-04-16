@@ -47,24 +47,32 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
   const resolvedText  = textColor       ?? T.text;
   const resolvedColors = colors && colors.length > 0 ? colors : [...T.colors];
 
-  // Normalização de dados
+  // Normalização de dados com Safe-Guards
   let normalizedSeries: { label: string; data: number[]; color?: string }[] = [];
   let xAxisLabels: string[] = [];
 
-  if (propsSeries && propsLabels) {
-    normalizedSeries = propsSeries;
-    xAxisLabels = propsLabels;
-  } else if (rawData.labels && rawData.datasets) {
-    normalizedSeries = rawData.datasets;
-    xAxisLabels = rawData.labels;
-  } else if (Array.isArray(rawData)) {
-    normalizedSeries = [{ label: title, data: rawData.map((d: any) => d.value) }];
-    xAxisLabels = rawData.map((d: any) => d.label);
+  try {
+    if (propsSeries && Array.isArray(propsSeries) && propsLabels) {
+      normalizedSeries = propsSeries.map(s => ({ ...s, data: Array.isArray(s.data) ? s.data : [] }));
+      xAxisLabels = propsLabels;
+    } else if (rawData && rawData.labels && rawData.datasets) {
+      normalizedSeries = rawData.datasets;
+      xAxisLabels = rawData.labels;
+    } else if (Array.isArray(rawData)) {
+      normalizedSeries = [{ label: title, data: rawData.map((d: any) => d.value) }];
+      xAxisLabels = rawData.map((d: any) => d.label);
+    }
+  } catch (e) {
+    console.error("Data normalization error:", e);
+  }
+
+  const allValues = normalizedSeries.flatMap(s => s.data).map(v => Number(v)).filter(v => isFinite(v));
+  if (allValues.length === 0 || xAxisLabels.length === 0) {
+      return <AbsoluteFill style={{ backgroundColor: resolvedBg }} />;
   }
 
   const safeDataCount = xAxisLabels.length || 1;
   const seriesCount   = normalizedSeries.length;
-  if (safeDataCount === 0) return <AbsoluteFill style={{ backgroundColor: resolvedBg }} />;
 
   // ─── SMART UNIT HANDLING ───
   const isLongUnit  = unit.length > 6;
@@ -82,9 +90,10 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
   const plotWidth = width - plotLeft - (pad * 1.5); 
   const plotHeight = height - padTop - padBot;
 
-  const allValues = normalizedSeries.flatMap(s => s.data);
-  const dataRawMax = Math.max(...allValues, 1);
-  const maxVal = dataRawMax * 1.15; 
+  const dataMin = Math.min(...allValues, 0);
+  const dataMax = Math.max(...allValues, 0.0001); // Prevent zero axis
+  const range   = dataMax - dataMin;
+  const maxVal  = dataMax; 
   
   const categoryWidth = plotWidth / safeDataCount;
   const groupGap      = 0.3;
@@ -113,13 +122,14 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
 
         {/* GRID Y */}
         {[0, 0.25, 0.5, 0.75, 1].map((v) => {
-          const y = getY(v * maxVal);
+          const val = dataMin + v * range;
+          const y = getY(val);
           const op = interpolate(frame, [5, 25], [0, 0.75], { extrapolateRight: "clamp" });
           return (
             <React.Fragment key={v}>
               <line x1={plotLeft} y1={y} x2={plotLeft + plotWidth} y2={y} stroke={T.grid} strokeWidth={Math.max(1, fs(1.5))} opacity={op} />
               <text x={plotLeft - fs(15)} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: fs(14), fill: T.textMuted, opacity: op, ...Theme.typography.tabularNums }}>
-                {formatValue(v * maxVal, displayUnit)}
+                {formatValue(val, displayUnit)}
               </text>
             </React.Fragment>
           );
@@ -139,7 +149,7 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
               config: { damping: 80, stiffness: 200, overshootClamping: true },
             });
 
-            const currentH = Math.max(0, (val / maxVal) * plotHeight * progress);
+            const currentH = Math.max(0, ((val - dataMin) / range) * plotHeight * progress);
             const groupX = plotLeft + groupIdx * categoryWidth + (categoryWidth * groupGap) / 2;
             const bX = groupX + seriesIdx * (barWidth * (1 + innerGap));
             const bY = plotTop + plotHeight - currentH;
@@ -165,13 +175,6 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
         ))}
       </svg>
 
-      {/* HEADER */}
-      <div style={{ position: "absolute", top: height * 0.05, width: "100%", textAlign: "center", opacity: interpolate(frame, [0, 20], [0, 1]), pointerEvents: 'none' }}>
-        {title && <div style={{ fontSize: fs(44), fontWeight: 800, color: resolvedText, letterSpacing: "-0.5px" }}>{title}</div>}
-        {subtitle && <div style={{ fontSize: fs(24), color: T.textMuted, marginTop: fs(10), fontWeight: 500 }}>{subtitle}</div>}
-        {unitNote && <div style={{ fontSize: fs(18), color: T.textMuted, marginTop: fs(12), fontStyle: 'italic', opacity: 0.8 }}>*{unitNote}</div>}
-      </div>
-
       {/* LEGEND */}
       {seriesCount > 1 && (
         <div style={{ position: 'absolute', bottom: height * 0.05, width: '100%', display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: fs(40), opacity: interpolate(frame, [40, 60], [0, 1]), pointerEvents: 'none' }}>
@@ -183,8 +186,13 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
           ))}
         </div>
       )}
+
+      {/* HEADER - Processado APÓS para garantir Z-Index */}
+      <div style={{ position: "absolute", top: height * 0.05, width: "100%", textAlign: "center", opacity: interpolate(frame, [0, 20], [0, 1]), pointerEvents: 'none' }}>
+        {title && <div style={{ fontSize: fs(44), fontWeight: 800, color: resolvedText, letterSpacing: "-0.5px" }}>{title}</div>}
+        {subtitle && <div style={{ fontSize: fs(24), color: T.textMuted, marginTop: fs(10), fontWeight: 500 }}>{subtitle}</div>}
+        {unitNote && <div style={{ fontSize: fs(18), color: T.textMuted, marginTop: fs(12), fontStyle: 'italic', opacity: 0.8 }}>*{unitNote}</div>}
+      </div>
     </AbsoluteFill>
   );
 };
-
-export default BarChart;

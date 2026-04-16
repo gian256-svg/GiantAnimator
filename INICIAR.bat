@@ -13,12 +13,13 @@ set PORT=3000
 set ROOT_DIR=%~dp0
 set SERVER_DIR=%~dp0server
 set LOGS_DIR=%~dp0logs
-set SHARED_ROOT=%~dp0..\shared
-set INPUT_DIR=%SHARED_ROOT%\input
+set INPUT_DIR=%~dp0input
+set OUTPUT_DIR=%~dp0output
 set MAX_WAIT=60
 
 if not exist "%LOGS_DIR%" mkdir "%LOGS_DIR%"
 if not exist "%INPUT_DIR%" mkdir "%INPUT_DIR%"
+if not exist "%OUTPUT_DIR%" mkdir "%OUTPUT_DIR%"
 
 echo [1/5] Verificando Node.js...
 node --version >nul 2>&1

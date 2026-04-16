@@ -32,7 +32,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(express.static('server/public'));
+app.use(express.static(path.join(PATHS.server, 'public')));
 
 // ─── DIRETÓRIOS CENTRALIZADOS ────────────────────────────────
 const JOBS_DIR    = path.join(PATHS.root, 'jobs'); // Jobs ficam locais por segurança de performance
@@ -43,7 +43,7 @@ if (!fs.existsSync(JOBS_DIR)) fs.mkdirSync(JOBS_DIR, { recursive: true });
 // OUTPUT e UPLOADS já são garantidos pelo paths.ts
 
 // Root do Remotion
-const REMOTION_ROOT = path.resolve('remotion-project');
+const REMOTION_ROOT = PATHS.remotion;
 const REMOTION_ENTRY = path.join(REMOTION_ROOT, 'src/index.ts');
 
 // ─── ESTADO PERSISTENTE ───────────────────────────────────────
@@ -94,7 +94,7 @@ async function processJob(jobId: string, fileData: Buffer, originalName: string,
     const isData = ['.csv', '.xlsx', '.xls', '.json'].includes(ext);
     const filePath = path.join(UPLOADS_DIR, `${jobId}${ext}`);
     
-    // Escrita assíncrona para não travar a rede em drives lentas (K:)
+    // Escrita assíncrona
     await fs.promises.writeFile(filePath, fileData);
 
     let analysis: any;
@@ -179,7 +179,7 @@ async function processJob(jobId: string, fileData: Buffer, originalName: string,
     job.log = `Componente: ${analysis.componentId}`;
     
     // Normalização de Estilo Original e Redução de Ruído
-    if (analysis.props) {
+    if (analysis && analysis.props) {
         if (analysis.props.seriesColors && !analysis.props.colors) {
             analysis.props.colors = analysis.props.seriesColors;
         }
@@ -250,7 +250,7 @@ async function processJob(jobId: string, fileData: Buffer, originalName: string,
 }
 
 // ─── ROTAS ───────────────────────────────────────────────────
-// Usar memoryStorage para uploads vindos da rede evita timeouts de escrita no drive K:
+// Usar memoryStorage para uploads vindos da rede evita timeouts de escrita
 const upload = multer({ storage: multer.memoryStorage() });
 app.use('/output', express.static(OUTPUT_DIR));
 
@@ -317,13 +317,12 @@ app.get('/health', (_req, res) => res.json({ status: 'ok' }));
         app.listen(port, '0.0.0.0', () => {
             console.log(`
   ✦ ───────────────────────────────────────── ✦
-  🎬 GiantAnimator ONLINE NA REDE INTERNA 🌎
-  🔗 http://10.120.5.21:${port}
+  🔗 http://localhost:${port} (Local)
   ✦ ───────────────────────────────────────── ✦
             `);
             if (!IS_VERCEL) {
                 getBundle();
-                // 🔥 Inicia o Watcher do Drive K: para acesso sem dependência de portas/browser
+                // 🔥 Inicia o Watcher local para detecção de arquivos
                 startWatcher(PATHS.input);
             }
         });

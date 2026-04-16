@@ -24,10 +24,9 @@ GiantAnimator/
 ├── .agent/ ← skills e knowledge base do agente
 │   ├── skills/
 │   └── knowledge/
-└── ../shared/ ← pasta FORA do projeto (irmã)
-    ├── input/ ← imagens a processar chegam aqui
-    ├── output/ ← vídeos gerados saem aqui
-    └── processed/ ← imagens já processadas vão aqui
+├── input/ ← imagens/dados a processar chegam aqui
+├── output/ ← vídeos gerados saem aqui
+└── processed/ ← arquivos já processados vão aqui
 
 ## Regras Invioláveis
 1. **Sempre TypeScript** — nunca JavaScript puro
@@ -40,9 +39,9 @@ GiantAnimator/
 
 ## Fluxo de Funcionamento
 1. `INICIAR.bat` verifica ambiente → instala deps → inicia servidor → health check
-2. Servidor monitora `../shared/input/` com chokidar + fs.watch + polling (3 camadas)
+2. Servidor monitora `./input/` local com chokidar + fs.watch + polling (3 camadas)
 3. Arquivo detectado → entra na fila → espera estabilizar → render Remotion → move para processed
-4. Vídeo `.mp4` gerado em `../shared/output/`
+4. Vídeo `.mp4` gerado em `./output/`
 
 ## Porta e Endpoints
 - Porta padrão: `3000`

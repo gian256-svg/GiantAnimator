@@ -14,11 +14,8 @@ const ROOT = path.resolve(__dirname, '..');
 // No Vercel, apenas o /tmp é gravável.
 const WRITABLE_BASE = IS_VERCEL ? '/tmp' : ROOT;
 
-// Determinar a base compartilhada para arquivos (input/output)
-const DEFAULT_SHARED = 'K:/Shared';
-const SHARED_BASE = (fs.existsSync(DEFAULT_SHARED) || process.env.SHARED_DIR) 
-  ? (process.env.SHARED_DIR || DEFAULT_SHARED)
-  : WRITABLE_BASE;
+// Determinar a base para arquivos (input/output) - Agora estritamente LOCAL
+const SHARED_BASE = WRITABLE_BASE;
 
 export const PATHS = {
   root:     ROOT,

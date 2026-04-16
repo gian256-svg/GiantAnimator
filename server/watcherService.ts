@@ -31,7 +31,7 @@ export function startWatcher(inputPath: string) {
     usePolling: true,
     interval: 500,
     awaitWriteFinish: {
-      stabilityThreshold: 1500,
+      stabilityThreshold: 2500, // Garantia para arquivos 4K pesados na rede
       pollInterval: 200
     }
   });
@@ -55,7 +55,11 @@ export function startWatcher(inputPath: string) {
           outputFile: result.outputFile,
           status: 'done',
           duration: result.duration,
-          props: { ...result.props, componentId: result.componentId } // Salvando componente para rerender
+          props: { 
+            ...result.props, 
+            componentId: result.componentId,
+            reasoning: result.reasoning // Agora persistindo o pensamento da IA para auditoria
+          }
         });
 
         broadcast({ 

@@ -1134,4 +1134,17 @@ Escopo: Design System / UX
 **Fix**: 
 - **Theme.ts**: Aumentado o canal alfa do `grid` e `axis` nos temas `light`, `corporate` e `champagne` para `0.15` (dobro do anterior).
 - **Componentes**: Opacidade da animação do grid aumentada para `0.75` (era `0.4`).
-- **Resultado**: Linhas nítidas que orientam o olhar sem poluir o design.
+
+---
+
+### 🎓 [2026-04-16] SURGERY-GRADE PRECISION & FIDELITY SWEEP
+Contexto: Gráficos de múltiplas séries cruzadas (ex: COVID por país) estavam perdendo a tendência correta (hallucinating paths).
+
+**Novas Regras de Ouro (Invioláveis):**
+1.  **DADOS > ESTÉTICA**: A fidelidade dos pontos ao eixo Y original é a prioridade #1. NUNCA simplificar tendências complexas.
+2.  **Chain of Thought (CoT)**: O Analista de Visão DEVE listar os eixos detectados e as cores das séries ANTES de extrair os números.
+3.  **Resolução Nativa**: Imagens enviadas para IA agora usam 2560px (UHD-Ready) para evitar blur em labels pequenos.
+4.  **Zero Inflação**: Removida qualquer escala artificial (* 1.15) de componentes cartesianos. O topo do gráfico é agora o valor real máximo.
+5.  **Z-Stacking**: Todos os Headers de texto são renderizados após o elemento visual (SVG/Vídeo) para garantir legibilidade 4K.
+
+**Watcher Update**: Estabilidade aumentada para 2500ms para garantir integridade de arquivos grandes em redes compartilhadas.
