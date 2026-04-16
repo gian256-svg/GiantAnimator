@@ -1,5 +1,26 @@
 [
   {
+    "filename": "PandemiaCasosEuropa_AN_imagem_colada_1776349465044.mp4",
+    "outputFile": "PandemiaCasosEuropa_AN_imagem_colada_1776349465044.mp4",
+    "status": "done",
+    "id": "bfab0893-e2b8-41d1-98fe-b5e55d1533ad",
+    "createdAt": "2026-04-16T14:25:17.509Z"
+  },
+  {
+    "filename": "CovidCasesTrend_AN_imagem_colada_1776348777216.mp4",
+    "outputFile": "CovidCasesTrend_AN_imagem_colada_1776348777216.mp4",
+    "status": "done",
+    "id": "b801557e-459e-4c78-a246-4bc3ae39e794",
+    "createdAt": "2026-04-16T14:13:50.287Z"
+  },
+  {
+    "filename": "PorcentagemServicosStreaming_AN_imagem_colada_1776347903273.mp4",
+    "outputFile": "PorcentagemServicosStreaming_AN_imagem_colada_1776347903273.mp4",
+    "status": "done",
+    "id": "59c84fe7-0c80-4785-ba57-c1edafc14826",
+    "createdAt": "2026-04-16T13:59:10.566Z"
+  },
+  {
     "filename": "VendasProdutosCiclismo_AN_imagem_colada_1776289861309.mp4",
     "outputFile": "VendasProdutosCiclismo_AN_imagem_colada_1776289861309.mp4",
     "status": "done",
@@ -47,26 +68,5 @@
     "status": "done",
     "id": "de2f5a8e-0f1a-4341-96a0-02ed7cd74f08",
     "createdAt": "2026-04-15T21:11:07.917Z"
-  },
-  {
-    "id": "3397faf2-dc95-46d3-be0d-df93cef1c79f",
-    "name": "imagem_colada_1776279622886.png",
-    "filename": "giant-51f77938-5a5d-4c7a-b739-8c8eb3b8c4bb.mp4",
-    "videoUrl": "/output/giant-51f77938-5a5d-4c7a-b739-8c8eb3b8c4bb.mp4",
-    "createdAt": "2026-04-15T19:01:04.428Z"
-  },
-  {
-    "id": "276da2a5-04d3-4d26-97d2-edaade69de47",
-    "name": "imagem_colada_1776279552280.png",
-    "filename": "giant-31941b6b-9853-437e-aae0-2b21b3103e20.mp4",
-    "videoUrl": "/output/giant-31941b6b-9853-437e-aae0-2b21b3103e20.mp4",
-    "createdAt": "2026-04-15T18:59:54.161Z"
-  },
-  {
-    "id": "87348a19-0af7-4c26-b4ac-69caf19a278b",
-    "name": "imagem_colada_1776279091840.png",
-    "filename": "giant-53a8dca1-4083-4739-a543-49b4afb0440d.mp4",
-    "videoUrl": "/output/giant-53a8dca1-4083-4739-a543-49b4afb0440d.mp4",
-    "createdAt": "2026-04-15T18:52:20.920Z"
   }
 ]

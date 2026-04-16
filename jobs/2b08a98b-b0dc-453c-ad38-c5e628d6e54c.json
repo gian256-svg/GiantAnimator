@@ -1,0 +1,8 @@
+{
+  "id": "2b08a98b-b0dc-453c-ad38-c5e628d6e54c",
+  "status": "error",
+  "progress": 60,
+  "stage": "Renderizando 4K UHD...",
+  "log": "Componente: b12f3b16-e268-489e-a467-f54875590063",
+  "error": "Error: Could not find composition with ID b12f3b16-e268-489e-a467-f54875590063. Available compositions: BarChartRace, BarChart, ComparativeBarChart, ComparativeBarChartPreview, LineChart, PieChart, PieChartPreview, DonutChart, DonutChartPreview, MultiLineChart, MultiLineChartPreview, BubbleChart, BubbleChartPreview, AreaChart, AreaChartPreview, HorizontalBarChart, BoxPlotChart, BoxPlotChartPreview, BulletChart, BulletChartPreview, TreemapChart, TreemapChartPreview, NetworkChart, NetworkChartPreview, PolarChart, PolarChartPreview, RadarChart, RadarChartPreview, GroupedBarChart, GroupedBarChartPreview, GaugeChart, GaugeChartPreview, StackedBarChart, StackedBarChartPreview, ScatterPlot, ScatterPlotPreview, ParetoChart, ParetoChartPreview, WaterfallChart, WaterfallChartPreview, CandlestickChart, CandlestickChartPreview, FunnelChart, FunnelChartPreview, SparklineChart, SparklineChartPreview, SankeyChart, SankeyChartPreview, HeatmapChart, HeatmapChartPreview, SunburstChart, SunburstChartPreview, ChordChart, ChordChartPreview, MekkoChart, MekkoChartPreview, HistogramChart, HistogramChartPreview, BarChartPreview, GanttChart, Heatmap"
+}

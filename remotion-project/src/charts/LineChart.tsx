@@ -64,14 +64,19 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
 
   if (xAxisLabels.length < 2) return <AbsoluteFill style={{ backgroundColor: resolvedBg }} />;
 
+  // Propriedades Estendidas (UHD High-Fidelity)
+  const showEndLabels = normalizedSeries.length > 1; // Se tiver muitas séries, prefere nome no final
+  const isHighDensity = normalizedSeries.some(s => s.data.length > 25);
+
   // Layout 4K
   const fs = (base: number) => Math.round(base * (width / 1280));
   const pad = width * 0.04;
   const padTop = height * 0.15;
-  const padBot = height * 0.12;
+  const padBot = normalizedSeries.length > 1 && !showEndLabels ? height * 0.12 : height * 0.08;
   const plotLeft = pad + width * 0.08;
   const plotTop = padTop;
-  const plotWidth = width - plotLeft - (pad * 1.5);
+  const rightBuffer = showEndLabels ? fs(150) : pad * 1.5;
+  const plotWidth = width - plotLeft - rightBuffer;
   const plotHeight = height - padTop - padBot;
 
   const allValues = normalizedSeries.flatMap(s => s.data);
@@ -108,7 +113,7 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
         {[0, 0.25, 0.5, 0.75, 1].map((v) => {
           const val = minV + v * range;
           const y = getY(val);
-          const op = interpolate(frame, [10, 30], [0, 0.4], { extrapolateRight: 'clamp' });
+          const op = interpolate(frame, [10, 30], [0, 0.75], { extrapolateRight: 'clamp' });
           return (
             <React.Fragment key={v}>
               <line x1={plotLeft} y1={y} x2={plotLeft + plotWidth} y2={y} stroke={T.grid} strokeWidth={Math.max(1, fs(1.5))} opacity={op} />
@@ -125,13 +130,36 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
           const linePoints = s.data.map((v, i) => `${getX(i)},${getY(v)}`).join(" ");
           const areaPath = `M ${getX(0)},${getY(s.data[0])} ` + s.data.slice(1).map((v, i) => `L ${getX(i + 1)},${getY(v)}`).join(" ") + ` L ${getX(s.data.length - 1)},${plotTop + plotHeight} L ${getX(0)},${plotTop + plotHeight} Z`;
 
+          const lastVal = s.data[s.data.length - 1];
+          const lastX = getX(s.data.length - 1);
+          const lastY = getY(lastVal);
+
           return (
-            <g key={sIndex} clipPath="url(#line-reveal)">
-              {showArea && <path d={areaPath} fill={`url(#lineGrad-${sIndex})`} />}
-              <polyline points={linePoints} fill="none" stroke={color} strokeWidth={fs(5)} strokeLinecap="round" strokeLinejoin="round" />
-              {s.data.map((v, i) => (
-                <circle key={i} cx={getX(i)} cy={getY(v)} r={fs(6)} fill={resolvedBg} stroke={color} strokeWidth={fs(3)} />
-              ))}
+            <g key={sIndex}>
+              <g clipPath="url(#line-reveal)">
+                {showArea && <path d={areaPath} fill={`url(#lineGrad-${sIndex})`} />}
+                <polyline points={linePoints} fill="none" stroke={color} strokeWidth={fs(isHighDensity ? 3 : 5)} strokeLinecap="round" strokeLinejoin="round" />
+                {!isHighDensity && s.data.map((v: number, i: number) => (
+                  <circle key={i} cx={getX(i)} cy={getY(v)} r={fs(6)} fill={resolvedBg} stroke={color} strokeWidth={fs(3)} />
+                ))}
+              </g>
+              
+              {/* labels no final (aparecem com o reveal) */}
+              {showEndLabels && (
+                <text 
+                  x={lastX + fs(15)} 
+                  y={lastY} 
+                  dominantBaseline="middle" 
+                  style={{ 
+                    fontSize: fs(16), 
+                    fill: color, 
+                    fontWeight: 700,
+                    opacity: interpolate(frame, [30 + (2.8 * fps), 30 + (3 * fps)], [0, 1], { extrapolateLeft: 'clamp' })
+                  }}
+                >
+                  {s.label}
+                </text>
+              )}
             </g>
           );
         })}

@@ -378,8 +378,8 @@ export const THEMES: Record<string, ThemeConfig> = {
     surface:    '#f8fafc',
     text:       '#0f172a',
     textMuted:  '#1e293b',
-    grid:       'rgba(30,64,175,0.08)',
-    axis:       'rgba(30,64,175,0.2)',
+    grid:       'rgba(30,64,175,0.15)', // Aumentado contraste (era 0.08)
+    axis:       'rgba(30,64,175,0.35)', // Aumentado contraste (era 0.2)
     colors: [
       '#1e40af', // azul institucional
       '#3b82f6', // azul médio
@@ -400,8 +400,8 @@ export const THEMES: Record<string, ThemeConfig> = {
     surface:    '#ffffff',
     text:       '#0f172a', // Slate 900
     textMuted:  '#475569', // Slate 600
-    grid:       'rgba(15,23,42,0.06)',
-    axis:       'rgba(15,23,42,0.12)',
+    grid:       'rgba(15,23,42,0.15)', // Aumentado contraste (era 0.06)
+    axis:       'rgba(15,23,42,0.3)',  // Aumentado contraste (era 0.12)
     colors: [
       '#2563eb', // Blue 600
       '#059669', // Emerald 600
@@ -444,8 +444,8 @@ export const THEMES: Record<string, ThemeConfig> = {
     surface:    '#ffffff',
     text:       '#1A1A1A',
     textMuted:  '#666666',
-    grid:       'rgba(26,26,26,0.06)',
-    axis:       'rgba(26,26,26,0.15)',
+    grid:       'rgba(26,26,26,0.12)', // Aumentado contraste (era 0.06)
+    axis:       'rgba(26,26,26,0.3)',  // Aumentado contraste (era 0.15)
     colors: [
       '#003366', // Marinho Real
       '#C5A021', // Ouro Velho

@@ -1087,3 +1087,51 @@ Escopo: Todos os Agentes / Sessões
 **Regra 3 (Espelhamento K: Shared)**: Inalterabilidade entre local e rede.
 - **Obrigatoriedade**: Toda mudança feita no projeto local deve ser copiada para `K:\Shared\GiantAnimator`.
 - **Propósito**: Garantir que a versão de rede esteja sempre idêntica à de desenvolvimento.
+
+---
+
+### 🏆 [2026-04-16] VITÓRIA INFRA: MODO NINJA (BYPASS DE FIREWALL)
+Data: 2026-04-16
+Escopo: Conectividade / Rede Corporativa
+
+**Problema**: TI bloqueou portas e Túneis (Cloudflare/Localtunnel) em rede restrita.
+**Solução**: Implementado o **Watcher do Drive K:**. 
+- O servidor monitora a pasta `K:\Shared\GiantAnimator\input`.
+- Usuários de outros PCs apenas "soltam" arquivos lá.
+- O servidor processa e entrega o MP4 em `K:\Shared\GiantAnimator\output`.
+**Aprendizado**: O drive de rede compartilhado é a melhor interface quando a rede web está bloqueada.
+
+---
+
+### ⚡ [2026-04-16] REGRA: I/O ASSÍNCRONO EM DRIVES DE REDE
+Data: 2026-04-16
+Escopo: Performance / Estabilidade
+
+**Erro Crítico**: Usar `fs.writeFileSync` ou `fs.readFileSync` em drives de rede (como o `K:`) congela o Event Loop do Node.js.
+**Sintoma**: Servidor para de responder a outros usuários e o túnel dá erro 503 (Service Unavailable).
+**Regra**: Todo I/O envolvendo pastas do Drive K **DEVE** ser feito via `fs.promises` (async/await). 
+- Nunca travar o motor do servidor esperando o disco de rede responder.
+
+---
+
+### 👁️ [2026-04-16] 🎓 APRENDIZADO: PRECISÃO "SURGERY-GRADE" (VISION)
+Data: 2026-04-16
+Escopo: Inteligência Artificial / Análise de Gráficos
+
+**Problema**: Gráficos de linhas complexos (ex: COVID Trend) estavam sendo simplificados demais pela IA, perdendo a curvatura real.
+**Novo Padrão de Prompt**: 
+1. **Calibração Obrigatória**: A IA deve ler o valor do topo e base do eixo Y primeiro.
+2. **Extração de Tendência**: O JSON deve conter no mínimo 8-12 pontos por linha para preservar picos e vales.
+3. **Respeito à Escala**: Valores devem ser interpolados baseados na posição pixel-per-pixel em relação aos eixos.
+
+---
+
+### 🎨 [2026-04-16] REGRA: VISIBILIDADE UHD EM TEMAS CLAROS
+Data: 2026-04-16
+Escopo: Design System / UX
+
+**Problema**: Linhas de grade (grid) sumiam em telas 4K claras (tema light).
+**Fix**: 
+- **Theme.ts**: Aumentado o canal alfa do `grid` e `axis` nos temas `light`, `corporate` e `champagne` para `0.15` (dobro do anterior).
+- **Componentes**: Opacidade da animação do grid aumentada para `0.75` (era `0.4`).
+- **Resultado**: Linhas nítidas que orientam o olhar sem poluir o design.

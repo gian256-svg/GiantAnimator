@@ -16,13 +16,12 @@ O output Remotion deve ser idêntico aos dados da imagem.
 2. **UNIDADE DE MEDIDA (MANDATÓRIO)**: Identifique o símbolo de unidade (%, $, R$, M, k, bpm, etc.) presente nos datalabels ou eixos. EXTRAIA ESTE SÍMBOLO separadamente.
 3. **Contagem de Elementos**: Conte quantos itens/categorias existem no eixo (X ou Y) ou na legenda ANTES de extrair os valores.
 4. **Leitura de Títulos**: Identifique o título principal e subtítulos (se houver).
-5. **IDENTIFICAÇÃO DE EIXOS (CRÍTICO)**: 
-    - O que está no X? O que está no Y? Quais as unidades?
-    - **BASELINE**: O eixo começa em 0 ou em outro valor (ex: 25)? Se começar em 25, e uma categoria não tiver barra mas estiver alinhada ao início, o valor dela é 25, não 0.
-6. **VARREDURA DE DADOS**: Para cada categoria IDENTIFICADA NA ETAPA 1, leia o valor numérico exato. 
-    - Se não houver rótulos de dados, use a escala dos eixos para interpolar o valor com PRECISÃO PIXEL-PERFECT. 
-    - Verifique se o valor termina em um número "redondo" (inteiro) que faria sentido no contexto. 
-    - Compare o comprimento das barras entre si para garantir que a proporção em pixels (Ex: Barra A é o dobro da Barra B) seja mantida nos valores extraídos.
+5. **IDENTIFICAÇÃO DE EIXOS E ESCALA (CRÍTICO)**: 
+    - **CALIBRAÇÃO**: Identifique os valores MÁXIMO e MÍNIMO do eixo Y. Use-os para calibrar visualmente todos os pontos. Se o topo do eixo é 1400 e a linha está na metade, o valor é 700.
+    - **TENDÊNCIA REAL**: Para gráficos de linha (LineChart), NÃO resuma a tendência. Extraia os pontos de inclinação, picos e vales. Se uma linha sobe bruscamente no final, os dados no JSON DEVEM refletir essa subida.
+    - **X-AXIS PRECISION**: Se o eixo X tiver datas ou meses, preserve-os exatamente.
+6. **VARREDURA DE DADOS (MULTI-SÉRIE)**: Em gráficos com várias linhas, identifique a cor de cada linha na legenda e atribua os dados corretos à série correspondente.
+    - Extraia pelo menos 8-12 pontos por linha para garantir que a curvatura da animação seja fiel à realidade.
 7. **VALIDAÇÃO**: Verifique se os dados extraídos, se plotados, resultariam no mesmo formato visual da imagem.
 8. **NOME SUGERIDO (NOVO)**: Crie um campo "suggestedName" com exatamente TRÊS PALAVRAS JUNTAS (em PascalCase) que resumam o assunto do gráfico (ex: VendasJaneiroCrescimento, AnalisePopulacaoMundial). Não use espaços.
 
@@ -58,7 +57,16 @@ O output Remotion deve ser idêntico aos dados da imagem.
 - Se houver um símbolo (%) ou ($) ao lado dos números na imagem, o campo "unit" DEVE ser preenchido com esse caractere (ex: "%").
 
 ### REGISTRY DE COMPONENTES DISPONÍVEIS:
-\${registryJson}
+${registryJson}
+
+### REGRA PARA componentId (VITAL):
+O campo "componentId" DEVE ser preenchido EXATAMENTE com uma das strings do Registry fornecido. 
+- PROIBIDO: Inventar UUIDs, nomes novos ou variações (ex: "Line Chart" com espaço).
+- OBRIGATÓRIO: Se for linha, use "LineChart". Se for barra, "BarChart".
+
+### REGRA PARA LineChart (ESTILO):
+- **showArea**: Verifique se as linhas na imagem original têm preenchimento colorido embaixo delas. Se forem APENAS linhas finas sobre o fundo, defina 'showArea: false'. Se tiverem gradiente/cor até a base, defina 'showArea: true'.
+- **FIDELIDADE DE TENDÊNCIA**: Se o gráfico original tiver muitas oscilações (picos e vales finos), extraia o maior número possível de pontos (30-50 pontos por série) para que a animação não pareça simplificada.
 
 ⚠️ AVISO: A vida de um editor de vídeo depende da precisão destes dados. Seja cirúrgico. Se o gráfico for horizontal na imagem e você der BarChart (vertical), você falhou.
 `.trim();

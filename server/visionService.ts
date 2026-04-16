@@ -139,6 +139,27 @@ O usuário deseja que a animação tenha a mesma identidade visual da imagem.
     console.warn(`⚠️  [VISION] props.data ausente, inicializando vazio`);
     analysis.props.data = [];
   }
+
+  // ─── ✅ VALIDAR ID DO COMPONENTE (Anti-Hallucination) ────────
+  const validIds = COMPONENT_REGISTRY.map(c => c.id);
+  if (!validIds.includes(analysis.componentId)) {
+    console.log(`🛡️ [VISION] ID Hallucinado detectado: ${analysis.componentId}`);
+    
+    // Heurística de Resgate baseada no Reasoning ou Dados
+    const reasoning = (analysis.reasoning || "").toLowerCase();
+    const hasSeries = (analysis.props.series && analysis.props.series.length > 0);
+    
+    if (reasoning.includes("linha") || reasoning.includes("line") || hasSeries) {
+        analysis.componentId = "LineChart";
+    } else if (reasoning.includes("pizza") || reasoning.includes("pie") || reasoning.includes("fatia")) {
+        analysis.componentId = "PieChart";
+    } else if (reasoning.includes("horizontal") || reasoning.includes("barra deit")) {
+        analysis.componentId = "HorizontalBarChart";
+    } else {
+        analysis.componentId = "BarChart";
+    }
+    console.log(`✅ [VISION] Resgate concluído -> Usando: ${analysis.componentId}`);
+  }
   // ─── ✅ Heurística de Unidade (Conserta falhas de extração da IA) ───
   if (!analysis.props.unit) {
     const textToSearch = (analysis.props.title || "") + " " + (analysis.props.subtitle || "") + " " + 

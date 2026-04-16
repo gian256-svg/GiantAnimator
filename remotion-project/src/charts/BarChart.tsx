@@ -114,7 +114,7 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
         {/* GRID Y */}
         {[0, 0.25, 0.5, 0.75, 1].map((v) => {
           const y = getY(v * maxVal);
-          const op = interpolate(frame, [5, 25], [0, 0.45], { extrapolateRight: "clamp" });
+          const op = interpolate(frame, [5, 25], [0, 0.75], { extrapolateRight: "clamp" });
           return (
             <React.Fragment key={v}>
               <line x1={plotLeft} y1={y} x2={plotLeft + plotWidth} y2={y} stroke={T.grid} strokeWidth={Math.max(1, fs(1.5))} opacity={op} />
