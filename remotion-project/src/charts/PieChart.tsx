@@ -87,10 +87,10 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
   const LEGEND_SIZE = fs(22); // Tamanho seguro para 4K UHD
   
   const centerX = width / 2;
-  // Mantém o centro um pouco mais para cima para deixar a Zona 3 livre
-  const centerY = height * 0.42; 
-  // O raio deve ser bem contido para NUNCA encostar na legenda
-  const maxRadius = Math.min(width * 0.25, height * 0.22);
+  // Agora centralizado verticalmente (0.5) para preencher melhor o espaço
+  const centerY = height * 0.50; 
+  // Aumento do raio para preencher o canvas 4K com mais autoridade
+  const maxRadius = Math.min(width * 0.35, height * 0.32);
   const radius = maxRadius;
 
   // Renderização de Slices
@@ -203,8 +203,8 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
 
       {/* ── LEGEND (ZONA 3) ── */}
       <div style={{
-          position: "absolute", bottom: height * 0.05, left: width * 0.1, right: width * 0.1,
-          display: "flex", justifyContent: "center", alignContent: "flex-end", flexWrap: "wrap", gap: fs(24),
+          position: "absolute", bottom: height * 0.08, left: width * 0.1, right: width * 0.1,
+          display: "flex", justifyContent: "center", alignContent: "flex-end", flexWrap: "wrap", gap: fs(30),
           opacity: interpolate(frame, [40, 60], [0, 1]),
           pointerEvents: 'none'
         }}

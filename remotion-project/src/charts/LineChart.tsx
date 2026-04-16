@@ -67,8 +67,8 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
   // Layout 4K
   const fs = (base: number) => Math.round(base * (width / 1280));
   const pad = width * 0.04;
-  const padTop = height * 0.18;
-  const padBot = height * 0.14;
+  const padTop = height * 0.15;
+  const padBot = height * 0.12;
   const plotLeft = pad + width * 0.08;
   const plotTop = padTop;
   const plotWidth = width - plotLeft - (pad * 1.5);
