@@ -230,6 +230,7 @@ async function processJob(jobId: string, fileData: Buffer, originalName: string,
 
 // 📌 ROTAS 📌
 const upload = multer({ storage: multer.memoryStorage() });
+app.use(express.static(path.join(process.cwd(), 'public'))); 
 app.use('/output', express.static(OUTPUT_DIR));
 
 app.post('/upload', upload.single('file'), async (req: Request, res: Response) => {

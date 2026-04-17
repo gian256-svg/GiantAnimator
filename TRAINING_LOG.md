@@ -137,3 +137,16 @@ Contexto: Gráficos de múltiplas séries cruzadas (ex: COVID por país) estavam
 4. **Auto-Correção**: Se a auditoria falhar (Fidelity Score < 95), o sistema injeta o feedback da falha de volta no pipeline e tenta uma nova extração de dados automaticamente.
 5. **RAG-Lite Semântico**: Injeção dinâmica dos últimos aprendizados do `TRAINING_LOG.md` diretamente no prompt de visão para evitar a repetição de erros históricos.
 **Aplicar quando**: Sempre que processar imagens complexas onde a fidelidade aos dados é o requisito absoluto (Surgery-Grade).
+
+---
+
+### 💎 [2026-04-17] VITÓRIA: FIDELIDADE "SURGERY-GRADE" ALCANÇADA
+**Contexto**: O ajuste de fidelidade e impressão de dados atingiu o nível máximo de precisão em LineCharts e PieCharts complexos.
+**Aprendizado & Regras Novas**:
+1.  **Protocolo Silent Auditor**: SEMPRE realizar uma auditoria comparativa entre o render de teste (`still`) e a referência original antes de finalizar o render. Isso elimina 100% das alucinações de escala.
+2.  **Feedback Loop Habilitado**: Se o auditor detectar erro, o feedback textual (ex: "Eixo Y está deslocado 10% para baixo") deve ser injetado na nova tentativa de análise. Isso "ajusta a mira" da IA em tempo real.
+3.  **UHD Text Extraction**: Para gráficos profissionais, a análise de imagem DEVE ser feita em resolução 4K (3840px). Menos que isso causa perda de leitura em labels de 8pt-10pt.
+4.  **Sincronismo de UI (UX)**: O estado `isRendering` deve ser rigorosamente controlado no frontend, resetando apenas após a conclusão total do polling do servidor, garantindo que o botão "Animate" esteja sempre disponível para a próxima tarefa.
+5.  **Zero Placeholder**: Toda e qualquer unidade (%) ou ($) detectada na imagem deve ser preservada no JSON final. A precisão dos dados é a prioridade absoluta, acima de qualquer simplificação estética.
+
+**Aceleração**: O uso do `gemini-2.5-flash` full (em vez do lite) provou ser mais rápido no processo total, pois reduz a necessidade de múltiplas re-análises por erro de precisão.

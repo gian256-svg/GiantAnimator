@@ -325,28 +325,27 @@ document.addEventListener('DOMContentLoaded', () => {
       state.isRendering = true;
       btnRender.disabled = true;
 
-      for (const f of pending) {
-        f.status = 'processing';
-        renderFileQueue();
-        const fd = new FormData();
-        fd.append('file', f.file);
-        fd.append('chartType', document.getElementById('chart-type').value);
-        fd.append('chartTheme', document.getElementById('chart-theme').value);
+      try {
+        for (const f of pending) {
+          f.status = 'processing';
+          renderFileQueue();
+          const fd = new FormData();
+          fd.append('file', f.file);
+          fd.append('chartType', document.getElementById('chart-type').value);
+          fd.append('chartTheme', document.getElementById('chart-theme').value);
 
-        try {
           log(`🚀 Enviando: ${f.name}`);
           const res = await fetch('/upload', { method: 'POST', body: fd });
+          if (!res.ok) throw new Error(`Erro no upload: ${res.status}`);
+          
           const data = await res.json();
-          startPolling(data.jobId, f.name);
-          f.status = 'done';
-          renderFileQueue();
-        } catch (err) {
-          f.status = 'error';
-          renderFileQueue();
-          log(`✕ Erro: ${err.message}`, 'error');
-          state.isRendering = false;
-          btnRender.disabled = false;
+          startPolling(data.jobId, f.name, f.id);
         }
+      } catch (err) {
+        log(`✕ Erro: ${err.message}`, 'error');
+        toast(`Erro no processamento: ${err.message}`, 'error');
+        state.isRendering = false;
+        renderFileQueue();
       }
     });
   }
@@ -381,7 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
 /* ═══════════════════════════════════════════════════════════════
    POLLING — Resiliência Total
 ═══════════════════════════════════════════════════════════════ */
-function startPolling(jobId, fileName) {
+function startPolling(jobId, fileName, fileId) {
   if (state.pollInterval) clearInterval(state.pollInterval);
   state.currentJobId = jobId;
 
@@ -401,23 +400,35 @@ function startPolling(jobId, fileName) {
       if (msg.status === 'done') {
         clearInterval(interval);
         state.isRendering = false;
+        
+        // Atualiza o status do arquivo na fila
+        const file = state.files.find(f => f.id === fileId);
+        if (file) file.status = 'done';
+        
         setProgress(100, 'Vídeo 4K pronto ✓');
         log(`🎬 Vídeo UHD pronto: ${msg.videoUrl}`, 'success');
         toast('Renderização 4K concluída!', 'success');
+        
         loadVideo(msg.videoUrl, fileName, msg.duration || '');
         triggerDownload(msg.videoUrl, fileName, jobId);
-        document.getElementById('btn-render').disabled = false;
+        
+        renderFileQueue(); // Atualiza botão e lista
         refreshHistory();
       }
 
       if (msg.status === 'error') {
         clearInterval(interval);
         state.isRendering = false;
+        
+        const file = state.files.find(f => f.id === fileId);
+        if (file) file.status = 'error';
+        
         const errMsg = msg.error || 'Erro interno desconhecido do servidor';
         log(`✕ Erro 4K: ${errMsg}`, 'error');
         toast(`Erro: ${errMsg}`, 'error');
         setProgress(0, 'Erro ✕');
-        document.getElementById('btn-render').disabled = false;
+        
+        renderFileQueue(); // Atualiza botão e lista
         alert(`Status: ${errMsg}`);
       }
     } catch(err) {
