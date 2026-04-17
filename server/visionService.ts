@@ -99,6 +99,10 @@ O usuário deseja fidelidade cromática total. Extraia as cores Hex de CADA linh
   }
 
   // ─── ✅ FIX: extrair texto corretamente ───────────────────────
+  if (!response) {
+    throw new Error("Falha ao obter resposta do Gemini Vision após múltiplas tentativas.");
+  }
+
   const responseText =
     response.candidates?.[0]?.content?.parts?.[0]?.text
     ?? (response as any).text  // fallback caso SDK normalize futuramente

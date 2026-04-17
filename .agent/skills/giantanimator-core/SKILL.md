@@ -37,6 +37,11 @@ GiantAnimator/
 6. **Logs com emojis** para facilitar leitura no console
 7. **Commits em português** com mensagens descritivas
 
+## Regras de Inicialização
+1. **NUNCA abrir o Remotion Studio** no navegador automaticamente (usar `--no-browser`).
+2. **Sempre ligar o servidor** backend (porta 3000) e o watcher de input.
+3. **Sempre ler as skills** do agente (`.agent/skills/*.md`) ao iniciar para manter contexto atualizado.
+
 ## Fluxo de Funcionamento
 1. `INICIAR.bat` verifica ambiente → instala deps → inicia servidor → health check
 2. Servidor monitora `./input/` local com chokidar + fs.watch + polling (3 camadas)

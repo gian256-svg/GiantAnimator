@@ -274,7 +274,7 @@ app.get('/progress/:jobId', (req: Request, res: Response) => {
 });
 
 app.post('/preview-data', upload.single('file'), async (req: Request, res: Response) => {
-    const debugLog = path.resolve(ROOT, 'debug_preview.log');
+    const debugLog = path.resolve(PATHS.root, 'debug_preview.log');
     if (!req.file) {
         fs.appendFileSync(debugLog, `[${new Date().toISOString()}] Erro: Nenhum arquivo recebido\n`);
         return res.status(400).json({ error: 'No file' });

@@ -48,7 +48,7 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
   const resolvedText = props.textColor ?? T.text;
   
   // Se theme for champagne e a cor for muito próxima de branco, vamos garantir o creme.
-  const isChampagne = theme?.toLowerCase() === 'champagne';
+  // const isChampagne = theme?.toLowerCase() === 'champagne'; // Unused but kept for reference if needed
   
   const sliceColors = props.sliceColors || props.colors || [...T.colors];
 
@@ -78,7 +78,7 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
   const safeL = Theme.canvas.safeZoneX;
   const safeR = width - safeL;
   const safeT = Theme.canvas.safeZoneTop;
-  const safeB = height - Theme.canvas.safeZoneBottom;
+  // const safeB = height - Theme.canvas.safeZoneBottom; // Unused
 
   const fs = (base: number) => Math.round(base * (width / 1280));
 
@@ -157,7 +157,7 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
           // Arco principal
           const pathD = progress > 0 ? `M ${centerX} ${centerY} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2} Z` : "";
 
-          const color = slice.color || sliceColors[i % sliceColors.length];
+          // const color = slice.color || sliceColors[i % sliceColors.length]; // Unused
           const midAngle = startAngle + currentSliceAngle / 2;
           
           // Labels baseadas em tamanho da fatia

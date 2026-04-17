@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  spring,
   useCurrentFrame,
   useVideoConfig,
   interpolate,
@@ -39,7 +38,7 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
   } = props;
 
   const frame = useCurrentFrame();
-  const { width, height, fps } = useVideoConfig();
+  const { width, height } = useVideoConfig(); // fps unused
 
   // Resolve tema
   const T = resolveTheme(theme);
@@ -74,7 +73,7 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
   }
 
   // Propriedades Estendidas (UHD High-Fidelity)
-  const showEndLabels = true; // Sempre mostrar identificação da linha no final para fidelidade UHD
+  // const showEndLabels = true; // Unused but kept for reference if needed
   const isHighDensity = normalizedSeries.some(s => s.data.length > 25);
 
   // Layout 4K UHD - Seguindo FILOSOFIA 4K

@@ -33,6 +33,8 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
   subtitle = "",
   unit     = "",
   colors,
+  backgroundColor,
+  textColor,
   showValueLabels = false,
 }) => {
   const frame      = useCurrentFrame();
@@ -41,7 +43,7 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
   const T = resolveTheme(theme);
   const resolvedBg    = backgroundColor ?? T.background;
   const resolvedText  = textColor       ?? T.text;
-  const resolvedColors = colors && colors.length > 0 ? colors : [...T.colors];
+  // const resolvedColors = colors && colors.length > 0 ? colors : [...T.colors]; // Unused but kept for reference if needed
 
   const instanceId = useId().replace(/:/g, "");
 
@@ -81,7 +83,6 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
   const plotWidth      = width - plotLeft - pad - fs(45);
   const plotHeight     = height - padTop - padBot;
 
-  const allValues = normalizedSeries.flatMap(s => s.data);
   const dataMax = Math.max(...allValues, 0.0001);
   const maxVal  = dataMax; 
   
@@ -146,7 +147,7 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
             const bW = Math.max(0, (val / maxVal) * plotWidth * progress);
             
             const labelOp = interpolate(frame, [delay + 10, delay + 25], [0, 1], { extrapolateRight: "clamp" });
-            const color = T.colors[seriesIdx % T.colors.length];
+            // const color = T.colors[seriesIdx % T.colors.length]; // Unused
 
             return (
               <g key={`${groupIdx}-${seriesIdx}`}>
