@@ -21,9 +21,9 @@ export const CANVAS = {
   height: 2160,
 
   // Área útil (descontando safe zones)
-  safeZoneX: 128,   // lateral (cada lado)
-  safeZoneTop: 160, // topo
-  safeZoneBottom: 80, // rodapé
+  safeZoneX: 192,   // lateral (cada lado) - 10% total de margem (5% cada lado)
+  safeZoneTop: 144, // topo (espaço para header)
+  safeZoneBottom: 72, // rodapé (espaço para legenda)
 
   get usableWidth()  { return this.width  - this.safeZoneX * 2; },   // 3584px
   get usableHeight() { return this.height - this.safeZoneTop - this.safeZoneBottom; }, // 1920px
@@ -268,8 +268,8 @@ export const THEMES: Record<string, ThemeConfig> = {
     surface:    '#1a1d27',
     text:       '#e8eaf6',
     textMuted:  '#8892b0',
-    grid:       'rgba(232,234,246,0.07)',
-    axis:       'rgba(232,234,246,0.15)',
+    grid:       'rgba(232,234,246,0.12)', // Aumentado para visibilidade UHD (Preferência Estética)
+    axis:       'rgba(232,234,246,0.25)',
     colors: [
       '#7c3aed', // violeta
       '#06b6d4', // ciano
@@ -400,8 +400,8 @@ export const THEMES: Record<string, ThemeConfig> = {
     surface:    '#ffffff',
     text:       '#0f172a', // Slate 900
     textMuted:  '#475569', // Slate 600
-    grid:       'rgba(15,23,42,0.15)', // Aumentado contraste (era 0.06)
-    axis:       'rgba(15,23,42,0.3)',  // Aumentado contraste (era 0.12)
+    grid:       'rgba(15,23,42,0.22)', // Mais escuro para fundo claro (Preferência Estética)
+    axis:       'rgba(15,23,42,0.4)',  // Mais escuro para fundo claro
     colors: [
       '#2563eb', // Blue 600
       '#059669', // Emerald 600

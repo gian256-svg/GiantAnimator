@@ -11,7 +11,11 @@ import { type ChartAnalysis } from "./types.js";
 /**
  * Serviço de Visão Compartilhado para análise de imagens de gráficos.
  */
-export async function analyzeChartImage(imagePath: string, requestedTheme?: string): Promise<ChartAnalysis> {
+export async function analyzeChartImage(
+  imagePath: string, 
+  requestedTheme?: string,
+  auditorCritique?: string
+): Promise<ChartAnalysis> {
   const rawImageData = fs.readFileSync(imagePath);
 
   // ─── MD5 Cache ───────────────────────────────────────────────
@@ -41,14 +45,21 @@ export async function analyzeChartImage(imagePath: string, requestedTheme?: stri
 
   console.log(`🔍 [VISION] Enviando para Gemini Vision...`);
 
-  // ─── Otimizar imagem (UHD-Ready para Vision) ──────────────────
+  // ─── Otimizar imagem (UHD-Ready para Vision — High Detail) ────
   const optimizedBuffer = await sharp(rawImageData)
-    .resize(2560, 1440, { fit: "inside", withoutEnlargement: true })
+    .resize(3840, 2160, { fit: "inside", withoutEnlargement: true })
     .toBuffer();
 
   const imageBase64  = optimizedBuffer.toString("base64");
   const registryJson = JSON.stringify(COMPONENT_REGISTRY, null, 2);
   let prompt       = buildImageAnalysisPrompt(registryJson);
+
+  // ─── Semantic RAG (Knowledge Injection) ──────────────────────
+  const trainingLogPath = path.join(process.cwd(), "..", "TRAINING_LOG.md");
+  if (fs.existsSync(trainingLogPath)) {
+    const trainingLog = fs.readFileSync(trainingLogPath, "utf-8");
+    prompt += `\n\n### CONTEXTO PESQUISADO (Últimos aprendizados):\n${trainingLog.slice(-4000)}\n`;
+  }
 
   // Detecção Automática de Tema baseada na Luminância Original
   prompt += `
@@ -65,6 +76,14 @@ O usuário deseja fidelidade cromática total. Extraia as cores Hex de CADA linh
 `;
   }
 
+  if (auditorCritique) {
+    prompt += `
+### ⚠️ FEEDBACK DA AUDITORIA (CORREÇÃO NECESSÁRIA):
+O render anterior falhou nos seguintes pontos. AJUSTE sua extração para corrigir:
+${auditorCritique}
+`;
+  }
+
   // ─── Chamada Gemini com Retry ────────────────────────────────
   let response;
   let retries = 0;
@@ -73,7 +92,7 @@ O usuário deseja fidelidade cromática total. Extraia as cores Hex de CADA linh
   while (retries <= MAX_RETRIES) {
     try {
       response = await ai.models.generateContent({
-        model: GEMINI_MODEL_VISION || "models/gemini-2.0-flash",
+        model: "models/gemini-2.5-flash", // Removido 'lite' para maior precisão visual
         contents: [
           {
             role: "user",

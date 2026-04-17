@@ -124,8 +124,8 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
     currentY = item.y;
   });
 
-  // REGRA 927: Revelação entre 4 e 6 segundos (120-180 frames)
-  const progress = interpolate(frame, [30, 30 + 120], [0, 1], {
+  // REGRA UNIFICADA: Revelação estendida para trim path mais lento (8s / 240f)
+  const progress = interpolate(frame, [30, 30 + 240], [0, 1], {
     easing: Easing.bezier(0.1, 0, 0.1, 1),
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",

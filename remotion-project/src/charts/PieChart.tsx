@@ -160,8 +160,8 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
           // const color = slice.color || sliceColors[i % sliceColors.length]; // Unused
           const midAngle = startAngle + currentSliceAngle / 2;
           
-          // Labels baseadas em tamanho da fatia
-          const labelInside = slice.pct >= 12;
+          // Labels baseadas em tamanho da fatia (Regra Unificada: >= 9%)
+          const labelInside = slice.pct >= 9;
           const labelDist = labelInside ? radius * 0.65 : radius * 1.25;
           const lx = centerX + labelDist * Math.cos(midAngle);
           const ly = centerY + labelDist * Math.sin(midAngle);

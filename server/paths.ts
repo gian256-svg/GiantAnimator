@@ -27,10 +27,11 @@ export const PATHS = {
   backup:   path.join(WRITABLE_BASE, 'agent-backup'),
   done:     path.join(SHARED_BASE, 'input', 'done'),
   error:    path.join(SHARED_BASE, 'input', 'error'),
+  cache:    path.join(SHARED_BASE, 'cache'),
 };
 
 // Garantir que as pastas existam ao iniciar
-[PATHS.input, PATHS.inputTables, PATHS.output, PATHS.done, PATHS.error].forEach(p => {
+[PATHS.input, PATHS.inputTables, PATHS.output, PATHS.done, PATHS.error, PATHS.cache].forEach(p => {
     try {
         if (!fs.existsSync(p)) fs.mkdirSync(p, { recursive: true });
     } catch (e) {

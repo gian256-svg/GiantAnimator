@@ -1,4 +1,4 @@
-import { renderMedia, selectComposition } from '@remotion/renderer';
+import { renderMedia, renderStill, selectComposition } from '@remotion/renderer';
 import { bundle } from '@remotion/bundler';
 import path from 'path';
 import fs from 'fs';
@@ -98,3 +98,40 @@ export async function renderChart(
   }
 }
 
+/**
+ * Gera um frame estático para auditoria de fidelidade
+ */
+export async function generateStill(
+  compositionId: string,
+  inputProps: any,
+  frame: number = 240
+): Promise<string> {
+  try {
+    const bundleLocation = await getBundle();
+    const composition = await selectComposition({
+      serveUrl: bundleLocation,
+      id: compositionId,
+      inputProps,
+    });
+
+    // Forçar resolução UHD
+    composition.width = 3840;
+    composition.height = 2160;
+
+    const outputFilename = `still-${Math.floor(Date.now() / 1000)}.png`;
+    const outputPath = path.join(PATHS.cache || path.join(process.cwd(), "cache"), outputFilename);
+
+    await renderStill({
+      composition,
+      serveUrl: bundleLocation,
+      output: outputPath,
+      frame,
+      inputProps,
+    });
+
+    return outputPath;
+  } catch (err: any) {
+    console.error("❌ Erro ao gerar still:", err.message);
+    throw err;
+  }
+}
