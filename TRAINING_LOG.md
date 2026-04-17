@@ -3,6 +3,35 @@
 
 ---
 
+### 📊 REGRA DE ESCALA — BAR CHARTS (LABELS NO TOPO)
+Data: 2026-04-17
+**Ajuste**: Para garantir que os valores numéricos acima das barras não sejam cortados ou sobrepostos pelo título:
+- **Escala Y**: O `maxVal` deve ser definido como `dataMax * 1.15` (15% de folga).
+- **Safe Zone Top**: Aumentado para **20%** em BarCharts quando labels de valor estão ativos.
+
+---
+
+### 🧩 UX — EDITOR VISUAL DE REVISÃO (NON-TECH)
+Data: 2026-04-17
+**Upgrade**: Substituição do código JSON bruto por uma interface de campos (inputs e tabelas).
+- **Fluxo**: IA Extrai -> UI Mostra Título/Valores em caixas editáveis -> Usuário confirma.
+
+---
+
+### 🛡️ SEGURANÇA — GESTÃO DE CHAVES (API)
+Data: 2026-04-17
+**Regra**: Remover campos de API Key da UI pública para evitar vazamentos e simplificar a UX.
+- **ELEVENLABS**: Agora gerenciada via `.env` no servidor.
+
+---
+
+### 🎨 DESIGN — PREMIUM BACKGROUNDS (ANTI-WHITE)
+Data: 2026-04-17
+**Regra**: NUNCA renderizar um fundo 100% branco chapado, mesmo no modo "Padrão".
+- **Textura**: Toda `AbsoluteFill` de fundo deve receber um `radial-gradient` sutil (opacity 0.03) para profundidade visual.
+
+---
+
 ### 🎨 NOVO TEMA — LIGHT (OFF-WHITE)
 Data: 2026-04-15
 **Implementação**: Adicionado suporte ao tema `light` em todo o pipeline.

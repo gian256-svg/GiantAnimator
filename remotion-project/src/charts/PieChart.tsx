@@ -7,6 +7,7 @@ import {
   interpolate,
 } from "remotion";
 import { Theme, resolveTheme, formatValue } from "../theme";
+import { DynamicBackground } from "../layout/DynamicBackground";
 
 export interface PieSlice {
   label: string;
@@ -23,9 +24,9 @@ export interface PieChartProps {
   sliceColors?: string[];
   colors?: string[];
   showValueLabels?: boolean;
-  theme?: string;
   unit?: string;
   animation?: any;
+  bgStyle?: any;
 }
 
 export const PieChart: React.FC<PieChartProps> = (props) => {
@@ -98,11 +99,15 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
 
   return (
     <AbsoluteFill style={{ 
-      backgroundColor: resolvedBg, 
       fontFamily: Theme.typography.fontFamily,
       display: 'flex',
       flexDirection: 'column',
     }}>
+      <DynamicBackground 
+        style={props.bgStyle} 
+        baseColor={resolvedBg} 
+        accentColor={sliceColors[0]} 
+      />
       
       {/* ── HEADER ── */}
       <div style={{

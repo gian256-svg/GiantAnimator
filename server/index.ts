@@ -19,6 +19,7 @@ import { agent } from './agent.js';
 import { PATHS } from './paths.js';
 import { startWatcher } from './watcherService.js';
 import { type ChartAnalysis } from './types.js';
+import { generateVoiceover } from './voiceoverService.js';
 
 const app = express();
 const portStr = process.env.PORT || '8080';
@@ -46,12 +47,14 @@ if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 // ─── ESTADO PERSISTENTE ───────────────────────────────────────
 type PipelineJob = {
   id: string;
-  status: 'pending' | 'processing' | 'done' | 'error';
+  status: 'pending' | 'processing' | 'awaiting_review' | 'rendering' | 'done' | 'error';
   progress: number;
   stage: string;
   error?: string;
   videoUrl?: string;
   log?: string;
+  analysis?: ChartAnalysis; // Store for review
+  options?: any;
 };
 
 async function saveJob(job: PipelineJob) {
@@ -82,8 +85,19 @@ async function getBundle() {
   return bundlePromise;
 }
 
-async function processJob(jobId: string, fileData: Buffer, originalName: string, chartTheme: string) {
-  const job: PipelineJob = { id: jobId, status: 'processing', progress: 10, stage: 'Iniciando...' };
+async function processJob(
+  jobId: string, 
+  fileBuffer: Buffer, 
+  originalName: string, 
+  chartTheme: string,
+  options: any = {}
+) {
+  const job = loadJob(jobId);
+  if (!job) return;
+  job.status = 'processing';
+  job.progress = 10;
+  job.stage = 'Iniciando...';
+  job.options = options;
   saveJob(job);
 
   try {
@@ -92,7 +106,7 @@ async function processJob(jobId: string, fileData: Buffer, originalName: string,
     const filePath = path.join(UPLOADS_DIR, `${jobId}${ext}`);
     
     // Escrita assíncrona
-    await fs.promises.writeFile(filePath, fileData);
+    await fs.promises.writeFile(filePath, fileBuffer);
 
     let analysis: ChartAnalysis;
 
@@ -144,10 +158,10 @@ async function processJob(jobId: string, fileData: Buffer, originalName: string,
     } else {
       job.stage = 'IA Vision: Analisando Gráfico...';
       job.progress = 25;
-      saveJob(job);
+      await saveJob(job);
       try {
         // Integração do Novo Pipeline de Fidelidade Surgery-Grade com Auditoria Silent
-        analysis = await runSurgeryGradePipeline(filePath, chartTheme, job);
+        analysis = await runSurgeryGradePipeline(filePath, chartTheme, job, options.includeCallouts);
       } catch (err: any) {
         throw new Error(`Falha ao analisar imagem como gráfico: ${err.message}`);
       }
@@ -171,61 +185,132 @@ async function processJob(jobId: string, fileData: Buffer, originalName: string,
         }
     }
 
-    saveJob(job);
+    // Heurística de Resiliência: Garantir que series e data estejam sincronizados
+    const p = analysis.props;
+    if (p.series && p.series.length > 0 && (!p.data || p.data.length === 0) && p.labels) {
+        console.log("💉 [Surgical FIX] Mapeando series -> data para compatibilidade.");
+        p.data = p.labels.map((label, idx) => ({
+            label,
+            value: p.series[0].data[idx] || 0
+        }));
+    } else if (p.data && p.data.length > 0 && (!p.series || p.series.length === 0)) {
+        console.log("💉 [Surgical FIX] Mapeando data -> series para compatibilidade.");
+        p.series = [{
+            label: p.title || "Série 1",
+            data: p.data.map(d => d.value)
+        }];
+        if (!p.labels) p.labels = p.data.map(d => d.label);
+    }
 
-    if (IS_VERCEL) {
-      job.status = 'done'; // Permitimos terminar no Vercel para mostrar metadados
+    job.analysis = analysis;
+    await saveJob(job);
+
+    if (options.reviewRequired) {
+      job.status = 'awaiting_review';
+      job.stage = 'IA: Análise Pronta para Revisão';
       job.progress = 100;
-      job.stage = isData ? 'Dados Analisados!' : 'Imagem Analisada!';
-      job.log = "No Vercel não é possível gerar MP4. Use o link da Rede Local para renderizar.";
-      saveJob(job);
+      await saveJob(job);
       return;
     }
 
-    // Renderização Local 4K
-    job.progress = 60;
-    job.stage = 'Renderizando 4K UHD...';
-    saveJob(job);
-
-    const serveUrl = await getBundle();
-    const composition = await selectComposition({
-      serveUrl,
-      id: analysis.componentId,
-      inputProps: { ...analysis.props, theme: chartTheme }
-    });
-
-    const summary = analysis.suggestedName || 'GiantAnimation';
-    const cleanOriginal = originalName.replace(/\.[^.]+$/, '').replace(/\s+/g, '_');
-    const outputName = `${summary}_AN_${cleanOriginal}.mp4`;
-    const outputPath = path.join(OUTPUT_DIR, outputName);
-
-    await renderMedia({
-      composition,
-      serveUrl,
-      outputLocation: outputPath,
-      codec: 'h264',
-      inputProps: { ...analysis.props, theme: chartTheme }
-    });
-
-    const videoUrl = `/output/${outputName}`;
-    addJob({ 
-      filename: outputName, 
-      outputFile: outputName, 
-      status: 'done' 
-    });
-
-    job.status = 'done';
-    job.progress = 100;
-    job.stage = 'Concluído!';
-    job.videoUrl = videoUrl;
-    saveJob(job);
+    // Prossiga para o render direto se não houver revisão
+    await finishJobRendering(jobId, analysis, chartTheme, originalName);
 
   } catch (err: any) {
     console.error("Error Job:", err);
     job.status = 'error';
     job.error = err.message;
-    saveJob(job);
+    await saveJob(job);
   }
+}
+
+/**
+ * Parte 2 do Pipeline: Renderização e Serviços Adicionais
+ */
+async function finishJobRendering(jobId: string, analysis: ChartAnalysis, chartTheme: string, originalName: string) {
+    const job = loadJob(jobId);
+    if (!job) return;
+
+    try {
+        job.status = 'rendering';
+        job.progress = 50;
+        job.stage = 'Configurando Renderização...';
+        await saveJob(job);
+
+        const options = job.options || {};
+
+        // ─── Serviço de Voz (Opcional) ───────────────────
+        if (options.enableVoiceover && options.elevenlabsKey) {
+            job.stage = 'Gerando Locução IA...';
+            await saveJob(job);
+            const narrationText = analysis.props.insightText || `${analysis.props.title}. ${analysis.props.subtitle}`;
+            const audioPath = await generateVoiceover(narrationText, options.elevenlabsKey, jobId);
+            if (audioPath) {
+                analysis.props.audioUrl = `/cache/audio/voiceover_${jobId}.mp3`;
+            }
+        }
+
+        if (IS_VERCEL) {
+          job.status = 'done';
+          job.progress = 100;
+          job.stage = 'Concluído (Modo Vercel)';
+          job.videoUrl = null;
+          saveJob(job);
+          return;
+        }
+
+        // Renderização Local 4K
+        job.progress = 60;
+        job.stage = 'Renderizando 4K UHD...';
+        saveJob(job);
+
+        const serveUrl = await getBundle();
+        const composition = await selectComposition({
+          serveUrl,
+          id: analysis.componentId,
+          inputProps: { 
+            ...analysis.props, 
+            theme: chartTheme,
+            bgStyle: options.bgStyle || 'none'
+          }
+        });
+
+        const summary = analysis.suggestedName || 'GiantAnimation';
+        const cleanOriginal = originalName.replace(/\.[^.]+$/, '').replace(/\s+/g, '_');
+        const outputName = `${summary}_AN_${cleanOriginal}.mp4`;
+        const outputPath = path.join(OUTPUT_DIR, outputName);
+
+        await renderMedia({
+          composition,
+          serveUrl,
+          outputLocation: outputPath,
+          codec: 'h264',
+          inputProps: { 
+            ...analysis.props, 
+            theme: chartTheme,
+            bgStyle: options.bgStyle || 'none'
+          }
+        });
+
+        const videoUrl = `/output/${outputName}`;
+        addJob({ 
+          filename: outputName, 
+          outputFile: outputName, 
+          status: 'done' 
+        });
+
+        job.status = 'done';
+        job.progress = 100;
+        job.stage = 'Concluído!';
+        job.videoUrl = videoUrl;
+        await saveJob(job);
+
+    } catch (err: any) {
+        console.error("Error Rendering:", err);
+        job.status = 'error';
+        job.error = err.message;
+        saveJob(job);
+    }
 }
 
 // 📌 ROTAS 📌
@@ -240,8 +325,26 @@ app.post('/upload', upload.single('file'), async (req: Request, res: Response) =
   const job: PipelineJob = { id: jobId, status: 'pending', progress: 0, stage: 'Aguardando...' };
   await saveJob(job);
 
-  processJob(jobId, req.file.buffer, req.file.originalname, req.body.chartTheme || 'dark');
+  const options = {
+    chartTheme: req.body.chartTheme || 'dark',
+    includeCallouts: req.body.includeCallouts === 'true',
+    enableVoiceover: req.body.enableVoiceover === 'true',
+    elevenlabsKey: req.body.elevenlabsKey || process.env.ELEVENLABS_API_KEY,
+    bgStyle: req.body.bgStyle || 'none',
+    reviewRequired: true // Sempre habilitado para permitir o Surgery-Grade Review
+  };
+
+  processJob(jobId, req.file.buffer, req.file.originalname, options.chartTheme, options);
   res.json({ jobId });
+});
+
+app.post('/jobs/:jobId/start-render', async (req: Request, res: Response) => {
+  const { jobId } = req.params;
+  const { analysis, originalName, chartTheme } = req.body;
+  
+  console.log(`🎬 [RENDER] Iniciando render final para Job: ${jobId}`);
+  finishJobRendering(jobId, analysis, chartTheme, originalName);
+  res.json({ success: true });
 });
 
 app.get('/progress/:jobId', (req: Request, res: Response) => {
@@ -279,33 +382,60 @@ app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 async function runSurgeryGradePipeline(
   filePath: string, 
   chartTheme: string, 
-  job: any
+  job: any,
+  includeCallouts: boolean = false
 ): Promise<ChartAnalysis> {
-  let analysis: ChartAnalysis = await analyzeChartImage(filePath, chartTheme);
-  
+  let analysis: ChartAnalysis = await analyzeChartImage(filePath, chartTheme, undefined, { includeCallouts });
+  let lastAudit: any = null;
+
   for (let attempt = 1; attempt <= 2; attempt++) {
     console.log(`🤖 [Orchestrator] Iniciando Auditoria Silent (Tentativa ${attempt})...`);
+    job.progress = 25 + (attempt * 5); 
     job.stage = `Auditando Fidelidade (Tentativa ${attempt})...`;
-    saveJob(job);
+    await saveJob(job);
 
     try {
       const stillPath = await generateStill(analysis.componentId, analysis.props);
+      job.progress += 2; 
+      await saveJob(job);
+      
       const audit = await auditRenderFidelity(filePath, stillPath);
+      lastAudit = audit;
 
-      if (audit.isApproved || audit.score >= 95) {
+      if (audit.isApproved || audit.score >= 90) {
         console.log("✅ [Orchestrator] Fidelidade Aprovada!");
+        job.progress = 40;
         return analysis;
       }
 
       console.warn(`⚠️ [Orchestrator] Falha na Auditoria: ${audit.critique}`);
-      job.log = `Ajustando precisão: ${audit.critique}`;
-      saveJob(job);
+      job.log = `[Audit Fail] ${audit.critique}`;
+      job.progress = 25 + (attempt * 7); 
+      await saveJob(job);
 
+      // Re-análise baseada na crítica
       analysis = await analyzeChartImage(filePath, chartTheme, audit.critique); 
     } catch (err: any) {
       console.error("❌ [Orchestrator] Erro no loop de auditoria:", err.message);
-      break;
+      // Se for erro de API (como 503), não adianta seguir.
+      if (err.message.includes('503') || err.message.includes('UNAVAILABLE')) {
+          throw new Error(`Google API 503: O serviço de IA está temporariamente indisponível. Tente novamente em instantes.`);
+      }
     }
+  }
+
+  // Se chegou aqui sem aprovação, verificamos se os dados são minimamente válidos
+  const p = analysis.props;
+  const hasSeriesData = p.series && p.series.length > 0 && p.series[0].data && p.series[0].data.length > 0;
+  const hasDataPoints = p.data && p.data.length > 0;
+
+  if (!hasSeriesData && !hasDataPoints) {
+      throw new Error(`A detecção de dados falhou (Código: BLANK). IA não encontrou números na imagem.`);
+  }
+
+  // Verificação final do auditor (se o score final for bizarramente baixo, barra o render)
+  if (lastAudit && lastAudit.score < 45) {
+      throw new Error(`FIDELIDADE REPROVADA: O render atual está quase vazio ou incorreto (${lastAudit.score}%). Auditor: ${lastAudit.critique}`);
   }
 
   return analysis;

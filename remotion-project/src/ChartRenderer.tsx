@@ -55,6 +55,7 @@ export const ChartRenderer: React.FC<ChartCompositionProps> = (props) => {
           theme={safeData.theme}
           backgroundColor={safeData.backgroundColor}
           textColor={safeData.textColor}
+          bgStyle={props.bgStyle}
         />
       );
 
@@ -67,6 +68,7 @@ export const ChartRenderer: React.FC<ChartCompositionProps> = (props) => {
           theme={safeData.theme}
           backgroundColor={safeData.backgroundColor}
           textColor={safeData.textColor}
+          bgStyle={props.bgStyle}
         />
       );
 
@@ -79,6 +81,7 @@ export const ChartRenderer: React.FC<ChartCompositionProps> = (props) => {
           theme={safeData.theme}
           backgroundColor={safeData.backgroundColor}
           textColor={safeData.textColor}
+          bgStyle={props.bgStyle}
         />
       );
 

@@ -1,0 +1,76 @@
+{
+  "componentId": "PieChart",
+  "suggestedName": "ProductDistribution",
+  "reasoning": "This is a pie chart representing the percentage distribution of various product categories. The largest segment is 'Others' at 27%, followed by 'Mountain-200' at 17% and 'Mountain-100' at 15%. The smallest segments are 'HL Mountain Frame' and 'Road-350-W', each at 4%. The calibration for this chart type is that the sum of all percentages equals 100%.",
+  "props": {
+    "title": "Product Category Distribution",
+    "subtitle": null,
+    "data": [
+      {
+        "label": "Mountain-200",
+        "value": 17,
+        "color": "#2C4D8F"
+      },
+      {
+        "label": "Mountain-100",
+        "value": 15,
+        "color": "#5E3F87"
+      },
+      {
+        "label": "Road-250",
+        "value": 12,
+        "color": "#8E2B6C"
+      },
+      {
+        "label": "Road-650",
+        "value": 10,
+        "color": "#C63D7D"
+      },
+      {
+        "label": "Touring-1000",
+        "value": 6,
+        "color": "#E75F5C"
+      },
+      {
+        "label": "Road-550-W",
+        "value": 5,
+        "color": "#E98144"
+      },
+      {
+        "label": "HL Mountain Frame",
+        "value": 4,
+        "color": "#F3B33C"
+      },
+      {
+        "label": "Road-350-W",
+        "value": 4,
+        "color": "#FAD74B"
+      },
+      {
+        "label": "Others",
+        "value": 27,
+        "color": "#D7D7D7"
+      }
+    ],
+    "unit": "%",
+    "backgroundColor": "#F4F6F9",
+    "textColor": "#3F5E8E",
+    "annotations": [
+      {
+        "type": "callout",
+        "index": 8,
+        "label": "Largest Segment",
+        "value": 27,
+        "seriesIndex": 0
+      },
+      {
+        "type": "callout",
+        "index": 0,
+        "label": "Largest Product Category",
+        "value": 17,
+        "seriesIndex": 0
+      }
+    ],
+    "insightText": "This pie chart illustrates the percentage distribution of different product categories. 'Others' represents the largest segment at 27%, followed by 'Mountain-200' at 17%, and 'Mountain-100' at 15%. The smallest individual categories are 'HL Mountain Frame' and 'Road-350-W', both at 4%."
+  }
+}

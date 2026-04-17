@@ -7,6 +7,7 @@ import {
   Easing,
 } from "remotion";
 import { Theme, resolveTheme, formatValue } from "../theme";
+import { DynamicBackground } from "../layout/DynamicBackground";
 
 interface LineChartProps {
   data?: any;
@@ -20,6 +21,7 @@ interface LineChartProps {
   backgroundColor?: string;
   textColor?: string;
   unit?: string;
+  bgStyle?: any;
 }
 
 export const LineChart: React.FC<LineChartProps> = (props) => {
@@ -132,7 +134,12 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
   });
 
   return (
-    <AbsoluteFill style={{ backgroundColor: resolvedBg, fontFamily: Theme.typography.fontFamily }}>
+    <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
+      <DynamicBackground 
+        style={props.bgStyle} 
+        baseColor={resolvedBg} 
+        accentColor={resolvedColors[0]} 
+      />
       <svg width={width} height={height} style={{ overflow: "visible" }}>
         <defs>
           <clipPath id={clipId}>
@@ -150,11 +157,11 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
         {[0, 0.25, 0.5, 0.75, 1].map((v) => {
           const val = minV + v * range;
           const y = getY(val);
-          // REGRA 1136: Opacidade do grid aumentada para 0.75
-          const op = interpolate(frame, [10, 30], [0, 0.75], { extrapolateRight: 'clamp' });
+          // REGRA 1136: Opacidade e espessura do grid garantidas para 4K UHD
+          const op = interpolate(frame, [10, 30], [0, 0.85], { extrapolateRight: 'clamp' });
           return (
             <React.Fragment key={v}>
-              <line x1={plotLeft} y1={y} x2={plotLeft + plotWidth} y2={y} stroke={T.grid} strokeWidth={Math.max(1, fs(1.2))} opacity={op} />
+              <line x1={plotLeft} y1={y} x2={plotLeft + plotWidth} y2={y} stroke={T.grid} strokeWidth={fs(1.8)} opacity={op} />
               <text x={plotLeft - fs(12)} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: fs(Theme.typography.axisSize / 3), fill: T.textMuted, opacity: op, ...Theme.typography.tabularNums }}>
                 {formatValue(val, unit)}
               </text>

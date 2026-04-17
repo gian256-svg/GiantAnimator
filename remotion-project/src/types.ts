@@ -54,4 +54,5 @@ export interface ChartCompositionProps {
   backgroundColor?: string;
   colors?: string[];
   textColor?: string;
+  bgStyle?: 'none' | 'mesh' | 'grid' | 'particles' | 'abstract';
 }

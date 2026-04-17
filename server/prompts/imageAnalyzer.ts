@@ -1,4 +1,4 @@
-export function buildImageAnalysisPrompt(registryJson: string): string {
+export function buildImageAnalysisPrompt(registryJson: string, includeCallouts: boolean = false): string {
   return `
 Você é o Analista de Visão de Elite "GIANT", especializado em Telemetria e Reconstituição de Dados. 
 Sua missão do nível "SURGERY-GRADE" é a extração de dados com fidelidade absoluta de 100%.
@@ -15,6 +15,12 @@ Sua missão do nível "SURGERY-GRADE" é a extração de dados com fidelidade ab
    - Extraia entre 20 e 50 pontos por série.
    - Capture todas as curvaturas. Se a linha sobe e desce, o JSON deve refletir isso.
    - **NÃO use interpolação linear simples (V-shapes)**. Seja fiel às ondas e picos.
+
+${includeCallouts ? `
+### MISSÃO ADICIONAL: SMART CALL-OUTS
+- Identifique os 2 ou 3 pontos mais relevantes do gráfico (Pico máximo, queda abrupta, ou cruzamento de linhas).
+- Crie anotações para esses pontos no campo "annotations".
+` : ''}
 
 ### REGRAS INVIOLÁVEIS:
 - **DADOS > ESTÉTICA**: A realidade do gráfico original é sua única lei.
@@ -35,7 +41,11 @@ No campo "reasoning", você deve primeiro descrever o que vê no gráfico (quais
     "unit": "",
     "labels": ["Data1", "Data2", ...],
     "backgroundColor": "#hex",
-    "textColor": "#hex"
+    "textColor": "#hex",
+    "annotations": [
+       { "type": "callout", "index": 15, "label": "Pico Histórico", "value": 1250, "seriesIndex": 0 }
+    ],
+    "insightText": "Texto explicativo curto para narração (se solicitado)"
   }
 }
 

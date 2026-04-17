@@ -14,7 +14,8 @@ import { type ChartAnalysis } from "./types.js";
 export async function analyzeChartImage(
   imagePath: string, 
   requestedTheme?: string,
-  auditorCritique?: string
+  auditorCritique?: string,
+  settings: { includeCallouts?: boolean } = {}
 ): Promise<ChartAnalysis> {
   const rawImageData = fs.readFileSync(imagePath);
 
@@ -52,7 +53,7 @@ export async function analyzeChartImage(
 
   const imageBase64  = optimizedBuffer.toString("base64");
   const registryJson = JSON.stringify(COMPONENT_REGISTRY, null, 2);
-  let prompt       = buildImageAnalysisPrompt(registryJson);
+  let prompt       = buildImageAnalysisPrompt(registryJson, settings.includeCallouts);
 
   // ─── Semantic RAG (Knowledge Injection) ──────────────────────
   const trainingLogPath = path.join(process.cwd(), "..", "TRAINING_LOG.md");
@@ -87,29 +88,25 @@ ${auditorCritique}
   // ─── Chamada Gemini com Retry ────────────────────────────────
   let response;
   let retries = 0;
-  const MAX_RETRIES = 3;
+  const MAX_RETRIES = 5; // Aumentado para tolerar instabilidade
 
   while (retries <= MAX_RETRIES) {
     try {
-      response = await ai.models.generateContent({
-        model: "models/gemini-2.5-flash", // Removido 'lite' para maior precisão visual
-        contents: [
-          {
-            role: "user",
-            parts: [
-              { inlineData: { data: imageBase64, mimeType: "image/png" } },
-              { text: prompt },
-            ],
-          },
-        ],
-      });
+      const model = ai.getGenerativeModel({ model: GEMINI_MODEL_VISION });
+      const result = await model.generateContent([
+        { inlineData: { data: imageBase64, mimeType: "image/png" } },
+        { text: prompt },
+      ]);
+      response = result.response;
       break; // Sucesso!
     } catch (err: any) {
-      if (err.message?.includes("503") || err.status === 503) {
+      const isStatus503 = err.message?.includes("503") || err.status === 503 || err.message?.includes("UNAVAILABLE");
+      
+      if (isStatus503) {
         retries++;
         if (retries > MAX_RETRIES) throw err;
-        const delay = Math.pow(2, retries) * 1000;
-        console.warn(`⚠️ [VISION] Gemini 503 (Demanda Alta). Tentativa ${retries}/${MAX_RETRIES} em ${delay}ms...`);
+        const delay = Math.pow(2, retries) * 1500; // Backoff um pouco mais lento
+        console.warn(`⚠️ [VISION] Gemini 503/UNAVAILABLE (Demanda Alta). Tentativa ${retries}/${MAX_RETRIES} em ${delay}ms...`);
         await new Promise(r => setTimeout(r, delay));
       } else {
         throw err; // Erro real (400, 401, etc) - não tenta de novo
@@ -203,9 +200,18 @@ ${auditorCritique}
     }
   }
 
+  // ─── ✅ VALIDAR INTEGRIDADE DOS DADOS (Evitar Gráficos em Branco) ───
+  const hasSeriesData = analysis.props.series && analysis.props.series.length > 0 && analysis.props.series[0].data && analysis.props.series[0].data.length > 0;
+  const hasDataPoints = analysis.props.data && analysis.props.data.length > 0;
+
+  if (!hasSeriesData && !hasDataPoints) {
+      console.error(`❌ [VISION] A IA não conseguiu extrair nenhum dado numérico desta imagem.`);
+      throw new Error(`A IA identificou a estrutura do gráfico, mas não encontrou valores numéricos válidos. Isso pode ocorrer por baixa resolução ou falha na leitura. Tente outro arquivo.`);
+  }
+
   // ─── Salvar cache ────────────────────────────────────────────
   fs.writeFileSync(cacheFile, JSON.stringify(analysis, null, 2));
-  console.log(`✅ [VISION] Análise concluída → ${analysis.componentId} | ${analysis.props.data.length} pontos`);
+  console.log(`✅ [VISION] Análise concluída → ${analysis.componentId} | ${analysis.props.data.length || (analysis.props.series?.[0].data.length)} pontos`);
 
   return analysis;
 }

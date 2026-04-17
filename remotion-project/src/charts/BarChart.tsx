@@ -7,6 +7,7 @@ import {
   AbsoluteFill,
 } from "remotion";
 import { Theme, resolveTheme, formatValue } from "../theme";
+import { DynamicBackground } from "../layout/DynamicBackground";
 
 interface BarChartProps {
   data?: any;
@@ -20,6 +21,7 @@ interface BarChartProps {
   textColor?: string;
   unit?: string;
   showValueLabels?: boolean;
+  bgStyle?: any;
 }
 
 export const BarChart: React.FC<BarChartProps> = (props) => {
@@ -82,7 +84,7 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
   // ─── Layout responsivo ───
   const fs = (base: number) => Math.round(base * (width / 1280));
   const pad = width * 0.04;
-  const padTop = height * 0.15; // Reduzido para dar mais espaço ao gráfico
+  const padTop = height * 0.20; // Aumentado para 20% conforme regra 1049
   const padBot = height * 0.12; 
 
   const plotLeft = pad + width * (isLongUnit ? 0.12 : 0.08);   
@@ -93,7 +95,9 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
   const dataMin = Math.min(...allValues, 0);
   const dataMax = Math.max(...allValues, 0.0001); // Prevent zero axis
   const range   = dataMax - dataMin;
-  const maxVal  = dataMax; 
+  
+  // REGRA: Aumentar escala em 15% para caber labels no topo (Surgical-Grade)
+  const maxVal  = dataMax * 1.15; 
   
   const categoryWidth = plotWidth / safeDataCount;
   const groupGap      = 0.3;
@@ -105,7 +109,12 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
   const getY = (v: number) => plotTop + plotHeight - (v / maxVal) * plotHeight;
 
   return (
-    <AbsoluteFill style={{ backgroundColor: resolvedBg, fontFamily: Theme.typography.fontFamily }}>
+    <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
+      <DynamicBackground 
+        style={props.bgStyle} 
+        baseColor={resolvedBg} 
+        accentColor={resolvedColors[0]} 
+      />
       <svg width={width} height={height} style={{ position: "absolute", top: 0, left: 0 }}>
         <defs>
           {normalizedSeries.map((_, i) => (
@@ -124,10 +133,10 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
         {[0, 0.25, 0.5, 0.75, 1].map((v) => {
           const val = dataMin + v * range;
           const y = getY(val);
-          const op = interpolate(frame, [5, 25], [0, 0.75], { extrapolateRight: "clamp" });
+          const op = interpolate(frame, [5, 25], [0, 0.85], { extrapolateRight: "clamp" });
           return (
             <React.Fragment key={v}>
-              <line x1={plotLeft} y1={y} x2={plotLeft + plotWidth} y2={y} stroke={T.grid} strokeWidth={Math.max(1, fs(1.5))} opacity={op} />
+              <line x1={plotLeft} y1={y} x2={plotLeft + plotWidth} y2={y} stroke={T.grid} strokeWidth={fs(1.8)} opacity={op} />
               <text x={plotLeft - fs(15)} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: fs(14), fill: T.textMuted, opacity: op, ...Theme.typography.tabularNums }}>
                 {formatValue(val, displayUnit)}
               </text>
@@ -159,8 +168,8 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
             return (
               <g key={`${groupIdx}-${seriesIdx}`}>
                 <rect x={bX} y={bY} width={barWidth} height={currentH} fill={seriesCount > 1 ? `url(#barGrad-${seriesIdx}-${instanceId})` : (s.color || resolvedColors[groupIdx % resolvedColors.length])} rx={fs(4)} />
-                {showValueLabels && progress > 0.8 && (
-                  <text x={bX + barWidth / 2} y={bY - fs(8)} textAnchor="middle" style={{ fontSize: fs(shouldRotateLabels ? 11 : 14), fill: resolvedText, fontWeight: 700, opacity: op, ...Theme.typography.tabularNums }}>
+                {progress > 0.8 && (
+                  <text x={bX + barWidth / 2} y={bY - fs(8)} textAnchor="middle" style={{ fontSize: fs(shouldRotateLabels ? 11 : 16), fill: resolvedText, fontWeight: 700, opacity: op, ...Theme.typography.tabularNums }}>
                     {formatValue(val, displayUnit)}
                   </text>
                 )}

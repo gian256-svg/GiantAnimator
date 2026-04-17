@@ -9,7 +9,9 @@ const state = {
   isRendering: false,
   eventSource: null,
   currentJobId: null,
-  uploadMode: 'vision' // 'vision' ou 'data'
+  uploadMode: 'vision', // 'vision' ou 'data'
+  currentAnalysis: null,
+  originalFilename: null
 };
 
 function updateUploadUI() {
@@ -63,6 +65,18 @@ function toast(msg, type = 'info') {
     el.style.transition = 'all 0.3s ease';
     setTimeout(() => el.remove(), 300);
   }, 4000);
+}
+
+function updateStatus(text, state) {
+    const dot = document.getElementById('status-dot');
+    const label = document.getElementById('status-text');
+    if (!dot || !label) return;
+    
+    label.textContent = text;
+    dot.className = 'status-dot'; // Reset
+    if (state === 'error') dot.classList.add('error');
+    if (state === 'processing') dot.classList.add('processing');
+    if (state === 'idle') dot.classList.add('idle');
 }
 
 function log(msg, type = 'info') {
@@ -307,15 +321,144 @@ document.addEventListener('DOMContentLoaded', () => {
     toast('Imagem colada do clipboard!', 'success');
   });
 
-  // ─── DOWNLOAD PATH PERSISTENCE ─────────────────────────────
-  const downloadPathInput = document.getElementById('download-path');
-  if (downloadPathInput) {
-    const savedPath = localStorage.getItem('giantanimator_download_path');
-    if (savedPath) downloadPathInput.value = savedPath;
-    
-    downloadPathInput.addEventListener('input', () => {
-      localStorage.setItem('giantanimator_download_path', downloadPathInput.value);
-    });
+  // ─── JSON MODAL & VISUAL EDITOR ELEMENTS ────────────────
+  const modal = document.getElementById('json-editor-overlay');
+  const btnConfirmJson = document.getElementById('btn-confirm-json');
+  const btnCloseJson = document.getElementById('btn-close-json');
+  const btnCancelJson = document.getElementById('btn-cancel-json');
+
+  const closeModal = () => { if (modal) modal.style.display = 'none'; state.isRendering = false; renderFileQueue(); };
+  if (btnCloseJson) btnCloseJson.addEventListener('click', closeModal);
+  if (btnCancelJson) btnCancelJson.addEventListener('click', closeModal);
+
+  // ─── VISUAL EDITOR LOGIC ─────────────────────────────────
+  function renderVisualEditor(analysis) {
+      const container = document.getElementById('visual-editor-container');
+      if (!container) return;
+
+      const props = analysis.props || {};
+      const labels = props.labels || [];
+      const series = props.series || (props.datasets ? props.datasets : []);
+      
+      // Se for série única (BarChart/PieChart simples), extraímos a primeira série
+      const dataPoints = [];
+      if (series.length > 0) {
+          const firstSeries = series[0];
+          labels.forEach((label, i) => {
+              dataPoints.push({ label, value: firstSeries.data[i] });
+          });
+      }
+
+      let html = `
+          <div class="visual-editor">
+              <div class="edit-group">
+                  <label>Título do Gráfico</label>
+                  <input type="text" id="edit-title" value="${props.title || ''}">
+              </div>
+              <div class="edit-group">
+                  <label>Subtítulo / Insight</label>
+                  <input type="text" id="edit-subtitle" value="${props.subtitle || ''}">
+              </div>
+              
+              <div class="edit-data-section">
+                  <label>Dados (Labels e Valores)</label>
+                  ${dataPoints.length === 0 ? `
+                    <div style="padding: 15px; background: rgba(255,100,100,0.1); border: 1px dashed rgba(255,100,100,0.3); border-radius: 4px; color: #ff8080; font-size: 12px; text-align: center;">
+                        ⚠️ Nenhuma série de dados detectada automaticamente. Verifique a imagem ou tente novamente.
+                    </div>
+                  ` : `
+                  <table class="edit-table">
+                      <thead>
+                          <tr>
+                              <th>Categoria (Label)</th>
+                              <th>Valor</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          ${dataPoints.map((dp, i) => `
+                              <tr>
+                                  <td><input type="text" class="edit-label" data-idx="${i}" value="${dp.label}"></td>
+                                  <td><input type="number" step="any" class="edit-value" data-idx="${i}" value="${dp.value}"></td>
+                              </tr>
+                          `).join('')}
+                      </tbody>
+                  </table>
+                  `}
+              </div>
+          </div>
+          
+          <style>
+              .visual-editor { display: flex; flex-direction: column; gap: 15px; }
+              .edit-group { display: flex; flex-direction: column; gap: 5px; }
+              .edit-group label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; }
+              .edit-group input { background: rgba(0,0,0,0.2); border: 1px solid var(--border); padding: 10px; color: var(--text); border-radius: 4px; }
+              .edit-data-section { margin-top: 10px; }
+              .edit-data-section label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; margin-bottom: 8px; display: block; }
+              .edit-table { width: 100%; border-collapse: collapse; background: rgba(0,0,0,0.1); border-radius: 6px; overflow: hidden; }
+              .edit-table th { text-align: left; padding: 10px; font-size: 11px; background: rgba(255,255,255,0.03); color: var(--text-muted); }
+              .edit-table td { border-top: 1px solid rgba(255,255,255,0.05); padding: 5px; }
+              .edit-table input { width: 100%; background: transparent; border: 1px solid transparent; padding: 8px; color: var(--text); outline: none; transition: all 0.2s; }
+              .edit-table input:focus { border-color: var(--accent); background: rgba(255,255,255,0.05); }
+          </style>
+      `;
+      container.innerHTML = html;
+  }
+
+  if (btnConfirmJson) {
+      btnConfirmJson.addEventListener('click', async () => {
+          try {
+              // Coletar dados do Visual Editor
+              const title = document.getElementById('edit-title').value;
+              const subtitle = document.getElementById('edit-subtitle').value;
+              
+              const labelInputs = document.querySelectorAll('.edit-label');
+              const valueInputs = document.querySelectorAll('.edit-value');
+              
+              const newLabels = [];
+              const newData = [];
+              
+              labelInputs.forEach((input, i) => {
+                  newLabels.push(input.value);
+                  newData.push(parseFloat(valueInputs[i].value) || 0);
+              });
+
+              // Reconstruir objeto de análise
+              const editedAnalysis = JSON.parse(JSON.stringify(state.currentAnalysis));
+              editedAnalysis.props.title = title;
+              editedAnalysis.props.subtitle = subtitle;
+              editedAnalysis.props.labels = newLabels;
+              
+              // Atualizar todas as séries de dados (normalmente é apenas uma no modo simples)
+              if (editedAnalysis.props.series) {
+                  editedAnalysis.props.series[0].data = newData;
+              }
+              if (editedAnalysis.props.datasets) {
+                  editedAnalysis.props.datasets[0].data = newData;
+              }
+
+              modal.style.display = 'none';
+              log("⚙️ Enviando dados revisados para renderização final...");
+              setProgress(55, "Gerando Vídeo...");
+              
+              const res = await fetch(`/jobs/${state.currentJobId}/start-render`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                      analysis: editedAnalysis,
+                      originalName: state.originalFilename,
+                      chartTheme: document.getElementById('chart-theme').value,
+                      bgStyle: document.getElementById('bg-style').value
+                  })
+              });
+              
+              if (!res.ok) throw new Error("Falha ao iniciar renderização");
+              
+              toast("Renderização iniciada!", "success");
+              startPolling(state.currentJobId, state.originalFilename, state.currentFileId);
+          } catch (err) {
+              toast("Erro ao processar dados: " + err.message, "error");
+          }
+      });
   }
 
   if (btnRender) {
@@ -328,17 +471,50 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         for (const f of pending) {
           f.status = 'processing';
+          state.currentFileId = f.id;
+          state.originalFilename = f.name;
           renderFileQueue();
+          
           const fd = new FormData();
           fd.append('file', f.file);
           fd.append('chartType', document.getElementById('chart-type').value);
           fd.append('chartTheme', document.getElementById('chart-theme').value);
+          
+          fd.append('includeCallouts', document.getElementById('toggle-callouts').checked);
+          fd.append('reviewRequired', true);
+          fd.append('bgStyle', document.getElementById('bg-style').value);
 
           log(`🚀 Enviando: ${f.name}`);
           const res = await fetch('/upload', { method: 'POST', body: fd });
           if (!res.ok) throw new Error(`Erro no upload: ${res.status}`);
           
           const data = await res.json();
+          if (data.status === 'error') {
+            stopPolling();
+            const errorMsg = data.error || 'Erro desconhecido';
+            const banner = document.getElementById('critical-error-banner');
+            const bannerDesc = document.getElementById('error-banner-desc');
+
+            if (errorMsg.includes('503') || errorMsg.includes('UNAVAILABLE')) {
+                toast("⚠️ GEMINI OFFLINE 503", "error");
+                updateStatus('GEMINI OFFLINE 503', 'error');
+            } else if (errorMsg.includes('FIDELIDADE REPROVADA') || errorMsg.includes('BLANK')) {
+                if (banner) {
+                    banner.classList.remove('hidden');
+                    bannerDesc.textContent = errorMsg;
+                }
+                toast("❌ FIDELIDADE REPROVADA", "error");
+            } else {
+                toast(`Erro: ${errorMsg}`, "error");
+            }
+
+            btnRender.disabled = false;
+            btnRender.innerHTML = oldHtml;
+            return;
+          }
+          
+          // Reset banner if progressing
+          document.getElementById('critical-error-banner').classList.add('hidden');
           startPolling(data.jobId, f.name, f.id);
         }
       } catch (err) {
@@ -395,6 +571,22 @@ function startPolling(jobId, fileName, fileId) {
       if (msg.progress !== undefined) {
         setProgress(msg.progress, msg.stage || '');
         if (msg.log) log(msg.log, msg.logType || 'info');
+      }
+
+      if (msg.status === 'awaiting_review') {
+          clearInterval(interval);
+          state.currentJobId = jobId;
+          state.currentAnalysis = msg.analysis;
+          
+          // Open Modal & Render Visual Editor
+          const modal = document.getElementById('json-editor-overlay');
+          if (modal) {
+              renderVisualEditor(msg.analysis);
+              modal.style.display = 'flex';
+          }
+          log("💉 Análise Surgery-Grade concluída. Aguardando revisão dos dados...");
+          toast("Revisão de dados necessária", "info");
+          return;
       }
 
       if (msg.status === 'done') {

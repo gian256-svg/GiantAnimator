@@ -2,12 +2,12 @@
 import "dotenv/config";
 import fs   from "fs";
 import path from "path";
-import { GoogleGenAI, type Chat } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { type NormalizedTableData } from "./tableParserService.js";
 import { componentRegistry } from "./componentRegistry.js";
 import { GEMINI_MODEL } from "./calibration/constants.js";
 
-export const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+export const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 // ─────────────────────────────────────────────────────────
 // Carrega o system prompt base + knowledge base completo
@@ -59,7 +59,7 @@ ${knowledge}
 // Classe do Agente Principal
 // ─────────────────────────────────────────────────────────
 export class GiantAnimatorAgent {
-  private chat:   Chat | null  = null;
+  private chat:   any         = null;
   private ready:  boolean      = false;
   private systemPrompt: string = "";
 
@@ -71,10 +71,12 @@ export class GiantAnimatorAgent {
     try {
       this.systemPrompt = buildSystemPrompt();
 
-      // ✅ API correta no SDK v1.48 — ai.chats.create()
-      this.chat = ai.chats.create({
-        model:   GEMINI_MODEL,
-        config:  { systemInstruction: this.systemPrompt },
+      const model = ai.getGenerativeModel({
+        model: GEMINI_MODEL,
+        systemInstruction: this.systemPrompt,
+      });
+
+      this.chat = model.startChat({
         history: [],
       });
 
@@ -100,10 +102,11 @@ export class GiantAnimatorAgent {
    */
   private async sendWithRetry(parts: any, retries: number = 3): Promise<any> {
     for (let i = 0; i < retries; i++) {
-      try {
-        if (!this.chat) throw new Error("Chat não inicializado.");
-        return await this.chat.sendMessage({ message: parts });
-      } catch (err: any) {
+       try {
+         if (!this.chat) throw new Error("Chat não inicializado.");
+         const result = await this.chat.sendMessage(parts);
+         return result.response;
+       } catch (err: any) {
         const isRetryable = 
           err?.status === 429 || 
           err?.message?.includes("429") || 
@@ -134,7 +137,7 @@ export class GiantAnimatorAgent {
 
     try {
       const response = await this.sendWithRetry(userMessage);
-      const text = response.candidates?.[0]?.content?.parts?.[0]?.text ?? (response as any).text ?? "";
+      const text = response.text();
       return text || "Sem resposta do modelo.";
     } catch (err) {
       const msg = `Erro no agente: ${String(err)}`;
@@ -154,48 +157,23 @@ export class GiantAnimatorAgent {
       throw new Error("Agente não inicializado.");
     }
 
-    console.log(`🔍 [Agent] Analisando imagem: ${path.basename(imagePath)}`);
+    console.log(`🔍 [Agent] Analisando imagem (Inline): ${path.basename(imagePath)}`);
 
-    // Upload via Files API
     const fileBuffer = fs.readFileSync(imagePath);
-    const blob       = new Blob([fileBuffer], { type: "image/png" });
-
-    let imagePart: object;
-    try {
-      const uploaded = await ai.files.upload({
-        file:   blob,
-        config: { mimeType: "image/png", displayName: path.basename(imagePath) },
-      });
-
-      // Aguarda processamento
-      let file    = uploaded;
-      let attempt = 0;
-      while (file.state === "PROCESSING" && attempt < 15) {
-        await new Promise((r) => setTimeout(r, 2000));
-        file = await ai.files.get({ name: file.name! });
-        attempt++;
-      }
-
-      imagePart = { fileData: { mimeType: "image/png", fileUri: file.uri! } };
-      console.log(`✅ [Agent] Imagem processada: ${file.uri}`);
-    } catch (uploadErr) {
-      console.warn(`⚠️  [Agent] Upload falhou — fallback inlineData: ${uploadErr}`);
-      imagePart = {
-        inlineData: {
-          mimeType: "image/png",
-          data:     fileBuffer.toString("base64"),
-        },
-      };
-    }
+    const imagePart = {
+      inlineData: {
+        mimeType: "image/png",
+        data: fileBuffer.toString("base64"),
+      },
+    };
 
     try {
       const response = await this.sendWithRetry([
         { text: userInstruction },
-        imagePart as any,
+        imagePart,
       ]);
 
-      const text = response.candidates?.[0]?.content?.parts?.[0]?.text ?? (response as any).text ?? "";
-      return text || "Sem resposta do modelo.";
+      return response.text() || "Sem resposta do modelo.";
     } catch (err) {
       throw new Error(`Análise de imagem falhou: ${String(err)}`);
     }
