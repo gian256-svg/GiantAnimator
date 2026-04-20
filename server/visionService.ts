@@ -201,12 +201,48 @@ ${auditorCritique}
   }
 
   // ─── ✅ VALIDAR INTEGRIDADE DOS DADOS (Evitar Gráficos em Branco) ───
-  const hasSeriesData = analysis.props.series && analysis.props.series.length > 0 && analysis.props.series[0].data && analysis.props.series[0].data.length > 0;
-  const hasDataPoints = analysis.props.data && analysis.props.data.length > 0;
+  const p = analysis.props;
+  
+  // Sincronização de Formato (Surgical-Grade Fix)
+  if (p.series && p.series.length > 0 && (!p.data || p.data.length === 0)) {
+      // Fallback para labels se estiverem ausentes
+      if (!p.labels || p.labels.length === 0) {
+          console.log("💡 [VISION] Labels ausentes na série, gerando índices automáticos.");
+          p.labels = p.series[0].data.map((_: any, i: number) => `Item ${i + 1}`);
+      }
+      
+      console.log("💉 [VISION] Sync: Mapeando series -> data.");
+      p.data = p.labels.map((label: string, idx: number) => ({
+          label,
+          value: p.series[0].data[idx] || 0
+      }));
+  } else if (p.data && p.data.length > 0 && (!p.series || p.series.length === 0)) {
+      console.log("💉 [VISION] Sync: Mapeando data -> series.");
+      p.series = [{
+          label: p.title || "Série 1",
+          data: p.data.map((d: any) => d.value)
+      }];
+      if (!p.labels) p.labels = p.data.map((d: any) => d.label);
+  }
+
+  // Normalização de Cores
+  if (p.seriesColors && !p.colors) {
+      p.colors = p.seriesColors;
+  }
+
+  // REGRA DE NEGÓCIO: Unidades longas poluem o gráfico
+  const unit = p.unit || "";
+  if (unit.length > 6) {
+     p.showValueLabels = false;
+     console.log("🎨 [VISION] Minimalismo: Unidade longa detectada, ocultando labels.");
+  }
+
+  const hasSeriesData = p.series && p.series.length > 0 && p.series[0].data && p.series[0].data.length > 0;
+  const hasDataPoints = p.data && p.data.length > 0;
 
   if (!hasSeriesData && !hasDataPoints) {
       console.error(`❌ [VISION] A IA não conseguiu extrair nenhum dado numérico desta imagem.`);
-      throw new Error(`A IA identificou a estrutura do gráfico, mas não encontrou valores numéricos válidos. Isso pode ocorrer por baixa resolução ou falha na leitura. Tente outro arquivo.`);
+      throw new Error(`A detecção de dados falhou (Código: BLANK). IA não encontrou números na imagem.`);
   }
 
   // ─── Salvar cache ────────────────────────────────────────────

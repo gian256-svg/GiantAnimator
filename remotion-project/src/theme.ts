@@ -525,6 +525,72 @@ export const THEMES: Record<string, ThemeConfig> = {
     positive: '#10B981',
     negative: '#F43F5E',
   },
+
+  // ── Glass (Glassmorphism — Blurred glass, frosted UI, luxury tech) ────────
+  glass: {
+    background: '#0D1117',
+    surface:    '#161B22',
+    text:       '#F0F6FC',
+    textMuted:  '#8B949E',
+    grid:       'rgba(240,246,252,0.06)',
+    axis:       'rgba(240,246,252,0.18)',
+    colors: [
+      '#58A6FF', // Azul cristal
+      '#3FB950', // Verde verde
+      '#E3B341', // Dourado
+      '#F78166', // Coral
+      '#D2A8FF', // Lilás translúcido
+      '#79C0FF', // Azul gelo
+      '#56D364', // Verde menta
+      '#FFA657', // Laranja suave
+    ],
+    positive: '#3FB950',
+    negative: '#F78166',
+  },
+
+  // ── Bloomberg (Cyber Financial — Terminal grade, high precision) ──────────
+  bloomberg: {
+    background: '#000000',
+    surface:    '#0A0A0A',
+    text:       '#FF6600',    // Laranja terminal Bloomberg
+    textMuted:  '#CC5200',
+    grid:       'rgba(255,102,0,0.08)',
+    axis:       'rgba(255,102,0,0.3)',
+    colors: [
+      '#FF6600', // Bloomberg Orange
+      '#00FFAA', // Teal positivo
+      '#FFDD00', // Amarelo cotação
+      '#FF3333', // Vermelho queda
+      '#00CCFF', // Ciano análise
+      '#AA66FF', // Roxo volume
+      '#FF9900', // Âmbar alerta
+      '#FFFFFF', // Branco destaque
+    ],
+    positive: '#00FFAA',
+    negative: '#FF3333',
+  },
+
+  // ── Aurora (Northern Lights — Gradient sky, ethereal data beauty) ─────────
+  aurora: {
+    background: '#030712',
+    surface:    '#0A0F1E',
+    text:       '#E2E8F0',
+    textMuted:  '#94A3B8',
+    grid:       'rgba(99,102,241,0.07)',
+    axis:       'rgba(99,102,241,0.2)',
+    colors: [
+      '#818CF8', // Índigo aurora
+      '#34D399', // Verde boreal
+      '#F472B6', // Rosa polar
+      '#60A5FA', // Azul ártico
+      '#A78BFA', // Violeta
+      '#2DD4BF', // Turquesa
+      '#FBBF24', // Amarelo estrela
+      '#FB7185', // Rosa quente
+    ],
+    positive: '#34D399',
+    negative: '#FB7185',
+  },
 };
 
 /**

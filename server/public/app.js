@@ -331,106 +331,309 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnCloseJson) btnCloseJson.addEventListener('click', closeModal);
   if (btnCancelJson) btnCancelJson.addEventListener('click', closeModal);
 
-  // ─── VISUAL EDITOR LOGIC ─────────────────────────────────
+  // ─── VISUAL EDITOR PREMIUM — Split Panel + Live Preview ──────────
   function renderVisualEditor(analysis) {
-      const container = document.getElementById('visual-editor-container');
-      if (!container) return;
+    const container = document.getElementById('visual-editor-container');
+    if (!container) return;
 
-      const props = analysis.props || {};
-      const labels = props.labels || [];
-      const series = props.series || (props.datasets ? props.datasets : []);
-      
-      // Se for série única (BarChart/PieChart simples), extraímos a primeira série
-      const dataPoints = [];
-      if (series.length > 0) {
-          const firstSeries = series[0];
-          labels.forEach((label, i) => {
-              dataPoints.push({ label, value: firstSeries.data[i] });
-          });
-      }
+    const props = analysis.props || {};
+    const labels = props.labels || [];
+    const series = props.series || (props.datasets ? props.datasets : []);
+    const detectedType = analysis.componentId || 'BarChart';
 
-      let html = `
-          <div class="visual-editor">
-              <div class="edit-group">
-                  <label>Título do Gráfico</label>
-                  <input type="text" id="edit-title" value="${props.title || ''}">
+    // Normaliza dados para o editor
+    let dataPoints = [];
+    if (series.length > 0) {
+      labels.forEach((label, i) => {
+        dataPoints.push({ label: label || `Item ${i+1}`, value: Number(series[0].data?.[i] ?? 0) });
+      });
+    } else if (props.data && props.data.length > 0) {
+      dataPoints = props.data.map(d => ({ label: d.label, value: Number(d.value) }));
+    }
+    if (dataPoints.length === 0) {
+      dataPoints = [{ label: 'Categoria 1', value: 0 }];
+    }
+
+    // Gera HTML inicial do editor
+    container.innerHTML = `
+      <div class="ve-split">
+        <!-- PAINEL ESQUERDO: Metadados + Grid -->
+        <div class="ve-left">
+          <div class="ve-meta">
+            <div class="ve-field">
+              <label class="ve-label">Título</label>
+              <input type="text" id="edit-title" class="ve-input" value="${(props.title||'').replace(/"/g,'&quot;')}" placeholder="Título do gráfico...">
+            </div>
+            <div class="ve-field">
+              <label class="ve-label">Subtítulo / Insight</label>
+              <input type="text" id="edit-subtitle" class="ve-input" value="${(props.subtitle||'').replace(/"/g,'&quot;')}" placeholder="Insight ou fonte dos dados...">
+            </div>
+            <div class="ve-field">
+              <label class="ve-label">Tipo de Gráfico</label>
+              <div class="ve-type-switcher" id="ve-type-switcher">
+                ${['BarChart','LineChart','HorizontalBarChart','PieChart'].map(t => `
+                  <button class="ve-type-btn ${detectedType===t?'active':''}" data-type="${t}">${{BarChart:'Barras',LineChart:'Linhas',HorizontalBarChart:'H. Barras',PieChart:'Pizza'}[t]}</button>
+                `).join('')}
               </div>
-              <div class="edit-group">
-                  <label>Subtítulo / Insight</label>
-                  <input type="text" id="edit-subtitle" value="${props.subtitle || ''}">
-              </div>
-              
-              <div class="edit-data-section">
-                  <label>Dados (Labels e Valores)</label>
-                  ${dataPoints.length === 0 ? `
-                    <div style="padding: 15px; background: rgba(255,100,100,0.1); border: 1px dashed rgba(255,100,100,0.3); border-radius: 4px; color: #ff8080; font-size: 12px; text-align: center;">
-                        ⚠️ Nenhuma série de dados detectada automaticamente. Verifique a imagem ou tente novamente.
-                    </div>
-                  ` : `
-                  <table class="edit-table">
-                      <thead>
-                          <tr>
-                              <th>Categoria (Label)</th>
-                              <th>Valor</th>
-                          </tr>
-                      </thead>
-                      <tbody>
-                          ${dataPoints.map((dp, i) => `
-                              <tr>
-                                  <td><input type="text" class="edit-label" data-idx="${i}" value="${dp.label}"></td>
-                                  <td><input type="number" step="any" class="edit-value" data-idx="${i}" value="${dp.value}"></td>
-                              </tr>
-                          `).join('')}
-                      </tbody>
-                  </table>
-                  `}
-              </div>
+            </div>
           </div>
-          
-          <style>
-              .visual-editor { display: flex; flex-direction: column; gap: 15px; }
-              .edit-group { display: flex; flex-direction: column; gap: 5px; }
-              .edit-group label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; }
-              .edit-group input { background: rgba(0,0,0,0.2); border: 1px solid var(--border); padding: 10px; color: var(--text); border-radius: 4px; }
-              .edit-data-section { margin-top: 10px; }
-              .edit-data-section label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; margin-bottom: 8px; display: block; }
-              .edit-table { width: 100%; border-collapse: collapse; background: rgba(0,0,0,0.1); border-radius: 6px; overflow: hidden; }
-              .edit-table th { text-align: left; padding: 10px; font-size: 11px; background: rgba(255,255,255,0.03); color: var(--text-muted); }
-              .edit-table td { border-top: 1px solid rgba(255,255,255,0.05); padding: 5px; }
-              .edit-table input { width: 100%; background: transparent; border: 1px solid transparent; padding: 8px; color: var(--text); outline: none; transition: all 0.2s; }
-              .edit-table input:focus { border-color: var(--accent); background: rgba(255,255,255,0.05); }
-          </style>
-      `;
-      container.innerHTML = html;
+
+          <div class="ve-grid-header">
+            <span class="ve-label">Dados</span>
+            <button class="ve-add-row" id="ve-add-row">+ Linha</button>
+          </div>
+          <div class="ve-grid-wrap">
+            <table class="ve-grid" id="ve-grid">
+              <thead><tr><th>CATEGORIA</th><th>VALOR</th><th></th></tr></thead>
+              <tbody id="ve-grid-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- PAINEL DIREITO: Preview live -->
+        <div class="ve-right">
+          <div class="ve-preview-label">Preview ao Vivo</div>
+          <div class="ve-preview-title" id="ve-preview-title">${props.title || 'Sem título'}</div>
+          <div class="ve-preview-subtitle" id="ve-preview-subtitle">${props.subtitle || ''}</div>
+          <div class="ve-chart-wrap">
+            <svg id="ve-chart-svg" width="100%" height="220" viewBox="0 0 360 220"></svg>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // ── Estado interno do editor ──────────────────────────────────────
+    let editorData  = dataPoints.map(d => ({ ...d }));
+    let editorType  = detectedType;
+    // Expose type getter so confirm button can read it
+    container._getEditorType = () => editorType;
+
+    // ── Renderiza as linhas da grid ───────────────────────────────────
+    function renderGrid() {
+      const tbody = document.getElementById('ve-grid-body');
+      if (!tbody) return;
+      tbody.innerHTML = editorData.map((dp, i) => `
+        <tr class="ve-row" data-idx="${i}">
+          <td><input type="text" class="ve-cell ve-cell-label" data-idx="${i}" value="${dp.label.replace(/"/g,'&quot;')}" placeholder="Label..."></td>
+          <td><input type="number" step="any" class="ve-cell ve-cell-value" data-idx="${i}" value="${dp.value}"></td>
+          <td><button class="ve-del-row" data-idx="${i}" title="Remover">×</button></td>
+        </tr>
+      `).join('');
+
+      // Eventos das células
+      tbody.querySelectorAll('.ve-cell-label').forEach(inp => {
+        inp.addEventListener('input', e => {
+          editorData[e.target.dataset.idx].label = e.target.value;
+          updatePreview();
+        });
+      });
+      tbody.querySelectorAll('.ve-cell-value').forEach(inp => {
+        inp.addEventListener('input', e => {
+          editorData[e.target.dataset.idx].value = parseFloat(e.target.value) || 0;
+          updatePreview();
+        });
+      });
+      tbody.querySelectorAll('.ve-del-row').forEach(btn => {
+        btn.addEventListener('click', e => {
+          const idx = parseInt(e.target.dataset.idx);
+          if (editorData.length > 1) {
+            editorData.splice(idx, 1);
+            renderGrid();
+            updatePreview();
+          }
+        });
+      });
+    }
+
+    // ── Desenha o mini-gráfico SVG (bar ou line ou pie) ──────────────
+    function updatePreview() {
+      const svg = document.getElementById('ve-chart-svg');
+      const titleEl = document.getElementById('ve-preview-title');
+      const subtitleEl = document.getElementById('ve-preview-subtitle');
+      if (!svg) return;
+
+      const titleVal = document.getElementById('edit-title')?.value || '';
+      const subtitleVal = document.getElementById('edit-subtitle')?.value || '';
+      if (titleEl) titleEl.textContent = titleVal || 'Sem título';
+      if (subtitleEl) subtitleEl.textContent = subtitleVal;
+
+      const W = 360, H = 220;
+      const PAD_L = 48, PAD_R = 16, PAD_T = 10, PAD_B = 44;
+      const plotW = W - PAD_L - PAD_R;
+      const plotH = H - PAD_T - PAD_B;
+      const values = editorData.map(d => d.value);
+      const maxVal = Math.max(...values, 0.001);
+      const minVal = Math.min(...values, 0);
+      const COLORS = ['#7c3aed','#06b6d4','#a855f7','#22c55e','#f59e0b','#ef4444','#3b82f6','#f97316'];
+
+      let paths = '';
+      const n = editorData.length;
+
+      if (editorType === 'PieChart') {
+        // ── Pie ──
+        const cx = W / 2, cy = H / 2 - 10, r = Math.min(plotW, plotH) / 2 - 10;
+        const total = values.reduce((a,b) => a+b, 0) || 1;
+        let angle = -Math.PI / 2;
+        editorData.forEach((dp, i) => {
+          const slice = (dp.value / total) * 2 * Math.PI;
+          const endAngle = angle + slice;
+          const x1 = cx + r * Math.cos(angle);
+          const y1 = cy + r * Math.sin(angle);
+          const x2 = cx + r * Math.cos(endAngle);
+          const y2 = cy + r * Math.sin(endAngle);
+          const lf = slice > Math.PI ? 1 : 0;
+          const color = COLORS[i % COLORS.length];
+          if (slice > 0) {
+            paths += `<path d="M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${lf} 1 ${x2},${y2} Z" fill="${color}" stroke="#0f1117" stroke-width="1.5" opacity="0.92"/>`;
+            // Label
+            const midA = angle + slice / 2;
+            const lx = cx + (r * 0.68) * Math.cos(midA);
+            const ly = cy + (r * 0.68) * Math.sin(midA);
+            if (slice > 0.3) paths += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="9" font-weight="700">${dp.label.slice(0,8)}</text>`;
+          }
+          angle = endAngle;
+        });
+        svg.innerHTML = paths;
+
+      } else if (editorType === 'LineChart') {
+        // ── Line ──
+        const getX = i => PAD_L + (i / Math.max(n - 1, 1)) * plotW;
+        const getY = v => PAD_T + plotH - ((v - minVal) / (maxVal - minVal || 1)) * plotH;
+        const pts = editorData.map((d, i) => `${getX(i)},${getY(d.value)}`).join(' ');
+        // Area
+        const areaD = `M${getX(0)},${getY(editorData[0].value)} ` +
+          editorData.slice(1).map((d,i)=>`L${getX(i+1)},${getY(d.value)}`).join(' ') +
+          ` L${getX(n-1)},${PAD_T+plotH} L${getX(0)},${PAD_T+plotH} Z`;
+
+        // Gridlines
+        [0,0.5,1].forEach(v => {
+          const y = PAD_T + plotH - v * plotH;
+          const val = minVal + v * (maxVal - minVal);
+          paths += `<line x1="${PAD_L}" y1="${y}" x2="${PAD_L+plotW}" y2="${y}" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>`;
+          paths += `<text x="${PAD_L-4}" y="${y}" text-anchor="end" dominant-baseline="middle" fill="#666" font-size="8">${val >= 1000 ? (val/1000).toFixed(1)+'k' : Math.round(val)}</text>`;
+        });
+        paths += `<path d="${areaD}" fill="#7c3aed" opacity="0.12"/>`;
+        paths += `<polyline points="${pts}" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
+        editorData.forEach((d,i) => {
+          paths += `<circle cx="${getX(i)}" cy="${getY(d.value)}" r="3" fill="#0f1117" stroke="#7c3aed" stroke-width="1.5"/>`;
+          if (n <= 12) paths += `<text x="${getX(i)}" y="${PAD_T+plotH+12}" text-anchor="middle" fill="#666" font-size="8">${d.label.slice(0,6)}</text>`;
+        });
+        svg.innerHTML = paths;
+
+      } else if (editorType === 'HorizontalBarChart') {
+        // ── Horizontal Bar ──
+        const barH = Math.min(plotH / n - 4, 22);
+        const LABEL_W = 70;
+        const bPlotW = plotW - LABEL_W;
+        editorData.forEach((d, i) => {
+          const y = PAD_T + i * (plotH / n) + (plotH / n - barH) / 2;
+          const bW = (d.value / maxVal) * bPlotW;
+          const color = COLORS[i % COLORS.length];
+          paths += `<text x="${PAD_L + LABEL_W - 6}" y="${y + barH/2}" text-anchor="end" dominant-baseline="middle" fill="#94a3b8" font-size="9">${d.label.slice(0,10)}</text>`;
+          paths += `<rect x="${PAD_L+LABEL_W}" y="${y}" width="${Math.max(bW,0)}" height="${barH}" fill="${color}" rx="2" opacity="0.85"/>`;
+          if (bW > 25) paths += `<text x="${PAD_L+LABEL_W+bW-5}" y="${y+barH/2}" text-anchor="end" dominant-baseline="middle" fill="#fff" font-size="8" font-weight="700">${d.value >= 1000 ? (d.value/1000).toFixed(1)+'k' : d.value}</text>`;
+        });
+        svg.innerHTML = paths;
+
+      } else {
+        // ── Bar (default) ──
+        const barW = Math.max(4, Math.min(plotW / n - 4, 44));
+        const gap = (plotW - barW * n) / Math.max(n - 1, 1);
+
+        // Gridlines
+        [0, 0.5, 1].forEach(v => {
+          const y = PAD_T + plotH - v * plotH;
+          const val = v * maxVal;
+          paths += `<line x1="${PAD_L}" y1="${y}" x2="${PAD_L+plotW}" y2="${y}" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>`;
+          paths += `<text x="${PAD_L-4}" y="${y}" text-anchor="end" dominant-baseline="middle" fill="#555" font-size="8">${val >= 1000 ? (val/1000).toFixed(1)+'k' : Math.round(val)}</text>`;
+        });
+
+        editorData.forEach((d, i) => {
+          const x = PAD_L + i * (barW + gap);
+          const bH = (d.value / maxVal) * plotH;
+          const y = PAD_T + plotH - bH;
+          const color = COLORS[i % COLORS.length];
+          paths += `<rect x="${x}" y="${y}" width="${barW}" height="${Math.max(bH,0)}" fill="${color}" rx="2" opacity="0.85"/>`;
+          // Value on top
+          if (bH > 12) paths += `<text x="${x+barW/2}" y="${y-3}" text-anchor="middle" fill="${color}" font-size="8" font-weight="700">${d.value >= 1000?(d.value/1000).toFixed(1)+'k':d.value}</text>`;
+          // X label
+          if (n <= 16) paths += `<text x="${x+barW/2}" y="${PAD_T+plotH+12}" text-anchor="middle" fill="#666" font-size="8">${d.label.slice(0,7)}</text>`;
+        });
+        svg.innerHTML = paths;
+      }
+    }
+
+    // ── Botão Adicionar Linha ──────────────────────────────────────────
+    document.getElementById('ve-add-row')?.addEventListener('click', () => {
+      editorData.push({ label: `Item ${editorData.length + 1}`, value: 0 });
+      renderGrid();
+      updatePreview();
+    });
+
+    // ── Switcher de Tipo ──────────────────────────────────────────────
+    document.getElementById('ve-type-switcher')?.querySelectorAll('.ve-type-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        editorType = e.target.dataset.type;
+        // atualiza análise para o confirm usar
+        analysis.componentId = editorType;
+        document.querySelectorAll('.ve-type-btn').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        updatePreview();
+      });
+    });
+
+    // ── Atualização dos metadados ─────────────────────────────────────
+    document.getElementById('edit-title')?.addEventListener('input', updatePreview);
+    document.getElementById('edit-subtitle')?.addEventListener('input', updatePreview);
+
+    // ── Inicializa ────────────────────────────────────────────────────
+    renderGrid();
+    updatePreview();
+
+    // Expõe dados para o botão Confirmar (retrocompatibilidade total)
+    container._getEditorData = () => editorData;
   }
 
   if (btnConfirmJson) {
       btnConfirmJson.addEventListener('click', async () => {
           try {
-              // Coletar dados do Visual Editor
-              const title = document.getElementById('edit-title').value;
-              const subtitle = document.getElementById('edit-subtitle').value;
-              
-              const labelInputs = document.querySelectorAll('.edit-label');
-              const valueInputs = document.querySelectorAll('.edit-value');
-              
-              const newLabels = [];
-              const newData = [];
-              
-              labelInputs.forEach((input, i) => {
-                  newLabels.push(input.value);
-                  newData.push(parseFloat(valueInputs[i].value) || 0);
-              });
+              const container = document.getElementById('visual-editor-container');
+              const title    = document.getElementById('edit-title')?.value || '';
+              const subtitle = document.getElementById('edit-subtitle')?.value || '';
+
+              // ── Novo Editor Premium ───────────────────────────────────────
+              let newLabels = [], newData = [];
+              if (container && typeof container._getEditorData === 'function') {
+                  const editorData = container._getEditorData();
+                  newLabels = editorData.map(d => d.label);
+                  newData   = editorData.map(d => d.value);
+              } else {
+                  // Fallback para o editor antigo (caso alguma versão antiga ainda esteja no DOM)
+                  document.querySelectorAll('.edit-label').forEach((input, i) => {
+                      newLabels.push(input.value);
+                      newData.push(parseFloat(document.querySelectorAll('.edit-value')[i]?.value) || 0);
+                  });
+              }
 
               // Reconstruir objeto de análise
               const editedAnalysis = JSON.parse(JSON.stringify(state.currentAnalysis));
-              editedAnalysis.props.title = title;
+              editedAnalysis.props.title    = title;
               editedAnalysis.props.subtitle = subtitle;
-              editedAnalysis.props.labels = newLabels;
-              
-              // Atualizar todas as séries de dados (normalmente é apenas uma no modo simples)
+              editedAnalysis.props.labels   = newLabels;
+
+              // Propaga o tipo de gráfico se o usuário trocou no switcher
+              if (container && typeof container._getEditorType === 'function') {
+                  editedAnalysis.componentId = container._getEditorType();
+              }
+
+              // Atualizar séries de dados
               if (editedAnalysis.props.series) {
                   editedAnalysis.props.series[0].data = newData;
+              } else {
+                  editedAnalysis.props.series = [{ label: title || 'Série 1', data: newData }];
+              }
+              if (editedAnalysis.props.data) {
+                  editedAnalysis.props.data = newLabels.map((l, i) => ({ label: l, value: newData[i] }));
               }
               if (editedAnalysis.props.datasets) {
                   editedAnalysis.props.datasets[0].data = newData;

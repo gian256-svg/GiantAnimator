@@ -53,6 +53,17 @@ export interface NormalizedTableData {
         unit?: string;
         sample: Record<string, string | number>[];
     };
+    // ── Heurísticas Locais (100% local, zero API) ─────────────────────────
+    /** Coluna de eixo temporal detectada (ex: "Ano", "Mês", "Data") */
+    temporalColumn?: string;
+    /** Se a estrutura de dados é uma série temporal */
+    isTimeSeries?: boolean;
+    /** Tipo de gráfico sugerido localmente, sem IA */
+    suggestedChartType?: 'LineChart' | 'BarChart' | 'HorizontalBarChart' | 'PieChart' | 'MultiLineChart';
+    /** Outliers detectados (valores que desviam >3x da média) */
+    outliers?: { column: string; value: number; rowIndex: number }[];
+    /** Avisos para o usuário sobre os dados */
+    dataWarnings?: string[];
 }
 
 export const tableParserService = {
@@ -186,12 +197,35 @@ export const tableParserService = {
         if (!detectedUnit) detectedUnit = detectUnitInHeaders(headers);
 
         const summary = internalGenerateSummary(rows, headers);
+
+        // ── Heurísticas Locais (100% offline) ──────────────────────────────────
+        const temporalColumn   = detectTemporalColumn(headers, rows);
+        const isTimeSeries     = !!temporalColumn;
+        const suggestedType    = suggestChartType(summary, isTimeSeries, rows.length);
+        const outliers         = detectOutliers(rows, summary.numericColumns);
+        const dataWarnings: string[] = [];
+
+        if (outliers.length > 0) {
+            dataWarnings.push(
+                `${outliers.length} valor(es) fora do padrão (outlier) detectado(s) nos dados. Verifique a coluna "${outliers[0].column}".`
+            );
+        }
+        if (isTimeSeries) {
+            console.log(`📊 [Heuristic] Série temporal detectada → Sugestão: ${suggestedType}`);
+        }
+
         return {
             headers,
             rows,
             summary,
             shape: internalDetectShape(summary),
             detectedDelimiter: (workbook as any)._detectedDelimiter,
+            // Heurísticas
+            temporalColumn,
+            isTimeSeries,
+            suggestedChartType: suggestedType,
+            outliers: outliers.length > 0 ? outliers : undefined,
+            dataWarnings: dataWarnings.length > 0 ? dataWarnings : undefined,
         };
     },
 
@@ -224,6 +258,138 @@ export const tableParserService = {
         }));
     }
 };
+
+// =============================================================================
+// ── HEURÍSTICAS LOCAIS — 100% local, zero API, zero dependência de IA ───────
+// =============================================================================
+
+/** Palavras-chave que indicam uma coluna de eixo temporal */
+const TEMPORAL_KEYWORDS = [
+    'ano', 'year', 'data', 'date', 'mês', 'mes', 'month', 'dia', 'day',
+    'semana', 'week', 'trimestre', 'quarter', 'periodo', 'período',
+    'hora', 'hour', 'tempo', 'time', 'timestamp', 'datetime'
+];
+
+/** Meses em PT e EN para detecção de valores de eixo X temporal */
+const MONTH_NAMES = [
+    'jan', 'fev', 'feb', 'mar', 'abr', 'apr', 'mai', 'may', 'jun',
+    'jul', 'ago', 'aug', 'set', 'sep', 'out', 'oct', 'nov', 'dez', 'dec'
+];
+
+/**
+ * Detecta se uma coluna contém dados temporais (datas, meses, anos).
+ * Analisa tanto o nome da coluna quanto os valores da coluna.
+ */
+export function detectTemporalColumn(
+    headers: string[],
+    rows: Record<string, string | number>[]
+): string | undefined {
+    for (const h of headers) {
+        const lower = h.toLowerCase().trim();
+
+        // 1. Nome da coluna é uma palavra-chave temporal
+        if (TEMPORAL_KEYWORDS.some(kw => lower.includes(kw))) {
+            console.log(`📅 [Heuristic] Coluna temporal por nome: "${h}"`);
+            return h;
+        }
+
+        // 2. Valores são nomes de meses
+        const sampleValues = rows.slice(0, 10).map(r => String(r[h] || '').toLowerCase().trim());
+        const monthMatches = sampleValues.filter(v =>
+            MONTH_NAMES.some(m => v.startsWith(m))
+        ).length;
+        if (monthMatches >= Math.min(3, sampleValues.length * 0.4)) {
+            console.log(`📅 [Heuristic] Coluna temporal por valores (meses): "${h}"`);
+            return h;
+        }
+
+        // 3. Valores são anos numéricos (ex: 2018, 2019, ..., 2030)
+        const yearMatches = sampleValues.filter(v => /^20[0-9]{2}$|^19[0-9]{2}$/.test(v)).length;
+        if (yearMatches >= Math.min(3, sampleValues.length * 0.5)) {
+            console.log(`📅 [Heuristic] Coluna temporal por valores (anos): "${h}"`);
+            return h;
+        }
+
+        // 4. Valores são datas formato DD/MM/YYYY ou YYYY-MM-DD
+        const dateMatches = sampleValues.filter(v =>
+            /^\d{2}\/\d{2}\/\d{4}$/.test(v) || /^\d{4}-\d{2}-\d{2}/.test(v)
+        ).length;
+        if (dateMatches >= Math.min(2, sampleValues.length * 0.3)) {
+            console.log(`📅 [Heuristic] Coluna temporal por valores (datas): "${h}"`);
+            return h;
+        }
+    }
+    return undefined;
+}
+
+/**
+ * Sugere o tipo de gráfico mais adequado com base nas características locais dos dados.
+ * Roda totalmente na máquina, sem precisar do Gemini.
+ */
+export function suggestChartType(
+    summary: NormalizedTableData['summary'],
+    isTimeSeries: boolean,
+    numRows: number
+): NormalizedTableData['suggestedChartType'] {
+    const { numericColumns, categoricalColumns } = summary;
+    const numSeriesCount = numericColumns.length;
+
+    // Série temporal com mais de 1 série numérica → MultiLine
+    if (isTimeSeries && numSeriesCount > 1) return 'MultiLineChart';
+
+    // Série temporal com 1 série → LineChart
+    if (isTimeSeries && numSeriesCount === 1) return 'LineChart';
+
+    // Apenas 1 ou 2 categorias e 1 numérico, poucos dados → PieChart
+    if (categoricalColumns.length === 1 && numSeriesCount === 1 && numRows <= 8) {
+        return 'PieChart';
+    }
+
+    // Labels muito longos (>12 chars média) → HorizontalBar
+    const avgLabelLen = Math.round(
+        categoricalColumns.reduce((acc, _) => acc + 10, 0) / Math.max(categoricalColumns.length, 1)
+    );
+    if (avgLabelLen > 12 && numRows > 5) return 'HorizontalBarChart';
+
+    // Muitas linhas e categorias → HorizontalBar (legibilidade)
+    if (numRows > 12 && categoricalColumns.length >= 1) return 'HorizontalBarChart';
+
+    // Padrão: BarChart vertical
+    return 'BarChart';
+}
+
+/**
+ * Detecta outliers em colunas numéricas usando regra de 3-sigma.
+ * Valores que desviam mais de 3 desvios padrão da média são sinalizados.
+ */
+export function detectOutliers(
+    rows: Record<string, string | number>[],
+    numericColumns: string[]
+): { column: string; value: number; rowIndex: number }[] {
+    const outliers: { column: string; value: number; rowIndex: number }[] = [];
+
+    for (const col of numericColumns) {
+        const values = rows.map(r => Number(r[col])).filter(v => isFinite(v));
+        if (values.length < 4) continue; // Poucos pontos não geram statística confiável
+
+        const mean = values.reduce((a, b) => a + b, 0) / values.length;
+        const variance = values.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / values.length;
+        const stdDev = Math.sqrt(variance);
+
+        if (stdDev === 0) continue; // Todos os valores iguais
+
+        values.forEach((v, i) => {
+            if (Math.abs(v - mean) > 3 * stdDev) {
+                outliers.push({ column: col, value: v, rowIndex: i });
+            }
+        });
+    }
+
+    if (outliers.length > 0) {
+        console.log(`⚠️ [Heuristic] ${outliers.length} outlier(s) detectados:`, outliers);
+    }
+    return outliers;
+}
 
 /**
  * Funções auxiliares internas para garantir DRY entre Parse e Fallback

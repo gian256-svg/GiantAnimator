@@ -29,20 +29,9 @@ export const dataTransformationService = {
       return h; // Mantemos o label original no header para UI
     });
 
-    // 3. Detecção e Proteção de Outliers (Z-Score simples)
-    // Se um valor for 10x maior que a média, marcamos para revisão (opcional)
-    data.summary.numericColumns.forEach(id => {
-      const values = transformedRows.map(r => Number(r[id])).filter(v => !isNaN(v));
-      const avg = _.mean(values);
-      const std = Math.sqrt(_.mean(values.map(v => Math.pow(v - avg, 2))));
-      
-      transformedRows.forEach(row => {
-          const val = Number(row[id]);
-          if (Math.abs(val - avg) > std * 5) {
-              console.warn(`⚠️ [Transformation] Outlier detectado na coluna ${id}: ${val}`);
-          }
-      });
-    });
+    // 3. Outlier detection centralizado no tableParserService (3-sigma).
+    // Aqui apenas logamos o número de linhas após limpeza.
+    console.log(`✅ [Transformation] ${transformedRows.length} linhas válidas após limpeza.`);
 
     return {
       ...data,

@@ -1,2 +1,7 @@
 import React from "react";
-export const CandlestickChart: React.FC<any> = () => <svg width={1280} height={720} viewBox="0 0 1280 720" style={{background: "#000"}} />;
+import { CandlestickChart as CandlestickChartReal } from "../components/CandlestickChart";
+
+/** Alias para o componente real em components/. O stub estava em branco. */
+export const CandlestickChart: React.FC<any> = (props) => <CandlestickChartReal {...props} />;
+export default CandlestickChart;
+

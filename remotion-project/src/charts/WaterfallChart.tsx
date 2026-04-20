@@ -1,2 +1,7 @@
 import React from "react";
-export const WaterfallChart: React.FC<any> = () => <svg width={1280} height={720} viewBox="0 0 1280 720" style={{background: "#000"}} />;
+import { WaterfallChart as WaterfallChartReal } from "../components/WaterfallChart";
+
+/** Alias para o componente real em components/. O stub estava em branco. */
+export const WaterfallChart: React.FC<any> = (props) => <WaterfallChartReal {...props} />;
+export default WaterfallChart;
+

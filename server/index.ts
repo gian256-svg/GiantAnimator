@@ -143,15 +143,26 @@ async function processJob(
         fs.promises.writeFile(path.join(process.cwd(), 'current_props.json'), JSON.stringify(props, null, 2)).catch(() => {});
 
         analysis = {
-          componentId: aiResponse.type || (numericCols.length > 1 ? 'LineChart' : 'BarChart'),
+          // Heurística local tem prioridade, depois IA, depois fallback simples
+          componentId: parsed.suggestedChartType || aiResponse.type || (numericCols.length > 1 ? 'LineChart' : 'BarChart'),
           suggestedName: (aiResponse.title || 'DataChart').replace(/\s+/g, ''),
-          reasoning: 'Análise de dados concluída via Data Ingestion Pipeline (Valores Reais Preservados)',
+          reasoning: `Análise local: ${parsed.isTimeSeries ? 'Série Temporal detectada.' : 'Dados categóricos.'} ${parsed.dataWarnings?.join(' ') || ''}`,
           props: {
             ...props,
             title: aiResponse.title || 'Visualização de Dados Inteligente',
-            unit: parsed.summary.unit || ''
+            unit: parsed.summary.unit || '',
+            // Se for série temporal, garante que labels vêm da coluna temporal
+            ...(parsed.temporalColumn && {
+              labels: parsed.rows.map(r => String(r[parsed.temporalColumn!]))
+            })
           }
         };
+
+        // Loga avisos de outliers/dados no job (aparece no Log Console da UI)
+        if (parsed.dataWarnings?.length) {
+          job.log = `⚠️ ${parsed.dataWarnings.join(' | ')}`;
+          await saveJob(job);
+        }
       } catch (err: any) {
         throw new Error(`Falha ao analisar dados da planilha: ${err.message}`);
       }
@@ -170,38 +181,6 @@ async function processJob(
     job.progress = 40;
     job.stage = 'IA: Estrutura Identificada';
     job.log = `Componente: ${analysis.componentId}`;
-    
-    // Normalização de Estilo Original e Redução de Ruído
-    if (analysis && analysis.props) {
-        if (analysis.props.seriesColors && !analysis.props.colors) {
-            analysis.props.colors = analysis.props.seriesColors;
-        }
-        
-        // REGRA ABSOLUTA: Se a unidade for longa, NUNCA mostrar labels nas barras
-        const unit = analysis.props.unit || "";
-        if (unit.length > 6) {
-           analysis.props.showValueLabels = false;
-           console.log("🎨 Regra de Minimalismo: Unidade longa detectada, ocultando labels das barras.");
-        }
-    }
-
-    // Heurística de Resiliência: Garantir que series e data estejam sincronizados
-    const p = analysis.props;
-    if (p.series && p.series.length > 0 && (!p.data || p.data.length === 0) && p.labels) {
-        console.log("💉 [Surgical FIX] Mapeando series -> data para compatibilidade.");
-        p.data = p.labels.map((label, idx) => ({
-            label,
-            value: p.series[0].data[idx] || 0
-        }));
-    } else if (p.data && p.data.length > 0 && (!p.series || p.series.length === 0)) {
-        console.log("💉 [Surgical FIX] Mapeando data -> series para compatibilidade.");
-        p.series = [{
-            label: p.title || "Série 1",
-            data: p.data.map(d => d.value)
-        }];
-        if (!p.labels) p.labels = p.data.map(d => d.label);
-    }
-
     job.analysis = analysis;
     await saveJob(job);
 
@@ -254,7 +233,7 @@ async function finishJobRendering(jobId: string, analysis: ChartAnalysis, chartT
           job.status = 'done';
           job.progress = 100;
           job.stage = 'Concluído (Modo Vercel)';
-          job.videoUrl = null;
+          job.videoUrl = undefined;
           saveJob(job);
           return;
         }
@@ -343,7 +322,7 @@ app.post('/jobs/:jobId/start-render', async (req: Request, res: Response) => {
   const { analysis, originalName, chartTheme } = req.body;
   
   console.log(`🎬 [RENDER] Iniciando render final para Job: ${jobId}`);
-  finishJobRendering(jobId, analysis, chartTheme, originalName);
+  finishJobRendering(String(jobId), analysis, chartTheme, originalName);
   res.json({ success: true });
 });
 

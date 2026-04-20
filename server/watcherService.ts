@@ -24,6 +24,8 @@ export function startWatcher(inputPath: string) {
     ignored: [
       "**/done/**",
       "**/error/**",
+      "**/uploads/**",
+      "**/jobs/**",
       "**/.*"
     ],
     persistent: true,

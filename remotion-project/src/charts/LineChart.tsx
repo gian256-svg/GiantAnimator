@@ -70,7 +70,7 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
     console.error("Data normalization error:", e);
   }
 
-  if (!xAxisLabels || xAxisLabels.length < 2 || !normalizedSeries || normalizedSeries.length === 0) {
+  if (!xAxisLabels || xAxisLabels.length === 0 || !normalizedSeries || normalizedSeries.length === 0) {
      return <AbsoluteFill style={{ backgroundColor: resolvedBg }} />;
   }
 

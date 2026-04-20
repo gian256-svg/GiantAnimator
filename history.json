@@ -1,5 +1,99 @@
 [
   {
+    "filename": "20cf50ed-fe68-416d-bcb5-036ea7aa0017.png",
+    "outputFile": "render-1776684682.mp4",
+    "status": "done",
+    "duration": 42.3,
+    "props": {
+      "title": "Average monthly rainfall",
+      "subtitle": null,
+      "series": [
+        {
+          "label": "City 1",
+          "color": "#FF8000",
+          "data": [
+            5,
+            3.8,
+            3,
+            2.4,
+            1.6,
+            1.4,
+            1,
+            1.4,
+            1.6,
+            2.4,
+            4.4,
+            5
+          ]
+        },
+        {
+          "label": "City 2",
+          "color": "#E61A60",
+          "data": [
+            2.2,
+            1.6,
+            2,
+            1,
+            0.6,
+            0.2,
+            0,
+            0.2,
+            0.4,
+            0.6,
+            1,
+            1
+          ]
+        }
+      ],
+      "unit": "",
+      "labels": [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "June",
+        "July",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec"
+      ],
+      "backgroundColor": "#FFFFFF",
+      "textColor": "#000000",
+      "annotations": [
+        {
+          "type": "callout",
+          "index": 0,
+          "label": "Max Rainfall (City 1)",
+          "value": 5,
+          "seriesIndex": 0
+        },
+        {
+          "type": "callout",
+          "index": 6,
+          "label": "Min Rainfall (City 1)",
+          "value": 1,
+          "seriesIndex": 0
+        },
+        {
+          "type": "callout",
+          "index": 6,
+          "label": "Min Rainfall (City 2)",
+          "value": 0,
+          "seriesIndex": 1
+        }
+      ],
+      "insightText": null,
+      "data": [],
+      "componentId": "LineChart",
+      "reasoning": "O gráfico apresenta a precipitação média mensal para duas cidades, City 1 (laranja) e City 2 (magenta), ao longo de um ano. A City 1 exibe um padrão de chuva mais elevado, com picos em janeiro e dezembro e um vale em julho. A City 2 tem níveis de chuva consistentemente mais baixos, atingindo seu mínimo em julho e um pico mais modesto em janeiro. \n\nCalibração de eixos:\n- Eixo Y: Varia de 0 a 5. As linhas de grade principais estão em intervalos de 1 unidade (0, 1, 2, 3, 4, 5). Existem 4 linhas de grade menores entre cada linha principal, o que significa que cada intervalo menor representa 0.2 unidades (1 unidade / 5 intervalos).\n- Eixo X: Representa os meses do ano, de janeiro a dezembro.\n\nAs cores das séries foram extraídas diretamente do gráfico para garantir fidelidade cromática."
+    },
+    "id": "9299acd2-dc89-41bb-ae7f-2b7ad78a4fa1",
+    "createdAt": "2026-04-20T11:32:04.740Z"
+  },
+  {
     "filename": "7763256a-6047-4b0e-b53d-f1f06e700229.png",
     "outputFile": "render-1776455527.mp4",
     "status": "done",
