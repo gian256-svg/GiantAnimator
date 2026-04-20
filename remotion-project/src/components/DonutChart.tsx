@@ -1,4 +1,4 @@
-﻿import React, { useMemo, useId } from "react";
+import React, { useMemo, useId } from "react";
 import {
   spring,
   useCurrentFrame,
@@ -91,7 +91,6 @@ export const DonutChart: React.FC<DonutChartProps> = ({
   return (
     <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
       <DynamicBackground 
-        style={bgStyle} 
         baseColor={resolvedBg} 
         accentColor={resolvedColors[0]} 
       />

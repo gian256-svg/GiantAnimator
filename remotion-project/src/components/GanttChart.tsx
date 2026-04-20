@@ -1,4 +1,4 @@
-﻿import React, { useId } from "react";
+import React, { useId } from "react";
 import {
   spring,
   useCurrentFrame,
@@ -58,7 +58,6 @@ export const GanttChart: React.FC<GanttChartProps> = ({
   return (
     <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
       <DynamicBackground 
-        style={bgStyle} 
         baseColor={backgroundColor ?? T.background} 
         accentColor={T.colors[0]} 
       />

@@ -76,7 +76,6 @@ export const RadarChart: React.FC<RadarChartProps> = ({
   return (
     <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
       <DynamicBackground 
-        style={bgStyle} 
         baseColor={resolvedBg} 
         accentColor={T.colors[0]} 
       />

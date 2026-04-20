@@ -6,7 +6,7 @@ import {
   AbsoluteFill,
   Easing,
 } from "remotion";
-import { Theme, resolveTheme, formatValue, parseSafeNumber, isColorDark, getNiceScale } from '../theme';
+import { Theme, resolveTheme, formatValue, parseSafeNumber, getNiceScale } from '../theme';
 import { DynamicBackground } from "../layout/DynamicBackground";
 import { SmartCallout } from "../components/SmartCallout";
 
@@ -24,6 +24,7 @@ interface LineChartProps {
   bgStyle?: any;
   backgroundType?: 'dark' | 'light';
   annotations?: any[];
+  unit?: string;
 }
 
 export const LineChart: React.FC<LineChartProps> = (props) => {
@@ -91,7 +92,7 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
   // Layout 4K UHD - Seguindo FILOSOFIA 4K
   const fs = (base: number) => Math.round(base * (width / 1280));
   const pad = width * 0.05;
-  const padTop = height * 0.18; // Aumentado para 18-20% conforme regra 1049
+  const padTop = height * 0.22; 
   const padBot = height * 0.12; 
   const plotLeft = pad + width * 0.06;
   const plotTop = padTop;

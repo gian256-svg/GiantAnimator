@@ -47,8 +47,8 @@ export const ComparativeBarChart: React.FC<ComparativeBarChartProps> = ({
   const instanceId = useId().replace(/:/g, "");
 
   // Safe Zone 4K
-  const margin = Theme.spacing.padding || 128;
-  const titleHeight = Theme.spacing.titleHeight || 160;
+  const margin = Theme.spacing.chartPadding.left;
+  const titleHeight = 160;
   const centerX = width / 2;
   const plotWidth = (width - margin * 2 - 400) / 2;
   const plotHeight = height - margin * 2 - titleHeight - 100;
@@ -56,8 +56,8 @@ export const ComparativeBarChart: React.FC<ComparativeBarChartProps> = ({
 
   if (data.length === 0) {
     return (
-      <AbsoluteFill style={{ backgroundColor: backgroundColor ?? T.background,  justifyContent: 'center', alignItems: 'center' }}>
-        <p style={{ color: T.text, fontSize: Theme.typography.category.size }}>Nenhum dado para exibir.</p>
+      <AbsoluteFill style={{ backgroundColor: resolvedBg,  justifyContent: 'center', alignItems: 'center' }}>
+        <p style={{ color: T.text, fontSize: Theme.typography.axis.size }}>Nenhum dado para exibir.</p>
       </AbsoluteFill>
     );
   }

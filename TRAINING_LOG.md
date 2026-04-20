@@ -337,3 +337,20 @@ Caso a imagem mande um título muito longo, ele não pode flanquear o Canvas de 
     - Removidos estilos `mesh` e `grid` (com filtros de blur pesados) por causarem falhas de memória e erros genéricos. A estética agora é garantida pela qualidade dos gradientes e do contraste cirúrgico dos elementos.
 5.  **Ajuste de Margem Basal**: 
     - Para todos os gráficos, a margem inferior das legendas foi elevada (de `4%` para `8%`) para garantir melhor respiro visual e evitar o visual "esmagado" na borda da tela.
+
+6.  **Regra de Equilíbrio Vertical (Vertical Balance Rule)**:
+    - O gráfico não deve ser "puxado" para cima se houver espaço disponível abaixo. 
+    - Se a legenda ocupar apenas 1 ou 2 linhas, o `centerY` (Pie) ou o `padTop` (Eixos) deve ser mais generoso para centralizar o conteúdo visual no espaço útil entre o título e a legenda. 
+    - **Objetivo**: Evitar colisões com o título e aproveitar melhor o vácuo central da tela 4K.
+
+7.  **Soberania do `backgroundType`**:
+    - O campo `backgroundType` (Checkbox Dark/Light no Review) é a única fonte de verdade para o fundo.
+    - Deve sobrescrever qualquer cor detectada pela visão (`backgroundColor`) para garantir que o tema escolhido pelo usuário seja entregue fielmente.
+
+8.  **Pipeline Clean (No Previews)**:
+    - Para evitar erros de "is not defined" no bundle do Remotion, o arquivo `Root.tsx` deve manter apenas as composições de produção.
+    - Arquivos `*.preview.tsx` em massa foram removidos para garantir que scripts de bundle não poluam o namespace global com referências duplicadas ou quebradas.
+
+9.  **Integridade da UI de Revisão**:
+    - O seletor de "Tipo de Gráfico" (Visual Switcher no modal) e o toggle "Modo Escuro" são componentes de segurança obrigatórios. 
+    - **Ação**: Devem sempre estar presentes no modal de confirmação no `app.js` para permitir o ajuste final de design antes do render 4K, mitigando alucinações da IA na detecção do tipo de gráfico original.

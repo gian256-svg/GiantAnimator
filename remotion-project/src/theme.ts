@@ -627,9 +627,8 @@ export function resolveTheme(theme?: string, baseColor?: string, backgroundType?
   const name = (theme || 'dark').toLowerCase();
   let config = { ...(THEMES[name] ?? THEMES['dark']) };
 
-  } 
-  // Prioridade 2: baseColor (fluxo original/referência)
-  else if (baseColor) {
+  // Prioridade: baseColor (fluxo original/referência)
+  if (baseColor) {
     const isDark = isColorDark(baseColor);
     config.background = baseColor;
     
@@ -671,12 +670,21 @@ export function resolveTheme(theme?: string, baseColor?: string, backgroundType?
  * Suporta abreviação (k, M) se não houver unidade, e toLocaleString para milhares.
  */
 export const formatValue = (n: number, unit = '') => {
-  if (!unit) {
-    if (Math.abs(n) >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
-    if (Math.abs(n) >= 1_000)     return (n / 1_000).toFixed(1) + 'k';
+  const absN = Math.abs(n);
+  let valueStr = '';
+  
+  if (absN >= 1_000_000) {
+    valueStr = (n / 1_000_000).toFixed(1) + 'M';
+  } else if (absN >= 1_000) {
+    valueStr = (n / 1_000).toFixed(1) + 'k';
+  } else {
+    valueStr = Number.isInteger(n) ? String(n) : n.toFixed(1);
   }
-  const rounded = Number.isInteger(n) ? String(n) : n.toFixed(1);
-  return unit ? `${rounded}${unit}` : n.toLocaleString('pt-BR');
+
+  // Se a unidade for uma das abreviações, não duplica
+  if (unit === 'M' || unit === 'k') return valueStr;
+  
+  return unit ? `${valueStr}${unit}` : valueStr;
 };
 
 /**

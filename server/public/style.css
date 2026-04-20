@@ -1,4 +1,4 @@
-﻿/* ─── DESIGN SYSTEM: GiantAnimator ─────────────────────────────
+/* ─── DESIGN SYSTEM: GiantAnimator ─────────────────────────────
    Style   : Soft UI Evolution (Dark Cinema Premium)
    Palette : #0F0F23 bg · #1E1B4B surface · #E11D48 accent
    Font    : DM Sans (Google Fonts)
@@ -1292,3 +1292,85 @@ footer {
 .ve-chart-wrap svg { display: block; width: 100%; }
 #json-editor-overlay .modal-card { max-width: 1100px; }
 #json-editor-overlay .modal-body { overflow-y: auto; }
+
+/* ─── SETTINGS MODAL UI ─────────────────────────────────────── */
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.setting-item span {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+.engine-select {
+    background: var(--bg-surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    font-family: var(--font);
+    font-size: 13px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.engine-select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+/* ─── SWITCH UI ─────────────────────────────────────────────── */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: var(--text-subtle);
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: var(--accent);
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+.slider.round {
+  border-radius: 24px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}

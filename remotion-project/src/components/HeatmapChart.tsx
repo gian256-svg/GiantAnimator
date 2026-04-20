@@ -1,4 +1,4 @@
-﻿import React, { useMemo } from "react";
+import React, { useMemo } from "react";
 import {
   spring,
   useCurrentFrame,
@@ -71,7 +71,6 @@ export const HeatmapChart: React.FC<HeatmapChartProps> = ({
   return (
     <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
       <DynamicBackground 
-        style={bgStyle} 
         baseColor={T.background} 
         accentColor={resolvedSeriesColors[1]} 
       />

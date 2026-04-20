@@ -8,6 +8,7 @@ export type ValueIndicatorProps = {
   lineColor: string;
   glowIntensity: number;
   showValueLabel: boolean;
+  theme?: string;
 };
 
 export const ValueIndicator: React.FC<ValueIndicatorProps> = ({
@@ -18,8 +19,8 @@ export const ValueIndicator: React.FC<ValueIndicatorProps> = ({
   lineColor,
   glowIntensity,
   showValueLabel,
+  theme = 'dark',
 }) => {
-  const T = resolveTheme(theme ?? 'dark');
   return (
     <>
       <div

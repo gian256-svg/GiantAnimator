@@ -1,13 +1,11 @@
 import React from 'react';
 import { AbsoluteFill, useCurrentFrame, useVideoConfig, spring, interpolate, staticFile } from 'remotion';
 
-const MASTER = staticFile("ADS13-PAGINA/PaginaArte.png");
 const CHART_V = staticFile("ADS13-PAGINA/INGR0002-Grafico-3-Mobile-2.png");
 const CHART_H = staticFile("ADS13-PAGINA/INGR0002-Grafico-4-Mobile-1.png");
 
-const TextLine: React.FC<{ children: React.ReactNode, delay: number, size: number, weight: number, color?: string, italic?: boolean }> = ({ children, delay, size, weight, color = '#ffffff', italic = false }) => {
+const TextLine: React.FC<{ children: React.ReactNode, delay: number, size: number, weight: number, color?: string, italic?: boolean, theme?: string }> = ({ children, delay, size, weight, color = '#ffffff', italic = false, theme = 'dark' }) => {
     const frame = useCurrentFrame();
-  const T = resolveTheme(theme ?? 'dark');
     const { fps } = useVideoConfig();
     const t = frame - delay;
     const entry = spring({ frame: t, fps, config: { damping: 15, stiffness: 40, mass: 1.2 } });
@@ -99,8 +97,7 @@ const AnimCard: React.FC<{ x: number, y: number, delay: number, date: string, Lo
     );
 }
 
-export const ReasonScene: React.FC = () => {
-    const frame = useCurrentFrame();
+export const ReasonScene: React.FC<{ theme?: string }> = ({ theme = 'dark' }) => {
     // Timeline aggressively compressed fulfilling strict <5s lock-up logic natively extending fully through duration.
 
     return (
@@ -116,19 +113,19 @@ export const ReasonScene: React.FC = () => {
                 <div style={{ position: 'absolute', top: 120, left: 100, display: 'flex', flexDirection: 'column', gap: '3px' }}>
                     <TextLine delay={0} size={92} weight={900}>POR QUE TRABALHAR</TextLine>
                     <TextLine delay={3} size={92} weight={900}>NO MERCADO</TextLine>
-                    <TextLine delay={6} size={92} weight={900} color="#edd66b">FINANCEIRO É O SONHO</TextLine>
-                    <TextLine delay={9} size={92} weight={900} color="#edd66b">DE MUITA GENTE?</TextLine>
+                    <TextLine delay={6} size={92} weight={900} color="#edd66b" theme={theme}>FINANCEIRO É O SONHO</TextLine>
+                    <TextLine delay={9} size={92} weight={900} color="#edd66b" theme={theme}>DE MUITA GENTE?</TextLine>
                     <div style={{ height: 25 }} />
-                    <TextLine delay={15} size={36} weight={300}>ESSES 3 MOTIVOS EXPLICAM:</TextLine>
+                    <TextLine delay={15} size={36} weight={300} theme={theme}>ESSES 3 MOTIVOS EXPLICAM:</TextLine>
                 </div>
 
                 <div style={{ position: 'absolute', top: 620, left: 100, display: 'flex', flexDirection: 'column', width: '600px' }}>
-                    <TextLine delay={20} size={200} weight={900} color="#edd66b" italic>1</TextLine>
+                    <TextLine delay={20} size={200} weight={900} color="#edd66b" italic theme={theme}>1</TextLine>
                     <div style={{ height: 10 }} />
-                    <TextLine delay={25} size={46} weight={700}>No ranking de satisfação</TextLine>
-                    <TextLine delay={28} size={46} weight={700}>profissional, o mercado</TextLine>
-                    <TextLine delay={31} size={46} weight={700}>financeiro é um dos três</TextLine>
-                    <TextLine delay={34} size={46} weight={700}>primeiros setores no Brasil.</TextLine>
+                    <TextLine delay={25} size={46} weight={700} theme={theme}>No ranking de satisfação</TextLine>
+                    <TextLine delay={28} size={46} weight={700} theme={theme}>profissional, o mercado</TextLine>
+                    <TextLine delay={31} size={46} weight={700} theme={theme}>financeiro é um dos três</TextLine>
+                    <TextLine delay={34} size={46} weight={700} theme={theme}>primeiros setores no Brasil.</TextLine>
                 </div>
 
                 {/* HTML Article Cards resolving identical reference fidelity entirely natively bypassing all bounding slice extraction box glitches forever. */}

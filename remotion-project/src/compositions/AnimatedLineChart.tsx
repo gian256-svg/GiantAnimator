@@ -23,7 +23,7 @@ export const AnimatedLineChart: React.FC<Props> = ({
   primaryColor = "#10B981",
 }) => {
   const frame = useCurrentFrame();
-  const T = resolveTheme(theme ?? 'dark');
+  const T = resolveTheme('dark');
   const { fps } = useVideoConfig();
 
   const maxValue = Math.max(...values, 1);

@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import { AbsoluteFill, useCurrentFrame, useVideoConfig, spring, interpolate, random, Img, staticFile } from "remotion";
+import { resolveTheme } from "../theme";
 import "./duo-styles.css";
 
 const SPARKLE_COLORS = [
@@ -11,7 +12,7 @@ const SPARKLE_COLORS = [
 
 export const DUOPromoBoard: React.FC = () => {
   const frame = useCurrentFrame();
-  const T = resolveTheme(theme ?? 'dark');
+  const T = resolveTheme('dark');
   const { fps, width, height } = useVideoConfig(); 
 
   const BURST_START = 20; 

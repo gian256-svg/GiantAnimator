@@ -2,6 +2,10 @@ import React, { useMemo } from "react";
 import { AbsoluteFill, useCurrentFrame, useVideoConfig, spring, interpolate, random, Img, staticFile } from "remotion";
 import "./styles.css";
 
+interface SocialPromoBoardProps {
+  theme?: string;
+}
+
 // Dual Cluster configuration preserved perfectly at authentic 30fps baseline rendering
 // Coordinates completely recalculated allocating a strict 80px-100px physical gap between all elements natively guaranteeing zero overlap
 const CARDS = [
@@ -30,9 +34,8 @@ const SPARKLE_COLORS = [
   "rgba(255, 20, 40, 1)",   // Red
 ];
 
-export const SocialPromoBoard: React.FC = () => {
+export const SocialPromoBoard: React.FC<SocialPromoBoardProps> = ({ theme = 'dark' }) => {
   const frame = useCurrentFrame();
-  const T = resolveTheme(theme ?? 'dark');
   const { fps, width, height } = useVideoConfig(); // RESTORED 30FPS STANDARD
 
   /* =========================================

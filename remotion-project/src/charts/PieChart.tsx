@@ -30,6 +30,7 @@ export interface PieChartProps {
   bgStyle?: 'none' | 'mesh' | 'grid';
   backgroundType?: 'dark' | 'light';
   includeCallouts?: boolean;
+  theme?: string;
 }
 
 export const PieChart: React.FC<PieChartProps> = (props) => {
@@ -40,7 +41,7 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
     showValueLabels = true,
     unit = "",
     theme = "dark",
-    bgStyle = "none",
+    // bgStyle = "none", // Removido por não ser mais necessário no DynamicBackground
     includeCallouts = false,
     backgroundType,
   } = props;
@@ -98,14 +99,13 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
   
   const centerX = width / 2;
   
-  // 🚀 CENTRO DE GRAVIDADE DINÂMICO (Regra 4K Anti-Colisão)
-  // A legenda "empilha" para cima (bottom anchor + flexWrap = cresce verticalmente).
-  // Estimamos o número de linhas baseado em ~4 legendas longas por linha.
+  // 🚀 CENTRO DE GRAVIDADE DINÂMICO (Regra 4K de Equilíbrio Vertical)
+  // Se a legenda for pequena, mantemos o gráfico mais centralizado para evitar colisão com o título.
   const estimatedLegendRows = Math.max(1, Math.ceil(slices.length / 4));
-  // Puxa o gráfico para cima proporcionalmente à grossura da legenda
   const gravityShift = estimatedLegendRows * fs(30); 
-  // Usa 48% como base + deslocamento dinâmico
-  const centerY = (height * 0.48) - (slices.length > 5 ? gravityShift : 0); 
+  
+  // Base 0.50 (centro real) e só sobe se houver muitas linhas de legenda
+  const centerY = (height * 0.50) - (estimatedLegendRows > 2 ? gravityShift : 0); 
   
   // Raio Seguro: 28% da altura para preservar títulos e legendas
   const maxRadius = Math.min(width * 0.28, height * 0.28);

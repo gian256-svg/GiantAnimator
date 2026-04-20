@@ -368,13 +368,33 @@ document.addEventListener('DOMContentLoaded', () => {
               <label class="ve-label">Subtítulo / Insight</label>
               <input type="text" id="edit-subtitle" class="ve-input" value="${(props.subtitle||'').replace(/"/g,'&quot;')}" placeholder="Insight ou fonte dos dados...">
             </div>
-            <div class="ve-field" style="flex-direction: row; align-items: center; gap: 10px; margin-top: 10px;">
-              <label class="premium-checkbox">
-                <input type="checkbox" id="edit-dark-mode" checked>
-                <span class="check-box-ui"></span>
-                Modo Escuro (Dark Background)
-              </label>
+
+            <!-- TYPE SWITCHER (Restaurado) -->
+            <div class="ve-field">
+              <label class="ve-label">Tipo de Gráfico</label>
+              <div class="ve-type-switcher" id="ve-type-switcher">
+                <button class="ve-type-btn ${detectedType === 'BarChart' ? 'active' : ''}" data-type="BarChart" title="Bar Chart (Vertical)">📊</button>
+                <button class="ve-type-btn ${detectedType === 'HorizontalBarChart' ? 'active' : ''}" data-type="HorizontalBarChart" title="Horizontal Bar">➖</button>
+                <button class="ve-type-btn ${detectedType === 'LineChart' ? 'active' : ''}" data-type="LineChart" title="Line Chart">📈</button>
+                <button class="ve-type-btn ${detectedType === 'PieChart' ? 'active' : ''}" data-type="PieChart" title="Pie Chart">⭕</button>
+                <button class="ve-type-btn ${detectedType === 'ComparativeBarChart' ? 'active' : ''}" data-type="ComparativeBarChart" title="Comparative Bar">⚖️</button>
+              </div>
             </div>
+
+                  <div class="setting-item">
+                    <span>Background Escuro</span>
+                    <label class="switch">
+                      <input type="checkbox" id="edit-dark-mode" checked>
+                      <span class="slider round"></span>
+                    </label>
+                  </div>
+                  <div class="setting-item">
+                    <span>Motor de Render</span>
+                    <select id="edit-engine" class="engine-select">
+                      <option value="remotion">Remotion (4K UHD)</option>
+                      <option value="hyperframes">Hyperframes (HTML/GSAP)</option>
+                    </select>
+                  </div>
           </div>
 
           <div class="ve-grid-header">
@@ -600,6 +620,7 @@ document.addEventListener('DOMContentLoaded', () => {
               const title    = document.getElementById('edit-title')?.value || '';
               const subtitle = document.getElementById('edit-subtitle')?.value || '';
               const isDarkBg = document.getElementById('edit-dark-mode')?.checked ?? true;
+              const engine   = document.getElementById('edit-engine')?.value || 'remotion';
 
               // ── Novo Editor Premium ───────────────────────────────────────
               let newLabels = [], newData = [];
@@ -650,7 +671,10 @@ document.addEventListener('DOMContentLoaded', () => {
                       analysis: editedAnalysis,
                       originalName: state.originalFilename,
                       chartTheme: document.getElementById('chart-theme')?.value || 'dark',
-                      isDarkBg: isDarkBg,
+                      options: {
+                        backgroundType: isDarkBg ? 'dark' : 'light',
+                        engine: engine
+                      },
                       includeCallouts: document.getElementById('toggle-callouts')?.checked || false
                   })
               });

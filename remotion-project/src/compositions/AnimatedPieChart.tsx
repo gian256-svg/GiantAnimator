@@ -25,7 +25,7 @@ export const AnimatedPieChart: React.FC<Props> = ({
   colors = DEFAULT_COLORS,
 }) => {
   const frame = useCurrentFrame();
-  const T = resolveTheme(theme ?? 'dark');
+  const T = resolveTheme('dark');
   const { fps } = useVideoConfig();
 
   const total = values.reduce((acc, v) => acc + v, 0) || 1;

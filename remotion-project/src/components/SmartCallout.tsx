@@ -22,9 +22,10 @@ export const SmartCallout: React.FC<SmartCalloutProps> = ({
   color
 }) => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const { width, height, fps } = useVideoConfig();
+  const fs = (base: number) => Math.round(base * (width / 1280));
   const T = resolveTheme(theme);
-  const accentColor = color || T.colors[0]; // fallback para primeira cor do tema
+  const accentColor = color || T.colors[0]; 
 
   // Animação inicia após o delay (geralmente Act 2 ou Act 3)
   const animFrame = Math.max(0, frame - delay);
@@ -59,9 +60,9 @@ export const SmartCallout: React.FC<SmartCalloutProps> = ({
   });
 
   // Geometria da linha guia (vai para cima e direita ou esquerda)
-  const flipDirection = x > Theme.canvas.width * 0.7; // Se estiver num canto direito muito próximo do topo, inverte o lado.
-  const dx = flipDirection ? -150 : 150;
-  const dy = -150;
+  const flipDirection = x > width * 0.7; 
+  const dx = flipDirection ? fs(-150) : fs(150);
+  const dy = fs(-150);
   
   const lineX2 = x + dx * lineProgress;
   const lineY2 = y + dy * lineProgress;
@@ -99,30 +100,29 @@ export const SmartCallout: React.FC<SmartCalloutProps> = ({
         />
       </svg>
 
-      {/* Container de Texto */}
       <div
         style={{
           position: 'absolute',
-          left: flipDirection ? x + dx - 400 : x + dx + 20,
-          top: y + dy - 40 + textYOffset,
+          left: flipDirection ? x + dx - fs(400) : x + dx + fs(20),
+          top: y + dy - fs(40) + textYOffset,
           display: 'flex',
           flexDirection: 'column',
           alignItems: flipDirection ? 'flex-end' : 'flex-start',
           opacity: textOpacity,
-          width: 400,
+          width: fs(400),
         }}
       >
         <div style={{
           display: 'inline-block',
           backgroundColor: T.surface,
-          border: `2px solid ${accentColor}`,
-          borderRadius: 8,
-          padding: '12px 24px',
-          boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
+          border: `${fs(3)}px solid ${accentColor}`,
+          borderRadius: fs(12),
+          padding: `${fs(16)}px ${fs(28)}px`,
+          boxShadow: `0 ${fs(20)}px ${fs(40)}px rgba(0,0,0,0.5)`,
           backdropFilter: 'blur(10px)',
         }}>
           <div style={{
-            fontSize: Theme.typography.labelSize,
+            fontSize: fs(Theme.typography.labelSize),
             fontWeight: Theme.typography.weightBold,
             color: T.text,
             lineHeight: 1.2,
@@ -131,10 +131,10 @@ export const SmartCallout: React.FC<SmartCalloutProps> = ({
           </div>
           {value !== undefined && (
             <div style={{
-              fontSize: Theme.typography.axisSize,
+              fontSize: fs(Theme.typography.axisSize),
               fontWeight: Theme.typography.weightMedium,
               color: accentColor,
-              marginTop: 4,
+              marginTop: fs(6),
             }}>
               {value}
             </div>

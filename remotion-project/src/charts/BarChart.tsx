@@ -89,7 +89,7 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
   // ─── Layout responsivo ───
   const fs = (base: number) => Math.round(base * (width / 1280));
   const pad = width * 0.04;
-  const padTop = height * 0.20; // Aumentado para 20% conforme regra 1049
+  const padTop = height * 0.22; // Aumentado de 0.20 para 0.22 para Equilíbrio Vertical
   const padBot = height * 0.12; 
 
   const plotLeft = pad + width * (isLongUnit ? 0.12 : 0.08);   

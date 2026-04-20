@@ -1,0 +1,85 @@
+{
+  "componentId": "BarChart",
+  "suggestedName": "BarChartAnualComTresSeries",
+  "reasoning": "O gráfico é um 'Bar Chart' que exibe dados para três séries distintas (azul, laranja e cinza) ao longo de três anos: 2018, 2019 e 2020. A série laranja apresenta os valores mais altos em todos os anos, começando com um pico em 2018 e mostrando uma leve tendência de queda nos anos seguintes. A série azul se mantém relativamente estável, enquanto a série cinza mostra uma tendência de crescimento, ultrapassando a série azul em 2020. O eixo Y varia de $0.00 a $250,000.00, com incrementos de $50,000.00. O eixo X é rotulado com os anos 2018, 2019 e 2020. A calibração dos eixos foi realizada com base nos valores explícitos e nas linhas de grade para determinar os pontos de dados das barras com precisão.",
+  "props": {
+    "title": "Bar Chart (Data Visualization)",
+    "subtitle": null,
+    "series": [
+      {
+        "label": "Série Azul",
+        "color": "#538ECD",
+        "data": [
+          110000,
+          130000,
+          98000
+        ]
+      },
+      {
+        "label": "Série Laranja",
+        "color": "#ED7D31",
+        "data": [
+          230000,
+          195000,
+          165000
+        ]
+      },
+      {
+        "label": "Série Cinza",
+        "color": "#A6A6A6",
+        "data": [
+          75000,
+          90000,
+          108000
+        ]
+      }
+    ],
+    "unit": "$",
+    "labels": [
+      "2018",
+      "2019",
+      "2020"
+    ],
+    "backgroundColor": "#FFFFFF",
+    "textColor": "#202330",
+    "annotations": [
+      {
+        "type": "callout",
+        "index": 0,
+        "label": "Pico Laranja em 2018",
+        "value": 230000,
+        "seriesIndex": 1
+      },
+      {
+        "type": "callout",
+        "index": 2,
+        "label": "Cinza supera Azul em 2020",
+        "value": 108000,
+        "seriesIndex": 2
+      },
+      {
+        "type": "callout",
+        "index": 0,
+        "label": "Mínimo Cinza em 2018",
+        "value": 75000,
+        "seriesIndex": 2
+      }
+    ],
+    "bgStyle": "grid",
+    "insightText": "A série laranja registrou os maiores valores em todos os anos, atingindo um pico de $230,000 em 2018, mas mostrou uma tendência de queda contínua. A série cinza demonstrou crescimento constante, superando a série azul em 2020.",
+    "data": [
+      {
+        "label": "2018",
+        "value": 110000
+      },
+      {
+        "label": "2019",
+        "value": 130000
+      },
+      {
+        "label": "2020",
+        "value": 98000
+      }
+    ]
+  }
+}

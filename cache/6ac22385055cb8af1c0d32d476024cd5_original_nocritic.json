@@ -1,0 +1,68 @@
+{
+  "componentId": "PieChart",
+  "suggestedName": "SubjectDistribution",
+  "reasoning": "O gráfico é um gráfico de pizza (Pie Chart) que mostra a distribuição angular entre cinco diferentes disciplinas: Matemática, Ciência, Ciências Sociais, Inglês e Hindi. A Matemática representa a maior fatia com 108°, seguida por Ciência com 81°, Inglês com 72°, Hindi com 54° e Ciências Sociais com 45°. A soma de todos os ângulos (108 + 81 + 45 + 72 + 54) é 360°, confirmando que o gráfico representa uma distribuição completa. Não há eixos para calibrar em um gráfico de pizza.",
+  "props": {
+    "title": "Distribution of Subjects",
+    "subtitle": null,
+    "data": [
+      {
+        "label": "Mathematics",
+        "value": 108
+      },
+      {
+        "label": "Science",
+        "value": 81
+      },
+      {
+        "label": "Social science",
+        "value": 45
+      },
+      {
+        "label": "English",
+        "value": 72
+      },
+      {
+        "label": "Hindi",
+        "value": 54
+      }
+    ],
+    "seriesColors": [
+      "#F88E00",
+      "#FFD800",
+      "#E6007A",
+      "#5A5A5A",
+      "#9D9D9D"
+    ],
+    "backgroundColor": "#FFFFFF",
+    "textColor": "#552D7C",
+    "annotations": [],
+    "insightText": "A distribuição mostra que Matemática é a disciplina com a maior proporção, representando 108 graus do total, seguida por Ciência e Inglês. Ciências Sociais e Hindi têm as menores proporções.",
+    "series": [
+      {
+        "label": "Distribution of Subjects",
+        "data": [
+          108,
+          81,
+          45,
+          72,
+          54
+        ]
+      }
+    ],
+    "labels": [
+      "Mathematics",
+      "Science",
+      "Social science",
+      "English",
+      "Hindi"
+    ],
+    "colors": [
+      "#F88E00",
+      "#FFD800",
+      "#E6007A",
+      "#5A5A5A",
+      "#9D9D9D"
+    ]
+  }
+}

@@ -20,6 +20,7 @@ import { PATHS } from './paths.js';
 import { startWatcher } from './watcherService.js';
 import { type ChartAnalysis } from './types.js';
 import { generateVoiceover } from './voiceoverService.js';
+import { hyperframesService } from './hyperframesService.js';
 
 const app = express();
 const portStr = process.env.PORT || '8080';
@@ -245,19 +246,46 @@ async function finishJobRendering(jobId: string, analysis: ChartAnalysis, chartT
             }
         }
 
-        if (IS_VERCEL) {
-          job.status = 'done';
-          job.progress = 100;
-          job.stage = 'Concluído (Modo Vercel)';
-          job.videoUrl = undefined;
-          saveJob(job);
-          return;
+        const summary = analysis.suggestedName || 'GiantAnimation';
+        const cleanOriginal = originalName.replace(/\.[^.]+$/, '').replace(/\s+/g, '_');
+
+        // ─── MOTOR HYPERFRAMES (HTML/GSAP) ────────────────
+        if (analysis.engine === 'hyperframes' || options.engine === 'hyperframes') {
+            const outputName = `${summary}_HF_${cleanOriginal}.mp4`;
+            job.stage = 'Renderizando via Hyperframes (HTML)...';
+            await saveJob(job);
+            
+            const htmlContent = analysis.props.html || `
+              <html>
+                <body style="background: ${analysis.props.backgroundColor || '#000'}; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;">
+                  <h1 style="color: white; font-family: sans-serif; font-size: 80px; text-align: center;">${analysis.props.title}</h1>
+                </body>
+              </html>
+            `;
+
+            await hyperframesService.render({
+              jobId,
+              htmlContent,
+              outputName,
+            });
+
+            const videoUrl = `/output/${outputName}`;
+            addJob({ filename: outputName, outputFile: outputName, status: 'done' });
+            job.status = 'done';
+            job.progress = 100;
+            job.stage = 'Concluído!';
+            job.videoUrl = videoUrl;
+            await saveJob(job);
+            return;
         }
 
-        // Renderização Local 4K
+        // ─── MOTOR REMOTION (React/UHD) ───────────────────
         job.progress = 60;
         job.stage = 'Renderizando 4K UHD...';
-        saveJob(job);
+        await saveJob(job);
+
+        const outputName = `${summary}_AN_${cleanOriginal}.mp4`;
+        const outputPath = path.join(OUTPUT_DIR, outputName);
 
         const serveUrl = await getBundle();
         const composition = await selectComposition({
@@ -269,11 +297,6 @@ async function finishJobRendering(jobId: string, analysis: ChartAnalysis, chartT
             backgroundType: options.backgroundType || 'dark'
           }
         });
-
-        const summary = analysis.suggestedName || 'GiantAnimation';
-        const cleanOriginal = originalName.replace(/\.[^.]+$/, '').replace(/\s+/g, '_');
-        const outputName = `${summary}_AN_${cleanOriginal}.mp4`;
-        const outputPath = path.join(OUTPUT_DIR, outputName);
 
         await renderMedia({
           composition,
@@ -288,12 +311,7 @@ async function finishJobRendering(jobId: string, analysis: ChartAnalysis, chartT
         });
 
         const videoUrl = `/output/${outputName}`;
-        addJob({ 
-          filename: outputName, 
-          outputFile: outputName, 
-          status: 'done' 
-        });
-
+        addJob({ filename: outputName, outputFile: outputName, status: 'done' });
         job.status = 'done';
         job.progress = 100;
         job.stage = 'Concluído!';
