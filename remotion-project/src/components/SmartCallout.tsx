@@ -10,6 +10,8 @@ interface SmartCalloutProps {
   theme?: string;
   delay?: number;
   color?: string;
+  index?: number;
+  backgroundType?: 'dark' | 'light';
 }
 
 export const SmartCallout: React.FC<SmartCalloutProps> = ({
@@ -19,13 +21,19 @@ export const SmartCallout: React.FC<SmartCalloutProps> = ({
   value,
   theme = 'dark',
   delay = 0,
-  color
+  color,
+  index = 0,
+  backgroundType
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
-  const fs = (base: number) => Math.round(base * (width / 1280));
-  const T = resolveTheme(theme);
+  
+  // Fator de escala baseado em 1920p (mais equilibrado para 4K)
+  const fs = (base: number) => Math.round(base * (width / 1920));
+  
+  const T = resolveTheme(theme, undefined, backgroundType);
   const accentColor = color || T.colors[0]; 
+  const resolvedText = T.text;
 
   // Animação inicia após o delay (geralmente Act 2 ou Act 3)
   const animFrame = Math.max(0, frame - delay);
@@ -61,8 +69,8 @@ export const SmartCallout: React.FC<SmartCalloutProps> = ({
 
   // Geometria da linha guia (vai para cima e direita ou esquerda)
   const flipDirection = x > width * 0.7; 
-  const dx = flipDirection ? fs(-150) : fs(150);
-  const dy = fs(-150);
+  const dx = flipDirection ? fs(-180) : fs(180);
+  const dy = fs(-180) - (index * fs(60)); // Offset vertical para evitar colisão
   
   const lineX2 = x + dx * lineProgress;
   const lineY2 = y + dy * lineProgress;
@@ -124,7 +132,7 @@ export const SmartCallout: React.FC<SmartCalloutProps> = ({
           <div style={{
             fontSize: fs(Theme.typography.labelSize),
             fontWeight: Theme.typography.weightBold,
-            color: T.text,
+            color: resolvedText,
             lineHeight: 1.2,
           }}>
             {label}

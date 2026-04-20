@@ -51,7 +51,7 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
   // Resolve tema
   const T = resolveTheme(theme, backgroundColor, backgroundType);
   const resolvedBg = backgroundType ? T.background : (backgroundColor ?? T.background);
-  const resolvedText  = textColor       ?? T.text;
+  const resolvedText  = backgroundType ? T.text : (textColor ?? T.text);
   const resolvedColors = colors && colors.length > 0 ? colors : [...T.colors];
 
   // Normalização de dados com Safe-Guards
@@ -213,6 +213,8 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
             theme={theme}
             delay={140 + i * 15}
             color={T.colors[0]}
+            index={i}
+            backgroundType={backgroundType}
           />
         );
       })}

@@ -354,3 +354,15 @@ Caso a imagem mande um título muito longo, ele não pode flanquear o Canvas de 
 9.  **Integridade da UI de Revisão**:
     - O seletor de "Tipo de Gráfico" (Visual Switcher no modal) e o toggle "Modo Escuro" são componentes de segurança obrigatórios. 
     - **Ação**: Devem sempre estar presentes no modal de confirmação no `app.js` para permitir o ajuste final de design antes do render 4K, mitigando alucinações da IA na detecção do tipo de gráfico original.
+
+10.  **Regra de Proporção UHD (Base 1920p)**:
+     - O fator de escala `fs()` em todos os componentes deve usar a base de **1920p** (`width / 1920`). 
+     - **Motivo**: Usar 1280p como base gera elementos (fontes, paddings, borders) 3x maiores em 4K, o que polui o visual e causa colisões. 1920p provou ser o equilíbrio perfeito para dashboards "Premium Luxury".
+
+11.  **Anti-Colisão de Smart Callouts**:
+     - Toda anotação (`SmartCallout`) deve receber um prop `index`.
+     - O deslocamento vertical (`dy`) deve ser decrementado com base no `index` (ex: `dy = baseDy - (index * offset)`) para escalonar balões que apontam para áreas próximas, evitando sobreposição de texto.
+
+12.  **Soberania de Contraste (Texto Inviolável)**:
+    - Quando um `backgroundType` é fornecido, a variável `resolvedText` deve obrigatoriamente seguir `T.text` do tema e ignorar o `textColor` detectado pela visão. 
+    - **Objetivo**: Garantir que, se o usuário escolher "Modo Escuro", o texto SEJA claro, e vice-versa, eliminando o erro de texto escuro sobre fundo escuro.

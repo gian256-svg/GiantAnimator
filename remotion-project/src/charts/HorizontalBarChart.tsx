@@ -45,12 +45,12 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
 }) => {
   const frame      = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
-  const fs = (base: number) => Math.round(base * (width / 1280));
+  const fs = (base: number) => Math.round(base * (width / 1920));
 
   // Resolve tema
   const T = resolveTheme(theme, backgroundColor, backgroundType);
   const resolvedBg = backgroundType ? T.background : (backgroundColor ?? T.background);
-  const resolvedText = textColor ?? T.text;
+  const resolvedText = backgroundType ? T.text : (textColor ?? T.text);
 
   const instanceId = useId().replace(/:/g, "");
 
@@ -136,7 +136,7 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
                 
                 const bY = gY + sIdx * (groupHeight / (normalizedSeries.length || 1));
                 const bW = Math.max(1, (val / maxVal) * plotWidth * progress);
-                const color = sIdx === 0 ? '#4f8ef7' : '#00e5a0';
+                const color = s.color || T.colors[sIdx % T.colors.length];
                 
                 return (
                   <rect 
@@ -178,6 +178,8 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
             theme={theme}
             delay={160 + i * 20}
             color={normalizedSeries[sIdx].color || T.colors[sIdx % T.colors.length]}
+            index={i}
+            backgroundType={backgroundType}
           />
         );
       })}

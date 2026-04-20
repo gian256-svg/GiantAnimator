@@ -56,7 +56,7 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
   // REGRA DE OURO: Se o usuário forçou um tipo de fundo (Dark/Light), respeitamos o T.background.
   // Caso contrário, usamos a cor extraída (props.backgroundColor) se disponível.
   const resolvedBg = backgroundType ? T.background : (props.backgroundColor ?? T.background);
-  const resolvedText = props.textColor ?? T.text;
+  const resolvedText = backgroundType ? T.text : (props.textColor ?? T.text);
   
   // Se theme for champagne e a cor for muito próxima de branco, vamos garantir o creme.
   // const isChampagne = theme?.toLowerCase() === 'champagne'; // Unused but kept for reference if needed
@@ -91,7 +91,7 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
   const safeT = Theme.canvas.safeZoneTop;
   // const safeB = height - Theme.canvas.safeZoneBottom; // Unused
 
-  const fs = (base: number) => Math.round(base * (width / 1280));
+  const fs = (base: number) => Math.round(base * (width / 1920));
 
   // ── Layout (Zonas 1, 2, 3) ──
   const TITLE_SIZE = fs(38);

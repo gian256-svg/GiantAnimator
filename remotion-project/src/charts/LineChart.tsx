@@ -50,7 +50,7 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
   // Resolve tema com detecção adaptativa de contraste
   const T = resolveTheme(theme ?? 'dark', backgroundColor, backgroundType);
   const resolvedBg = backgroundType ? T.background : (backgroundColor ?? T.background);
-  const resolvedText = textColor ?? T.text;
+  const resolvedText = backgroundType ? T.text : (textColor ?? T.text);
   const resolvedColors = colors && colors.length > 0 ? colors : [...T.colors];
 
   // Identificador único para clipPath (REGRA SVG: IDs não podem começar com número!)
@@ -90,7 +90,7 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
   const isHighDensity = normalizedSeries.some(s => s.data.length > 25);
 
   // Layout 4K UHD - Seguindo FILOSOFIA 4K
-  const fs = (base: number) => Math.round(base * (width / 1280));
+  const fs = (base: number) => Math.round(base * (width / 1920));
   const pad = width * 0.05;
   const padTop = height * 0.22; 
   const padBot = height * 0.12; 
@@ -256,8 +256,10 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
             label={ann.label}
             value={ann.value !== undefined ? formatValue(ann.value, unit) : undefined}
             theme={theme}
-            delay={140 + i * 15} // Anima no Ato 2 Final / Ato 3
+            delay={140 + i * 15}
             color={T.colors[0]}
+            index={i}
+            backgroundType={backgroundType}
           />
         );
       })}
