@@ -46,7 +46,7 @@ export async function auditRenderFidelity(
   const prompt = buildAuditorPrompt();
 
   let retries = 0;
-  const MAX_RETRIES = 3;
+  const MAX_RETRIES = 20; // ⬆️ Aumentado para tolerar instabilidades severas
   while (retries <= MAX_RETRIES) {
     try {
       const model = ai.getGenerativeModel({ model: GEMINI_MODEL });
@@ -70,7 +70,8 @@ export async function auditRenderFidelity(
       const is503 = err.message?.includes("503") || err.message?.includes("UNAVAILABLE");
       if (is503 && retries < MAX_RETRIES) {
         retries++;
-        const delay = Math.pow(2, retries) * 2000;
+        // Backoff capado em 15 segundos
+        const delay = Math.min(Math.pow(2, retries) * 2000, 15000);
         console.warn(`⚠️ [AUDITOR] Gemini 503 (Demanda Alta). Retry ${retries}/${MAX_RETRIES} em ${delay}ms...`);
         await new Promise(r => setTimeout(r, delay));
         continue;

@@ -88,7 +88,7 @@ ${auditorCritique}
   // ─── Chamada Gemini com Retry ────────────────────────────────
   let response;
   let retries = 0;
-  const MAX_RETRIES = 5; // Aumentado para tolerar instabilidade
+  const MAX_RETRIES = 20; // ⬆️ Aumentado drasticamente para furar o bloqueio 503
 
   while (retries <= MAX_RETRIES) {
     try {
@@ -105,7 +105,8 @@ ${auditorCritique}
       if (isStatus503) {
         retries++;
         if (retries > MAX_RETRIES) throw err;
-        const delay = Math.pow(2, retries) * 1500; // Backoff um pouco mais lento
+        // Backoff: 1.5s, 3s, 6s... capado em 15s para não morrer de velhice
+        const delay = Math.min(Math.pow(2, retries) * 1500, 15000);
         console.warn(`⚠️ [VISION] Gemini 503/UNAVAILABLE (Demanda Alta). Tentativa ${retries}/${MAX_RETRIES} em ${delay}ms...`);
         await new Promise(r => setTimeout(r, delay));
       } else {

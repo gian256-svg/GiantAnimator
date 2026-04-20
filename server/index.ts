@@ -171,8 +171,14 @@ async function processJob(
       job.progress = 25;
       await saveJob(job);
       try {
-        // Integração do Novo Pipeline de Fidelidade Surgery-Grade com Auditoria Silent
-        analysis = await runSurgeryGradePipeline(filePath, chartTheme, job, options.includeCallouts);
+        if (options.enableAuditor) {
+          // Pipeline Completo: Reconstituição Avançada com Auditoria Silent
+          analysis = await runSurgeryGradePipeline(filePath, chartTheme, job, options.includeCallouts);
+        } else {
+          // Modo Rápido/Safe: Apenas análise inicial sem auditoria de fidelidade
+          console.log("⏭️  [Orchestrator] Auditoria desabilitada pelo usuário. Pulando para análise direta...");
+          analysis = await analyzeChartImage(filePath, chartTheme, undefined, { includeCallouts: options.includeCallouts });
+        }
       } catch (err: any) {
         throw new Error(`Falha ao analisar imagem como gráfico: ${err.message}`);
       }
@@ -304,13 +310,16 @@ app.post('/upload', upload.single('file'), async (req: Request, res: Response) =
   const job: PipelineJob = { id: jobId, status: 'pending', progress: 0, stage: 'Aguardando...' };
   await saveJob(job);
 
+  console.log(`📡 [Payload] Job: ${jobId} | Auditor: ${req.body.enableAuditor} | Callouts: ${req.body.includeCallouts}`);
+  
   const options = {
     chartTheme: req.body.chartTheme || 'dark',
     includeCallouts: req.body.includeCallouts === 'true',
+    enableAuditor: String(req.body.enableAuditor) !== 'false', // Forçando cast para String e comparando
     enableVoiceover: req.body.enableVoiceover === 'true',
     elevenlabsKey: req.body.elevenlabsKey || process.env.ELEVENLABS_API_KEY,
     bgStyle: req.body.bgStyle || 'none',
-    reviewRequired: true // Sempre habilitado para permitir o Surgery-Grade Review
+    reviewRequired: true 
   };
 
   processJob(jobId, req.file.buffer, req.file.originalname, options.chartTheme, options);

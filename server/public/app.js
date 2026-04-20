@@ -332,7 +332,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnCancelJson) btnCancelJson.addEventListener('click', closeModal);
 
   // ─── VISUAL EDITOR PREMIUM — Split Panel + Live Preview ──────────
-  function renderVisualEditor(analysis) {
+  window.renderVisualEditor = function(analysis) {
     const container = document.getElementById('visual-editor-container');
     if (!container) return;
 
@@ -680,10 +680,11 @@ document.addEventListener('DOMContentLoaded', () => {
           
           const fd = new FormData();
           fd.append('file', f.file);
-          fd.append('chartType', document.getElementById('chart-type').value);
+
           fd.append('chartTheme', document.getElementById('chart-theme').value);
           
           fd.append('includeCallouts', document.getElementById('toggle-callouts').checked);
+          fd.append('enableAuditor', document.getElementById('toggle-auditor').checked);
           fd.append('reviewRequired', true);
           fd.append('bgStyle', document.getElementById('bg-style').value);
 
@@ -784,7 +785,7 @@ function startPolling(jobId, fileName, fileId) {
           // Open Modal & Render Visual Editor
           const modal = document.getElementById('json-editor-overlay');
           if (modal) {
-              renderVisualEditor(msg.analysis);
+              if (window.renderVisualEditor) window.renderVisualEditor(msg.analysis);
               modal.style.display = 'flex';
           }
           log("💉 Análise Surgery-Grade concluída. Aguardando revisão dos dados...");

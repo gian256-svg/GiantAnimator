@@ -2,11 +2,8 @@
 import type { ChartType } from "./types.js";
 
 // ─────────────────────────────────────────────────────────
-// ✅ MODELO ATUALIZADO — gemini-2.5-flash (GA, Abril 2026)
-//
-// gemini-2.0-flash → DEPRECATED (shutdown em breve)
-// gemini-2.5-flash → GA, estável, suporta visão + thinking
-// Fonte: https://ai.google.dev/gemini-api/docs/models
+// ✅ MODELO PRINCIPAL — gemini-2.5-flash (GA)
+// gemini-2.0-flash não disponível nesta conta (restrições de acesso)
 // ─────────────────────────────────────────────────────────
 export const GEMINI_MODEL        = "gemini-2.5-flash";
 export const GEMINI_MODEL_VISION = "gemini-2.5-flash";

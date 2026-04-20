@@ -99,16 +99,7 @@
 
           <div class="card-body-premium">
             <div class="controls-grid-v2">
-              <div class="control-unit">
-                <label>Estrutura do Gráfico</label>
-                <select id="chart-type">
-                  <option value="auto">Automático (IA decide)</option>
-                  <option value="bar">Barras Verticais</option>
-                  <option value="line">Linhas de Tendência</option>
-                  <option value="pie">Pizza / Donut</option>
-                  <option value="area">Área Preenchida</option>
-                </select>
-              </div>
+
 
               <div class="control-unit">
                 <label>Tema Gráfico</label>
@@ -146,14 +137,20 @@
               </div>
             </div>
 
-            <!-- Toggles de Inteligência -->
-            <div class="features-row">
-              <label class="premium-checkbox">
-                <input type="checkbox" id="toggle-callouts" checked>
-                <span class="check-box-ui"></span>
-                Ativar Smart Call-outs (Análise Dinâmica)
-              </label>
-            </div>
+             <!-- Toggles de Inteligência -->
+             <div class="features-row" style="flex-direction: column; align-items: flex-start; gap: 12px;">
+               <label class="premium-checkbox">
+                 <input type="checkbox" id="toggle-callouts" checked>
+                 <span class="check-box-ui"></span>
+                 Ativar Smart Call-outs (Análise Dinâmica)
+               </label>
+               
+               <label class="premium-checkbox" title="Compara o render com a imagem via IA. Desative se o Gemini estiver com erros 503.">
+                 <input type="checkbox" id="toggle-auditor" checked>
+                 <span class="check-box-ui"></span>
+                 Ativar Auditoria de Fidelidade (Gemini Vision)
+               </label>
+             </div>
 
             <!-- Ação Final -->
             <div class="action-row-premium">
