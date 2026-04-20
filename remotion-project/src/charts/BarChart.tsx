@@ -50,7 +50,7 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
 
   // Resolve tema
   const T = resolveTheme(theme, backgroundColor, backgroundType);
-  const resolvedBg    = backgroundColor ?? T.background;
+  const resolvedBg = backgroundType ? T.background : (backgroundColor ?? T.background);
   const resolvedText  = textColor       ?? T.text;
   const resolvedColors = colors && colors.length > 0 ? colors : [...T.colors];
 
@@ -219,7 +219,7 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
 
       {/* LEGEND */}
       {seriesCount > 1 && (
-        <div style={{ position: 'absolute', bottom: height * 0.05, width: '100%', display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: fs(40), opacity: interpolate(frame, [40, 60], [0, 1]), pointerEvents: 'none' }}>
+        <div style={{ position: 'absolute', bottom: height * 0.08, width: '100%', display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: fs(40), opacity: interpolate(frame, [40, 60], [0, 1]), pointerEvents: 'none' }}>
           {normalizedSeries.map((s, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: fs(10) }}>
               <div style={{ width: fs(16), height: fs(16), borderRadius: '4px', backgroundColor: s.color || resolvedColors[i % resolvedColors.length], boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }} />

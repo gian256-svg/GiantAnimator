@@ -48,7 +48,7 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
   const { width, height, fps } = useVideoConfig();
   // Resolve tema — fonte única de verdade
   const T = resolveTheme(theme, backgroundColor, backgroundType);
-  const resolvedBg    = backgroundColor ?? T.background;
+  const resolvedBg = backgroundType ? T.background : (backgroundColor ?? T.background);
   const resolvedText  = textColor       ?? T.text;
   // const resolvedColors = colors && colors.length > 0 ? colors : [...T.colors]; // Unused but kept for reference if needed
 
@@ -237,7 +237,7 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
       {seriesCount > 1 && (
         <div style={{
           position: 'absolute',
-          bottom: height * 0.04,
+          bottom: height * 0.08,
           width: '100%',
           display: 'flex',
           justifyContent: 'center',

@@ -43,6 +43,7 @@ export const ComparativeBarChart: React.FC<ComparativeBarChartProps> = ({
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
   const T = resolveTheme(theme ?? 'dark', backgroundColor, backgroundType);
+  const resolvedBg = backgroundType ? T.background : (backgroundColor ?? T.background);
   const instanceId = useId().replace(/:/g, "");
 
   // Safe Zone 4K
@@ -70,7 +71,7 @@ export const ComparativeBarChart: React.FC<ComparativeBarChartProps> = ({
   return (
     <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
       <DynamicBackground 
-        baseColor={backgroundColor ?? T.background} 
+        baseColor={resolvedBg} 
         accentColor={T.colors[0]} 
         backgroundType={backgroundType}
       />

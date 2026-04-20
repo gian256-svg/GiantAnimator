@@ -315,3 +315,25 @@ Caso a imagem mande um título muito longo, ele não pode flanquear o Canvas de 
 - Prompt do Auditor atualizado para rejeitar builds com "dados fragmentados" (lines missing) ou falta de fidelidade no background.
 - Aumento da opacidade do `DynamicBackground` para visibilidade em renders UHD de alto brilho.
 **Resultado**: Pipeline 100% blindada contra falsos positivos e falhas matemáticas de renderização.
+
+---
+
+### 🎨 [2026-04-20] REFACTOR — AMBIÊNCIA, TEMAS ADAPTATIVOS E POSICIONAMENTO DINÂMICO
+**Contexto**: Simplificação do pipeline para reduzir erros de renderização e melhorar o equilíbrio visual (UX/UI).
+
+**Novos Aprendizados e Regras:**
+1.  **Regra do Anti-Vácuo (Legenda Dinâmica)**:
+    - Em gráficos centrados (como `PieChart`), a legenda não deve ficar presa ao rodapé absoluto se houver pouco conteúdo. 
+    - **Ajuste**: Posicionar a legenda dinamicamente com base no limite físico do gráfico (`centerY + radius`). Se houver espaço, a legenda deve "subir" para fechar o espaço vazio, mantendo a composição coesa.
+2.  **Prioridade Absoluta de Tema (User Overrules AI)**:
+    - Se o parâmetro `backgroundType` (`dark` ou `light`) for fornecido explicitamente via UI, ele **DEVE** ignorar a cor de fundo extraída da visão (`backgroundColor`).
+    - **Motivo**: Evita o erro de "fundo branco em modo escuro" quando a IA detecta erradamente a cor predominante da referência.
+3.  **Gradientes de "Estúdio" Premium**:
+    - Substituição de fundos chapados por gradientes radiais ultra-leves e profissionais:
+      - **Escuro**: Centro `#1a1c23`, Bordas `#090a0f`.
+      - **Claro**: Centro `#ffffff`, Bordas `#f0f2f5`.
+    - Isso garante profundidade visual sem sacrificar a estabilidade de renderização 4K no Remotion.
+4.  **Estabilização da Pipeline**: 
+    - Removidos estilos `mesh` e `grid` (com filtros de blur pesados) por causarem falhas de memória e erros genéricos. A estética agora é garantida pela qualidade dos gradientes e do contraste cirúrgico dos elementos.
+5.  **Ajuste de Margem Basal**: 
+    - Para todos os gráficos, a margem inferior das legendas foi elevada (de `4%` para `8%`) para garantir melhor respiro visual e evitar o visual "esmagado" na borda da tela.

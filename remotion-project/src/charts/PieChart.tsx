@@ -51,7 +51,10 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
 
   // 1. Resolve Tema e Cores
   const T = resolveTheme(theme, props.backgroundColor, backgroundType);
-  const resolvedBg = props.backgroundColor ?? T.background;
+  
+  // REGRA DE OURO: Se o usuário forçou um tipo de fundo (Dark/Light), respeitamos o T.background.
+  // Caso contrário, usamos a cor extraída (props.backgroundColor) se disponível.
+  const resolvedBg = backgroundType ? T.background : (props.backgroundColor ?? T.background);
   const resolvedText = props.textColor ?? T.text;
   
   // Se theme for champagne e a cor for muito próxima de branco, vamos garantir o creme.
@@ -102,11 +105,21 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
   // Puxa o gráfico para cima proporcionalmente à grossura da legenda
   const gravityShift = estimatedLegendRows * fs(30); 
   // Usa 48% como base + deslocamento dinâmico
-  const centerY = (height * 0.48) - gravityShift; 
+  const centerY = (height * 0.48) - (slices.length > 5 ? gravityShift : 0); 
   
   // Raio Seguro: 28% da altura para preservar títulos e legendas
   const maxRadius = Math.min(width * 0.28, height * 0.28);
   const radius = maxRadius;
+
+  // 🚀 POSICIONAMENTO DINÂMICO DA LEGENDA (Regra Anti-Vacuo)
+  const chartBottom = centerY + radius;
+  const idealGap = fs(60);
+  const legendHeight = estimatedLegendRows * fs(35);
+  // Se o gráfico + gap + legenda cabem com folga, puxamos a legenda para cima
+  const spaceBelow = height - chartBottom;
+  const dynamicLegendBottom = spaceBelow > (idealGap + legendHeight + fs(40))
+    ? height - (chartBottom + idealGap + legendHeight)
+    : height * 0.04;
 
   // Renderização de Slices
   let currentAngle = -Math.PI / 2;
@@ -251,7 +264,7 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
 
       {/* ── LEGEND (ZONA 3) ── */}
       <div style={{
-          position: "absolute", bottom: height * 0.04, left: width * 0.05, right: width * 0.05,
+          position: "absolute", bottom: dynamicLegendBottom, left: width * 0.05, right: width * 0.05,
           display: "flex", justifyContent: "center", alignItems: "center", flexWrap: "wrap", gap: fs(24),
           opacity: interpolate(frame, [40, 60], [0, 1]),
           pointerEvents: 'none'

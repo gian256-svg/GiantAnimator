@@ -45,7 +45,7 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
   const T = resolveTheme(theme ?? 'dark', backgroundColor, backgroundType);
-  const resolvedBg = backgroundColor ?? T.background;
+  const resolvedBg = backgroundType ? T.background : (backgroundColor ?? T.background);
 
   const series = useMemo(() => {
     return Array.isArray(propSeries) ? propSeries.map(s => ({
@@ -243,7 +243,7 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
       {/* Legenda ClÃ¡ssica (ZONA 3) */}
       {legendMode === 'classic' && (
         <div style={{
-          position: 'absolute', bottom: margin, width: '100%', display: 'flex', justifyContent: 'center', gap: 40,
+          position: 'absolute', bottom: height * 0.08, width: '100%', display: 'flex', justifyContent: 'center', gap: 40,
           opacity: interpolate(frame, [60, 80], [0, 1])
         }}>
           {series.map((s, i) => (

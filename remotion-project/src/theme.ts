@@ -627,21 +627,6 @@ export function resolveTheme(theme?: string, baseColor?: string, backgroundType?
   const name = (theme || 'dark').toLowerCase();
   let config = { ...(THEMES[name] ?? THEMES['dark']) };
 
-  // Prioridade 1: backgroundType explícito (novo fluxo simplificado)
-  if (backgroundType) {
-    if (backgroundType === 'light') {
-      config.background = '#FAF9F6'; // Off-white padrão premium
-      config.text = '#0f172a';
-      config.textMuted = '#475569';
-      config.axis = 'rgba(15,23,42,0.45)';
-      config.grid = 'rgba(15,23,42,0.18)';
-    } else {
-      config.background = '#0f1117'; // Dark padrão premium
-      config.text = '#e8eaf6';
-      config.textMuted = '#8892b0';
-      config.axis = 'rgba(232,234,246,0.25)';
-      config.grid = 'rgba(232,234,246,0.12)';
-    }
   } 
   // Prioridade 2: baseColor (fluxo original/referência)
   else if (baseColor) {
@@ -660,6 +645,23 @@ export function resolveTheme(theme?: string, baseColor?: string, backgroundType?
       config.grid = 'rgba(255,255,255,0.06)';
     }
   }
+
+  // APLICAÇÃO FINAL DO backgroundType (Sobrescreve tudo se presente)
+  if (backgroundType) {
+    if (backgroundType === 'light') {
+      config.background = '#FAF9F6'; // Off-white padrão premium
+      config.text = '#0f172a';
+      config.textMuted = '#475569';
+      config.axis = 'rgba(15,23,42,0.45)';
+      config.grid = 'rgba(15,23,42,0.18)';
+    } else {
+      config.background = '#0f1117'; // Dark padrão premium
+      config.text = '#e8eaf6';
+      config.textMuted = '#8892b0';
+      config.axis = 'rgba(232,234,246,0.25)';
+      config.grid = 'rgba(232,234,246,0.12)';
+    }
+  } 
 
   return config;
 }

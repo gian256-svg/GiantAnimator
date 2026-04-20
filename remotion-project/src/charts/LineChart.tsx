@@ -48,7 +48,7 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
 
   // Resolve tema com detecção adaptativa de contraste
   const T = resolveTheme(theme ?? 'dark', backgroundColor, backgroundType);
-  const resolvedBg = backgroundColor ?? T.background;
+  const resolvedBg = backgroundType ? T.background : (backgroundColor ?? T.background);
   const resolvedText = textColor ?? T.text;
   const resolvedColors = colors && colors.length > 0 ? colors : [...T.colors];
 
@@ -269,7 +269,7 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
 
       {/* LEGEND - Escondida se houver muitos itens para evitar redundância com Direct Labeling */}
       {normalizedSeries.length > 1 && normalizedSeries.length <= 4 && (
-        <div style={{ position: 'absolute', bottom: height * 0.04, width: '100%', display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: fs(40), opacity: interpolate(frame, [150, 180], [0, 1]), pointerEvents: 'none' }}>
+        <div style={{ position: 'absolute', bottom: height * 0.08, width: '100%', display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: fs(40), opacity: interpolate(frame, [150, 180], [0, 1]), pointerEvents: 'none' }}>
           {normalizedSeries.map((s, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: fs(12) }}>
               <div style={{ width: fs(24), height: fs(6), backgroundColor: s.color || resolvedColors[i % resolvedColors.length], borderRadius: fs(3) }} />
