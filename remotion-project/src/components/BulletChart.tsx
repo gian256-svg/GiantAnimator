@@ -1,4 +1,4 @@
-import React, { useId } from "react";
+﻿import React, { useId } from "react";
 import {
   spring,
   useCurrentFrame,
@@ -7,6 +7,7 @@ import {
   AbsoluteFill,
 } from "remotion";
 import { Theme, resolveTheme } from '../theme';
+import { DynamicBackground } from "../layout/DynamicBackground";
 
 export interface BulletMetric {
   label: string;
@@ -23,6 +24,7 @@ export interface BulletChartProps {
   theme?: string;
   colors?: string[];
   textColor?: string;
+  bgStyle?: 'none' | 'mesh' | 'grid';
 }
 
 export const BulletChart: React.FC<BulletChartProps> = ({
@@ -30,6 +32,8 @@ export const BulletChart: React.FC<BulletChartProps> = ({
   title,
   subtitle,
   backgroundColor,
+  theme = 'dark',
+  bgStyle = 'none',
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
@@ -37,9 +41,9 @@ export const BulletChart: React.FC<BulletChartProps> = ({
   const instanceId = useId().replace(/:/g, "");
 
   // Safe Zone 4K
-  const margin = Theme.spacing.padding || 128;
-  const titleHeight = Theme.spacing.titleHeight || 160;
-  const paddingLeft = 400; // Espaço para labels longas
+  const margin = Theme.canvas.safeZoneX;
+  const titleHeight = Theme.canvas.safeZoneTop;
+  const paddingLeft = 400; // EspaÃ§o para labels longas
   const paddingRight = margin;
   
   const plotWidth = width - paddingLeft - paddingRight;
@@ -49,8 +53,13 @@ export const BulletChart: React.FC<BulletChartProps> = ({
   const rangeThickness = 120;
 
   return (
-    <AbsoluteFill style={{ backgroundColor: backgroundColor ?? T.background }}>
-      {/* ZONA 1 — Cabeçalho */}
+    <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
+      <DynamicBackground 
+        style={bgStyle} 
+        baseColor={backgroundColor ?? T.background} 
+        accentColor={T.colors[0]} 
+      />
+      {/* ZONA 1 â€” CabeÃ§alho */}
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',
         opacity: interpolate(frame, [0, 15], [0, 1])
@@ -70,7 +79,7 @@ export const BulletChart: React.FC<BulletChartProps> = ({
         }}>{subtitle}</div>}
       </div>
 
-      <svg width={width} height={height} style={{ overflow: 'visible' }}>
+      <svg width={width} height={height} style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}>
         <defs>
           {metrics.map((_, i) => (
             <linearGradient key={i} id={`bulletGrad-${i}-${instanceId}`} x1="0" y1="0" x2="1" y2="0">
@@ -122,7 +131,7 @@ export const BulletChart: React.FC<BulletChartProps> = ({
                 <line
                   x1={getX(m.target)} y1={centerY - (rangeThickness / 2 + 20) * targetPop}
                   x2={getX(m.target)} y2={centerY + (rangeThickness / 2 + 20) * targetPop}
-                  stroke={Theme.colors.semantic.highlight} strokeWidth={8} strokeLinecap="round"
+                  stroke={Theme.colors.highlight} strokeWidth={8} strokeLinecap="round"
                 />
               )}
 
@@ -133,7 +142,7 @@ export const BulletChart: React.FC<BulletChartProps> = ({
                      const val = p * maxRangeValue;
                      const x = getX(val);
                      return (
-                       <text key={p} x={x} y={centerY + rangeThickness} textAnchor="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.ui.axisText, fontFamily: Theme.typography.fontFamily }}>{Math.round(val)}</text>
+                       <text key={p} x={x} y={centerY + rangeThickness} textAnchor="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.textMuted, fontFamily: Theme.typography.fontFamily }}>{Math.round(val)}</text>
                      );
                    })}
                 </g>

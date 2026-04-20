@@ -36,12 +36,12 @@ export const AnimatedPieChart: React.FC<Props> = ({
     const strokeDasharray = `${percentage * 100} 100`;
     const offset = currentOffset;
     currentOffset -= percentage * 100;
-    
+
     // Calcula o ângulo médio para posicionar a label (de 0 a 360 graus)
     const midAngle = (Math.abs(offset) + (percentage * 100) / 2) * 3.6;
     // Converte para radianos, ajustando pois svg começa do topo (270 ou -90)
     const midAngleRad = (midAngle - 90) * (Math.PI / 180);
-    
+
     return { val, label: labels[i], percentage, strokeDasharray, strokeDashoffset: offset, color: colors[i % colors.length], midAngleRad };
   });
 
@@ -110,7 +110,7 @@ export const AnimatedPieChart: React.FC<Props> = ({
           });
 
           // Posição no circulo maior (raio do circulo visual é 200, mais um espaço de ~100)
-          const radius = 260; 
+          const radius = 260;
           const x = 300 + Math.cos(slice.midAngleRad) * radius;
           const y = 300 + Math.sin(slice.midAngleRad) * radius;
 

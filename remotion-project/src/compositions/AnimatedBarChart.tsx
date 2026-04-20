@@ -6,6 +6,7 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
+import { Theme, resolveTheme } from "../theme";
 
 interface Dataset {
   label: string;
@@ -19,6 +20,8 @@ interface Props {
   yAxisLabel: string | null;
   labels: string[];
   datasets: Dataset[];
+  theme?: string;
+  backgroundType?: 'dark' | 'light';
 }
 
 export const AnimatedBarChart: React.FC<Props> = ({
@@ -27,9 +30,11 @@ export const AnimatedBarChart: React.FC<Props> = ({
   yAxisLabel,
   labels,
   datasets,
+  theme = "dark",
+  backgroundType,
 }) => {
   const frame = useCurrentFrame();
-  const T = resolveTheme(theme ?? 'dark');
+  const T = resolveTheme(theme, undefined, backgroundType);
   const { fps } = useVideoConfig();
 
   // Se datasets for undefined/null/vazio, use fallback default vazio
@@ -45,12 +50,12 @@ export const AnimatedBarChart: React.FC<Props> = ({
   return (
     <AbsoluteFill
       style={{
-        backgroundColor: "#0d1117",
+        backgroundColor: T.background,
         padding: "80px 100px",
-        fontFamily: "Inter, sans-serif",
+        fontFamily: Theme.typography.fontFamily,
         display: "flex",
         flexDirection: "column",
-        color: "#ffffff"
+        color: T.text
       }}
     >
       {/* Título */}
@@ -70,22 +75,22 @@ export const AnimatedBarChart: React.FC<Props> = ({
 
       {/* Container Principal */}
       <div style={{ display: "flex", flex: 1, marginTop: 40, position: "relative" }}>
-        
+
         {/* Eixo Y */}
         <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", paddingRight: 30, opacity: contentOpacity }}>
-           {yAxisLabel && (
-             <div style={{ position: "absolute", top: -40, left: 0, fontSize: 24, color: "#8b949e", fontWeight: 600 }}>
-               {yAxisLabel}
-             </div>
-           )}
-           <div style={{ fontSize: 24, color: "#8b949e" }}>{safeMaxValue}</div>
-           <div style={{ fontSize: 24, color: "#8b949e" }}>{Math.round(safeMaxValue / 2)}</div>
-           <div style={{ fontSize: 24, color: "#8b949e" }}>0</div>
+          {yAxisLabel && (
+            <div style={{ position: "absolute", top: -40, left: 0, fontSize: 24, color: T.textMuted, fontWeight: 600 }}>
+              {yAxisLabel}
+            </div>
+          )}
+          <div style={{ fontSize: 24, color: T.textMuted }}>{safeMaxValue}</div>
+          <div style={{ fontSize: 24, color: T.textMuted }}>{Math.round(safeMaxValue / 2)}</div>
+          <div style={{ fontSize: 24, color: T.textMuted }}>0</div>
         </div>
 
         {/* Área Gráfico */}
-        <div style={{ flex: 1, borderLeft: "3px solid #30363d", borderBottom: "3px solid #30363d", position: "relative", display: "flex", alignItems: "flex-end", justifyContent: "space-around" }}>
-           
+        <div style={{ flex: 1, borderLeft: `3px solid ${T.grid}`, borderBottom: `3px solid ${T.grid}`, position: "relative", display: "flex", alignItems: "flex-end", justifyContent: "space-around" }}>
+
           {values.map((value, index) => {
             const delay = 15 + index * 5;
             const progress = spring({
@@ -95,7 +100,6 @@ export const AnimatedBarChart: React.FC<Props> = ({
             });
 
             // Altura relativa da barra baseada no maxValue
-            // 700 é um height arbritário representativo pra área útil
             const barHeight = interpolate(progress, [0, 1], [0, 700 * (value / safeMaxValue)]);
 
             return (
@@ -134,13 +138,13 @@ export const AnimatedBarChart: React.FC<Props> = ({
                   }}
                 />
 
-                {/* Label do Eixo X - posicionado fisicamente fora da borderBottom por absolute ou marginTop nfo label */}
+                {/* Label do Eixo X */}
                 <div
                   style={{
                     position: "absolute",
                     bottom: -50,
                     fontSize: 24,
-                    color: "#8b949e",
+                    color: T.textMuted,
                     opacity: interpolate(frame, [delay, delay + 15], [0, 1], {
                       extrapolateRight: "clamp",
                     }),
@@ -155,10 +159,10 @@ export const AnimatedBarChart: React.FC<Props> = ({
           })}
         </div>
       </div>
-      
+
       {/* Label Geral Eixo X */}
       {xAxisLabel && (
-        <div style={{ textAlign: "center", marginTop: 70, fontSize: 30, color: "#8b949e", fontWeight: 600, opacity: contentOpacity }}>
+        <div style={{ textAlign: "center", marginTop: 70, fontSize: 30, color: T.textMuted, fontWeight: 600, opacity: contentOpacity }}>
           {xAxisLabel}
         </div>
       )}

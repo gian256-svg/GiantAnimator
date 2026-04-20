@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+﻿import React, { useMemo } from "react";
 import {
   spring,
   useCurrentFrame,
@@ -8,6 +8,7 @@ import {
   AbsoluteFill,
 } from "remotion";
 import { Theme, resolveTheme } from '../theme';
+import { DynamicBackground } from "../layout/DynamicBackground";
 
 export interface HeatmapCell {
   x: string;
@@ -26,6 +27,7 @@ export interface HeatmapChartProps {
   backgroundColor?: string;
   colors?: string[];
   textColor?: string;
+  bgStyle?: 'none' | 'mesh' | 'grid';
 }
 
 export const HeatmapChart: React.FC<HeatmapChartProps> = ({
@@ -33,9 +35,9 @@ export const HeatmapChart: React.FC<HeatmapChartProps> = ({
   data = [],
   xLabels = [],
   yLabels = [],
-  title,
   subtitle,
   seriesColors,
+  bgStyle = 'none',
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
@@ -51,8 +53,8 @@ export const HeatmapChart: React.FC<HeatmapChartProps> = ({
   // Safe Zone 4K
   const margin = 128;
   const titleHeight = 160;
-  const paddingLeft = 300; // Espaço para labels Y
-  const paddingTop = margin + titleHeight + 80; // Espaço para labels X
+  const paddingLeft = 300; // EspaÃ§o para labels Y
+  const paddingTop = margin + titleHeight + 80; // EspaÃ§o para labels X
   
   const plotWidth = width - paddingLeft - margin;
   const plotHeight = height - paddingTop - margin;
@@ -67,8 +69,13 @@ export const HeatmapChart: React.FC<HeatmapChartProps> = ({
   };
 
   return (
-    <AbsoluteFill style={{ backgroundColor: T.background }}>
-      {/* ZONA 1: Cabeçalho (Regra D2) */}
+    <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
+      <DynamicBackground 
+        style={bgStyle} 
+        baseColor={T.background} 
+        accentColor={resolvedSeriesColors[1]} 
+      />
+      {/* ZONA 1: CabeÃ§alho (Regra D2) */}
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',
         opacity: interpolate(frame, [0, 15], [0, 1])
@@ -88,7 +95,7 @@ export const HeatmapChart: React.FC<HeatmapChartProps> = ({
         }}>{subtitle}</div>}
       </div>
 
-      <svg width={width} height={height} style={{ overflow: 'visible' }}>
+      <svg width={width} height={height} style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}>
         {/* Labels Y (Linhas) */}
         {yLabels.map((lbl, i) => (
           <text
@@ -116,14 +123,14 @@ export const HeatmapChart: React.FC<HeatmapChartProps> = ({
           </text>
         ))}
 
-        {/* Grid de Células */}
+        {/* Grid de CÃ©lulas */}
         {yLabels.map((yLbl, rowIdx) => (
           xLabels.map((xLbl, colIdx) => {
             const cell = data.find(d => d.x === xLbl && d.y === yLbl);
             if (!cell) return null;
 
             const cellIdx = rowIdx * xLabels.length + colIdx;
-            const startFrame = 20 + cellIdx * 0.5; // Stagger ultra rápido
+            const startFrame = 20 + cellIdx * 0.5; // Stagger ultra rÃ¡pido
             const pop = spring({
               frame: frame - startFrame,
               fps,

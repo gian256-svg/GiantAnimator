@@ -53,7 +53,7 @@ export async function auditRenderFidelity(
       const result = await model.generateContent([
         { text: "ESTA É A IMAGEM ORIGINAL DE REFERÊNCIA:" },
         { inlineData: { data: originalB64, mimeType: originalMime } },
-        { text: "ESTE É O RENDER GERADO PELO SISTEMA (PAUSE NO FRAME 240):" },
+        { text: "ESTE É O RENDER GERADO PELO SISTEMA (FRAME 480 — ANIMAÇÃO COMPLETA):" },
         { inlineData: { data: renderedB64, mimeType: renderedMime } },
         { text: prompt }
       ]);

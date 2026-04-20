@@ -1,4 +1,4 @@
-import React, { useId } from "react";
+﻿import React, { useId } from "react";
 import {
   spring,
   useCurrentFrame,
@@ -7,6 +7,7 @@ import {
   AbsoluteFill,
 } from "remotion";
 import { Theme, resolveTheme } from '../theme';
+import { DynamicBackground } from "../layout/DynamicBackground";
 
 export interface SunburstNode {
   label: string;
@@ -22,26 +23,32 @@ export interface SunburstChartProps {
   backgroundColor?: string;
   colors?: string[];
   textColor?: string;
+  bgStyle?: 'none' | 'mesh' | 'grid';
 }
 
 export const SunburstChart: React.FC<SunburstChartProps> = ({
-  theme = 'dark',
+  theme = "dark",
   data,
   title,
   subtitle,
+  backgroundColor,
+  textColor,
+  bgStyle = "none",
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
-  const T = resolveTheme(theme ?? 'dark');
+  const initialT = resolveTheme(theme ?? 'dark');
+  const resolvedBg = backgroundColor ?? initialT.background;
+  const T = resolveTheme(theme ?? 'dark', resolvedBg);
 
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // ÁREA ÚTIL 4K (REGRA GLOBAL)
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
+  // ÃREA ÃšTIL 4K (REGRA GLOBAL)
+  // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
   const cx = width / 2;
   const cy = height / 2;
-  const maxRadius = height * 0.42;
+  const maxRadius = height * 0.28;
   const innerRadius = maxRadius * 0.2;
-  const ringWidth = (maxRadius - innerRadius) / 3; // Supondo 3 níveis médios
+  const ringWidth = (maxRadius - innerRadius) / 3; // Supondo 3 nÃ­veis mÃ©dios
 
   const getSum = (node: SunburstNode): number => {
     if (node.value) return node.value;
@@ -101,12 +108,17 @@ export const SunburstChart: React.FC<SunburstChartProps> = ({
   };
 
   return (
-    <AbsoluteFill style={{ backgroundColor: T.background }}>
+    <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
+      <DynamicBackground 
+        style={bgStyle} 
+        baseColor={T.background} 
+        accentColor={T.colors[0]} 
+      />
       <div style={{ position: 'absolute', top: 50, width: '100%', textAlign: 'center', opacity: interpolate(frame, [0, 15], [0, 1]) }}>
         {title && <div style={{ fontSize: Theme.typography.title.size, fontWeight: Theme.typography.title.weight, color: Theme.typography.title.color, fontFamily: Theme.typography.fontFamily }}>{title}</div>}
         {subtitle && <div style={{ fontSize: Theme.typography.subtitle.size, color: Theme.typography.subtitle.color, fontFamily: Theme.typography.fontFamily }}>{subtitle}</div>}
       </div>
-      <svg width={width} height={height} style={{ overflow: 'visible' }}>
+      <svg width={width} height={height} style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}>
         {renderLevel(data, 1, 0, Math.PI * 2, T.colors[0])}
       </svg>
     </AbsoluteFill>

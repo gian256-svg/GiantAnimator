@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+﻿import React, { useMemo } from "react";
 import {
   spring,
   useCurrentFrame,
@@ -7,6 +7,7 @@ import {
   AbsoluteFill,
 } from "remotion";
 import { Theme, resolveTheme } from '../theme';
+import { DynamicBackground } from "../layout/DynamicBackground";
 
 export interface CandleData {
   label: string;
@@ -24,12 +25,14 @@ export interface CandlestickChartProps {
   backgroundColor?: string;
   colors?: string[];
   textColor?: string;
+  bgStyle?: 'none' | 'mesh' | 'grid';
 }
 
 export const CandlestickChart: React.FC<CandlestickChartProps> = ({
   data: propData = [],
   title,
   subtitle,
+  bgStyle = 'none',
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
@@ -73,8 +76,13 @@ export const CandlestickChart: React.FC<CandlestickChartProps> = ({
   };
 
   return (
-    <AbsoluteFill style={{ backgroundColor: T.background }}>
-      {/* ZONA 1: Cabeçalho (Regra D2) */}
+    <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
+      <DynamicBackground 
+        style={bgStyle} 
+        baseColor={T.background} 
+        accentColor={Theme.colors.semantic.positive} 
+      />
+      {/* ZONA 1: CabeÃ§alho (Regra D2) */}
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',
         opacity: interpolate(frame, [0, 15], [0, 1])
@@ -94,8 +102,8 @@ export const CandlestickChart: React.FC<CandlestickChartProps> = ({
         }}>{subtitle}</div>}
       </div>
 
-      <svg width={width} height={height} style={{ overflow: 'visible' }}>
-        {/* ZONA 2: Gráfico - Gridlines */}
+      <svg width={width} height={height} style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}>
+        {/* ZONA 2: GrÃ¡fico - Gridlines */}
         <g opacity={interpolate(frame, [5, 25], [0, 0.6])}>
           {[0, 0.25, 0.5, 0.75, 1].map((v) => {
             const val = extentY[0] + v * screenRangeY;
@@ -122,7 +130,7 @@ export const CandlestickChart: React.FC<CandlestickChartProps> = ({
           const yOpen = getY(d.open);
           const yClose = getY(d.close);
           
-          // Animação Sequencial
+          // AnimaÃ§Ã£o Sequencial
           const startFrame = 20 + i * 4;
           const wickProgress = spring({
             frame: frame - startFrame,

@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React from "react";
 import {
   spring,
   useCurrentFrame,
@@ -6,7 +6,8 @@ import {
   interpolate,
   AbsoluteFill,
 } from "remotion";
-import { Theme, resolveTheme } from '../theme';
+import { Theme, resolveTheme } from "../theme";
+import { DynamicBackground } from "../layout/DynamicBackground";
 
 export interface RadarSeries {
   label: string;
@@ -19,11 +20,10 @@ export interface RadarChartProps {
   series: RadarSeries[];
   title: string;
   subtitle?: string;
+  theme?: string;
   backgroundColor?: string;
   textColor?: string;
-  theme?: string;
-  colors?: string[];
-  textColor?: string;
+  bgStyle?: 'none' | 'mesh' | 'grid';
 }
 
 export const RadarChart: React.FC<RadarChartProps> = ({
@@ -31,18 +31,23 @@ export const RadarChart: React.FC<RadarChartProps> = ({
   series = [],
   title,
   subtitle,
-  backgroundColor = "#111827",
-  textColor = "#FFFFFF",
+  theme = "dark",
+  backgroundColor,
+  textColor,
+  bgStyle = "none",
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
-  const T = resolveTheme(theme ?? 'dark');
+
+  const initialT = resolveTheme(theme ?? 'dark');
+  const resolvedBg = backgroundColor ?? initialT.background;
+  const T = resolveTheme(theme ?? 'dark', resolvedBg);
+  const finalTextColor = textColor ?? T.text;
 
   // Layout 4K
-  const margin = 200;
-  const cx = width / 2 - 200; // Recuado para dar espaço à legenda
+  const cx = width / 2;
   const cy = height / 2;
-  const radius = Math.min(width, height) * 0.35;
+  const radius = Math.min(width, height) * 0.28;
 
   if (axes.length === 0) return null;
   const numAxes = axes.length;
@@ -53,7 +58,6 @@ export const RadarChart: React.FC<RadarChartProps> = ({
     // Normalização: assumindo inputs de 0 a 100 se houver valores > 1, ou 0 a 1 caso contrário
     // Para o gauntlet, os valores são 0-100 ou 0-10. Vamos detectar o max.
     const maxValInSeries = Math.max(...series.flatMap(s => s.values), 1);
-    const normalize = maxValInSeries > 1.1 ? 100 : 1; 
     // No gauntlet T08, os valores são 80, 70 etc -> normalize 100.
     const actualNormalize = maxValInSeries > 10 ? 100 : (maxValInSeries > 1 ? 10 : 1);
     
@@ -70,11 +74,16 @@ export const RadarChart: React.FC<RadarChartProps> = ({
   };
 
   return (
-    <AbsoluteFill style={{ backgroundColor, color: textColor, fontFamily: "sans-serif" }}>
+    <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
+      <DynamicBackground 
+        style={bgStyle} 
+        baseColor={resolvedBg} 
+        accentColor={T.colors[0]} 
+      />
       {/* TÍTULO */}
       <div style={{
         position: "absolute", top: 60, width: "100%", textAlign: "center",
-        fontSize: 84, fontWeight: 800, opacity: interpolate(frame, [0, 20], [0, 1])
+        fontSize: 84, fontWeight: 800, opacity: interpolate(frame, [0, 20], [0, 1]), color: textColor
       }}>
         {title}
       </div>
@@ -117,7 +126,7 @@ export const RadarChart: React.FC<RadarChartProps> = ({
           const progress = spring({
             frame: frame - 30 - (si * 15),
             fps,
-            config: { damping: 80, stiffness: 200, overshoot_clamp: true }
+            config: { damping: 80, stiffness: 200, overshootClamping: true }
           });
           if (progress <= 0) return null;
 

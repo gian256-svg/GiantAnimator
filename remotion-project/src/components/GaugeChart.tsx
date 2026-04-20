@@ -1,4 +1,4 @@
-import React, { useId } from "react";
+﻿import React, { useId } from "react";
 import {
   spring,
   useCurrentFrame,
@@ -7,6 +7,7 @@ import {
   AbsoluteFill,
 } from "remotion";
 import { Theme, resolveTheme } from '../theme';
+import { DynamicBackground } from "../layout/DynamicBackground";
 
 export interface GaugeChartProps {
   value: number;
@@ -17,6 +18,7 @@ export interface GaugeChartProps {
   backgroundColor?: string;
   colors?: string[];
   textColor?: string;
+  bgStyle?: 'none' | 'mesh' | 'grid';
 }
 
 export const GaugeChart: React.FC<GaugeChartProps> = ({
@@ -27,6 +29,7 @@ export const GaugeChart: React.FC<GaugeChartProps> = ({
   theme = 'dark',
   backgroundColor,
   textColor,
+  bgStyle = 'none',
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
@@ -56,14 +59,19 @@ export const GaugeChart: React.FC<GaugeChartProps> = ({
     return `M ${s.x} ${s.y} A ${r} ${r} 0 0 1 ${e.x} ${e.y}`;
   };
 
-  // Determina cor do ponteiro baseada no valor (UI/UX: Red→Yellow→Green)
+  // Determina cor do ponteiro baseada no valor (UI/UX: Redâ†’Yellowâ†’Green)
   const needleColor =
-    finalValue < 33 ? '#ef4444'   // vermelho — baixo desempenho
-    : finalValue < 66 ? '#f59e0b'  // âmbar  — médio
-    : '#22c55e';                    // verde   — alto
+    finalValue < 33 ? '#ef4444'   // vermelho â€” baixo desempenho
+    : finalValue < 66 ? '#f59e0b'  // Ã¢mbar  â€” mÃ©dio
+    : '#22c55e';                    // verde   â€” alto
 
   return (
-    <AbsoluteFill style={{ backgroundColor: resolvedBg }}>
+    <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
+      <DynamicBackground 
+        style={bgStyle} 
+        baseColor={resolvedBg} 
+        accentColor={needleColor} 
+      />
       <div style={{ position: 'absolute', top: 50, width: '100%', textAlign: 'center', opacity: interpolate(frame, [0, 15], [0, 1]) }}>
         {title && (
           <div style={{
@@ -86,23 +94,23 @@ export const GaugeChart: React.FC<GaugeChartProps> = ({
         )}
       </div>
 
-      <svg width={width} height={height} style={{ overflow: 'visible' }}>
+      <svg width={width} height={height} style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}>
         <defs>
-          {/* ── Gradiente Red→Yellow→Green para o arco de fundo ── */}
+          {/* â”€â”€ Gradiente Redâ†’Yellowâ†’Green para o arco de fundo â”€â”€ */}
           <linearGradient id={`gaugeTrack-${instanceId}`} x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%"   stopColor="#22c55e" stopOpacity={0.35} />
             <stop offset="50%"  stopColor="#f59e0b" stopOpacity={0.35} />
             <stop offset="100%" stopColor="#ef4444" stopOpacity={0.35} />
           </linearGradient>
 
-          {/* ── Gradiente do arco de valor (dinâmico pela cor do ponteiro) ── */}
+          {/* â”€â”€ Gradiente do arco de valor (dinÃ¢mico pela cor do ponteiro) â”€â”€ */}
           <linearGradient id={`gaugeValue-${instanceId}`} x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%"   stopColor="#22c55e" />
             <stop offset="50%"  stopColor="#f59e0b" />
             <stop offset="100%" stopColor="#ef4444" />
           </linearGradient>
 
-          {/* ── Glow filter no ponteiro ── */}
+          {/* â”€â”€ Glow filter no ponteiro â”€â”€ */}
           <filter id={`gaugeGlow-${instanceId}`} x="-20%" y="-20%" width="140%" height="140%">
             <feGaussianBlur stdDeviation="8" result="blur" />
             <feMerge>
@@ -112,7 +120,7 @@ export const GaugeChart: React.FC<GaugeChartProps> = ({
           </filter>
         </defs>
 
-        {/* ── Track Arc (fundo) ── */}
+        {/* â”€â”€ Track Arc (fundo) â”€â”€ */}
         <path
           d={getPath(radius, -90, 90)}
           fill="none"
@@ -121,7 +129,7 @@ export const GaugeChart: React.FC<GaugeChartProps> = ({
           strokeLinecap="round"
         />
 
-        {/* ── Value Arc ── */}
+        {/* â”€â”€ Value Arc â”€â”€ */}
         {finalValue > 0 && (
           <path
             d={getPath(radius, -90, rotation)}
@@ -132,7 +140,7 @@ export const GaugeChart: React.FC<GaugeChartProps> = ({
           />
         )}
 
-        {/* ── Needle ── */}
+        {/* â”€â”€ Needle â”€â”€ */}
         <g transform={`rotate(${rotation}, ${cx}, ${cy})`} filter={`url(#gaugeGlow-${instanceId})`}>
           <path
             d={`M ${cx - 14} ${cy} L ${cx + 14} ${cy} L ${cx} ${cy - radius - 30} Z`}
@@ -141,7 +149,7 @@ export const GaugeChart: React.FC<GaugeChartProps> = ({
           <circle cx={cx} cy={cy} r={32} fill={needleColor} stroke={resolvedBg} strokeWidth={8} />
         </g>
 
-        {/* ── Valor Central ── */}
+        {/* â”€â”€ Valor Central â”€â”€ */}
         <text
           x={cx} y={cy + 120}
           textAnchor="middle"
@@ -168,7 +176,7 @@ export const GaugeChart: React.FC<GaugeChartProps> = ({
           {label}
         </text>
 
-        {/* ── Rótulos dos extremos ── */}
+        {/* â”€â”€ RÃ³tulos dos extremos â”€â”€ */}
         {(() => {
           const low  = pToC(radius + strokeWidth * 0.8, -90);
           const high = pToC(radius + strokeWidth * 0.8,  90);

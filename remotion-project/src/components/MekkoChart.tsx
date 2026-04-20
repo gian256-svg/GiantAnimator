@@ -1,4 +1,4 @@
-import React, { useMemo, useId } from "react";
+﻿import React, { useMemo, useId } from "react";
 import {
   spring,
   useCurrentFrame,
@@ -7,6 +7,7 @@ import {
   AbsoluteFill,
 } from "remotion";
 import { Theme, resolveTheme } from '../theme';
+import { DynamicBackground } from "../layout/DynamicBackground";
 
 export interface MekkoSegment {
   label: string;
@@ -27,14 +28,15 @@ export interface MekkoChartProps {
   theme?: string;
   colors?: string[];
   textColor?: string;
+  bgStyle?: 'none' | 'mesh' | 'grid';
 }
 
 export const MekkoChart: React.FC<MekkoChartProps> = ({
   theme = 'dark',
   data = [],
-  title,
   subtitle,
   backgroundColor,
+  bgStyle = 'none',
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
@@ -63,8 +65,13 @@ export const MekkoChart: React.FC<MekkoChartProps> = ({
   }, [data, totalMarketValue, plotWidth, margin]);
 
   return (
-    <AbsoluteFill style={{ backgroundColor: backgroundColor ?? T.background }}>
-      {/* ZONA 1 — Cabeçalho */}
+    <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
+      <DynamicBackground 
+        style={bgStyle} 
+        baseColor={backgroundColor ?? T.background} 
+        accentColor={T.colors[0]} 
+      />
+      {/* ZONA 1 â€” CabeÃ§alho */}
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',
         opacity: interpolate(frame, [0, 15], [0, 1])
@@ -84,7 +91,7 @@ export const MekkoChart: React.FC<MekkoChartProps> = ({
         }}>{subtitle}</div>}
       </div>
 
-      <svg width={width} height={height} style={{ overflow: 'visible' }}>
+      <svg width={width} height={height} style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}>
         <defs>
           {data[0]?.segments.map((_, j) => (
             <linearGradient key={j} id={`mekkoGrad-${j}-${instanceId}`} x1="0" y1="0" x2="0" y2="1">

@@ -8,6 +8,7 @@ import {
 } from "remotion";
 import { Theme, resolveTheme, formatValue } from "../theme";
 import { DynamicBackground } from "../layout/DynamicBackground";
+import { SmartCallout } from "../components/SmartCallout";
 
 export interface PieSlice {
   label: string;
@@ -26,7 +27,9 @@ export interface PieChartProps {
   showValueLabels?: boolean;
   unit?: string;
   animation?: any;
-  bgStyle?: any;
+  bgStyle?: 'none' | 'mesh' | 'grid';
+  backgroundType?: 'dark' | 'light';
+  includeCallouts?: boolean;
 }
 
 export const PieChart: React.FC<PieChartProps> = (props) => {
@@ -37,6 +40,9 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
     showValueLabels = true,
     unit = "",
     theme = "dark",
+    bgStyle = "none",
+    includeCallouts = false,
+    backgroundType,
   } = props;
 
   const frame = useCurrentFrame();
@@ -44,7 +50,7 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
   const instanceId = useId().replace(/:/g, "");
 
   // 1. Resolve Tema e Cores
-  const T = resolveTheme(theme);
+  const T = resolveTheme(theme, props.backgroundColor, backgroundType);
   const resolvedBg = props.backgroundColor ?? T.background;
   const resolvedText = props.textColor ?? T.text;
   
@@ -85,13 +91,21 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
 
   // ── Layout (Zonas 1, 2, 3) ──
   const TITLE_SIZE = fs(38);
-  const LEGEND_SIZE = fs(22); // Tamanho seguro para 4K UHD
+  const LEGEND_SIZE = fs(18); // Tamanho reduzido para evitar transbordamento (Anti-Colisão)
   
   const centerX = width / 2;
-  // Agora centralizado verticalmente (0.5) para preencher melhor o espaço
-  const centerY = height * 0.50; 
-  // Aumento do raio para preencher o canvas 4K com mais autoridade
-  const maxRadius = Math.min(width * 0.35, height * 0.32);
+  
+  // 🚀 CENTRO DE GRAVIDADE DINÂMICO (Regra 4K Anti-Colisão)
+  // A legenda "empilha" para cima (bottom anchor + flexWrap = cresce verticalmente).
+  // Estimamos o número de linhas baseado em ~4 legendas longas por linha.
+  const estimatedLegendRows = Math.max(1, Math.ceil(slices.length / 4));
+  // Puxa o gráfico para cima proporcionalmente à grossura da legenda
+  const gravityShift = estimatedLegendRows * fs(30); 
+  // Usa 48% como base + deslocamento dinâmico
+  const centerY = (height * 0.48) - gravityShift; 
+  
+  // Raio Seguro: 28% da altura para preservar títulos e legendas
+  const maxRadius = Math.min(width * 0.28, height * 0.28);
   const radius = maxRadius;
 
   // Renderização de Slices
@@ -104,9 +118,9 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
       flexDirection: 'column',
     }}>
       <DynamicBackground 
-        style={props.bgStyle} 
         baseColor={resolvedBg} 
         accentColor={sliceColors[0]} 
+        backgroundType={backgroundType}
       />
       
       {/* ── HEADER ── */}
@@ -205,11 +219,40 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
         })}
       </svg>
 
+      {/* ── SMART CALLOUT (Apenas para a maior fatia) ── */}
+      {includeCallouts && slices.length > 0 && (() => {
+        let maxIdx = 0;
+        let maxVal = -1;
+        let currentIterAngle = -Math.PI / 2;
+        let largestMidAngle = 0;
+        
+        slices.forEach((s, idx) => {
+          if (s.value > maxVal) { maxVal = s.value; maxIdx = idx; largestMidAngle = currentIterAngle + s.angle / 2; }
+          currentIterAngle += s.angle;
+        });
+
+        const largestSlice = slices[maxIdx];
+        const labelDist = radius * 1.05;
+        const calloutX = centerX + labelDist * Math.cos(largestMidAngle);
+        const calloutY = centerY + labelDist * Math.sin(largestMidAngle);
+
+        return (
+          <SmartCallout
+            x={calloutX}
+            y={calloutY}
+            label={largestSlice.label}
+            value={formatValue(largestSlice.value, unit)}
+            theme={theme}
+            delay={160} // Surge no final do Ato 2 / Início do Ato 3
+            color={largestSlice.color || sliceColors[maxIdx % sliceColors.length]}
+          />
+        );
+      })()}
 
       {/* ── LEGEND (ZONA 3) ── */}
       <div style={{
-          position: "absolute", bottom: height * 0.08, left: width * 0.1, right: width * 0.1,
-          display: "flex", justifyContent: "center", alignContent: "flex-end", flexWrap: "wrap", gap: fs(30),
+          position: "absolute", bottom: height * 0.04, left: width * 0.05, right: width * 0.05,
+          display: "flex", justifyContent: "center", alignItems: "center", flexWrap: "wrap", gap: fs(24),
           opacity: interpolate(frame, [40, 60], [0, 1]),
           pointerEvents: 'none'
         }}

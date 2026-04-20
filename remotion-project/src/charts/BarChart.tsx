@@ -8,6 +8,7 @@ import {
 } from "remotion";
 import { Theme, resolveTheme, formatValue } from "../theme";
 import { DynamicBackground } from "../layout/DynamicBackground";
+import { SmartCallout } from "../components/SmartCallout";
 
 interface BarChartProps {
   data?: any;
@@ -22,6 +23,8 @@ interface BarChartProps {
   unit?: string;
   showValueLabels?: boolean;
   bgStyle?: any;
+  backgroundType?: 'dark' | 'light';
+  annotations?: any[];
 }
 
 export const BarChart: React.FC<BarChartProps> = (props) => {
@@ -37,6 +40,8 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
     textColor,
     unit = '',
     showValueLabels = false,
+    annotations = [],
+    backgroundType,
   } = props;
 
   const frame = useCurrentFrame();
@@ -44,7 +49,7 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
   const instanceId = useId().replace(/:/g, "");
 
   // Resolve tema
-  const T = resolveTheme(theme);
+  const T = resolveTheme(theme, backgroundColor, backgroundType);
   const resolvedBg    = backgroundColor ?? T.background;
   const resolvedText  = textColor       ?? T.text;
   const resolvedColors = colors && colors.length > 0 ? colors : [...T.colors];
@@ -111,9 +116,9 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
   return (
     <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
       <DynamicBackground 
-        style={props.bgStyle} 
         baseColor={resolvedBg} 
         accentColor={resolvedColors[0]} 
+        backgroundType={backgroundType}
       />
       <svg width={width} height={height} style={{ position: "absolute", top: 0, left: 0 }}>
         <defs>
@@ -183,6 +188,34 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
           })
         ))}
       </svg>
+
+      {/* ANOTAÇÕES INTELIGENTES (SMART CALLOUTS) */}
+      {annotations.map((ann, i) => {
+        if (!ann || ann.index === undefined || !normalizedSeries[ann.seriesIndex || 0]) return null;
+        
+        const sIdx = ann.seriesIndex || 0;
+        const gIdx = Math.min(Math.max(0, ann.index), xAxisLabels.length - 1);
+        
+        const val = normalizedSeries[sIdx].data[gIdx] || 0;
+        
+        const groupX = plotLeft + gIdx * categoryWidth + (categoryWidth * groupGap) / 2;
+        const bX = groupX + sIdx * (barWidth * (1 + innerGap));
+        const calloutX = bX + barWidth / 2;
+        const calloutY = plotTop + plotHeight - ((val - dataMin) / range) * plotHeight;
+
+        return (
+          <SmartCallout
+            key={`ann-${i}`}
+            x={calloutX}
+            y={calloutY}
+            label={ann.label}
+            value={ann.value !== undefined ? formatValue(ann.value, displayUnit) : undefined}
+            theme={theme}
+            delay={140 + i * 15}
+            color={T.colors[0]}
+          />
+        );
+      })}
 
       {/* LEGEND */}
       {seriesCount > 1 && (

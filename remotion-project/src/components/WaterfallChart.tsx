@@ -1,4 +1,4 @@
-import React, { useMemo, useId } from "react";
+﻿import React, { useMemo, useId } from "react";
 import {
   spring,
   useCurrentFrame,
@@ -7,6 +7,7 @@ import {
   AbsoluteFill,
 } from "remotion";
 import { Theme, resolveTheme } from '../theme';
+import { DynamicBackground } from "../layout/DynamicBackground";
 
 export interface WaterfallPoint {
   label: string;
@@ -21,6 +22,7 @@ export interface WaterfallChartProps {
   backgroundColor?: string;
   colors?: string[];
   textColor?: string;
+  bgStyle?: 'none' | 'mesh' | 'grid';
 }
 
 export const WaterfallChart: React.FC<WaterfallChartProps> = ({
@@ -28,6 +30,7 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
   title,
   subtitle,
   theme = 'dark',
+  bgStyle = 'none',
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
@@ -101,8 +104,13 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
   };
 
   return (
-    <AbsoluteFill style={{ backgroundColor: T.background }}>
-      {/* ZONA 1: Cabeçalho (Regra D2) */}
+    <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
+      <DynamicBackground 
+        style={bgStyle} 
+        baseColor={T.background} 
+        accentColor={T.colors[0]} 
+      />
+      {/* ZONA 1: CabeÃ§alho (Regra D2) */}
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',
         opacity: interpolate(frame, [0, 15], [0, 1])
@@ -122,7 +130,7 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
         }}>{subtitle}</div>}
       </div>
 
-      <svg width={width} height={height} style={{ overflow: 'visible' }}>
+      <svg width={width} height={height} style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}>
         <defs>
           {waterfallData.map((d, i) => (
             <linearGradient key={i} id={`waterGrad-${i}-${instanceId}`} x1="0" y1="0" x2="0" y2="1">
@@ -132,7 +140,7 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
           ))}
         </defs>
 
-        {/* ZONA 2: Gráfico - Gridlines */}
+        {/* ZONA 2: GrÃ¡fico - Gridlines */}
         <g opacity={interpolate(frame, [5, 25], [0, 0.6])}>
           {[0, 0.25, 0.5, 0.75, 1].map((v) => {
             const val = minY + v * rangeY;
@@ -153,7 +161,7 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
         {waterfallData.map((d, i) => {
           const barX = chartLeft + i * categoryWidth + (categoryWidth * barGap) / 2;
           
-          // Animação Sequencial (Stagger 8f)
+          // AnimaÃ§Ã£o Sequencial (Stagger 8f)
           const progress = spring({
             frame: frame - 20 - (i * 8),
             fps,

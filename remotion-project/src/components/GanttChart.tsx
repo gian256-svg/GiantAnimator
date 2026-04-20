@@ -1,4 +1,4 @@
-import React, { useId } from "react";
+﻿import React, { useId } from "react";
 import {
   spring,
   useCurrentFrame,
@@ -7,6 +7,7 @@ import {
   AbsoluteFill,
 } from "remotion";
 import { Theme, resolveTheme } from '../theme';
+import { DynamicBackground } from "../layout/DynamicBackground";
 
 export interface GanttTask {
   id: string;
@@ -24,6 +25,7 @@ export interface GanttChartProps {
   totalDays?: number;
   backgroundColor?: string;
   theme?: string;
+  bgStyle?: 'none' | 'mesh' | 'grid';
 }
 
 export const GanttChart: React.FC<GanttChartProps> = ({
@@ -33,6 +35,7 @@ export const GanttChart: React.FC<GanttChartProps> = ({
   totalDays: propTotalDays = 0,
   backgroundColor,
   theme = 'dark',
+  bgStyle = 'none',
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
@@ -53,8 +56,13 @@ export const GanttChart: React.FC<GanttChartProps> = ({
   const getDayX = (day: number) => sidebarWidth + margin + (day / totalDays) * plotWidth;
 
   return (
-    <AbsoluteFill style={{ backgroundColor: backgroundColor ?? T.background }}>
-      {/* ZONA 1 — Cabeçalho */}
+    <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
+      <DynamicBackground 
+        style={bgStyle} 
+        baseColor={backgroundColor ?? T.background} 
+        accentColor={T.colors[0]} 
+      />
+      {/* ZONA 1 â€” CabeÃ§alho */}
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',
         opacity: interpolate(frame, [0, 15], [0, 1])
@@ -74,7 +82,7 @@ export const GanttChart: React.FC<GanttChartProps> = ({
         }}>{subtitle}</div>}
       </div>
 
-      <svg width={width} height={height} style={{ overflow: 'visible' }}>
+      <svg width={width} height={height} style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}>
         <defs>
           {tasks.map((_, i) => (
             <linearGradient key={i} id={`ganttGrad-${i}-${instanceId}`} x1="0" y1="0" x2="1" y2="0">

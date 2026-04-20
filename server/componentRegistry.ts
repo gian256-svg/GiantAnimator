@@ -11,15 +11,15 @@ export const COMPONENT_REGISTRY: ComponentEntry[] = [
     id: "BarChart",
     aliases: ["vertical bar", "colunas", "barras verticais"],
     description: "Gráfico de colunas verticais (Vertical).",
-    propsSchema: "data: { label: string, value: number }[], title?: string, backgroundColor?: string, textColor?: string, seriesColors?: string[]",
-    exampleProps: { title: "Vendas", data: [{ label: "A", value: 10 }] }
+    propsSchema: "data: { label: string, value: number }[], title?: string, backgroundColor?: string, textColor?: string, seriesColors?: string[], bgStyle?: 'none'|'mesh'|'grid', showValueLabels?: boolean",
+    exampleProps: { title: "Vendas", data: [{ label: "A", value: 10 }], bgStyle: "mesh" }
   },
   {
     id: "LineChart",
     aliases: ["line chart", "linha", "tendência"],
     description: "Gráfico de linha simples ou múltipla.",
-    propsSchema: "labels: string[], series: { label: string, data: number[] }[], title?: string, backgroundColor?: string, textColor?: string, seriesColors?: string[]",
-    exampleProps: { title: "Tendência", labels: ["Jan", "Fev"], series: [{ label: "Q1", data: [10, 20] }] }
+    propsSchema: "labels: string[], series: { label: string, data: number[] }[], title?: string, backgroundColor?: string, textColor?: string, seriesColors?: string[], bgStyle?: 'none'|'mesh'|'grid', showValueLabels?: boolean",
+    exampleProps: { title: "Tendência", labels: ["Jan", "Fev"], series: [{ label: "Q1", data: [10, 20] }], bgStyle: "mesh" }
   },
   {
     id: "PieChart",

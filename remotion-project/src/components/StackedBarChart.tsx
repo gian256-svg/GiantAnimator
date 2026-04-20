@@ -1,4 +1,4 @@
-import React, { useId, useMemo } from "react";
+﻿import React, { useId, useMemo } from "react";
 import {
   spring,
   useCurrentFrame,
@@ -7,6 +7,7 @@ import {
   interpolate
 } from "remotion";
 import { Theme, resolveTheme } from '../theme';
+import { DynamicBackground } from "../layout/DynamicBackground";
 
 export interface StackedBarData {
   label: string;
@@ -22,6 +23,7 @@ export interface StackedBarChartProps {
   theme?: string;
   colors?: string[];
   textColor?: string;
+  bgStyle?: 'none' | 'mesh' | 'grid';
 }
 
 export const StackedBarChart: React.FC<StackedBarChartProps> = ({
@@ -30,11 +32,16 @@ export const StackedBarChart: React.FC<StackedBarChartProps> = ({
   title,
   subtitle,
   backgroundColor,
+  textColor,
   theme = 'dark',
+  bgStyle = 'none',
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
-  const T = resolveTheme(theme ?? 'dark');
+  
+  const initialT = resolveTheme(theme ?? 'dark');
+  const resolvedBg = backgroundColor ?? initialT.background;
+  const T = resolveTheme(theme ?? 'dark', resolvedBg);
   const instanceId = useId().replace(/:/g, "");
 
   // Safe Zone 4K
@@ -54,7 +61,12 @@ export const StackedBarChart: React.FC<StackedBarChartProps> = ({
   if (data.length === 0) return null;
 
   return (
-    <AbsoluteFill style={{ backgroundColor: backgroundColor ?? T.background }}>
+    <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
+      <DynamicBackground 
+        style={bgStyle} 
+        baseColor={resolvedBg} 
+        accentColor={T.colors[0]} 
+      />
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',
         opacity: interpolate(frame, [0, 15], [0, 1])
@@ -63,7 +75,7 @@ export const StackedBarChart: React.FC<StackedBarChartProps> = ({
         {subtitle && <div style={{ fontSize: Theme.typography.subtitle.size, color: T.textMuted, fontFamily: Theme.typography.fontFamily }}>{subtitle}</div>}
       </div>
 
-      <svg width={width} height={height} style={{ overflow: 'visible' }}>
+      <svg width={width} height={height} style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}>
         <defs>
           {seriesLabels.map((_, i) => (
             <linearGradient key={i} id={`stackedGrad-${i}-${instanceId}`} x1="0" y1="0" x2="0" y2="1">

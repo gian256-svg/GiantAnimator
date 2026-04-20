@@ -7,6 +7,7 @@ import {
   AbsoluteFill,
 } from "remotion";
 import { Theme, resolveTheme } from '../theme';
+import { DynamicBackground } from "../layout/DynamicBackground";
 
 export interface ComparativeItem {
   label: string;
@@ -24,6 +25,8 @@ export interface ComparativeBarChartProps {
   theme?: string;
   colors?: string[];
   textColor?: string;
+  bgStyle?: 'none' | 'mesh' | 'grid';
+  backgroundType?: 'dark' | 'light';
 }
 
 export const ComparativeBarChart: React.FC<ComparativeBarChartProps> = ({
@@ -34,10 +37,12 @@ export const ComparativeBarChart: React.FC<ComparativeBarChartProps> = ({
   title,
   subtitle,
   backgroundColor,
+  bgStyle = 'none',
+  backgroundType,
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
-  const T = resolveTheme(theme ?? 'dark');
+  const T = resolveTheme(theme ?? 'dark', backgroundColor, backgroundType);
   const instanceId = useId().replace(/:/g, "");
 
   // Safe Zone 4K
@@ -63,8 +68,13 @@ export const ComparativeBarChart: React.FC<ComparativeBarChartProps> = ({
   const barGap = (plotHeight / data.length) * 0.3;
 
   return (
-    <AbsoluteFill style={{ backgroundColor: backgroundColor ?? T.background }}>
-      {/* ZONA 1 — Cabeçalho */}
+    <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
+      <DynamicBackground 
+        baseColor={backgroundColor ?? T.background} 
+        accentColor={T.colors[0]} 
+        backgroundType={backgroundType}
+      />
+      {/* ZONA 1 â€” CabeÃ§alho */}
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',
         opacity: interpolate(frame, [0, 15], [0, 1])
@@ -84,7 +94,7 @@ export const ComparativeBarChart: React.FC<ComparativeBarChartProps> = ({
         }}>{subtitle}</div>}
       </div>
 
-      <svg width={width} height={height} style={{ overflow: 'visible' }}>
+      <svg width={width} height={height} style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}>
         <defs>
           <linearGradient id={`leftGrad-${instanceId}`} x1="1" y1="0" x2="0" y2="0">
             <stop offset="0%" stopColor={T.colors[0]} />

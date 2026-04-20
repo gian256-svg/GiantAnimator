@@ -1,0 +1,72 @@
+{
+  "componentId": "PieChart",
+  "suggestedName": "StreamingServiceMarketShareDistribution",
+  "reasoning": "O gráfico é um gráfico de pizza que ilustra a distribuição percentual do market share de diferentes serviços de streaming. Netflix detém a maior fatia com 34%, seguido por 'Outros' serviços com 23%, e YouTube com 20%. Hulu representa 11%, Amazon 8%, e Disney+ a menor fatia com 4%. A soma de todas as porcentagens é 100%. A calibração de eixos não é aplicável para este tipo de gráfico.",
+  "props": {
+    "data": [
+      {
+        "label": "Netflix",
+        "value": 34
+      },
+      {
+        "label": "YouTube",
+        "value": 20
+      },
+      {
+        "label": "Hulu",
+        "value": 11
+      },
+      {
+        "label": "Amazon",
+        "value": 8
+      },
+      {
+        "label": "Disney+",
+        "value": 4
+      },
+      {
+        "label": "Other",
+        "value": 23
+      }
+    ],
+    "seriesColors": [
+      "#022359",
+      "#007bff",
+      "#66aaff",
+      "#a8c4e0",
+      "#d9e6f2",
+      "#1b2e4b"
+    ],
+    "backgroundColor": "#f8f8f8",
+    "textColor": "#333333",
+    "series": [
+      {
+        "label": "Série 1",
+        "data": [
+          34,
+          20,
+          11,
+          8,
+          4,
+          23
+        ]
+      }
+    ],
+    "labels": [
+      "Netflix",
+      "YouTube",
+      "Hulu",
+      "Amazon",
+      "Disney+",
+      "Other"
+    ],
+    "colors": [
+      "#022359",
+      "#007bff",
+      "#66aaff",
+      "#a8c4e0",
+      "#d9e6f2",
+      "#1b2e4b"
+    ]
+  }
+}

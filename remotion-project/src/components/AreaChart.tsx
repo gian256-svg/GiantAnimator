@@ -7,6 +7,7 @@ import {
   AbsoluteFill,
 } from "remotion";
 import { Theme, resolveTheme } from '../theme';
+import { DynamicBackground } from "../layout/DynamicBackground";
 
 export interface AreaChartProps {
   data?: { label: string; value: number }[];
@@ -18,6 +19,7 @@ export interface AreaChartProps {
   labels?: string[];
   title: string;
   subtitle?: string;
+  bgStyle?: 'none' | 'mesh' | 'grid';
 }
 
 const format = (n: number) => {
@@ -30,9 +32,9 @@ export const AreaChart: React.FC<AreaChartProps> = ({
   theme = 'dark',
   data = [],
   series,
-  labels,
   title,
   subtitle,
+  bgStyle = 'none',
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
@@ -82,7 +84,12 @@ export const AreaChart: React.FC<AreaChartProps> = ({
   const stableCount = progress >= 1 ? xAxisLabels.length : rawCount;
 
   return (
-    <AbsoluteFill style={{ backgroundColor: T.background }}>
+    <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
+      <DynamicBackground 
+        style={bgStyle} 
+        baseColor={T.background} 
+        accentColor={T.colors[0]} 
+      />
       {/* HEADER */}
       <div style={{ position: "absolute", top: 40, width: "100%", textAlign: "center", opacity: interpolate(frame, [0, 15], [0, 1]) }}>
         {title && <div style={{ fontSize: Theme.typography.title.size, fontWeight: Theme.typography.title.weight, color: Theme.typography.title.color, fontFamily: Theme.typography.fontFamily }}>{title}</div>}

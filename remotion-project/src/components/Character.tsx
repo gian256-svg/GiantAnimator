@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { useCurrentFrame } from 'remotion';
 
 export const Character: React.FC<{
@@ -20,7 +20,7 @@ export const Character: React.FC<{
 
   if (type === 'director') {
     content = (
-      <svg width="250" height="350" viewBox="0 0 100 140" style={{ overflow: 'visible' }}>
+      <svg width="250" height="350" viewBox="0 0 100 140" style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}>
         {/* Head */}
         <circle cx="65" cy="30" r="14" fill={color} />
         {/* Body leaning back slightly */}
@@ -40,7 +40,7 @@ export const Character: React.FC<{
     );
   } else if (type === 'camera_operator') {
     content = (
-      <svg width="250" height="350" viewBox="0 0 100 140" style={{ overflow: 'visible' }}>
+      <svg width="250" height="350" viewBox="0 0 100 140" style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}>
         {/* Head */}
         <circle cx="45" cy="20" r="14" fill={color} />
         {/* Body */}
@@ -53,7 +53,7 @@ export const Character: React.FC<{
     );
   } else if (type === 'boom_operator') {
     content = (
-      <svg width="250" height="350" viewBox="0 0 100 140" style={{ overflow: 'visible' }}>
+      <svg width="250" height="350" viewBox="0 0 100 140" style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}>
         <circle cx="45" cy="20" r="14" fill={color} />
         <rect x="30" y="40" width="30" height="50" rx="8" fill={color} />
         <path d="M 35,90 L 30,140 M 55,90 L 60,140" stroke={color} strokeWidth="8" strokeLinecap="round" fill="none" />
@@ -63,7 +63,7 @@ export const Character: React.FC<{
     );
   } else if (type === 'lighting_crew') {
     content = (
-      <svg width="250" height="350" viewBox="0 0 100 140" style={{ overflow: 'visible' }}>
+      <svg width="250" height="350" viewBox="0 0 100 140" style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}>
         <circle cx="50" cy="20" r="14" fill={color} />
         <rect x="35" y="40" width="30" height="50" rx="8" fill={color} />
         <path d="M 40,90 L 40,140 M 60,90 L 60,140" stroke={color} strokeWidth="8" strokeLinecap="round" fill="none" />

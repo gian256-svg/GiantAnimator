@@ -7,6 +7,7 @@ import {
   spring,
 } from "remotion";
 import { Theme, resolveTheme } from "../theme";
+import { DynamicBackground } from "../layout/DynamicBackground";
 
 export interface BubbleChartProps {
   title: string;
@@ -22,6 +23,7 @@ export interface BubbleChartProps {
   backgroundColor?: string;
   colors?: string[];
   textColor?: string;
+  bgStyle?: 'none' | 'mesh' | 'grid';
 }
 
 export const BubbleChart: React.FC<BubbleChartProps> = ({
@@ -33,6 +35,7 @@ export const BubbleChart: React.FC<BubbleChartProps> = ({
   theme = "dark",
   backgroundColor,
   textColor,
+  bgStyle = 'none',
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
@@ -68,7 +71,12 @@ export const BubbleChart: React.FC<BubbleChartProps> = ({
   const getRenderR = (r: number) => minRender + ((r / maxR) * (maxRender - minRender));
 
   return (
-    <AbsoluteFill style={{ backgroundColor: resolvedBg, color: resolvedText, fontFamily: Theme.typography.fontFamily }}>
+    <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
+      <DynamicBackground 
+        style={bgStyle} 
+        baseColor={resolvedBg} 
+        accentColor={T.colors[0]} 
+      />
       {/* 1. TÍTULO */}
       <div style={{
         position: "absolute", top: 60, width: "100%", textAlign: "center",

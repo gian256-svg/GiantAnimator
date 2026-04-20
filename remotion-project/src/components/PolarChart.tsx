@@ -1,4 +1,4 @@
-import React, { useId } from "react";
+﻿import React, { useId } from "react";
 import {
   spring,
   useCurrentFrame,
@@ -7,6 +7,7 @@ import {
   AbsoluteFill,
 } from "remotion";
 import { Theme, resolveTheme } from '../theme';
+import { DynamicBackground } from "../layout/DynamicBackground";
 
 export interface PolarData {
   label: string;
@@ -21,6 +22,7 @@ export interface PolarChartProps {
   backgroundColor?: string;
   colors?: string[];
   textColor?: string;
+  bgStyle?: 'none' | 'mesh' | 'grid';
 }
 
 export const PolarChart: React.FC<PolarChartProps> = ({
@@ -28,18 +30,19 @@ export const PolarChart: React.FC<PolarChartProps> = ({
   data = [],
   title,
   subtitle,
+  bgStyle = 'none',
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
   const T = resolveTheme(theme ?? 'dark');
   const instanceId = useId().replace(/:/g, "");
 
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // ÁREA ÚTIL 4K (REGRA GLOBAL)
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
+  // ÃREA ÃšTIL 4K (REGRA GLOBAL)
+  // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
   const cx = width / 2;
   const cy = height / 2;
-  const maxRadius = height * 0.42;
+  const maxRadius = height * 0.28;
 
   if (data.length === 0) return null;
 
@@ -48,13 +51,18 @@ export const PolarChart: React.FC<PolarChartProps> = ({
   const maxValue = Math.max(...data.map(d => d.value), 1);
 
   return (
-    <AbsoluteFill style={{ backgroundColor: T.background }}>
+    <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
+      <DynamicBackground 
+        style={bgStyle} 
+        baseColor={T.background} 
+        accentColor={T.colors[0]} 
+      />
       <div style={{ position: 'absolute', top: 50, width: '100%', textAlign: 'center', opacity: interpolate(frame, [0, 15], [0, 1]) }}>
         {title && <div style={{ fontSize: Theme.typography.title.size, fontWeight: Theme.typography.title.weight, color: Theme.typography.title.color, fontFamily: Theme.typography.fontFamily }}>{title}</div>}
         {subtitle && <div style={{ fontSize: Theme.typography.subtitle.size, color: Theme.typography.subtitle.color, fontFamily: Theme.typography.fontFamily }}>{subtitle}</div>}
       </div>
 
-      <svg width={width} height={height} style={{ overflow: 'visible' }}>
+      <svg width={width} height={height} style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}>
         <defs>
           {data.map((_, i) => (
             <radialGradient key={i} id={`polarGrad-${i}-${instanceId}`}>
@@ -64,7 +72,7 @@ export const PolarChart: React.FC<PolarChartProps> = ({
           ))}
         </defs>
 
-        {/* Concêntricos */}
+        {/* ConcÃªntricos */}
         {[0.25, 0.5, 0.75, 1].map(v => (
           <circle key={v} cx={cx} cy={cy} r={maxRadius * v} fill="none" stroke={T.grid} strokeWidth={2} opacity={0.3} strokeDasharray="16 8" />
         ))}

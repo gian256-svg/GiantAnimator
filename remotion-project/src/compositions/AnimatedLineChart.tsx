@@ -37,7 +37,7 @@ export const AnimatedLineChart: React.FC<Props> = ({
     return { x, y, val, label: labels[i] };
   });
 
-  const pathData = points.length > 0 
+  const pathData = points.length > 0
     ? `M ${points.map(p => `${p.x},${p.y}`).join(" L ")}`
     : "";
 
@@ -48,7 +48,7 @@ export const AnimatedLineChart: React.FC<Props> = ({
   });
 
   // Calculate rough path length
-  const fakeLength = chartWidth * 2; 
+  const fakeLength = chartWidth * 2;
 
   return (
     <AbsoluteFill

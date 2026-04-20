@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+﻿import React, { useMemo } from "react";
 import {
   spring,
   useCurrentFrame,
@@ -7,6 +7,7 @@ import {
   AbsoluteFill,
 } from "remotion";
 import { Theme, resolveTheme } from '../theme';
+import { DynamicBackground } from "../layout/DynamicBackground";
 
 export interface ChordEntity {
   id: string;
@@ -28,6 +29,7 @@ export interface ChordChartProps {
   backgroundColor?: string;
   colors?: string[];
   textColor?: string;
+  bgStyle?: 'none' | 'mesh' | 'grid';
 }
 
 export const ChordChart: React.FC<ChordChartProps> = ({
@@ -35,17 +37,19 @@ export const ChordChart: React.FC<ChordChartProps> = ({
   flows = [],
   title,
   subtitle,
+  theme = 'dark',
+  bgStyle = 'none',
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
   const T = resolveTheme(theme ?? 'dark');
 
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // ÁREA ÚTIL 4K (REGRA GLOBAL)
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
+  // ÃREA ÃšTIL 4K (REGRA GLOBAL)
+  // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
   const cx = width / 2;
   const cy = height / 2;
-  const outerRadius = height * 0.42;
+  const outerRadius = height * 0.28;
   const innerRadius = outerRadius * 0.94;
   const padAngle = 0.05;
 
@@ -79,13 +83,18 @@ export const ChordChart: React.FC<ChordChartProps> = ({
   });
 
   return (
-    <AbsoluteFill style={{ backgroundColor: T.background }}>
+    <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
+      <DynamicBackground 
+        style={bgStyle} 
+        baseColor={T.background} 
+        accentColor={T.colors[0]} 
+      />
       <div style={{ position: 'absolute', top: 50, width: '100%', textAlign: 'center', opacity: interpolate(frame, [0, 15], [0, 1]) }}>
         {title && <div style={{ fontSize: Theme.typography.title.size, fontWeight: Theme.typography.title.weight, color: Theme.typography.title.color, fontFamily: Theme.typography.fontFamily }}>{title}</div>}
         {subtitle && <div style={{ fontSize: Theme.typography.subtitle.size, color: Theme.typography.subtitle.color, fontFamily: Theme.typography.fontFamily }}>{subtitle}</div>}
       </div>
 
-      <svg width={width} height={height} style={{ overflow: 'visible' }}>
+      <svg width={width} height={height} style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}>
         {/* Flows (Ribbons) */}
         {flows.map((flow, i) => {
           const s = arcs.find(a => a.id === flow.source);

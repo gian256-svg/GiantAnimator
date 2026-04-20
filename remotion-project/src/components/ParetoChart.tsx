@@ -1,4 +1,4 @@
-import React, { useMemo, useId } from "react";
+﻿import React, { useMemo, useId } from "react";
 import {
   spring,
   useCurrentFrame,
@@ -7,6 +7,7 @@ import {
   AbsoluteFill,
 } from "remotion";
 import { Theme, resolveTheme } from '../theme';
+import { DynamicBackground } from "../layout/DynamicBackground";
 
 export interface ParetoItem {
   label: string;
@@ -21,6 +22,7 @@ export interface ParetoChartProps {
   theme?: string;
   colors?: string[];
   textColor?: string;
+  bgStyle?: 'none' | 'mesh' | 'grid';
 }
 
 export const ParetoChart: React.FC<ParetoChartProps> = ({
@@ -29,6 +31,7 @@ export const ParetoChart: React.FC<ParetoChartProps> = ({
   title,
   subtitle,
   backgroundColor,
+  bgStyle = 'none',
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
@@ -62,15 +65,20 @@ export const ParetoChart: React.FC<ParetoChartProps> = ({
     );
   }
 
-  const maxVal = Math.max(...sortedData.map(d => d.value), 1);
+  const maxVal = Math.max(...processedData.map(d => d.value), 1);
   const getLeftY = (val: number) => chartTop + plotHeight - (val / maxVal) * plotHeight;
   const getRightY = (perc: number) => chartTop + plotHeight - (perc / 100) * plotHeight;
   const getX = (i: number) => plotLeft + (i + 0.5) * (plotWidth / processedData.length);
   const barWidth = (plotWidth / processedData.length) * 0.8;
 
   return (
-    <AbsoluteFill style={{ backgroundColor: backgroundColor ?? T.background }}>
-      {/* ZONA 1 — Cabeçalho */}
+    <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
+      <DynamicBackground 
+        style={bgStyle} 
+        baseColor={backgroundColor ?? T.background} 
+        accentColor={T.colors[0]} 
+      />
+      {/* ZONA 1 â€” CabeÃ§alho */}
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',
         opacity: interpolate(frame, [0, 15], [0, 1])
@@ -90,7 +98,7 @@ export const ParetoChart: React.FC<ParetoChartProps> = ({
         }}>{subtitle}</div>}
       </div>
 
-      <svg width={width} height={height} style={{ overflow: 'visible' }}>
+      <svg width={width} height={height} style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}>
         <defs>
           <linearGradient id={`paretoGrad-${instanceId}`} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor={T.colors[0]} />
@@ -128,7 +136,7 @@ export const ParetoChart: React.FC<ParetoChartProps> = ({
         </g>
 
         {/* Barras */}
-        {sortedData.map((d, i) => {
+        {processedData.map((d, i) => {
           const h = (d.value / maxVal) * plotHeight;
           const x = getX(i) - barWidth / 2;
 

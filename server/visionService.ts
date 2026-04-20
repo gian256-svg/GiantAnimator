@@ -21,14 +21,24 @@ export async function analyzeChartImage(
 
   // ─── MD5 Cache ───────────────────────────────────────────────
   const IS_VERCEL = !!process.env.VERCEL;
-  const hash      = crypto.createHash("md5").update(rawImageData).digest("hex");
+  // CRITICAL FIX: O cache deve incluir requestedTheme E auditorCritique.
+  // Sem isso, re-análises com feedback do auditor retornam o resultado ruim em cache
+  const cacheKey  = `${crypto.createHash("md5").update(rawImageData).digest("hex")}_${requestedTheme || 'default'}_${auditorCritique ? crypto.createHash("md5").update(auditorCritique).digest("hex") : 'nocritic'}`;
   const cacheDir  = IS_VERCEL ? "/tmp/cache" : path.join(process.cwd(), "cache");
   if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
-  const cacheFile = path.join(cacheDir, `${hash}.json`);
+  const cacheFile = path.join(cacheDir, `${cacheKey}.json`);
 
   if (fs.existsSync(cacheFile) && process.env.GEMINI_MOCK !== "true") {
-    console.log(`📦 [VISION] Cache hit: ${hash}`);
-    return JSON.parse(fs.readFileSync(cacheFile, "utf-8"));
+    const cached = JSON.parse(fs.readFileSync(cacheFile, "utf-8")) as ChartAnalysis;
+    // Valida o cache: não serve resultados com dados vazios
+    const hasData = (cached.props?.series?.length > 0 && cached.props?.series[0]?.data?.length > 0) 
+                 || (cached.props?.data?.length > 0);
+    if (hasData) {
+      console.log(`📦 [VISION] Cache hit: ${cacheKey.slice(0,16)}...`);
+      return cached;
+    }
+    console.warn(`⚠️ [VISION] Cache inválido (dados vazios), re-analisando: ${cacheKey.slice(0,16)}...`);
+    fs.unlinkSync(cacheFile); // Remove o cache inválido
   }
 
   // ─── Mock ────────────────────────────────────────────────────
@@ -68,14 +78,17 @@ export async function analyzeChartImage(
 Analise a cor predominante do fundo. 
 - Se o fundo for branco/claro/off-white (como na imagem original), defina backgroundColor como o Hex exato e SEMPRE use o tema "light" ou "corporate" ou "minimal".
 - Se o fundo for preto/escuro, use tema "dark".
-`;
 
-  if (requestedTheme === 'original') {
-    prompt += `
+### ESTILO DE FUNDO (bgStyle):
+Identifique se o gráfico original possui texturas:
+- Se houver gradientes suaves ou borrões de cor: bgStyle = "mesh".
+- Se houver linhas de grade horizontais e verticais formando um padrão: bgStyle = "grid".
+- Se for liso: bgStyle = "none".
+
 ### PRESERVAÇÃO RIGOROSA:
 O usuário deseja fidelidade cromática total. Extraia as cores Hex de CADA linha e coloque nos respectivos objetos do array "series".
+Se houver sombras ou relevo, tente replicar isso via props de estilo se disponíveis.
 `;
-  }
 
   if (auditorCritique) {
     prompt += `

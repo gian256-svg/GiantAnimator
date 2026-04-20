@@ -7,6 +7,7 @@ import {
   AbsoluteFill,
 } from "remotion";
 import { Theme, resolveTheme, formatValue } from '../theme';
+import { SmartCallout } from "../components/SmartCallout";
 
 interface HorizontalBarChartProps {
   data?: { label: string; value: number }[];
@@ -20,6 +21,9 @@ interface HorizontalBarChartProps {
   subtitle?: string;
   unit?:     string;
   showValueLabels?: boolean;
+  annotations?: any[];
+  bgStyle?: 'none' | 'mesh' | 'grid';
+  backgroundType?: 'dark' | 'light';
 }
 
 
@@ -36,11 +40,14 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
   backgroundColor,
   textColor,
   showValueLabels = false,
+  annotations = [],
+  bgStyle = 'none',
+  backgroundType,
 }) => {
   const frame      = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
   // Resolve tema — fonte única de verdade
-  const T = resolveTheme(theme);
+  const T = resolveTheme(theme, backgroundColor, backgroundType);
   const resolvedBg    = backgroundColor ?? T.background;
   const resolvedText  = textColor       ?? T.text;
   // const resolvedColors = colors && colors.length > 0 ? colors : [...T.colors]; // Unused but kept for reference if needed
@@ -96,13 +103,16 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
   const headerOpacity = interpolate(frame, [0, 20], [0, 1], { extrapolateRight: "clamp" });
 
   return (
-    <AbsoluteFill style={{ backgroundColor: resolvedBg }}>
-      
-
-      <svg width={width} height={height} style={{ position: "absolute", top: 0, left: 0 }}>
+    <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
+      <DynamicBackground 
+        baseColor={resolvedBg} 
+        accentColor={T.colors[0]} 
+        backgroundType={backgroundType}
+      />
+      <svg width={width} height={height} style={{ overflow: "visible", position: "relative", zIndex: 1 }}>
         <defs>
           {normalizedSeries.map((_, i) => (
-            <linearGradient key={i} id={`hbarGrad-${i}-${instanceId}`} x1="0" y1="0" x2="1" y2="0">
+            <linearGradient key={i} id={`barGrad-${i}-${instanceId}`} x1="0" y1="0" x2="1" y2="0">
               <stop offset="0%" stopColor={T.colors[i % T.colors.length]} />
               <stop offset="100%" stopColor={T.colors[i % T.colors.length]} stopOpacity={0.8} />
             </linearGradient>
@@ -191,6 +201,36 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
           });
         })}
       </svg>
+
+      {/* ANOTAÇÕES INTELIGENTES (SMART CALLOUTS) */}
+      {annotations.map((ann, i) => {
+        if (!ann || ann.index === undefined || !normalizedSeries[ann.seriesIndex || 0]) return null;
+        
+        const sIdx = ann.seriesIndex || 0;
+        const gIdx = Math.min(Math.max(0, ann.index), xAxisLabels.length - 1);
+        
+        const val = normalizedSeries[sIdx].data[gIdx] || 0;
+        
+        const groupY = plotTop + gIdx * categoryHeight + (categoryHeight * groupGap) / 2;
+        const bY = groupY + sIdx * (barHeight * (1 + innerGap));
+        const bW = (val / range) * plotWidth;
+
+        const calloutX = plotLeft + bW;
+        const calloutY = bY + barHeight / 2;
+
+        return (
+          <SmartCallout
+            key={`ann-${i}`}
+            x={calloutX}
+            y={calloutY}
+            label={ann.label}
+            value={ann.value !== undefined ? formatValue(ann.value, displayUnit) : undefined}
+            theme={theme}
+            delay={140 + i * 15}
+            color={T.colors[0]}
+          />
+        );
+      })}
 
 
       {/* ── LEGEND (BOTTOM) ── */}

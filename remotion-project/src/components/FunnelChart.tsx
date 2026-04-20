@@ -1,4 +1,4 @@
-import React, { useId } from "react";
+﻿import React, { useId } from "react";
 import {
   spring,
   useCurrentFrame,
@@ -7,6 +7,7 @@ import {
   AbsoluteFill,
 } from "remotion";
 import { Theme, resolveTheme } from '../theme';
+import { DynamicBackground } from "../layout/DynamicBackground";
 
 export interface FunnelStage {
   label: string;
@@ -21,6 +22,7 @@ export interface FunnelChartProps {
   backgroundColor?: string;
   colors?: string[];
   textColor?: string;
+  bgStyle?: 'none' | 'mesh' | 'grid';
 }
 
 export const FunnelChart: React.FC<FunnelChartProps> = ({
@@ -29,8 +31,8 @@ export const FunnelChart: React.FC<FunnelChartProps> = ({
   title,
   subtitle,
   backgroundColor,
-  colors,
   textColor,
+  bgStyle = 'none',
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
@@ -41,7 +43,7 @@ export const FunnelChart: React.FC<FunnelChartProps> = ({
   const resolvedText   = textColor       ?? T.text;
   const resolvedColors = colors && colors.length > 0 ? colors : [...T.colors];
 
-  // Utility: darken a hex color by amount (0–1)
+  // Utility: darken a hex color by amount (0â€“1)
   const darken = (hex: string, amount: number): string => {
     const n = parseInt(hex.replace('#', ''), 16);
     const r = Math.max(0, Math.min(255, ((n >> 16) & 0xff) * (1 - amount)));
@@ -70,8 +72,13 @@ export const FunnelChart: React.FC<FunnelChartProps> = ({
   const maxValue = Math.max(...data.map(d => d.value)) || 1;
 
   return (
-    <AbsoluteFill style={{ backgroundColor: resolvedBg }}>
-      {/* ZONA 1 — Cabeçalho */}
+    <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
+      <DynamicBackground 
+        style={bgStyle} 
+        baseColor={resolvedBg} 
+        accentColor={resolvedColors[0]} 
+      />
+      {/* ZONA 1 â€” CabeÃ§alho */}
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',
         opacity: interpolate(frame, [0, 15], [0, 1])
@@ -91,18 +98,18 @@ export const FunnelChart: React.FC<FunnelChartProps> = ({
         }}>{subtitle}</div>}
       </div>
 
-      <svg width={width} height={height} style={{ overflow: 'visible' }}>
+      <svg width={width} height={height} style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}>
         <defs>
           {data.map((_, i) => {
             const baseColor = resolvedColors[i % resolvedColors.length];
             return (
               <linearGradient key={i} id={`funnelGrad-${i}-${instanceId}`} x1="0" y1="0" x2="0" y2="1">
-                {/* Shine highlight at top — subtle bright edge */}
+                {/* Shine highlight at top â€” subtle bright edge */}
                 <stop offset="0%"   stopColor={baseColor} stopOpacity={1} />
                 <stop offset="8%"   stopColor={baseColor} stopOpacity={0.92} />
                 {/* Rich mid color */}
                 <stop offset="50%"  stopColor={baseColor} stopOpacity={0.85} />
-                {/* Deep shadow at bottom — progressive darkening */}
+                {/* Deep shadow at bottom â€” progressive darkening */}
                 <stop offset="100%" stopColor={darken(baseColor, 0.38)} stopOpacity={0.95} />
               </linearGradient>
             );
@@ -122,7 +129,7 @@ export const FunnelChart: React.FC<FunnelChartProps> = ({
           const bottomW = (nextVal / maxValue) * plotWidth;
 
           const yT = chartTop + i * stageHeight;
-          const yB = yT + stageHeight - 10; // Gap entre estágios
+          const yB = yT + stageHeight - 10; // Gap entre estÃ¡gios
 
           const progress = spring({ frame: frame - 20 - i * 8, fps, config: { damping: 14, stiffness: 100 } });
 
@@ -142,7 +149,7 @@ export const FunnelChart: React.FC<FunnelChartProps> = ({
                 stroke={"rgba(255,255,255,0.08)"}
                 strokeWidth={2}
               />
-              {/* Shine overlay — horizontal luminosity streak */}
+              {/* Shine overlay â€” horizontal luminosity streak */}
               <polygon
                 points={points}
                 fill={`url(#funnelShine-${instanceId})`}

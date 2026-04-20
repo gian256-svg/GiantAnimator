@@ -368,13 +368,12 @@ document.addEventListener('DOMContentLoaded', () => {
               <label class="ve-label">Subtítulo / Insight</label>
               <input type="text" id="edit-subtitle" class="ve-input" value="${(props.subtitle||'').replace(/"/g,'&quot;')}" placeholder="Insight ou fonte dos dados...">
             </div>
-            <div class="ve-field">
-              <label class="ve-label">Tipo de Gráfico</label>
-              <div class="ve-type-switcher" id="ve-type-switcher">
-                ${['BarChart','LineChart','HorizontalBarChart','PieChart'].map(t => `
-                  <button class="ve-type-btn ${detectedType===t?'active':''}" data-type="${t}">${{BarChart:'Barras',LineChart:'Linhas',HorizontalBarChart:'H. Barras',PieChart:'Pizza'}[t]}</button>
-                `).join('')}
-              </div>
+            <div class="ve-field" style="flex-direction: row; align-items: center; gap: 10px; margin-top: 10px;">
+              <label class="premium-checkbox">
+                <input type="checkbox" id="edit-dark-mode" checked>
+                <span class="check-box-ui"></span>
+                Modo Escuro (Dark Background)
+              </label>
             </div>
           </div>
 
@@ -600,6 +599,7 @@ document.addEventListener('DOMContentLoaded', () => {
               const container = document.getElementById('visual-editor-container');
               const title    = document.getElementById('edit-title')?.value || '';
               const subtitle = document.getElementById('edit-subtitle')?.value || '';
+              const isDarkBg = document.getElementById('edit-dark-mode')?.checked ?? true;
 
               // ── Novo Editor Premium ───────────────────────────────────────
               let newLabels = [], newData = [];
@@ -649,8 +649,9 @@ document.addEventListener('DOMContentLoaded', () => {
                   body: JSON.stringify({
                       analysis: editedAnalysis,
                       originalName: state.originalFilename,
-                      chartTheme: document.getElementById('chart-theme').value,
-                      bgStyle: document.getElementById('bg-style').value
+                      chartTheme: document.getElementById('chart-theme')?.value || 'dark',
+                      isDarkBg: isDarkBg,
+                      includeCallouts: document.getElementById('toggle-callouts')?.checked || false
                   })
               });
               
@@ -686,7 +687,6 @@ document.addEventListener('DOMContentLoaded', () => {
           fd.append('includeCallouts', document.getElementById('toggle-callouts').checked);
           fd.append('enableAuditor', document.getElementById('toggle-auditor').checked);
           fd.append('reviewRequired', true);
-          fd.append('bgStyle', document.getElementById('bg-style').value);
 
           log(`🚀 Enviando: ${f.name}`);
           const res = await fetch('/upload', { method: 'POST', body: fd });

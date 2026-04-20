@@ -7,7 +7,8 @@ import {
   AbsoluteFill,
 } from "remotion";
 import { evolvePath } from "@remotion/paths";
-import { Theme, resolveTheme } from '../theme';
+import { Theme, resolveTheme, parseSafeNumber } from '../theme';
+import { DynamicBackground } from "../layout/DynamicBackground";
 
 export interface MultiLineChartProps {
   series: {
@@ -20,10 +21,12 @@ export interface MultiLineChartProps {
   subtitle?: string;
   theme?: string;
   backgroundColor?: string;
-  colors?: string[];
   textColor?: string;
-  highlightSeries?: string;
+  colors?: string[];
+  highlightSeries?: number;
   legendMode?: 'inline' | 'classic';
+  bgStyle?: 'none' | 'mesh' | 'grid';
+  backgroundType?: 'dark' | 'light';
 }
 
 export const MultiLineChart: React.FC<MultiLineChartProps> = ({
@@ -32,15 +35,23 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
   title = "Multi-Line Chart",
   subtitle,
   theme = "dark",
+  backgroundColor,
+  textColor,
   highlightSeries,
   legendMode = 'inline',
+  bgStyle = 'none',
+  backgroundType,
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
-  const T = resolveTheme(theme ?? 'dark');
+  const T = resolveTheme(theme ?? 'dark', backgroundColor, backgroundType);
+  const resolvedBg = backgroundColor ?? T.background;
 
   const series = useMemo(() => {
-    return Array.isArray(propSeries) ? propSeries : [];
+    return Array.isArray(propSeries) ? propSeries.map(s => ({
+      ...s,
+      data: Array.isArray(s.data) ? s.data.map(v => parseSafeNumber(v, 0)) : []
+    })) : [];
   }, [propSeries]);
 
   if (series.length === 0 || labels.length < 2) {
@@ -54,21 +65,31 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
   // Safe Zone 4K (D2 + Spacing)
   const margin = 128; // 128px
   const titleHeight = 160; // 160px
-  const paddingRight = legendMode === 'inline' ? 400 : margin; // Espaço para labels inline 4K
+  const paddingRight = legendMode === 'inline' ? 400 : margin; // EspaÃ§o para labels inline 4K
   const plotWidth = width - margin - paddingRight;
   const plotHeight = height - margin * 2 - titleHeight - 100;
   const chartTop = margin + titleHeight;
   const chartLeft = margin;
 
-  // Escala Y Adaptativa
+  // Escala Y Adaptativa (FIX: Garantir gaps mÃ­nimos para evitar NaN)
   const allValues = series.flatMap((s) => s.data);
   const dataMin = Math.min(...allValues);
   const dataMax = Math.max(...allValues);
   const yMin = dataMin;
-  const yMax = dataMax || 1;
+  let yMax = dataMax;
+
+  // REGRA DE OURO: Evitar divisÃ£o por zero se todos os valores forem iguais ou zero
+  if (yMax === yMin) {
+    yMax = yMin + 10;
+    if (yMax === 0) yMax = 100;
+  }
 
   const getX = (index: number) => chartLeft + (index / (labels.length - 1)) * plotWidth;
-  const getY = (val: number) => chartTop + plotHeight - ((val - yMin) / (yMax - yMin)) * plotHeight;
+  const getY = (val: number) => {
+    const v = parseSafeNumber(val, yMin);
+    const range = Math.max(0.1, yMax - yMin); // Fallback de seguranÃ§a 4K
+    return chartTop + plotHeight - ((v - yMin) / range) * plotHeight;
+  };
 
   // Collision Avoidance 4K (D8)
   const inlineLabels = useMemo(() => {
@@ -80,7 +101,7 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
       color: s.color || T.colors[i % T.colors.length]
     })).sort((a, b) => a.y - b.y);
 
-    const minGap = 45; // Threshold colisão 4K
+    const minGap = 45; // Threshold colisÃ£o 4K
     for (let iter = 0; iter < 10; iter++) {
       for (let i = 0; i < basePositions.length - 1; i++) {
         const diff = basePositions[i + 1].y - basePositions[i].y;
@@ -92,42 +113,49 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
       }
     }
     return basePositions;
-  }, [series, legendMode, yMin, yMax]);
+  }, [series, legendMode, yMin, yMax, chartTop, plotHeight]); // Adicionado dependÃªncias de escala
 
   return (
-    <AbsoluteFill style={{ backgroundColor: T.background }}>
-      {/* ZONA 1: Cabeçalho (Regra D2) */}
+    <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
+      <DynamicBackground 
+        baseColor={resolvedBg} 
+        accentColor={T.colors[0]} 
+        backgroundType={backgroundType}
+      />
+      {/* ZONA 1: CabeÃ§alho (Regra D2 - Ajustada para UHD) */}
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',
+        padding: '0 200px', // Safe zone lateral para tÃ­tulos longos
         opacity: interpolate(frame, [0, 15], [0, 1])
       }}>
         {title && <div style={{ 
           fontSize: Theme.typography.title.size, 
           fontWeight: Theme.typography.title.weight, 
-          color: Theme.typography.title.color,
+          color: T.text,
+          lineHeight: 1.1,
           fontFamily: Theme.typography.fontFamily,
-          marginBottom: 10
+          marginBottom: 20 // EspaÃ§o aumentado
         }}>{title}</div>}
         {subtitle && <div style={{ 
           fontSize: Theme.typography.subtitle.size, 
           fontWeight: Theme.typography.subtitle.weight, 
-          color: Theme.typography.subtitle.color,
+          color: T.textMuted,
           fontFamily: Theme.typography.fontFamily
         }}>{subtitle}</div>}
       </div>
 
-      <svg width={width} height={height} style={{ overflow: 'visible' }}>
-        {/* ZONA 2: Gráfico - Gridlines (Regra D3) */}
+      <svg width={width} height={height} style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}>
+        {/* ZONA 2: GrÃ¡fico - Gridlines (Regra D3) */}
         <g opacity={interpolate(frame, [5, 25], [0, 0.6])}>
           {[0, 0.25, 0.5, 0.75, 1].map((v, i) => {
             const val = yMin + v * (yMax - yMin);
             const y = getY(val);
             return (
               <React.Fragment key={i}>
-                <line x1={chartLeft} y1={y} x2={chartLeft + plotWidth} y2={y} stroke={T.grid} strokeWidth={1} />
+                <line x1={chartLeft} y1={y} x2={chartLeft + plotWidth} y2={y} stroke={T.grid} strokeWidth={2} />
                 <text 
                   x={chartLeft - 20} y={y} textAnchor="end" dominantBaseline="middle" 
-                  style={{ fontSize: Theme.typography.axis.size, fill: T.textMuted, fontFamily: Theme.typography.fontFamily }}
+                  style={{ fontSize: Theme.typography.axis.size, fill: T.textMuted, fontFamily: Theme.typography.fontFamily, fontWeight: 600 }}
                 >
                   {val >= 1000 ? `${(val / 1000).toFixed(1)}k` : Math.round(val)}
                 </text>
@@ -138,7 +166,7 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
 
         {/* Linhas de Dados (Cascade Stagger 10f) */}
         {series.map((s, sIndex) => {
-          const isFocused = !highlightSeries || s.label === highlightSeries;
+          const isFocused = highlightSeries === undefined || sIndex === highlightSeries;
           const lineColor = s.color || T.colors[sIndex % T.colors.length];
           const strokeWidth = isFocused ? 4 : 2;
           const opacity = isFocused ? 1 : 0.25;
@@ -212,7 +240,7 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
         })}
       </svg>
 
-      {/* Legenda Clássica (ZONA 3) */}
+      {/* Legenda ClÃ¡ssica (ZONA 3) */}
       {legendMode === 'classic' && (
         <div style={{
           position: 'absolute', bottom: margin, width: '100%', display: 'flex', justifyContent: 'center', gap: 40,

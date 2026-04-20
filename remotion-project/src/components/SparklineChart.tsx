@@ -1,4 +1,4 @@
-import React, { useId } from "react";
+﻿import React, { useId } from "react";
 import {
   spring,
   useCurrentFrame,
@@ -6,7 +6,8 @@ import {
   interpolate,
   AbsoluteFill,
 } from "remotion";
-import { Theme, resolveTheme } from '../theme';
+import { Theme, resolveTheme } from "../theme";
+import { DynamicBackground } from "../layout/DynamicBackground";
 
 export interface SparklineItem {
   label: string;
@@ -23,6 +24,7 @@ export interface SparklineChartProps {
   theme?: string;
   colors?: string[];
   textColor?: string;
+  bgStyle?: 'none' | 'mesh' | 'grid';
 }
 
 const Sparkline: React.FC<{
@@ -31,9 +33,11 @@ const Sparkline: React.FC<{
   height: number;
   index: number;
   instanceId: string;
-}> = ({ item, width, height, index, instanceId }) => {
+  theme: string;
+}> = ({ item, width, height, index, instanceId, theme }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const T = resolveTheme(theme);
   const data = item.data || [];
   const min = Math.min(...data, 0);
   const max = Math.max(...data, 1);
@@ -68,30 +72,41 @@ export const SparklineChart: React.FC<SparklineChartProps> = ({
   subtitle,
   columns = 2,
   backgroundColor,
+  theme = 'dark',
+  bgStyle = 'none',
 }) => {
+  const frame = useCurrentFrame();
   const { width, height } = useVideoConfig();
-  const T = resolveTheme(theme ?? 'dark');
+  
+  const initialT = resolveTheme(theme ?? 'dark');
+  const resolvedBg = backgroundColor ?? initialT.background;
+  const T = resolveTheme(theme ?? 'dark', resolvedBg);
   const instanceId = useId().replace(/:/g, "");
 
   // Safe Zone 4K
-  const margin = Theme.spacing.padding || 128;
-  const titleHeight = Theme.spacing.titleHeight || 160;
+  const margin = Theme.canvas.safeZoneX;
+  const titleHeight = Theme.canvas.safeZoneTop;
   const gap = 150;
   const plotWidth = width - margin * 2;
   const itemWidth = (plotWidth - (columns - 1) * gap) / columns;
   const itemHeight = 150;
 
   return (
-    <AbsoluteFill style={{ backgroundColor: backgroundColor ?? T.background }}>
+    <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
+      <DynamicBackground 
+        style={bgStyle} 
+        baseColor={resolvedBg} 
+        accentColor={T.colors[0]} 
+      />
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',
-        opacity: interpolate(useCurrentFrame(), [0, 15], [0, 1])
+        opacity: interpolate(frame, [0, 15], [0, 1])
       }}>
         {title && <div style={{ fontSize: Theme.typography.title.size, fontWeight: Theme.typography.title.weight, color: Theme.typography.title.color, fontFamily: Theme.typography.fontFamily }}>{title}</div>}
         {subtitle && <div style={{ fontSize: Theme.typography.subtitle.size, color: Theme.typography.subtitle.color, fontFamily: Theme.typography.fontFamily }}>{subtitle}</div>}
       </div>
 
-      <svg width={width} height={height} style={{ overflow: 'visible' }}>
+      <svg width={width} height={height} style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}>
         {items.map((item, i) => {
           const col = i % columns;
           const row = Math.floor(i / columns);
@@ -100,7 +115,7 @@ export const SparklineChart: React.FC<SparklineChartProps> = ({
 
           return (
             <g key={i} transform={`translate(${x}, ${y})`}>
-              <Sparkline item={item} width={itemWidth - 150} height={itemHeight} index={i} instanceId={instanceId} />
+              <Sparkline item={item} width={itemWidth - 150} height={itemHeight} index={i} instanceId={instanceId} theme={theme} />
             </g>
           );
         })}

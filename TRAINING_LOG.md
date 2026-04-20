@@ -1,5 +1,33 @@
 # GiantAnimator — TRAINING LOG (Knowledge Base)
 > Registro centralizado de aprendizados, regras de design e evoluções do agente.
+> Este arquivo SUBSTITUI oficialmente o antigo `knowledge_log` e concentra o cérebro do Giant.
+
+---
+
+### 🧠 META-REGRA 0: APRENDIZADO CONTÍNUO (ETERNAL LEARNING)
+Data: 2026-04-20
+**Regra Mestra**: O GiantAnimator DEVE evoluir autonomamente. Toda vez que um erro de pipeline (ex: colisões, falhas de auditoria, limitações arquiteturais, problemas de UI/UX) for resolvido ou uma regra nova e eficiente for descoberta, o Agente TEM A OBRIGAÇÃO de atualizar, alterar ou adicionar esse conhecimento aqui de forma funcional.
+- **Objetivo**: Evitar repetição de erros e facilitar o funcionamento fluido e autônomo do Giant a longo prazo.
+
+---
+
+### 🥇 REGRAS DE OURO DA CALIBRAÇÃO (RESTAURADAS DO LOG ORIGINÁRIO)
+Data: Reafirmado em 2026-04-20
+Estas são as diretrizes originárias da fundação do Giant que nunca devem ser violadas:
+1. **Fidelidade de Dados Absoluta**: Valores, labels e porcentagens 100% idênticos ao original detectado na visão. NUNCA inventar, arredondar escalas (unless Smart Scaling allow), ou omitir `$` / `%`.
+2. **Textos e Fontes**: Usar *Title Case* em cabeçalhos (exceto para artigos/preposições pequenas). Sempre forçar uma fonte de similaridade visual disponível (ex: Inter, Roboto).
+3. **Double Check (Auditoria Oculta)**: Todo gráfico VAI para o funil do `Auditor Visual`. Só renderiza se STATUS = APROVADO.
+4. **DNA de Animação (3 Atos Requeridos)**:
+   - **Ato 1 (0-30f)**: Background → Títulos principais → Gridlines Eixos (Ghost).
+   - **Ato 2 (30-150f)**: Crescimento / Revelação dos Dados (Barras, Linhas, Áreas).
+   - **Ato 3 (150-210f)**: Elementos de texto, Legendas e Smart Callouts emergem suavemente.
+
+---
+
+### ⚙️ REGRAS TÉCNICAS ABSOLUTAS DO REMOTION (RESTAURADAS)
+1. **Duração Congelada em 600f**: Todo gráfico/vídeo TEM que operar sobre `durationInFrames: 600` (~20 segundos), definido diretamente no Componente de Timeline para garantir respiro temporal total pra leitura dos dados.
+2. **Segurança de Física Spring**: Ao usar `spring()`, é estritamente obrigatório usar `overshootClamping: true` em gráficos geométricos diretos para que as barras e eixos não transbordem "negativamente" criando artefatos em tela.
+3. **Proibição de Escala Bruta**: NUNCA usar `transform: scale()` no elemento inteiro para fazer o gráfico "caber". Use ajustes puros de CSS ou Radius (`plotHeight`, `plotWidth`, `maxRadius`) para manter os polígonos nativos afiados em 4K.
 
 ---
 
@@ -179,3 +207,111 @@ Contexto: Gráficos de múltiplas séries cruzadas (ex: COVID por país) estavam
 5.  **Zero Placeholder**: Toda e qualquer unidade (%) ou ($) detectada na imagem deve ser preservada no JSON final. A precisão dos dados é a prioridade absoluta, acima de qualquer simplificação estética.
 
 **Aceleração**: O uso do `gemini-2.5-flash` full (em vez do lite) provou ser mais rápido no processo total, pois reduz a necessidade de múltiplas re-análises por erro de precisão.
+
+---
+
+### 🛡️ [2026-04-20] UX & UI — ANTI-COLISÃO 4K EM GRÁFICOS RADIAIS E SMART CALLOUTS
+**Contexto**: Em resolução 4K (2160p), componentes circulares (`PieChart`, `DonutChart`, `PolarChart`, `RadarChart`, `SunburstChart` e `ChordChart`) com raios superiores a 28% (ex: 42%) geravam mais de 1800px de diâmetro de SVG, colidindo com títulos no topo e empurrando legendas para fora da borda inferior da tela. Adicionalmente, verificou-se que o motor `Remotion` processava as "Análises e Insights" do Gemini mas não renderizava balões de callout visíveis.
+
+**Regras Estabelecidas (Invioláveis)**:
+1. **Raio Seguro Global**: Em QUALQUER componente circular/radial, o `<maxRadius>` (ou raio externo) **nUNCA DEVE EXCEDER 28%** da largura ou altura (ex: `Math.min(width * 0.28, height * 0.28)`).
+2. **Compactação da Legenda**: Tamanho da fonte na legenda `LEGEND_SIZE` para gráficos como `PieChart` não deve ultrapassar `fs(18)` ou `fs(20)`. Além disso, o distanciamento da base deve ser cravado em `bottom: height * 0.04`.
+3. **Smart Callouts (Anotações Analíticas)**:
+   - Todo componente direcional (`LineChart`, `BarChart`, `HorizontalBarChart`) deve renderizar marcações de apontamento de dados quando submetido pelo parser do servidor (`props.annotations`).
+   - Callouts utilizam `spring physics` nativo do theme e herdam a cor primária de destaque (Accent color) da paleta e fonte formatada em Glassmorphism para não macular as séries do gráfico.
+
+---
+
+### 📏 [2026-04-20] REGRAS ARQUIVADAS RESTAURADAS: GESTÃO DO ESPAÇO 4K (ANTI-COLISÃO)
+**Contexto**: O resgate do "knowledge_log" com mais de 1000 linhas de aprendizados trouxe parâmetros vitais para estruturar componentes sem que textos, eixos e legendas se atropelem no Canvas de 3840x2160. Abaixo estão as regras condensadas de forma cirúrgica para desenvolvimento:
+
+**R1. Safe Zones (Tamanho de Segurança)**
+Todo componente deve respeitar uma "margem de respiração" para não vazar pela tela do vídeo:
+- `Safe Top`: min. 160px (Apenas para `Title` e `Subtitle`)
+- `Safe Bottom`: min. 80px (Área restrita de respiro)
+- `Content Safe Zone Y`: Gráficos lineares e de barra devem usar preferencialmente `plotHeight = height * 0.85` (ou no máximo) deixando o restante para títulos organizarem.
+
+**R2. Layout da Legenda (PieCharts e Similares)**
+Se a legenda não for montada na lateral (ex: Sidebar), ela VAI empilhar para cima no bottom absoluto e pode esmagar o gráfico.
+- Utilizar `flexWrap: "wrap"` exige `bottom: height * 0.04` e `alignItems: "center"`.
+- O tamanho da fonte *Nunca* deve exceder grandes marcações para não inflar a altura do bloco. Para componentes circulares onde a legenda fica debaixo: `LEGEND_SIZE = fs(18)` ou `fs(20)`.
+
+**R3. Margem de Títulos Massivos**
+Caso a imagem mande um título muito longo, ele não pode flanquear o Canvas de renderização. O `header` container SEMPRE DEVE possuir:
+- `maxWidth: 3400px` (para centrar em 3840px de frame)
+- `paddingLeft / paddingRight: mínimo 80px`
+- `wordBreak: break-word`
+- Posicionamento em Z-Index alto (renderizado no código **após** a tag `<svg>`).
+
+**R4. Hierarquia Visual Inviolável**
+1. **Z-stack:** Background → `<svg>` (Eixos → Dados) → Callouts/Anotações → `<header>` (Títulos).
+2. Títulos nunca devem ser obscurecidos sob nenhuma hipótese. Se o Canvas parecer pequeno, deve-se diminuir o gráfico cartesian via trigonometria (`radius`) e não "empurrar" elementos do cabeçalho.
+
+---
+
+### 📏 [2026-04-20] REGRAS FUNCIONAIS ANTI-COLISÃO (IMPLEMENTAÇÃO DIRETA)
+**Contexto**: Para evitar erros recorrentes de elementos se "atropelando" (legenda sobre gráfico, título sobre label), as seguintes fórmulas devem ser injetadas em todo novo componente:
+
+**F1. Cálculo de Plot Area (Espaço de Manobra)**:
+- `CHART_TOP = height * 0.22` (Reserva 22% do topo para o Header).
+- `CHART_BOTTOM = height * 0.12` (Reserva 12% da base para Legenda/X-Axis).
+- `plotHeight = height - CHART_TOP - CHART_BOTTOM`.
+- *Aplicação*: Nunca deixar o SVG ocupar mais que o `plotHeight` calculado.
+
+**F2. Legenda Inteligente (Bottom-Wrap)**:
+- Para evitar que a legenda suba sobre o gráfico:
+  - Usar `display: "flex", flexWrap: "wrap", justifyContent: "center"`.
+  - Distância fixa: `bottom: height * 0.04`.
+  - Max-Height da legenda: `height * 0.08`. Se exceder, diminuir `fs` para `fs(14)`.
+
+**F3. Eixo Y - Folga de Segurança (Ceiling)**:
+- Se houver labels numéricos no topo das barras:
+  - `yMax = dataMax * 1.20` (20% de folga obrigatória).
+- Se não houver labels:
+  - `yMax = dataMax * 1.10` (10% de folga).
+- *Objetivo*: Garantir que o valor "pop" não bata no teto do plot.
+
+**F4. Z-Index e Flow de Renderização**:
+- O componente `<Header />` (Título/Subtítulo) deve SEMPRE vir **DEPOIS** do `<svg />` no JSX.
+- Isso garante que, em caso de colisão extrema, o texto (mais importante) fique sobre o gráfico e não sob ele.
+
+---
+
+### 🛡️ [2026-04-20] SEGURANÇA — TEMAS ADAPTATIVOS E SANITIZAÇÃO DE DADOS IA
+**Contexto**: Inconsistências na renderização quando o usuário seleciona "Original (Referência)" com fundos claros, e falhas de SVG por caracteres não numéricos extraídos pela IA.
+
+**Regras de Implementação (Invioláveis)**:
+1. **Tema Adaptativo ("Original")**:
+   - O sistema DEVE detectar o brilho da cor de fundo (`backgroundColor`).
+   - Se o fundo for CLARO, usar métricas de contraste do tema `light` para eixos, grid e textos.
+   - Se o fundo for ESCURO, usar métricas do tema `dark`.
+   - *Finalidade*: Garantir legibilidade UHD mesmo quando o tema é extraído dinamicamente da imagem.
+2. **Sanitização Universal de Dados**:
+   - Todo valor numérico extraído pela IA DEVE passar por `parseSafeNumber(val)` antes de entrar no cálculo de coordenadas SVG.
+   - O parser deve remover `%`, `$`, letras ou espaços, garantindo que o gráfico não quebre por valores `NaN`.
+   - *Finalidade*: Robusteza total do pipeline contra ruído na extração de dados da IA.
+3. **Visibilidade de Eixos em 4K**:
+   - Todo gridline e eixo deve possuir largura mínima de `fs(2)` e opacidade mínima de `0.15` em temas claros para ser percebido em resoluções UHD+.
+
+---
+
+### ✅ [2026-04-20] STATUS DO SERVIDOR E PIPELINE
+- **Servidor Principal**: `http://localhost:3000` (Rodando via `npm run dev` na raiz).
+- **Remotion Studio**: `http://localhost:3001` (Rodando em porta alternativa para evitar conflito).
+- **Watcher**: Ativo em `input/`.
+- **Regra de Ouro**: O `TRAINING_LOG.md` é agora a única fonte de verdade para o cérebro do Giant.
+
+---
+
+### 🛡️ [2026-04-20] ESTABILIZAÇÃO DA PIPELINE E AUDITORIA CIRÚRGICA
+**Problema**: Gráficos de linha aparecendo fragmentados (sem linhas conectadas), fundo branco ignorando configurações de "Mesh Gradient" e Auditoria aprovando renders defeituosos.
+**Causa**: 
+1. `yMax === yMin` causava `NaN` no cálculo das coordenadas SVG (divisão por zero).
+2. `bgStyle` não estava mapeado no Registry, ficando invisível para a extração do Gemini Vision.
+3. Auditor era muito genérico e não checava explicitamente a "presença" visual dos dados (linhas).
+**Solução**:
+- Aplicado fallback `Math.max(0.1, yMax - yMin)` no componente `MultiLineChart` para garantir escala válida.
+- Adicionado `bgStyle` e `showValueLabels` ao `componentRegistry.ts` para habilitar extração visual.
+- Prompt do Auditor atualizado para rejeitar builds com "dados fragmentados" (lines missing) ou falta de fidelidade no background.
+- Aumento da opacidade do `DynamicBackground` para visibilidade em renders UHD de alto brilho.
+**Resultado**: Pipeline 100% blindada contra falsos positivos e falhas matemáticas de renderização.

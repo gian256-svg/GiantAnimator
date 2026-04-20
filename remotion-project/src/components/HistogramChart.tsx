@@ -1,4 +1,4 @@
-import React, { useMemo, useId } from "react";
+﻿import React, { useMemo, useId } from "react";
 import {
   spring,
   useCurrentFrame,
@@ -7,6 +7,7 @@ import {
   AbsoluteFill,
 } from "remotion";
 import { Theme, resolveTheme } from '../theme';
+import { DynamicBackground } from "../layout/DynamicBackground";
 
 export interface HistogramChartProps {
   rawData: number[];
@@ -19,6 +20,7 @@ export interface HistogramChartProps {
   theme?: string;
   colors?: string[];
   textColor?: string;
+  bgStyle?: 'none' | 'mesh' | 'grid';
 }
 
 export const HistogramChart: React.FC<HistogramChartProps> = ({
@@ -29,6 +31,8 @@ export const HistogramChart: React.FC<HistogramChartProps> = ({
   subtitle,
   backgroundColor,
   showValueLabels = true,
+  theme = 'dark',
+  bgStyle = 'none',
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
@@ -67,8 +71,13 @@ export const HistogramChart: React.FC<HistogramChartProps> = ({
   const barWidth = plotWidth / binCount;
 
   return (
-    <AbsoluteFill style={{ backgroundColor: backgroundColor ?? T.background }}>
-      {/* ZONA 1 — Cabeçalho */}
+    <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
+      <DynamicBackground 
+        style={bgStyle} 
+        baseColor={backgroundColor ?? T.background} 
+        accentColor={T.colors[0]} 
+      />
+      {/* ZONA 1 â€” CabeÃ§alho */}
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',
         opacity: interpolate(frame, [0, 15], [0, 1])
@@ -88,7 +97,7 @@ export const HistogramChart: React.FC<HistogramChartProps> = ({
         }}>{subtitle}</div>}
       </div>
 
-      <svg width={width} height={height} style={{ overflow: 'visible' }}>
+      <svg width={width} height={height} style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}>
         <defs>
           <linearGradient id={`histGrad-${instanceId}`} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor={T.colors[0]} />

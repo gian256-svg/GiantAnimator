@@ -1,4 +1,4 @@
-import React, { useMemo, useId } from "react";
+﻿import React, { useMemo, useId } from "react";
 import {
   spring,
   useCurrentFrame,
@@ -7,6 +7,7 @@ import {
   AbsoluteFill,
 } from "remotion";
 import { Theme, resolveTheme } from '../theme';
+import { DynamicBackground } from "../layout/DynamicBackground";
 
 export interface ChartData {
   label: string;
@@ -23,6 +24,7 @@ export interface DonutChartProps {
   backgroundColor?: string;
   colors?: string[];
   textColor?: string;
+  bgStyle?: 'none' | 'mesh' | 'grid';
 }
 
 const describeSlice = (cx: number, cy: number, ir: number, or: number, start: number, end: number) => {
@@ -47,6 +49,7 @@ export const DonutChart: React.FC<DonutChartProps> = ({
   backgroundColor,
   colors,
   textColor,
+  bgStyle = 'none',
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
@@ -74,7 +77,7 @@ export const DonutChart: React.FC<DonutChartProps> = ({
   const chartAreaWidth = width - legendWidth;
   const cx = Theme.canvas.safeZoneX + chartAreaWidth / 2;
   const cy = height / 2;
-  const outerRadius = height * 0.35;
+  const outerRadius = height * 0.28; // Reduzido de 0.35 para 0.28 (Anti-ColisÃ£o 4K)
   const innerRadius = outerRadius * innerRadiusRatio;
 
   let curAngle = 0;
@@ -86,16 +89,21 @@ export const DonutChart: React.FC<DonutChartProps> = ({
   });
 
   return (
-    <AbsoluteFill style={{ backgroundColor: resolvedBg }}>
+    <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
+      <DynamicBackground 
+        style={bgStyle} 
+        baseColor={resolvedBg} 
+        accentColor={resolvedColors[0]} 
+      />
       {/* HEADER */}
-      <div style={{ position: 'absolute', top: Theme.canvas.safeZoneTop / 2, width: '100%', textAlign: 'center', opacity: interpolate(frame, [0, 15], [0, 1]) }}>
+      <div style={{ position: 'absolute', top: Theme.canvas.safeZoneTop, width: '100%', textAlign: 'center', opacity: interpolate(frame, [0, 15], [0, 1]) }}>
         {title && <div style={{ fontSize: Theme.typography.title.size, fontWeight: Theme.typography.title.weight, color: resolvedText, fontFamily: Theme.typography.fontFamily }}>{title}</div>}
-        {subtitle && <div style={{ fontSize: Theme.typography.subtitle.size, color: T.textMuted, fontFamily: Theme.typography.fontFamily }}>{subtitle}</div>}
+        {subtitle && <div style={{ fontSize: Theme.typography.subtitle.size, color: T.textMuted, fontFamily: Theme.typography.fontFamily, marginTop: 24 }}>{subtitle}</div>}
       </div>
 
-      <svg width={width} height={height} style={{ overflow: 'visible' }}>
+      <svg width={width} height={height} style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}>
         <defs>
-          {/* Radial gradient per slice: base color inner → lighter outer (gloss effect) */}
+          {/* Radial gradient per slice: base color inner â†’ lighter outer (gloss effect) */}
           {slices.map((s, i) => (
             <radialGradient
               key={i}

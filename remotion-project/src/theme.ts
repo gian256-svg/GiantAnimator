@@ -88,23 +88,23 @@ export const TYPOGRAPHY = {
   title: {
     size: 72,
     weight: 700,
-    color: '#e8eaf6',
+    color: COLORS.text,
   },
   subtitle: {
     size: 40,
     weight: 400,
-    color: '#8892b0',
+    color: COLORS.textMuted,
   },
   label: {
     size: 36,
     weight: 600,
-    color: '#e8eaf6',
+    color: COLORS.text,
   },
   tabularNums: { fontVariantNumeric: 'tabular-nums' as const },
   axis: {
     size: 30,
     weight: 400,
-    color: '#8892b0',
+    color: COLORS.textMuted,
   },
 
   // Pesos
@@ -400,8 +400,8 @@ export const THEMES: Record<string, ThemeConfig> = {
     surface:    '#ffffff',
     text:       '#0f172a', // Slate 900
     textMuted:  '#475569', // Slate 600
-    grid:       'rgba(15,23,42,0.22)', // Mais escuro para fundo claro (Preferência Estética)
-    axis:       'rgba(15,23,42,0.4)',  // Mais escuro para fundo claro
+    grid:       'rgba(15,23,42,0.18)', // Aumentado contraste (era 0.22)
+    axis:       'rgba(15,23,42,0.45)',  // Aumentado contraste (era 0.4)
     colors: [
       '#2563eb', // Blue 600
       '#059669', // Emerald 600
@@ -444,8 +444,8 @@ export const THEMES: Record<string, ThemeConfig> = {
     surface:    '#ffffff',
     text:       '#1A1A1A',
     textMuted:  '#666666',
-    grid:       'rgba(26,26,26,0.12)', // Aumentado contraste (era 0.06)
-    axis:       'rgba(26,26,26,0.3)',  // Aumentado contraste (era 0.15)
+    grid:       'rgba(26,26,26,0.15)', // Aumentado contraste (era 0.12)
+    axis:       'rgba(26,26,26,0.4)',  // Aumentado contraste (era 0.3)
     colors: [
       '#003366', // Marinho Real
       '#C5A021', // Ouro Velho
@@ -600,9 +600,68 @@ export const THEMES: Record<string, ThemeConfig> = {
  * @param theme - string do tema ('dark'|'neon'|'ocean'|'sunset'|'minimal'|'corporate')
  * @returns ThemeConfig com todas as cores necessárias
  */
-export function resolveTheme(theme?: string): ThemeConfig {
-  const normalizedTheme = (theme || 'dark').toLowerCase();
-  return THEMES[normalizedTheme] ?? THEMES['dark'];
+/**
+ * isColorDark — Função auxiliar para detectar brilho de uma cor hex.
+ */
+export function isColorDark(hex: string): boolean {
+  try {
+    const c = hex.replace('#', '');
+    const r = parseInt(c.substring(0, 2), 16);
+    const g = parseInt(c.substring(2, 4), 16);
+    const b = parseInt(c.substring(4, 6), 16);
+    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+    return brightness < 128;
+  } catch {
+    return true; // fallback para dark se der erro
+  }
+}
+
+/**
+ * resolveTheme — Retorna a configuração de tema correta.
+ * Agora suporta detecção automática para o tema "original" baseada no background.
+ *
+ * @param theme - string do tema
+ * @param baseColor - cor de fundo para detecção de contraste (opcional)
+ */
+export function resolveTheme(theme?: string, baseColor?: string, backgroundType?: 'dark' | 'light'): ThemeConfig {
+  const name = (theme || 'dark').toLowerCase();
+  let config = { ...(THEMES[name] ?? THEMES['dark']) };
+
+  // Prioridade 1: backgroundType explícito (novo fluxo simplificado)
+  if (backgroundType) {
+    if (backgroundType === 'light') {
+      config.background = '#FAF9F6'; // Off-white padrão premium
+      config.text = '#0f172a';
+      config.textMuted = '#475569';
+      config.axis = 'rgba(15,23,42,0.45)';
+      config.grid = 'rgba(15,23,42,0.18)';
+    } else {
+      config.background = '#0f1117'; // Dark padrão premium
+      config.text = '#e8eaf6';
+      config.textMuted = '#8892b0';
+      config.axis = 'rgba(232,234,246,0.25)';
+      config.grid = 'rgba(232,234,246,0.12)';
+    }
+  } 
+  // Prioridade 2: baseColor (fluxo original/referência)
+  else if (baseColor) {
+    const isDark = isColorDark(baseColor);
+    config.background = baseColor;
+    
+    if (!isDark && !isColorDark(config.text)) {
+      config.text = '#111111';
+      config.textMuted = '#444444';
+      config.axis = 'rgba(0,0,0,0.15)';
+      config.grid = 'rgba(0,0,0,0.06)';
+    } else if (isDark && isColorDark(config.text)) {
+      config.text = '#FFFFFF';
+      config.textMuted = '#888888';
+      config.axis = 'rgba(255,255,255,0.15)';
+      config.grid = 'rgba(255,255,255,0.06)';
+    }
+  }
+
+  return config;
 }
 
 /**
@@ -617,3 +676,45 @@ export const formatValue = (n: number, unit = '') => {
   const rounded = Number.isInteger(n) ? String(n) : n.toFixed(1);
   return unit ? `${rounded}${unit}` : n.toLocaleString('pt-BR');
 };
+
+/**
+ * parseSafeNumber — Limpa strings (remove %, $, etc) e retorna um número válido.
+ * Previne falhas de renderização SVG por valores NaN.
+ */
+export const parseSafeNumber = (val: any, fallback = 0): number => {
+  if (typeof val === 'number') return isFinite(val) ? val : fallback;
+  if (!val) return fallback;
+  const clean = String(val).replace(/[^\d.-]/g, '');
+  const num = parseFloat(clean);
+  return isFinite(num) ? num : fallback;
+};
+/**
+ * Algoritmo "Nice Numbers" para escalas de eixos UHD
+ * Transforma valores brutos em incrementos limpos (ex: 0, 200, 400 em vez de 0, 187, 374)
+ */
+export function getNiceScale(max: number, min: number = 0, ticks: number = 5): number[] {
+  const range = max - min;
+  if (range <= 0) return [0, tickToValue(1, ticks), tickToValue(2, ticks), tickToValue(3, ticks), tickToValue(4, ticks)];
+
+  const roughStep = range / (ticks - 1);
+  const exponent = Math.floor(Math.log10(roughStep));
+  const fraction = roughStep / Math.pow(10, exponent);
+  
+  let niceFraction;
+  if (fraction < 1.5) niceFraction = 1;
+  else if (fraction < 3) niceFraction = 2;
+  else if (fraction < 7) niceFraction = 5;
+  else niceFraction = 10;
+
+  const step = niceFraction * Math.pow(10, exponent);
+  const niceMin = Math.floor(min / step) * step;
+  const niceMax = Math.ceil(max / step) * step;
+  
+  const result: number[] = [];
+  for (let val = niceMin; val <= niceMax + (step / 2); val += step) {
+    result.push(val);
+  }
+  return result;
+}
+
+function tickToValue(i: number, total: number) { return i / total; }

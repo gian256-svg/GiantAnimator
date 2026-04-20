@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { useCurrentFrame } from 'remotion';
 
 export const Equipment: React.FC<{
@@ -21,7 +21,7 @@ export const Equipment: React.FC<{
     const tilt = Math.sin(frame * 0.1) * 1.5;
     customTransform = `rotate(${tilt}deg)`;
     content = (
-      <svg width="250" height="350" viewBox="0 0 100 140" style={{ overflow: 'visible' }}>
+      <svg width="250" height="350" viewBox="0 0 100 140" style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}>
         {/* Tripod legs */}
         <path d="M 50,60 L 20,140 M 50,60 L 50,140 M 50,60 L 80,140" stroke={color} strokeWidth="6" strokeLinecap="round" fill="none" />
         {/* Tripod head */}
@@ -39,7 +39,7 @@ export const Equipment: React.FC<{
     const swing = Math.sin(frame * 0.04) * 5; 
     customTransform = `rotate(${swing}deg)`;
     content = (
-      <svg width="600" height="500" viewBox="0 0 200 200" style={{ overflow: 'visible' }}>
+      <svg width="600" height="500" viewBox="0 0 200 200" style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}>
         {/* Boom pole */}
         <path d="M 180,180 L 40,40" stroke={color} strokeWidth="6" strokeLinecap="round" fill="none" />
         {/* Mic handle/mount */}
@@ -54,7 +54,7 @@ export const Equipment: React.FC<{
     // Cinematic light flicker opacity shift (very slight)
     const flicker = Math.sin(frame * 0.8) * 0.1 + 0.9; 
     content = (
-      <svg width="300" height="400" viewBox="0 0 100 150" style={{ overflow: 'visible' }}>
+      <svg width="300" height="400" viewBox="0 0 100 150" style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}>
         {/* Light stand main pole */}
         <path d="M 50,40 L 50,150" stroke={color} strokeWidth="6" strokeLinecap="round" fill="none" />
         {/* Stand legs */}

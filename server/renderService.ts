@@ -104,7 +104,7 @@ export async function renderChart(
 export async function generateStill(
   compositionId: string,
   inputProps: any,
-  frame: number = 240
+  frame: number = 480  // FIX: Capturar frame 480 (16s) — APÓS todas animações completarem (~270f)
 ): Promise<string> {
   try {
     const bundleLocation = await getBundle();
@@ -114,24 +114,31 @@ export async function generateStill(
       inputProps,
     });
 
-    // Forçar resolução UHD
+    // Forçar resolução UHD e garantir que o frame 480 existe na composição
     composition.width = 3840;
     composition.height = 2160;
+    composition.durationInFrames = Math.max(composition.durationInFrames, 600);
+    
+    // Garante que o frame de auditoria não excede a duração total
+    const auditFrame = Math.min(frame, composition.durationInFrames - 1);
 
     const outputFilename = `still-${Math.floor(Date.now() / 1000)}.png`;
-    const outputPath = path.join(PATHS.cache || path.join(process.cwd(), "cache"), outputFilename);
+    const cacheDir = PATHS.cache || path.join(process.cwd(), 'cache');
+    if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
+    const outputPath = path.join(cacheDir, outputFilename);
 
+    console.log(`📸 [STILL] Capturando frame ${auditFrame} de ${composition.durationInFrames} (composição: ${compositionId})`);
     await renderStill({
       composition,
       serveUrl: bundleLocation,
       output: outputPath,
-      frame,
+      frame: auditFrame,
       inputProps,
     });
 
     return outputPath;
   } catch (err: any) {
-    console.error("❌ Erro ao gerar still:", err.message);
+    console.error('❌ Erro ao gerar still:', err.message);
     throw err;
   }
 }

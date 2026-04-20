@@ -59,8 +59,11 @@ type PipelineJob = {
 
 async function saveJob(job: PipelineJob) {
   const jobPath = path.join(JOBS_DIR, `${job.id}.json`);
+  const tmpPath = `${jobPath}.tmp`;
   try {
-    await fs.promises.writeFile(jobPath, JSON.stringify(job, null, 2));
+    const data = JSON.stringify(job, null, 2);
+    await fs.promises.writeFile(tmpPath, data);
+    await fs.promises.rename(tmpPath, jobPath);
   } catch (err) {
     console.error(`❌ [IO] Erro ao salvar Job ${job.id}:`, err);
   }
@@ -68,7 +71,14 @@ async function saveJob(job: PipelineJob) {
 function loadJob(id: string): PipelineJob | null {
   const p = path.join(JOBS_DIR, `${id}.json`);
   if (!fs.existsSync(p)) return null;
-  return JSON.parse(fs.readFileSync(p, 'utf-8'));
+  try {
+    const content = fs.readFileSync(p, 'utf-8');
+    if (!content.trim()) return null;
+    return JSON.parse(content);
+  } catch (err) {
+    console.error(`❌ [IO] Erro ao carregar Job ${id} (arquivo corrompido):`, err);
+    return null;
+  }
 }
 
 // ─── PIPELINE ────────────────────────────────────────────────
@@ -256,7 +266,7 @@ async function finishJobRendering(jobId: string, analysis: ChartAnalysis, chartT
           inputProps: { 
             ...analysis.props, 
             theme: chartTheme,
-            bgStyle: options.bgStyle || 'none'
+            backgroundType: options.backgroundType || 'dark'
           }
         });
 
@@ -273,7 +283,7 @@ async function finishJobRendering(jobId: string, analysis: ChartAnalysis, chartT
           inputProps: { 
             ...analysis.props, 
             theme: chartTheme,
-            bgStyle: options.bgStyle || 'none'
+            backgroundType: options.backgroundType || 'dark'
           }
         });
 
@@ -300,39 +310,65 @@ async function finishJobRendering(jobId: string, analysis: ChartAnalysis, chartT
 
 // 📌 ROTAS 📌
 const upload = multer({ storage: multer.memoryStorage() });
-app.use(express.static(path.join(process.cwd(), 'public'))); 
+app.use(express.static(path.join(PATHS.server, 'public'))); 
 app.use('/output', express.static(OUTPUT_DIR));
 
 app.post('/upload', upload.single('file'), async (req: Request, res: Response) => {
-  console.log(`🚀 [UPLOAD] Recebido arquivo: ${req.file?.originalname} de IP: ${req.ip}`);
-  if (!req.file) return res.status(400).json({ error: 'No file' });
-  const jobId = uuidv4();
-  const job: PipelineJob = { id: jobId, status: 'pending', progress: 0, stage: 'Aguardando...' };
-  await saveJob(job);
+  try {
+    console.log(`🚀 [UPLOAD] Recebido arquivo: ${req.file?.originalname} de IP: ${req.ip}`);
+    if (!req.file) return res.status(400).json({ error: 'No file' });
+    const jobId = uuidv4();
+    const job: PipelineJob = { id: jobId, status: 'pending', progress: 0, stage: 'Aguardando...' };
+    await saveJob(job);
 
-  console.log(`📡 [Payload] Job: ${jobId} | Auditor: ${req.body.enableAuditor} | Callouts: ${req.body.includeCallouts}`);
-  
-  const options = {
-    chartTheme: req.body.chartTheme || 'dark',
-    includeCallouts: req.body.includeCallouts === 'true',
-    enableAuditor: String(req.body.enableAuditor) !== 'false', // Forçando cast para String e comparando
-    enableVoiceover: req.body.enableVoiceover === 'true',
-    elevenlabsKey: req.body.elevenlabsKey || process.env.ELEVENLABS_API_KEY,
-    bgStyle: req.body.bgStyle || 'none',
-    reviewRequired: true 
-  };
+    console.log(`📡 [Payload] Job: ${jobId} | Auditor: ${req.body.enableAuditor} | Callouts: ${req.body.includeCallouts}`);
+    
+    const options = {
+      chartTheme: req.body.chartTheme || 'dark',
+      includeCallouts: req.body.includeCallouts === 'true',
+      enableAuditor: String(req.body.enableAuditor) !== 'false', 
+      enableVoiceover: req.body.enableVoiceover === 'true',
+      elevenlabsKey: req.body.elevenlabsKey || process.env.ELEVENLABS_API_KEY,
+      bgStyle: req.body.bgStyle || 'none',
+      reviewRequired: true 
+    };
 
-  processJob(jobId, req.file.buffer, req.file.originalname, options.chartTheme, options);
-  res.json({ jobId });
+    processJob(jobId, req.file.buffer, req.file.originalname, options.chartTheme, options);
+    res.json({ jobId });
+  } catch (err: any) {
+    console.error("❌ [Route] Erro no /upload:", err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.post('/jobs/:jobId/start-render', async (req: Request, res: Response) => {
-  const { jobId } = req.params;
-  const { analysis, originalName, chartTheme } = req.body;
-  
-  console.log(`🎬 [RENDER] Iniciando render final para Job: ${jobId}`);
-  finishJobRendering(String(jobId), analysis, chartTheme, originalName);
-  res.json({ success: true });
+  try {
+    const { jobId } = req.params;
+    const { analysis, originalName, chartTheme, isDarkBg, includeCallouts } = req.body;
+    
+    if (chartTheme && chartTheme !== 'original' && analysis && analysis.props) {
+        delete analysis.props.backgroundColor;
+        delete analysis.props.textColor;
+        delete analysis.props.colors;
+    }
+    
+    const job = loadJob(String(jobId));
+    if (job) {
+        job.options = job.options || {};
+        if (isDarkBg !== undefined) job.options.backgroundType = isDarkBg ? 'dark' : 'light';
+        if (includeCallouts !== undefined) job.options.includeCallouts = includeCallouts;
+        await saveJob(job);
+    } else {
+        return res.status(404).json({ error: 'Job not found or corrupted' });
+    }
+    
+    console.log(`🎬 [RENDER] Iniciando render final para Job: ${jobId}`);
+    finishJobRendering(String(jobId), analysis, chartTheme, originalName);
+    res.json({ success: true });
+  } catch (err: any) {
+    console.error("❌ [Route] Erro no /start-render:", err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.get('/progress/:jobId', (req: Request, res: Response) => {
@@ -390,8 +426,8 @@ async function runSurgeryGradePipeline(
       const audit = await auditRenderFidelity(filePath, stillPath);
       lastAudit = audit;
 
-      if (audit.isApproved || audit.score >= 90) {
-        console.log("✅ [Orchestrator] Fidelidade Aprovada!");
+      if (audit.isApproved && audit.score >= 95) {
+        console.log("✅ [Orchestrator] Fidelidade Aprovada (Score:", audit.score, ")!");
         job.progress = 40;
         return analysis;
       }
@@ -422,7 +458,7 @@ async function runSurgeryGradePipeline(
   }
 
   // Verificação final do auditor (se o score final for bizarramente baixo, barra o render)
-  if (lastAudit && lastAudit.score < 45) {
+  if (lastAudit && lastAudit.score < 70) {
       throw new Error(`FIDELIDADE REPROVADA: O render atual está quase vazio ou incorreto (${lastAudit.score}%). Auditor: ${lastAudit.critique}`);
   }
 

@@ -1,4 +1,4 @@
-import React, { useMemo, useId } from "react";
+﻿import React, { useMemo, useId } from "react";
 import {
   spring,
   useCurrentFrame,
@@ -7,6 +7,7 @@ import {
   AbsoluteFill,
 } from "remotion";
 import { Theme, resolveTheme } from '../theme';
+import { DynamicBackground } from "../layout/DynamicBackground";
 
 export interface TreemapNode {
   id: string;
@@ -23,6 +24,7 @@ export interface TreemapChartProps {
   theme?: string;
   colors?: string[];
   textColor?: string;
+  bgStyle?: 'none' | 'mesh' | 'grid';
 }
 
 interface Rect {
@@ -38,15 +40,21 @@ export const TreemapChart: React.FC<TreemapChartProps> = ({
   title,
   subtitle,
   backgroundColor,
+  textColor,
+  theme = 'dark',
+  bgStyle = 'none',
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
-  const T = resolveTheme(theme ?? 'dark');
+  
+  const initialT = resolveTheme(theme ?? 'dark');
+  const resolvedBg = backgroundColor ?? initialT.background;
+  const T = resolveTheme(theme ?? 'dark', resolvedBg);
   const instanceId = useId().replace(/:/g, "");
 
   // Safe Zone 4K
-  const margin = Theme.spacing.padding || 128;
-  const titleHeight = Theme.spacing.titleHeight || 160;
+  const margin = Theme.canvas.safeZoneX;
+  const titleHeight = Theme.canvas.safeZoneTop;
   const plotWidth = width - margin * 2;
   const plotHeight = height - margin * 2 - titleHeight - 100;
   const chartTop = margin + titleHeight;
@@ -112,7 +120,12 @@ export const TreemapChart: React.FC<TreemapChartProps> = ({
   const groups = Array.from(new Set(data.map(d => d.group || "default")));
 
   return (
-    <AbsoluteFill style={{ backgroundColor: backgroundColor ?? T.background }}>
+    <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
+      <DynamicBackground 
+        style={bgStyle} 
+        baseColor={resolvedBg} 
+        accentColor={T.colors[0]} 
+      />
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',
         opacity: interpolate(frame, [0, 15], [0, 1])
@@ -121,7 +134,7 @@ export const TreemapChart: React.FC<TreemapChartProps> = ({
         {subtitle && <div style={{ fontSize: Theme.typography.subtitle.size, color: Theme.typography.subtitle.color, fontFamily: Theme.typography.fontFamily }}>{subtitle}</div>}
       </div>
 
-      <svg width={width} height={height} style={{ overflow: 'visible' }}>
+      <svg width={width} height={height} style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}>
         {rects.map((r, i) => {
           const gIdx = groups.indexOf(r.data.group || "default");
           const color = T.colors[gIdx % T.colors.length];

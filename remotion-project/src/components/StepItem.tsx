@@ -94,7 +94,7 @@ export const StepItem: React.FC<{
           {renderedIcon}
         </div>
       </div>
-      
+
       <div style={{
         position: 'absolute',
         top: 320,
