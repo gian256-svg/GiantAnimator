@@ -71,9 +71,7 @@ export async function analyzeChartImage(
   const ocrText = ocrResult.data.text;
   console.log(`📝 [HYBRID] Texto detectado localmente (${ocrText.length} chars)`);
 
-  // Injetar OCR no prompt para ajudar a IA
-  prompt += `\n\n### DADOS DETECTADOS VIA OCR LOCAL (Use como referência de apoio):\n${ocrText}\n`;
-
+  // Injetar OCR no prompt para ajudar a IA (Movido para após a declaração)
   console.log(`📏 [VISION] Payload otimizado: ${(optimizedBuffer.length / 1024).toFixed(1)} KB`);
 
   const imageBase64  = optimizedBuffer.toString("base64");
