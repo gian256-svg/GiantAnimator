@@ -5,15 +5,15 @@ Sua missão é a extração de dados com fidelidade absoluta de 100%.
 
 ### PROTOCOLO DE DESCOBERTA (PRECISÃO CIRÚRGICA):
 1. **Calibração de Eixos (Fidelidade UHD)**:
-   - Identifique o valor MÁXIMO visível no eixo Y (ex: 1.400). Este é seu ANCORA.
-   - Identifique os valores intermediários (ex: 200, 400, 600...).
-   - Identifique a PRIMEIRA e a ÚLTIMA data explicita no eixo X.
-   - **MISSÃO CRÍTICA**: Você deve extrair dados do começo ao fim do eixo X. NÃO TRUNQUE OS DADOS. Se o gráfico vai de 01/Ago a 09/Nov, você DEVE extrair pontos que cubram todo esse período.
+   - **PASSO 1**: Identifique e liste todos os números escritos no eixo Y (ex: 0, 10, 20... 90).
+   - **PASSO 2**: Identifique e liste todos os rótulos no eixo X (ex: 2011, 2012...).
+   - **PASSO 3**: Estime o valor de CADA ponto/barra comparando sua altura física com a escala do Passo 1.
+   - **REGRA SUPREMA**: NUNCA invente uma tendência linear (ex: 10, 20, 30, 40). Se o gráfico original tem oscilações, seu JSON deve refletir essas oscilações exatas. A realidade dos dados tem supremacia total.
 
 2. **Identificação de Séries (Anchoring)**:
+   - **TIPO DE GRÁFICO**: Se o original é um gráfico de barras, você DEVE retornar "BarChart". Não mude para "LineChart" apenas porque é uma série temporal. Respeite o design original.
    - **MAPPING CRÍTICO**: A ordem das séries na legenda DEVE ser a mesma ordem das barras/linhas no gráfico.
    - **CORES**: Extraia o Hex exato da série original. Se a série "Vendas" é vermelha no original, ela DEVE ter color: "#hex_vermelho".
-   - **LEGEND SYNC**: O nome da série no JSON deve bater 100% com o texto da legenda da imagem.
 
 3. **Extração de Tendência (High-Density)**:
    - **NÃO CONFUNDA**: Nunca use os números escritos no Eixo Y como valores de dados. Use a posição física do ponto em relação à escala para estimar o valor real.
@@ -21,11 +21,10 @@ Sua missão é a extração de dados com fidelidade absoluta de 100%.
    - Capture todas as curvaturas. Se a linha sobe e desce, o JSON deve refletir isso.
 
 ### SELEÇÃO DE COMPONENTE (CRÍTICA - Leia o Registry):
-- Use o "componentId" EXATAMENTE como listado no REGISTRY abaixo.
-- **LineChart**: Quando há 1 ou mais séries de linhas identificadas com labels distintas.
-- **BarChart**: Quando há barras verticais simples.
-- **MultiLineChart**: Quando há explicitamente MÚLTIPLAS séries de linhas com layout de legenda inline.
-- Nunca invente um componentId que não existir no Registry.
+- **BarChart**: Use SEMPRE que o original possuir barras verticais. É **estritamente proibido** sugerir LineChart se o original é um gráfico de barras, mesmo que os dados sejam temporais.
+- **LineChart**: Use apenas se o original for um gráfico de linhas contínuas.
+- **MultiLineChart**: Use quando houver múltiplas séries de linhas.
+- **HorizontalBarChart**: Use se as barras forem horizontais.
 
 ${includeCallouts ? `
 ### MISSÃO ADICIONAL: SMART CALL-OUTS
@@ -49,7 +48,7 @@ No campo "reasoning", você deve primeiro descrever o que vê no gráfico (quais
 {
   "componentId": "<ID EXATO do Registry — ex: LineChart, BarChart, PieChart>",
   "suggestedName": "FidelidadeAbsoluta",
-  "reasoning": "...",
+  "reasoning": "Sua análise detalhada aqui (eixos, séries e calibração)...",
   "props": {
     "title": "...",
     "subtitle": "...",

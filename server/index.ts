@@ -165,7 +165,7 @@ async function processJob(
 
         analysis = {
           // Heurística local tem prioridade, depois IA, depois fallback simples
-          componentId: parsed.suggestedChartType || aiResponse.type || (numericCols.length > 1 ? 'LineChart' : 'BarChart'),
+          componentId: parsed.suggestedChartType || aiResponse.type || (numericCols.length > 1 ? 'MultiLineChart' : 'BarChart'),
           suggestedName: (aiResponse.title || 'DataChart').replace(/\s+/g, ''),
           reasoning: `Análise local: ${parsed.isTimeSeries ? 'Série Temporal detectada.' : 'Dados categóricos.'} ${parsed.dataWarnings?.join(' ') || ''}`,
           props: {

@@ -427,8 +427,17 @@ Caso a imagem mande um título muito longo, ele não pode flanquear o Canvas de 
 
 **Mecanismo de Controle**:
 1.  **Auditoria em Loop**: O sistema realiza até 2 tentativas de auto-correção baseadas na crítica do Auditor.
-2.  **Hard-Gate**: Se o Score Final for inferior a 95%, o pipeline é interrompido com erro de fidelidade. Não é permitida a entrega de gráficos com inconsistências de dados ou cores.
-3.  **Prioridade OCR**: Em caso de conflito visual, o texto extraído via OCR Local tem prioridade sobre a interpretação de imagem da IA para evitar alucinações numéricas.
+2.  **Hard-Gate**: Se o Score Final for inferior a 95%, o pipeline é interrompido com erro de fidelidade.
+3.  **Supremacia de Dados**: Os dados originais têm soberania total. É proibido inventar tendências lineares onde existem oscilações.
+4.  **Soberania do Aspecto Original**: Se o original é um gráfico de barras, o render **DEVE** ser `BarChart`. Falsos positivos de `LineChart` para dados temporais são proibidos.
+
+---
+
+### 🧪 [2026-04-22] PROTOCOLO DE CALIBRAÇÃO STEP-BY-STEP
+**Regra**: A IA deve obrigatoriamente listar os eixos X e Y antes de extrair os valores.
+- Passo 1: Listar rótulos do Eixo Y.
+- Passo 2: Listar rótulos do Eixo X.
+- Passo 3: Mapear altura visual de cada ponto em relação à escala.
 
 ---
 

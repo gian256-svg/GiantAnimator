@@ -59,10 +59,13 @@ export async function analyzeChartImage(
 
   console.log(`🔍 [VISION] Enviando para Gemini Vision...`);
 
-  // ─── Otimizar imagem (1920p JPEG - Equilíbrio ideal entre fidelidade e estabilidade) ───
+  // ─── Otimizar imagem (1920p JPEG - Ultra Contrast & Sharpness) ───
   const optimizedBuffer = await sharp(rawImageData)
     .resize(1920, 1080, { fit: "inside", withoutEnlargement: true })
-    .jpeg({ quality: 85 })
+    .normalize()
+    .modulate({ brightness: 1.1, contrast: 1.2 }) // Ilumina eixos escuros
+    .sharpen({ sigma: 1.2 })   // Aumenta nitidez de micro-dados
+    .jpeg({ quality: 95 })
     .toBuffer();
 
   // ─── Processamento Híbrido: OCR Local (Pre-pass) ───────────────────
