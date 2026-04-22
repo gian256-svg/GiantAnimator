@@ -94,11 +94,11 @@ export async function auditRenderFidelity(
                            err.message?.includes("API");
 
       if (isGoogleError) {
-        console.warn(`⚠️ [AUDITOR] Google Vision offline. Ativando 'Confiança Tácita' para evitar bloqueio.`);
+        console.warn(`⚠️ [AUDITOR] Google Vision offline. Entrando em modo de 'Alerta de Fidelidade'.`);
         return {
-          score: 100,
-          isApproved: true,
-          critique: "Aprovação técnica automática: Servidor de visão indisponível, mas dados preservados."
+          score: 85,
+          isApproved: false,
+          critique: "Aviso: Servidor de auditoria indisponível (Erro 503). O vídeo foi gerado, mas a fidelidade visual não pôde ser garantida pela IA. Verifique manualmente."
         };
       }
 

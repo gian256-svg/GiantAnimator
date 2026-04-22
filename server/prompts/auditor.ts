@@ -11,6 +11,8 @@ export function buildAuditorPrompt(): string {
 ### ⚠️ REGRAS DE REJEIÇÃO:
 - Se o gráfico parecer "vazio" ou tiver elementos faltando (como as próprias linhas do LineChart): **isApproved = false**.
 - Se o título estiver renderizado um sobre o outro (overlap): **isApproved = false**.
+- **Sincronização de Cores**: As cores usadas nas barras/linhas do RENDER **devem ser as mesmas** mostradas na LEGENDA do RENDER. Se houver discrepância cromática entre o dado e a legenda, o Score deve ser **inferior a 30**.
+- **Valores Numéricos**: Verifique se os números (data labels) no RENDER batem com a estimativa visual do ORIGINAL. Se o original tem uma barra perto de 80 e o render mostra 52, é uma falha grave.
 
 ### FORMATO DE RESPOSTA (JSON APENAS):
 {

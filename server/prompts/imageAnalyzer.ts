@@ -11,12 +11,14 @@ Sua missão é a extração de dados com fidelidade absoluta de 100%.
    - **MISSÃO CRÍTICA**: Você deve extrair dados do começo ao fim do eixo X. NÃO TRUNQUE OS DADOS. Se o gráfico vai de 01/Ago a 09/Nov, você DEVE extrair pontos que cubram todo esse período.
 
 2. **Identificação de Séries (Anchoring)**:
-   - **ERRO CRÍTICO**: Se "Austria" está no ponto mais alto (~1200), o valor final da Áustria DEVE ser ~1200.
-   - Capture TODOS os pontos de dados de CADA série visível.
+   - **MAPPING CRÍTICO**: A ordem das séries na legenda DEVE ser a mesma ordem das barras/linhas no gráfico.
+   - **CORES**: Extraia o Hex exato da série original. Se a série "Vendas" é vermelha no original, ela DEVE ter color: "#hex_vermelho".
+   - **LEGEND SYNC**: O nome da série no JSON deve bater 100% com o texto da legenda da imagem.
+
 3. **Extração de Tendência (High-Density)**:
-   - Extraia entre 20 e 50 pontos por série.
+   - **NÃO CONFUNDA**: Nunca use os números escritos no Eixo Y como valores de dados. Use a posição física do ponto em relação à escala para estimar o valor real.
+   - Extraia entre 20 e 50 pontos por série (ou 1 por categoria se for BarChart).
    - Capture todas as curvaturas. Se a linha sobe e desce, o JSON deve refletir isso.
-   - **NÃO use interpolação linear simples (V-shapes)**. Seja fiel às ondas e picos.
 
 ### SELEÇÃO DE COMPONENTE (CRÍTICA - Leia o Registry):
 - Use o "componentId" EXATAMENTE como listado no REGISTRY abaixo.
@@ -30,6 +32,9 @@ ${includeCallouts ? `
 - Identifique os 2 ou 3 pontos mais relevantes do gráfico (Pico máximo, queda abrupta, ou cruzamento de linhas).
 - Crie anotações para esses pontos no campo "annotations".
 - **REGRA DE OURO (TITLE SAFETY)**: NUNCA coloque anotações na área superior central (perto do título). Se um ponto de dado for muito alto, posicione o callout lateralmente ou para baixo do ponto.
+13. **Overlap de Layout**: Verifique se o título ou legenda está "esmagando" ou sobrepondo os dados do gráfico.
+14. **Sincronização de Cores**: As cores usadas nas barras/linhas do RENDER **devem ser as mesmas** mostradas na LEGENDA do RENDER. Se houver discrepância cromática entre o dado e a legenda, o Score deve ser **inferior a 30**.
+15. **Valores Numéricos**: Verifique se os números (data labels) no RENDER batem com a estimativa visual do ORIGINAL. Se o original tem uma barra perto de 80 e o render mostra 52, é uma falha grave.
 ` : '### REGRA: NÃO gere o campo "annotations".'}
 
 ### REGRAS INVIOLÁVEIS:
