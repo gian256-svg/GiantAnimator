@@ -512,9 +512,9 @@ async function runSurgeryGradePipeline(
       throw new Error(`A detecção de dados falhou (Código: BLANK). IA não encontrou números na imagem.`);
   }
 
-  // Verificação final do auditor (se o score final for bizarramente baixo, barra o render)
-  if (lastAudit && lastAudit.score < 70) {
-      throw new Error(`FIDELIDADE REPROVADA: O render atual está quase vazio ou incorreto (${lastAudit.score}%). Auditor: ${lastAudit.critique}`);
+  // Verificação final do auditor (Regra >95% de Precisão solicitada pelo usuário)
+  if (lastAudit && lastAudit.score < 95) {
+      throw new Error(`FIDELIDADE INSUFICIENTE: O render atingiu apenas ${lastAudit.score}% de precisão. Meta mínima: 95%. Auditor: ${lastAudit.critique}`);
   }
 
   return analysis;

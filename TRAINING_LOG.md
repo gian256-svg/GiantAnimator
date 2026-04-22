@@ -422,6 +422,16 @@ Caso a imagem mande um título muito longo, ele não pode flanquear o Canvas de 
 
 ---
 
+### 🎯 [2026-04-22] META DE PRECISÃO: >95% (RIGOR TOTAL)
+**Meta**: Todo vídeo gerado deve ter fidelidade visual e de dados superior a 95% em relação ao original.
+
+**Mecanismo de Controle**:
+1.  **Auditoria em Loop**: O sistema realiza até 2 tentativas de auto-correção baseadas na crítica do Auditor.
+2.  **Hard-Gate**: Se o Score Final for inferior a 95%, o pipeline é interrompido com erro de fidelidade. Não é permitida a entrega de gráficos com inconsistências de dados ou cores.
+3.  **Prioridade OCR**: Em caso de conflito visual, o texto extraído via OCR Local tem prioridade sobre a interpretação de imagem da IA para evitar alucinações numéricas.
+
+---
+
 ### 🚀 [2026-04-22] OPERAÇÃO SILENCIOSA (BACKGROUND SERVICE)
 **Regra**: O servidor deve ser iniciado via `SILENT_START.ps1` para evitar a abertura de janelas de terminal intrusivas no computador do usuário.
 - Logs persistidos em `logs/server.log`.
