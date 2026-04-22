@@ -25,15 +25,15 @@ export const COMPONENT_REGISTRY: ComponentEntry[] = [
     id: "PieChart",
     aliases: ["pie chart", "pizza", "circular"],
     description: "Gráfico de pizza para proporções.",
-    propsSchema: "data: { label: string, value: number }[], title?: string, backgroundColor?: string, textColor?: string, seriesColors?: string[]",
-    exampleProps: { title: "Market Share", data: [{ label: "A", value: 40 }] }
+    propsSchema: "data: { label: string, value: number }[], title?: string, backgroundColor?: string, textColor?: string, seriesColors?: string[], legendPosition?: 'bottom'|'right'|'none', labelPosition?: 'inside'|'outside'|'auto'",
+    exampleProps: { title: "Market Share", data: [{ label: "A", value: 40 }], legendPosition: 'right' }
   },
   {
     id: "DonutChart",
     aliases: ["donut chart", "rosca"],
     description: "Gráfico de rosca.",
-    propsSchema: "data: { label: string, value: number }[], title?: string, backgroundColor?: string, textColor?: string, seriesColors?: string[]",
-    exampleProps: { title: "Distribuição", data: [{ label: "A", value: 40 }] }
+    propsSchema: "data: { label: string, value: number }[], title?: string, backgroundColor?: string, textColor?: string, seriesColors?: string[], legendPosition?: 'bottom'|'right'|'none', labelPosition?: 'inside'|'outside'|'auto'",
+    exampleProps: { title: "Distribuição", data: [{ label: "A", value: 40 }], legendPosition: 'right' }
   },
   {
     id: "AreaChart",

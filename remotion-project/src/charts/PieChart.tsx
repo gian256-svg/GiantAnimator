@@ -1,10 +1,10 @@
 import React, { useId } from "react";
 import {
-  spring,
   useCurrentFrame,
   useVideoConfig,
   AbsoluteFill,
   interpolate,
+  Easing,
 } from "remotion";
 import { Theme, resolveTheme, formatValue } from "../theme";
 import { DynamicBackground } from "../layout/DynamicBackground";
@@ -31,6 +31,8 @@ export interface PieChartProps {
   backgroundType?: 'dark' | 'light';
   includeCallouts?: boolean;
   theme?: string;
+  legendPosition?: 'bottom' | 'right' | 'none';
+  labelPosition?: 'inside' | 'outside' | 'auto';
 }
 
 export const PieChart: React.FC<PieChartProps> = (props) => {
@@ -44,6 +46,8 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
     // bgStyle = "none", // Removido por não ser mais necessário no DynamicBackground
     includeCallouts = false,
     backgroundType,
+    legendPosition = 'bottom',
+    labelPosition = 'auto',
   } = props;
 
   const frame = useCurrentFrame();
@@ -65,12 +69,25 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
 
   // 2. Normalização de dados (Suporta múltiplos formatos)
   let normalizedData: PieSlice[] = [];
+  const raw = rawData || {};
+  
   if (Array.isArray(rawData)) {
     normalizedData = rawData;
-  } else if (rawData.labels && rawData.datasets && rawData.datasets[0]) {
-    normalizedData = rawData.labels.map((label: string, i: number) => ({
+  } else if (raw.data && Array.isArray(raw.data)) {
+    // Formato 'data' direto: [{label, value}, ...]
+    normalizedData = raw.data;
+  } else if (raw.labels && raw.series && raw.series[0] && Array.isArray(raw.series[0].data)) {
+    // Formato 'series' (Padrão GiantAnimator para MultiLine/Bar)
+    normalizedData = raw.labels.map((label: string, i: number) => ({
       label,
-      value: rawData.datasets[0].data[i] || 0,
+      value: raw.series[0].data[i] ?? 0,
+      color: raw.series[0].color,
+    }));
+  } else if (raw.labels && raw.datasets && raw.datasets[0] && Array.isArray(raw.datasets[0].data)) {
+    // Formato 'datasets' (Padrão Chart.js)
+    normalizedData = raw.labels.map((label: string, i: number) => ({
+      label,
+      value: raw.datasets[0].data[i] ?? 0,
     }));
   }
 
@@ -95,20 +112,23 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
 
   // ── Layout (Zonas 1, 2, 3) ──
   const TITLE_SIZE = fs(38);
-  const LEGEND_SIZE = fs(18); // Tamanho reduzido para evitar transbordamento (Anti-Colisão)
+  const LEGEND_SIZE = fs(24); // Aumentado para melhor legibilidade UHD
   
-  const centerX = width / 2;
+  // 🚀 POSICIONAMENTO DINÂMICO (Bottom vs Right)
+  const isRightLegend = legendPosition === 'right';
+  const legendWidth = isRightLegend ? fs(580) : width * 0.9;
   
-  // 🚀 CENTRO DE GRAVIDADE DINÂMICO (Regra 4K de Equilíbrio Vertical)
+  const centerX = isRightLegend ? (width - legendWidth) / 2 : width / 2;
+  
   // Se a legenda for pequena, mantemos o gráfico mais centralizado para evitar colisão com o título.
-  const estimatedLegendRows = Math.max(1, Math.ceil(slices.length / 4));
+  const estimatedLegendRows = Math.max(1, Math.ceil(slices.length / (isRightLegend ? 1 : 4)));
   const gravityShift = estimatedLegendRows * fs(30); 
   
-  // Base 0.50 (centro real) e só sobe se houver muitas linhas de legenda
-  const centerY = (height * 0.50) - (estimatedLegendRows > 2 ? gravityShift : 0); 
+  // Base 0.50 (centro real) e só sobe se houver muitas linhas de legenda (apenas se for bottom)
+  const centerY = (height * 0.50) - (!isRightLegend && estimatedLegendRows > 2 ? gravityShift : 0); 
   
-  // Raio Seguro: 28% da altura para preservar títulos e legendas
-  const maxRadius = Math.min(width * 0.28, height * 0.28);
+  // Raio Seguro: 28% da altura (ou menos se for lateral para evitar corte)
+  const maxRadius = Math.min((isRightLegend ? width * 0.30 : width * 0.28), height * 0.28);
   const radius = maxRadius;
 
   // 🚀 POSICIONAMENTO DINÂMICO DA LEGENDA (Regra Anti-Vacuo)
@@ -171,11 +191,17 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
         {slices.map((slice, i) => {
           const startAngle = currentAngle;
           const startFrame = 30 + i * (60 / slices.length); // Distribui animação melhor
-          const progress = spring({
-            frame: frame - startFrame,
-            fps,
-            config: { damping: 12, stiffness: 90, mass: 0.8 }, // Usando config do Theme
-          });
+          // Animação fluida "Easy Out" solicitada pelo usuário
+          const progress = interpolate(
+            frame - startFrame,
+            [0, 45], // Duração de 45 frames para o reveal de cada fatia
+            [0, 1],
+            {
+              extrapolateLeft: "clamp",
+              extrapolateRight: "clamp",
+              easing: Easing.out(Easing.exp),
+            }
+          );
 
           const currentSliceAngle = slice.angle * progress;
           const endAngle = startAngle + currentSliceAngle;
@@ -193,7 +219,8 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
           const midAngle = startAngle + currentSliceAngle / 2;
           
           // Labels baseadas em tamanho da fatia (Regra Unificada: >= 9%)
-          const labelInside = slice.pct >= 9;
+          // Labels baseadas em tamanho da fatia (Regra Unificada: >= 9%) ou preferência
+          const labelInside = labelPosition === 'inside' ? true : labelPosition === 'outside' ? false : slice.pct >= 9;
           const labelDist = labelInside ? radius * 0.65 : radius * 1.25;
           const lx = centerX + labelDist * Math.cos(midAngle);
           const ly = centerY + labelDist * Math.sin(midAngle);
@@ -263,26 +290,36 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
       })()}
 
       {/* ── LEGEND (ZONA 3) ── */}
-      <div style={{
-          position: "absolute", bottom: dynamicLegendBottom, left: width * 0.05, right: width * 0.05,
-          display: "flex", justifyContent: "center", alignItems: "center", flexWrap: "wrap", gap: fs(24),
-          opacity: interpolate(frame, [40, 60], [0, 1]),
-          pointerEvents: 'none'
-        }}
-      >
-        {slices.map((s, i) => (
-          <div key={i} style={{ display: "flex", alignItems: "center", gap: fs(8) }}>
-            <div style={{ 
-              width: fs(14), height: fs(14), borderRadius: "50%", 
-              backgroundColor: s.color || sliceColors[i % sliceColors.length],
-              border: `${fs(2)}px solid #fff`, boxShadow: '0 0 10px rgba(0,0,0,0.3)'
-            }} />
-            <div style={{ fontSize: LEGEND_SIZE, color: resolvedText, fontWeight: 500 }}>
-              {s.label} ({formatValue(s.value, unit)})
+      {legendPosition !== 'none' && (
+        <div style={{
+            position: "absolute", 
+            bottom: isRightLegend ? 'auto' : dynamicLegendBottom, 
+            top: isRightLegend ? centerY - (slices.length * fs(45)) / 2 : 'auto',
+            left: isRightLegend ? width - legendWidth : width * 0.05, 
+            right: isRightLegend ? fs(50) : width * 0.05,
+            display: "flex", 
+            flexDirection: isRightLegend ? "column" : "row",
+            justifyContent: isRightLegend ? "center" : "center", 
+            alignItems: isRightLegend ? "flex-start" : "center", 
+            flexWrap: "wrap", 
+            gap: fs(isRightLegend ? 18 : 24),
+            opacity: interpolate(frame, [40, 60], [0, 1]),
+            pointerEvents: 'none'
+          }}
+        >
+          {slices.map((s, i) => (
+               <div style={{ 
+                 width: fs(18), height: fs(18), borderRadius: "2px", // Aumentado de 14 para 18
+                 backgroundColor: s.color || sliceColors[i % sliceColors.length],
+                 border: `${fs(2)}px solid #fff`, boxShadow: '0 0 10px rgba(0,0,0,0.3)'
+               }} />
+               <div style={{ fontSize: LEGEND_SIZE, color: resolvedText, fontWeight: 600, display: 'flex', gap: fs(12) }}>
+                {s.label} ({formatValue(s.value, unit)})
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
     </AbsoluteFill>
   );

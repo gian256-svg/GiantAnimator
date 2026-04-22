@@ -317,7 +317,7 @@ async function finishJobRendering(jobId: string, analysis: ChartAnalysis, chartT
           inputProps: { 
             ...analysis.props, 
             theme: chartTheme,
-            backgroundType: options.backgroundType || 'dark'
+            backgroundType: options.backgroundType
           }
         });
 
@@ -329,7 +329,7 @@ async function finishJobRendering(jobId: string, analysis: ChartAnalysis, chartT
           inputProps: { 
             ...analysis.props, 
             theme: chartTheme,
-            backgroundType: options.backgroundType || 'dark'
+            backgroundType: options.backgroundType
           }
         });
 
@@ -397,8 +397,13 @@ app.post('/jobs/:jobId/start-render', async (req: Request, res: Response) => {
     const job = loadJob(String(jobId));
     if (job) {
         job.options = job.options || {};
-        if (isDarkBg !== undefined) job.options.backgroundType = isDarkBg ? 'dark' : 'light';
+        if (isDarkBg !== undefined) {
+            job.options.backgroundType = isDarkBg ? 'dark' : 'light';
+        } else if (req.body.options?.backgroundType) {
+            job.options.backgroundType = req.body.options.backgroundType;
+        }
         if (includeCallouts !== undefined) job.options.includeCallouts = includeCallouts;
+        if (req.body.options?.engine) job.options.engine = req.body.options.engine;
         await saveJob(job);
     } else {
         return res.status(404).json({ error: 'Job not found or corrupted' });

@@ -8,60 +8,33 @@ Sua missão é a extração de dados com fidelidade absoluta de 100%.
    - **PASSO 1**: Identifique e liste todos os números escritos no eixo Y (ex: 0, 10, 20... 90).
    - **PASSO 2**: Identifique e liste todos os rótulos no eixo X (ex: 2011, 2012...).
    - **PASSO 3**: Estime o valor de CADA ponto/barra comparando sua altura física com a escala do Passo 1.
-   - **PROIBIÇÃO DE SEQUÊNCIA**: É expressamente proibido gerar valores que formem uma sequência aritmética perfeita (ex: +4 a cada ano). Se o gráfico original tem barras de diferentes alturas, o JSON deve refletir essas variações exatas. Se você "simplificar" os dados, estará violando a Regra de Ouro.
-   - **CONTAGEM**: Conte o número de barras. Se há 9 barras na imagem, deve haver exatamente 9 entradas no array "data".
+   - **PRECISÃO DECIMAL**: Capture valores com fidelidade total (ex: 1.49 em vez de 1.5). Preserve pelo menos 2 casas decimais. É proibido arredondar para o inteiro mais próximo.
+   - **CONTAGEM**: Se houver 9 fatias/barras na imagem, deve haver exatamente 9 entradas no array de dados.
 
 2. **Identificação de Séries (Anchoring)**:
-   - **TIPO DE GRÁFICO**: Se o original é um gráfico de barras, você DEVE retornar "BarChart". Não mude para "LineChart" apenas porque é uma série temporal. Respeite o design original.
-   - **MAPPING CRÍTICO**: A ordem das séries na legenda DEVE ser a mesma ordem das barras/linhas no gráfico.
-   - **CORES**: Extraia o Hex exato da série original. Se a série "Vendas" é vermelha no original, ela DEVE ter color: "#hex_vermelho".
+   - **TIPO DE GRÁFICO**: Se o original é um gráfico de pizza, use "PieChart". Se for barras, "BarChart". Respeite o design original.
+   - **CORES**: Extraia o Hex exato da série original.
 
-3. **Extração de Tendência (High-Density)**:
-   - **NÃO CONFUNDA**: Nunca use os números escritos no Eixo Y como valores de dados. Use a posição física do ponto em relação à escala para estimar o valor real.
-   - Extraia entre 20 e 50 pontos por série (ou 1 por categoria se for BarChart).
-   - Capture todas as curvaturas. Se a linha sobe e desce, o JSON deve refletir isso.
-
-### SELEÇÃO DE COMPONENTE (CRÍTICA - Leia o Registry):
-- **BarChart**: Use SEMPRE que o original possuir barras verticais. É **estritamente proibido** sugerir LineChart se o original é um gráfico de barras, mesmo que os dados sejam temporais ou contenham muitos pontos (ex: 9+ barras).
-- **LineChart**: Use apenas se o original for um gráfico de linhas contínuas.
-- **MultiLineChart**: Use quando houver múltiplas séries de linhas.
-- **HorizontalBarChart**: Use se as barras forem horizontais.
-
-${includeCallouts ? `
-### MISSÃO ADICIONAL: SMART CALL-OUTS
-- Identifique os 2 ou 3 pontos mais relevantes do gráfico (Pico máximo, queda abrupta, ou cruzamento de linhas).
-- Crie anotações para esses pontos no campo "annotations".
-- **REGRA DE OURO (TITLE SAFETY)**: NUNCA coloque anotações na área superior central (perto do título). Se um ponto de dado for muito alto, posicione o callout lateralmente ou para baixo do ponto.
-13. **Overlap de Layout**: Verifique se o título ou legenda está "esmagando" ou sobrepondo os dados do gráfico.
-14. **Sincronização de Cores**: As cores usadas nas barras/linhas do RENDER **devem ser as mesmas** mostradas na LEGENDA do RENDER. Se houver discrepância cromática entre o dado e a legenda, o Score deve ser **inferior a 30**.
-15. **Valores Numéricos**: Verifique se os números (data labels) no RENDER batem com a estimativa visual do ORIGINAL. Se o original tem uma barra perto de 80 e o render mostra 52, é uma falha grave.
-` : '### REGRA: NÃO gere o campo "annotations".'}
-
-### REGRAS INVIOLÁVEIS:
-- **DADOS > ESTÉTICA**: A realidade do gráfico original é sua única lei.
-- **ZERO HALLUCINATION**: Se não conseguir ler um valor, use a proporção visual baseada nos eixos.
-- **CORES**: Use o Hex exato das linhas originais.
-- **TODOS OS PONTOS**: Extraia TODOS os pontos de data — não apenas "picos" e "mínimos". O componente precisa dos dados completos para desenhar a linha contínua.
+3. **Análise de Layout e Organização Premium**:
+   - **LEGENDA**: Identifique se houver legenda. **Sempre tente incluir uma legenda organizada** para clareza UHD. Defina "legendPosition" como 'bottom' (embaixo) ou 'right' (lateral). Use 'right' se o original tiver muitos itens ou já for lateral.
+   - **RÓTULOS**: Defina "labelPosition" como 'inside', 'outside' ou 'auto'. Use 'outside' se as fatias forem pequenas.
 
 ### FORMATO DE RESPOSTA (JSON APENAS):
-No campo "reasoning", você deve primeiro descrever o que vê no gráfico (quais as séries mais altas, quais as tendências) e depois listar sua calibração de eixos.
-
 {
-  "componentId": "<ID EXATO do Registry — ex: LineChart, BarChart, PieChart>",
+  "componentId": "PieChart",
   "suggestedName": "FidelidadeAbsoluta",
-  "reasoning": "Sua análise detalhada aqui (eixos, séries e calibração)...",
+  "reasoning": "Sua análise técnica concisa...",
   "props": {
     "title": "...",
     "subtitle": "...",
-    "series": [{ "label": "...", "color": "#hex", "data": [val1, val2, val3, ...TODOS_OS_PONTOS] }],
-    "unit": "",
-    "labels": ["Label1", "Label2", "Label3", ...TODOS_OS_LABELS],
-    "backgroundColor": "#hex",
-    "textColor": "#hex",
-    ${includeCallouts ? `"annotations": [
-       { "type": "callout", "index": 15, "label": "Pico Histórico", "value": 1250, "seriesIndex": 0 }
-    ],` : ''}
-    "insightText": "Texto explicativo curto para narração (se solicitado)"
+    "data": [
+      { "label": "Nome da Fatia 1", "value": 15.2, "color": "#hex" },
+      { "label": "Nome da Fatia 2", "value": 18.6, "color": "#hex" }
+    ],
+    "legendPosition": "right",
+    "labelPosition": "inside",
+    "unit": "%",
+    "insightText": "..."
   }
 }
 

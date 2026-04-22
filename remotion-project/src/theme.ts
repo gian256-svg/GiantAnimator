@@ -674,14 +674,14 @@ export const formatValue = (n: number, unit = '') => {
   let valueStr = '';
   
   if (absN >= 1_000_000) {
-    valueStr = (n / 1_000_000).toFixed(1) + 'M';
+    valueStr = (n / 1_000_000).toFixed(2).replace(/\.00$/, '') + 'M';
   } else if (absN >= 1_000) {
-    valueStr = (n / 1_000).toFixed(1) + 'k';
+    valueStr = (n / 1_000).toFixed(2).replace(/\.00$/, '') + 'k';
   } else {
-    valueStr = Number.isInteger(n) ? String(n) : n.toFixed(1);
+    // Para valores menores, usamos até 2 casas decimais se necessário
+    valueStr = Number.isInteger(n) ? String(n) : n.toFixed(2).replace(/\.?0+$/, '');
   }
 
-  // Se a unidade for uma das abreviações, não duplica
   if (unit === 'M' || unit === 'k') return valueStr;
   
   return unit ? `${valueStr}${unit}` : valueStr;
