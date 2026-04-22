@@ -373,3 +373,37 @@ Caso a imagem mande um título muito longo, ele não pode flanquear o Canvas de 
 **Regra**: Sempre que o servidor for iniciado ou uma nova sessão de desenvolvimento for aberta, o Agente **DEVE** ler o `TRAINING_LOG.md` e todos os arquivos de skills (`.agent/skills/*.md`).
 - **Propósito**: Garantir que o "cérebro" do Giant esteja sincronizado com as últimas diretrizes de design, correções de bugs e preferências do usuário antes de qualquer ação.
 - **Ação**: O agente não deve prosseguir sem confirmar que revisou esses documentos.
+
+---
+
+### 🛡️ [2026-04-22] PROTOCOLO DE RESILIÊNCIA TOTAL E PROCESSAMENTO HÍBRIDO
+**Contexto**: Instabilidades frequentes (Erro 503/Timeout) no modelo Gemini 2.5-flash durante processamento visual pesado.
+
+**Regras de Estabilização (Invioláveis)**:
+1.  **Hibridismo Local-Nuvem (Fallback de Texto)**:
+    - Todo processamento de imagem DEVE realizar um OCR local prévio (Tesseract.js).
+    - Se a IA de Visão falhar (503), o sistema deve chavear automaticamente para o modelo de **Texto**, enviando os dados do OCR local para reconstrução.
+2.  **Otimização de Payload (Anti-Timeout)**:
+    - Imagens de Visão: Máx. **1920p JPEG (85%)**.
+    - Imagens de Auditoria: Máx. **1024p JPEG (80%)**.
+    - O envio de imagens 4K brutas para a API é estritamente proibido.
+3.  **Transparência de Progresso (UX)**:
+    - Todo retry e erro transitório deve ser reportado em tempo real no console da UI (`appendJobLog`). O usuário nunca deve ficar sem feedback visual.
+4.  **Resiliência do Auditor**:
+    - Se o Auditor de Fidelidade falhar por razões técnicas (API 503/Fetch Error), o sistema deve aplicar **Confiança Tácita** (Aprovação Técnica) para não bloquear a entrega do vídeo.
+
+---
+
+### 🛡️ [2026-04-22] REGRA: ANTI-SOBREPOSIÇÃO DE CALLOUTS (TITLE SAFETY)
+**Contexto**: Callouts analíticos ("Smart Callouts") colidindo com o título no topo da tela 4K.
+
+**Regra de Posicionamento**:
+1.  **Title Safe Zone**: NENHUM elemento de anotação (box ou linha de callout) deve entrar no quadrante superior central onde reside o título (`y < height * 0.15`).
+2.  **Smart Offsets**: Se o dado estiver muito alto (perto do topo), o callout deve ser "empurrado" para as laterais ou para baixo do ponto de dados.
+3.  **Checkbox Sovereignty**: O prop `includeCallouts` deve ser respeitado rigorosamente. Se `false`, o objeto `annotations` não deve ser gerado ou renderizado.
+
+---
+
+### 🚀 [2026-04-22] OPERAÇÃO SILENCIOSA (BACKGROUND SERVICE)
+**Regra**: O servidor deve ser iniciado via `SILENT_START.ps1` para evitar a abertura de janelas de terminal intrusivas no computador do usuário.
+- Logs persistidos em `logs/server.log`.

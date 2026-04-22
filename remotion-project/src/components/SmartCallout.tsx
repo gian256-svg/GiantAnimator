@@ -69,8 +69,10 @@ export const SmartCallout: React.FC<SmartCalloutProps> = ({
 
   // Geometria da linha guia (vai para cima e direita ou esquerda)
   const flipDirection = x > width * 0.7; 
+  const isTooHigh = y < height * 0.25; // Detecção de proximidade com o topo (Title Zone)
+  
   const dx = flipDirection ? fs(-180) : fs(180);
-  const dy = fs(-180) - (index * fs(60)); // Offset vertical para evitar colisão
+  const dy = isTooHigh ? fs(180) + (index * fs(60)) : fs(-180) - (index * fs(60)); 
   
   const lineX2 = x + dx * lineProgress;
   const lineY2 = y + dy * lineProgress;

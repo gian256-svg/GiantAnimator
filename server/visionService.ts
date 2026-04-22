@@ -78,9 +78,14 @@ export async function analyzeChartImage(
 
   const imageBase64  = optimizedBuffer.toString("base64");
   const registryJson = JSON.stringify(COMPONENT_REGISTRY, null, 2);
-  let prompt       = buildImageAnalysisPrompt(registryJson, settings.includeCallouts);
+  
+  // 1. Base do Prompt
+  let prompt = buildImageAnalysisPrompt(registryJson, settings.includeCallouts);
 
-  // ─── Semantic RAG (Filtragem por Pertinência) ──────────────────────
+  // 2. Injetar OCR local (Hybrid)
+  prompt += `\n\n### DADOS DETECTADOS VIA OCR LOCAL (Use como referência de apoio):\n${ocrText}\n`;
+
+  // 3. Injetar Conhecimento Relevante (RAG)
   const trainingLogPath = path.join(process.cwd(), "..", "TRAINING_LOG.md");
   if (fs.existsSync(trainingLogPath)) {
     const trainingLog = fs.readFileSync(trainingLogPath, "utf-8");

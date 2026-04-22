@@ -251,6 +251,12 @@ async function finishJobRendering(jobId: string, analysis: ChartAnalysis, chartT
 
         const options = job.options || {};
 
+        // 🛡️ SOBERANIA DO CHECKBOX: Se callouts desativados, removemos do JSON
+        if (options.includeCallouts === false) {
+            console.log("🚫 [Render] Removendo callouts (desativado pelo usuário)");
+            delete analysis.props.annotations;
+        }
+
         // ─── Serviço de Voz (Opcional) ───────────────────
         if (options.enableVoiceover && options.elevenlabsKey) {
             job.stage = 'Gerando Locução IA...';

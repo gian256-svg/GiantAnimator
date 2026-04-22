@@ -29,7 +29,8 @@ ${includeCallouts ? `
 ### MISSÃO ADICIONAL: SMART CALL-OUTS
 - Identifique os 2 ou 3 pontos mais relevantes do gráfico (Pico máximo, queda abrupta, ou cruzamento de linhas).
 - Crie anotações para esses pontos no campo "annotations".
-` : ''}
+- **REGRA DE OURO (TITLE SAFETY)**: NUNCA coloque anotações na área superior central (perto do título). Se um ponto de dado for muito alto, posicione o callout lateralmente ou para baixo do ponto.
+` : '### REGRA: NÃO gere o campo "annotations".'}
 
 ### REGRAS INVIOLÁVEIS:
 - **DADOS > ESTÉTICA**: A realidade do gráfico original é sua única lei.
@@ -52,9 +53,9 @@ No campo "reasoning", você deve primeiro descrever o que vê no gráfico (quais
     "labels": ["Label1", "Label2", "Label3", ...TODOS_OS_LABELS],
     "backgroundColor": "#hex",
     "textColor": "#hex",
-    "annotations": [
+    ${includeCallouts ? `"annotations": [
        { "type": "callout", "index": 15, "label": "Pico Histórico", "value": 1250, "seriesIndex": 0 }
-    ],
+    ],` : ''}
     "insightText": "Texto explicativo curto para narração (se solicitado)"
   }
 }
