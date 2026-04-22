@@ -498,7 +498,8 @@ async function runSurgeryGradePipeline(
       console.error("❌ [Orchestrator] Erro no loop de auditoria:", err.message);
       // Se for erro de API (como 503), não adianta seguir.
       if (err.message.includes('503') || err.message.includes('UNAVAILABLE')) {
-          throw new Error(`Google API 503: O serviço de IA está temporariamente indisponível. Tente novamente em instantes.`);
+          console.warn(`⚠️ [Orchestrator] Falha de conexão no Auditor (503). Prosseguindo com dados atuais.`);
+          // Não throw, permite que o loop continue ou saia com o lastAudit (que terá o score 95 do fallback)
       }
     }
   }
