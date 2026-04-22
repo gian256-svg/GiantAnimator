@@ -182,15 +182,20 @@ ${auditorCritique}
             try {
               const textModel = ai.getGenerativeModel({ model: GEMINI_MODEL_VISION });
               const textPrompt = `
-                ### SISTEMA DE RECONSTITUIÇÃO HÍBRIDA (PLANO B) ###
+                ### SISTEMA DE RECONSTITUIÇÃO HÍBRIDA (PLANO B - RIGOR MÁXIMO) ###
                 O SERVIDOR DE IMAGENS ESTÁ EM ALTA DEMANDA. Use o OCR LOCAL abaixo para reconstruir o gráfico.
-                Sua missão é gerar o JSON do gráfico seguindo TODAS as regras do GiantAnimator.
                 
-                OCR TEXT:
+                REGRAS DE OURO PARA ESTE MODO:
+                1. **ESTRUTURA**: Se o OCR mostra anos ou categorias isoladas, use "BarChart". É PROIBIDO usar LineChart neste modo a menos que o texto mencione explicitamente "Linha" ou "Tendência".
+                2. **ANTI-LINEARIZAÇÃO**: Não invente uma sequência (ex: 10, 20, 30). Se o OCR mostra "55" perto de "2011" e "43" perto de "2014", respeite essa queda. O gráfico original tem OSCILAÇÕES, não é uma linha reta.
+                3. **CALIBRAÇÃO**: Tente identificar o maior número no OCR (ex: 60) e use-o como teto para os outros valores.
+                
+                OCR TEXT (ESTRUTURA BRUTA):
                 """
                 ${ocrText}
                 """
 
+                ### DIRETRIZES TÉCNICAS DO GIANTANIMATOR:
                 ${prompt}
               `;
 
