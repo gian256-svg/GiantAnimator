@@ -265,8 +265,8 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
       })}
 
       {/* REGRA 1020: HEADER DEVE VIR APÓS O SVG PARA Z-INDEX GARANTIDO */}
-      <div style={{ position: "absolute", top: height * 0.05, width: "100%", textAlign: "center", opacity: interpolate(frame, [0, 20], [0, 1]), pointerEvents: 'none' }}>
-        {title && <div style={{ fontSize: fs(44), fontWeight: 800, color: resolvedText, letterSpacing: "-0.5px", textTransform: 'uppercase' }}>{title}</div>}
+      <div style={{ position: "absolute", top: height * 0.04, width: "100%", textAlign: "center", opacity: interpolate(frame, [0, 20], [0, 1]), pointerEvents: 'none', padding: `0 ${fs(100)}px` }}>
+        {title && <div style={{ fontSize: fs(40), fontWeight: 800, color: resolvedText, letterSpacing: "-0.5px", textTransform: 'uppercase', lineHeight: 1.1 }}>{title}</div>}
         {subtitle && <div style={{ fontSize: fs(24), color: T.textMuted, marginTop: fs(8), fontWeight: 500 }}>{subtitle}</div>}
       </div>
 

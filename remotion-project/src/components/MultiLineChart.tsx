@@ -115,6 +115,9 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
     return basePositions;
   }, [series, legendMode, yMin, yMax, chartTop, plotHeight]); // Adicionado dependÃªncias de escala
 
+  // Helper de escala 4K
+  const fs = (base: number) => Math.round(base * (width / 1920));
+
   return (
     <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
       <DynamicBackground 
@@ -122,22 +125,22 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
         accentColor={T.colors[0]} 
         backgroundType={backgroundType}
       />
-      {/* ZONA 1: CabeÃ§alho (Regra D2 - Ajustada para UHD) */}
+      {/* ZONA 1: Cabeçalho (Regra D2 - Ajustada para UHD) */}
       <div style={{
-        position: 'absolute', top: margin, width: '100%', textAlign: 'center',
-        padding: '0 200px', // Safe zone lateral para tÃ­tulos longos
+        position: 'absolute', top: height * 0.04, width: '100%', textAlign: 'center',
+        padding: `0 ${fs(100)}px`, // Safe zone lateral para títulos longos
         opacity: interpolate(frame, [0, 15], [0, 1])
       }}>
         {title && <div style={{ 
-          fontSize: Theme.typography.title.size, 
+          fontSize: fs(40), 
           fontWeight: Theme.typography.title.weight, 
           color: T.text,
           lineHeight: 1.1,
           fontFamily: Theme.typography.fontFamily,
-          marginBottom: 20 // EspaÃ§o aumentado
+          marginBottom: fs(10) 
         }}>{title}</div>}
         {subtitle && <div style={{ 
-          fontSize: Theme.typography.subtitle.size, 
+          fontSize: fs(24), 
           fontWeight: Theme.typography.subtitle.weight, 
           color: T.textMuted,
           fontFamily: Theme.typography.fontFamily

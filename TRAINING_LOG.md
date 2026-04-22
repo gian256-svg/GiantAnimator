@@ -404,6 +404,24 @@ Caso a imagem mande um título muito longo, ele não pode flanquear o Canvas de 
 
 ---
 
+### 🛡️ [2026-04-22] REGRA: SINCRONIZAÇÃO TOTAL DE CORES (LEGEND CONGRUENCY)
+**Contexto**: Discrepâncias entre as cores das barras/linhas e as cores apresentadas na legenda inferior.
+
+**Regra de Implementação**:
+1.  **Fonte Única de Verdade**: Tanto o gráfico quanto a legenda DEVEM utilizar a prop `s.color` (extraída pela IA) como prioridade 1.
+2.  **Fallback Consistente**: Se `s.color` estiver ausente, ambos devem usar o mesmo índice do array `resolvedColors` do tema.
+3.  **Proibição de Desvio**: É estritamente proibido o uso de paletas fixas que ignorem os dados da série em qualquer um dos componentes.
+
+---
+
+### 🛡️ [2026-04-22] REGRA: TITULAÇÃO UHD (SAFE-MARGIN)
+**Regra**: Para evitar sobreposição no topo da tela 4K:
+1.  **Fonte**: O título principal não deve exceder `fs(40)`.
+2.  **Posição**: O topo (`top`) do container do título deve ser de `height * 0.04`.
+3.  **Padding**: Deve haver um padding lateral de `fs(100)` para evitar que títulos longos encostem nas bordas da tela.
+
+---
+
 ### 🚀 [2026-04-22] OPERAÇÃO SILENCIOSA (BACKGROUND SERVICE)
 **Regra**: O servidor deve ser iniciado via `SILENT_START.ps1` para evitar a abertura de janelas de terminal intrusivas no computador do usuário.
 - Logs persistidos em `logs/server.log`.

@@ -138,13 +138,13 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
       
       {/* ── HEADER ── */}
       <div style={{
-          position: "absolute", top: safeT, left: safeL, right: width - safeR,
+          position: "absolute", top: height * 0.04, left: 0, right: 0,
           textAlign: "center", opacity: interpolate(frame, [0, 20], [0, 1]), pointerEvents: "none",
-          zIndex: 10
+          zIndex: 10, padding: `0 ${fs(100)}px`
         }}
       >
         {title && (
-          <div style={{ fontSize: TITLE_SIZE, fontWeight: 800, color: resolvedText, letterSpacing: '-0.5px' }}>
+          <div style={{ fontSize: fs(40), fontWeight: 800, color: resolvedText, letterSpacing: '-0.5px', lineHeight: 1.1 }}>
             {title}
           </div>
         )}

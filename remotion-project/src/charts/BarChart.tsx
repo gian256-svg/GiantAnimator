@@ -122,12 +122,15 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
       />
       <svg width={width} height={height} style={{ position: "absolute", top: 0, left: 0 }}>
         <defs>
-          {normalizedSeries.map((_, i) => (
-            <linearGradient key={i} id={`barGrad-${i}-${instanceId}`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={resolvedColors[i % resolvedColors.length]} />
-              <stop offset="100%" stopColor={resolvedColors[i % resolvedColors.length]} stopOpacity={0.65} />
-            </linearGradient>
-          ))}
+          {normalizedSeries.map((s, i) => {
+            const baseColor = s.color || resolvedColors[i % resolvedColors.length];
+            return (
+              <linearGradient key={i} id={`barGrad-${i}-${instanceId}`} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={baseColor} />
+                <stop offset="100%" stopColor={baseColor} stopOpacity={0.65} />
+              </linearGradient>
+            );
+          })}
           <filter id={`glow-${instanceId}`} x="-20%" y="-20%" width="140%" height="140%">
             <feGaussianBlur stdDeviation={fs(3)} result="blur" />
             <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
@@ -172,7 +175,14 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
 
             return (
               <g key={`${groupIdx}-${seriesIdx}`}>
-                <rect x={bX} y={bY} width={barWidth} height={currentH} fill={seriesCount > 1 ? `url(#barGrad-${seriesIdx}-${instanceId})` : (s.color || resolvedColors[groupIdx % resolvedColors.length])} rx={fs(4)} />
+                <rect 
+                  x={bX} 
+                  y={bY} 
+                  width={barWidth} 
+                  height={currentH} 
+                  fill={seriesCount > 1 ? `url(#barGrad-${seriesIdx}-${instanceId})` : (s.color || resolvedColors[groupIdx % resolvedColors.length])} 
+                  rx={fs(4)} 
+                />
                 {progress > 0.8 && (
                   <text x={bX + barWidth / 2} y={bY - fs(8)} textAnchor="middle" style={{ fontSize: fs(shouldRotateLabels ? 11 : 16), fill: resolvedText, fontWeight: 700, opacity: op, ...Theme.typography.tabularNums }}>
                     {formatValue(val, displayUnit)}
@@ -232,10 +242,10 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
       )}
 
       {/* HEADER - Processado APÓS para garantir Z-Index */}
-      <div style={{ position: "absolute", top: height * 0.05, width: "100%", textAlign: "center", opacity: interpolate(frame, [0, 20], [0, 1]), pointerEvents: 'none' }}>
-        {title && <div style={{ fontSize: fs(44), fontWeight: 800, color: resolvedText, letterSpacing: "-0.5px" }}>{title}</div>}
-        {subtitle && <div style={{ fontSize: fs(24), color: T.textMuted, marginTop: fs(10), fontWeight: 500 }}>{subtitle}</div>}
-        {unitNote && <div style={{ fontSize: fs(18), color: T.textMuted, marginTop: fs(12), fontStyle: 'italic', opacity: 0.8 }}>*{unitNote}</div>}
+      <div style={{ position: "absolute", top: height * 0.04, width: "100%", textAlign: "center", opacity: interpolate(frame, [0, 20], [0, 1]), pointerEvents: 'none', padding: `0 ${fs(100)}px` }}>
+        {title && <div style={{ fontSize: fs(40), fontWeight: 800, color: resolvedText, letterSpacing: "-0.5px", lineHeight: 1.1 }}>{title}</div>}
+        {subtitle && <div style={{ fontSize: fs(22), color: T.textMuted, marginTop: fs(8), fontWeight: 500 }}>{subtitle}</div>}
+        {unitNote && <div style={{ fontSize: fs(16), color: T.textMuted, marginTop: fs(10), fontStyle: 'italic', opacity: 0.8 }}>*{unitNote}</div>}
       </div>
     </AbsoluteFill>
   );
