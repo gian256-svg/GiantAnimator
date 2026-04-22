@@ -9,14 +9,15 @@ O sistema aceita dois tipos de gatilhos:
 - **Estrutural**: Planilhas (CSV/XLSX) para criação baseada em dados puros.
 
 ## 2. Motor de Visão Surgery-Grade (Extraction)
-- **Modelo**: Gemini 2.5 Flash (GA 2026).
 - **Resolução**: Digitalização UHD (3840px) para leitura de eixos e Direct Labels.
+- **Protocolo Híbrido (Plano B)**: Integração de **OCR Local (Tesseract.js)**. Se o serviço de nuvem falhar (Erro 503), o sistema entra em modo de reconstituição via texto para garantir zero interrupção.
+- **Persistência Extrema**: Algoritmo de 10 tentativas com backoff inteligente para vencer picos de demanda.
 - **RAG-Lite**: Injeção de aprendizados históricos (`TRAINING_LOG`) para evitar erros passados.
 
 ## 3. Auditoria de Fidelidade Silenciosa (Audit) — **NOVO**
 - **Loop de Feedback**: O sistema gera um frame de teste (`still`) antes de renderizar.
 - **Conformidade**: Um Agente Auditor compara o render com o original.
-- **Auto-Ajuste**: Se o Fidelidade Score for < 95, o sistema re-analisa e corrige os dados automaticamente.
+- **Meta >95% (Hard-Gate)**: Se o Fidelidade Score for < 95, o sistema re-analisa e corrige os dados automaticamente. O render só prossegue se a precisão cirúrgica for garantida.
 
 ## 4. Renderização 4K UHD (Creation)
 - **Framework**: Remotion v4 (Node.js/React).

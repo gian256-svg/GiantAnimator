@@ -24,16 +24,19 @@
 *   **[2026-04-17] Hierarquia Mestra**: Redefinição de prioridade: **Dados > Estética**.
 *   **[2026-04-17] Margem de Segurança 10%**: Padronização da área útil (3456x1944) para composição profissional.
 *   **[2026-04-17] Surgery-Grade Vision**: Upgrade para `gemini-2.5-flash` (Full) e análise 4K para extração de dados com 100% de precisão.
-*   **[2026-04-17] Pipeline Auto-Corretivo (Master Stroke)**: Implementação do **Silent Auditor Loop**. O sistema agora gera um frame de teste, audita a própria fidelidade e auto-ajusta a extração caso detecte inconsistências, sem intervenção humana.
-*   **[2026-04-17] Semântica RAG-Lite**: Injeção dinâmica de contextos do `TRAINING_LOG.md` no prompt de análise para evitar repetição de erros históricos.
+*   **[2026-04-17] Pipeline Auto-Corretivo (Master Stroke)**: Implementação do **Silent Auditor Loop**. O sistema agora gera um frame de teste, audita a própria fidelidade e auto-ajusta a extração caso detecte inconsistências.
+*   **[2026-04-22] Meta de Precisão >95%**: Estabelecimento do Hard-Gate de fidelidade absoluta. Se o score for < 95%, o sistema rejeita o render.
+*   **[2026-04-22] Protocolo Híbrido (Resiliência Extrema)**: Integração de **OCR Local (Tesseract.js)** como plano B redundante contra falhas de API (Erro 503).
+*   **[2026-04-22] Semântica RAG-Lite**: Injeção dinâmica de contextos do `TRAINING_LOG.md` no prompt de análise para evitar repetição de erros históricos.
 
 ---
 
 ## 🔮 Futuro & Próximos Passos
+- [ ] **Claude Agent Integration**: Uso do Claude (Anthropic) para validação cruzada de dados financeiros e insights semânticos.
 - [ ] **Multi-Agent Collaboration**: Uso de agentes especializados para revisão cruzada de dados.
 - [ ] **Audio-Driven Charts**: Sincronização automática de picos de áudio com animação de dados.
 - [ ] **3D Layering**: Exploração de profundidade Z para visualizações complexas.
 - [ ] **Real-time Streaming**: Renderização por partes para feedback instantâneo.
 
 ---
-*Última atualização: 17 de Abril de 2026*
+*Última atualização: 22 de Abril de 2026*

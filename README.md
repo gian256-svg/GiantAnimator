@@ -9,10 +9,11 @@ Envie uma imagem ou planilha — o agente analisa os dados, escolhe o melhor gr�
 ## 🧠 Como Funciona
 
 ### Via Imagem
-1. Faça upload de um print/screenshot de gráfico pela interface web
-2. O **Gemini Vision** analisa a imagem e extrai os dados
-3. O **Remotion** renderiza a animação em 4K
-4. O vídeo MP4 fica disponível para download
+1. Faça upload de um print/screenshot de gráfico pela interface web.
+2. **Motor Híbrido**: O **Gemini Vision** analisa a imagem; se a API falhar (503), o **OCR Local (Tesseract)** assume a extração de dados.
+3. **Auditoria de Fidelidade**: O sistema gera um frame de teste e um agente independente valida se a precisão é **>95%**.
+4. O **Remotion** renderiza a animação em 4K UHD.
+5. O vídeo MP4 fica disponível para download.
 
 ### Via Planilha
 1. Faça upload de um arquivo `.xlsx`, `.csv` ou `.ods`
@@ -78,6 +79,8 @@ GiantAnimator/
 | **Runtime** | Node.js + TypeScript (ESM) |
 | **Framework** | Express |
 | **IA** | Google Gemini 2.5 Flash |
+| **Resiliência** | OCR Local (Tesseract.js) |
+| **Auditoria** | Silent Auditor Loop (>95% Score) |
 | **Renderização** | Remotion 4.x |
 | **Parsers** | xlsx, csv-parse, ods |
 | **Frontend** | HTML + CSS + JS (Vanilla) |
