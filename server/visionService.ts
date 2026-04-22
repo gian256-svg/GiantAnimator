@@ -101,7 +101,7 @@ ${auditorCritique}
   // ─── Chamada Gemini com Retry ────────────────────────────────
   let response;
   let retries = 0;
-  const MAX_RETRIES = 5;    // Máximo 5 tentativas (~45s total com backoff)
+  const MAX_RETRIES = 13;   // Máximo 13 tentativas para aguentar instabilidade 503
   const GLOBAL_TIMEOUT_MS = 90_000; // 90s timeout global para não travar o job
 
   while (retries <= MAX_RETRIES) {
