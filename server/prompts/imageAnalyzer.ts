@@ -8,7 +8,8 @@ Sua missão é a extração de dados com fidelidade absoluta de 100%.
    - **PASSO 1**: Identifique e liste todos os números escritos no eixo Y (ex: 0, 10, 20... 90).
    - **PASSO 2**: Identifique e liste todos os rótulos no eixo X (ex: 2011, 2012...).
    - **PASSO 3**: Estime o valor de CADA ponto/barra comparando sua altura física com a escala do Passo 1.
-   - **REGRA SUPREMA**: NUNCA invente uma tendência linear (ex: 10, 20, 30, 40). Se o gráfico original tem oscilações, seu JSON deve refletir essas oscilações exatas. A realidade dos dados tem supremacia total.
+   - **PROIBIÇÃO DE SEQUÊNCIA**: É expressamente proibido gerar valores que formem uma sequência aritmética perfeita (ex: +4 a cada ano). Se o gráfico original tem barras de diferentes alturas, o JSON deve refletir essas variações exatas. Se você "simplificar" os dados, estará violando a Regra de Ouro.
+   - **CONTAGEM**: Conte o número de barras. Se há 9 barras na imagem, deve haver exatamente 9 entradas no array "data".
 
 2. **Identificação de Séries (Anchoring)**:
    - **TIPO DE GRÁFICO**: Se o original é um gráfico de barras, você DEVE retornar "BarChart". Não mude para "LineChart" apenas porque é uma série temporal. Respeite o design original.
@@ -21,7 +22,7 @@ Sua missão é a extração de dados com fidelidade absoluta de 100%.
    - Capture todas as curvaturas. Se a linha sobe e desce, o JSON deve refletir isso.
 
 ### SELEÇÃO DE COMPONENTE (CRÍTICA - Leia o Registry):
-- **BarChart**: Use SEMPRE que o original possuir barras verticais. É **estritamente proibido** sugerir LineChart se o original é um gráfico de barras, mesmo que os dados sejam temporais.
+- **BarChart**: Use SEMPRE que o original possuir barras verticais. É **estritamente proibido** sugerir LineChart se o original é um gráfico de barras, mesmo que os dados sejam temporais ou contenham muitos pontos (ex: 9+ barras).
 - **LineChart**: Use apenas se o original for um gráfico de linhas contínuas.
 - **MultiLineChart**: Use quando houver múltiplas séries de linhas.
 - **HorizontalBarChart**: Use se as barras forem horizontais.

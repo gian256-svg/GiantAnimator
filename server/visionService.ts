@@ -59,20 +59,17 @@ export async function analyzeChartImage(
 
   console.log(`🔍 [VISION] Enviando para Gemini Vision...`);
 
-  // ─── Otimizar imagem (1920p JPEG - Ultra Contrast & Sharpness) ───
+  // ─── Otimizar imagem (2560p JPEG - Ultra Fidelity) ───
   const optimizedBuffer = await sharp(rawImageData)
-    .resize(1920, 1080, { fit: "inside", withoutEnlargement: true })
+    .resize(2560, 1440, { fit: "inside", withoutEnlargement: true })
     .normalize()
-    .modulate({ brightness: 1.1 }) // Ilumina eixos escuros
-    .sharpen({ sigma: 1.2 })   // Aumenta nitidez de micro-dados
-    .jpeg({ quality: 95 })
+    .modulate({ brightness: 1.1 }) 
+    .sharpen({ sigma: 1.2 })
+    .jpeg({ quality: 98 })
     .toBuffer();
 
-  // ─── Processamento Híbrido: OCR Local (Pre-pass) ───────────────────
-  console.log(`🧠 [HYBRID] Iniciando OCR local...`);
-  const ocrResult = await Tesseract.recognize(optimizedBuffer, 'por+eng');
-  const ocrText = ocrResult.data.text;
-  console.log(`📝 [HYBRID] Texto detectado localmente (${ocrText.length} chars)`);
+  // ─── OCR REMOVIDO POR SOLICITAÇÃO (Risco de dados sujos) ───────────
+  const ocrText = ""; 
 
   // Injetar OCR no prompt para ajudar a IA (Movido para após a declaração)
   console.log(`📏 [VISION] Payload otimizado: ${(optimizedBuffer.length / 1024).toFixed(1)} KB`);
@@ -174,62 +171,17 @@ ${auditorCritique}
         
         if (onProgress) onProgress(msg);
         
-        if (retries > MAX_RETRIES) {
-          console.warn(`🚨 [HYBRID] Gemini Vision offline (503). Chaveando para Processamento Híbrido de Texto...`);
-          
-          if (onProgress) onProgress("🚀 Servidor instável. Ativando Reconstituição via OCR Local (Modo Híbrido)...");
+        if (onProgress) onProgress(msg);
+        await new Promise(r => setTimeout(r, 5000));
+      } else {
+        throw err;
+      }
+    }
+  }
 
-          // 🛡️ PROTOCOLO DE PERSISTÊNCIA EXTREMA: Loop de 10 tentativas para o Fallback
-          let textSuccess = false;
-          const TEXT_MAX_RETRIES = 10;
-          
-          for (let textRetry = 1; textRetry <= TEXT_MAX_RETRIES; textRetry++) {
-            try {
-              const textModel = ai.getGenerativeModel({ model: GEMINI_MODEL_VISION });
-              const textPrompt = `
-                ### SISTEMA DE RECONSTITUIÇÃO HÍBRIDA (PLANO B - RIGOR MÁXIMO) ###
-                O SERVIDOR DE IMAGENS ESTÁ EM ALTA DEMANDA. Use o OCR LOCAL abaixo para reconstruir o gráfico.
-                
-                REGRAS DE OURO PARA ESTE MODO:
-                1. **ESTRUTURA**: Se o OCR mostra anos ou categorias isoladas, use "BarChart". É PROIBIDO usar LineChart neste modo a menos que o texto mencione explicitamente "Linha" ou "Tendência".
-                2. **ANTI-LINEARIZAÇÃO**: Não invente uma sequência (ex: 10, 20, 30). Se o OCR mostra "55" perto de "2011" e "43" perto de "2014", respeite essa queda. O gráfico original tem OSCILAÇÕES, não é uma linha reta.
-                3. **CALIBRAÇÃO**: Tente identificar o maior número no OCR (ex: 60) e use-o como teto para os outros valores.
-                
-                OCR TEXT (ESTRUTURA BRUTA):
-                """
-                ${ocrText}
-                """
-
-                ### DIRETRIZES TÉCNICAS DO GIANTANIMATOR:
-                ${prompt}
-              `;
-
-              const textResult = await textModel.generateContent(textPrompt);
-              response = textResult.response;
-              console.log(`✅ [HYBRID] Reconstituição via Texto concluída (Tentativa ${textRetry}/${TEXT_MAX_RETRIES})!`);
-              textSuccess = true;
-              break;
-            } catch (textErr: any) {
-              const is503 = textErr.message?.includes("503") || textErr.message?.includes("UNAVAILABLE");
-              
-              if (is503 && textRetry < TEXT_MAX_RETRIES) {
-                // Backoff Exponencial com Jitter (5s, 10s, 20s... até 60s)
-                const baseDelay = Math.min(Math.pow(2, textRetry) * 3000, 60000);
-                const jitter = Math.random() * 2000;
-                const totalDelay = baseDelay + jitter;
-                
-                console.warn(`⚠️ [HYBRID] Plano B (Texto) sob carga (${textRetry}/${TEXT_MAX_RETRIES}). Novo round em ${(totalDelay/1000).toFixed(1)}s...`);
-                if (onProgress) onProgress(`⏳ Alta demanda no Google. Retentativa híbrida ${textRetry}/${TEXT_MAX_RETRIES}...`);
-                
-                await new Promise(r => setTimeout(r, totalDelay));
-                continue;
-              }
-              throw textErr; // Se não for 503 ou acabarem os retries, sobe o erro
-            }
-          }
-
-          if (textSuccess) break; // Sucesso total!
-        }
+  if (!response) {
+    throw new Error("Falha na análise visual: Todas as tentativas de API falharam e o modo de reconstituição por texto está desativado para garantir a integridade dos dados.");
+  }
         // Backoff: 2s, 4s, 8s... capado em 12s
         const delay = Math.min(Math.pow(2, retries) * 2000, 12000);
         console.warn(`⚠️ [VISION] ${isTimeout ? 'Timeout' : 'Gemini 503'}. Tentativa ${retries}/${MAX_RETRIES} em ${delay}ms...`);
