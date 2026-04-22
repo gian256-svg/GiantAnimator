@@ -101,26 +101,36 @@ ${auditorCritique}
   // ─── Chamada Gemini com Retry ────────────────────────────────
   let response;
   let retries = 0;
-  const MAX_RETRIES = 20; // ⬆️ Aumentado drasticamente para furar o bloqueio 503
+  const MAX_RETRIES = 5;    // Máximo 5 tentativas (~45s total com backoff)
+  const GLOBAL_TIMEOUT_MS = 90_000; // 90s timeout global para não travar o job
 
   while (retries <= MAX_RETRIES) {
     try {
       const model = ai.getGenerativeModel({ model: GEMINI_MODEL_VISION });
-      const result = await model.generateContent([
+
+      // Timeout global para evitar que o job fique preso indefinidamente
+      const geminiCall = model.generateContent([
         { inlineData: { data: imageBase64, mimeType: "image/png" } },
         { text: prompt },
       ]);
+      const timeout = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error(`GEMINI_TIMEOUT: API não respondeu em ${GLOBAL_TIMEOUT_MS / 1000}s`)), GLOBAL_TIMEOUT_MS)
+      );
+      const result = await Promise.race([geminiCall, timeout]);
       response = result.response;
       break; // Sucesso!
     } catch (err: any) {
       const isStatus503 = err.message?.includes("503") || err.status === 503 || err.message?.includes("UNAVAILABLE");
+      const isTimeout   = err.message?.includes("GEMINI_TIMEOUT");
       
-      if (isStatus503) {
+      if (isStatus503 || isTimeout) {
         retries++;
-        if (retries > MAX_RETRIES) throw err;
-        // Backoff: 1.5s, 3s, 6s... capado em 15s para não morrer de velhice
-        const delay = Math.min(Math.pow(2, retries) * 1500, 15000);
-        console.warn(`⚠️ [VISION] Gemini 503/UNAVAILABLE (Demanda Alta). Tentativa ${retries}/${MAX_RETRIES} em ${delay}ms...`);
+        if (retries > MAX_RETRIES) {
+          throw new Error(`Gemini Vision indisponível após ${MAX_RETRIES} tentativas. ${isTimeout ? 'Timeout de ' + (GLOBAL_TIMEOUT_MS / 1000) + 's excedido.' : 'Erro 503.'} Tente novamente em instantes.`);
+        }
+        // Backoff: 2s, 4s, 8s... capado em 12s
+        const delay = Math.min(Math.pow(2, retries) * 2000, 12000);
+        console.warn(`⚠️ [VISION] ${isTimeout ? 'Timeout' : 'Gemini 503'}. Tentativa ${retries}/${MAX_RETRIES} em ${delay}ms...`);
         await new Promise(r => setTimeout(r, delay));
       } else {
         throw err; // Erro real (400, 401, etc) - não tenta de novo

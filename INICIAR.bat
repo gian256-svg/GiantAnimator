@@ -45,7 +45,7 @@ for /f "tokens=5" %%a in ('netstat -aon 2^>nul ^| findstr ":%PORT% " ^| findstr 
 echo [4/5] Iniciando servidor...
 if exist "%LOGS_DIR%\server.log" del "%LOGS_DIR%\server.log"
 pushd "%SERVER_DIR%"
-start "GiantAnimator-Server" /min cmd /c "node_modules\.bin\ts-node --transpile-only index.ts > "%LOGS_DIR%\server.log" 2>&1"
+start "GiantAnimator-Server" /min cmd /c "node_modules\.bin\tsx watch index.ts > "%LOGS_DIR%\server.log" 2>&1"
 popd
 
 echo [5/5] Aguardando Health Check...
