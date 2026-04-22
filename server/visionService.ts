@@ -171,17 +171,19 @@ ${auditorCritique}
           
           if (onProgress) onProgress("🚀 Servidor instável. Ativando Reconstituição via OCR Local (Modo Híbrido)...");
 
-          // FALLBACK: Chamada puramente de TEXTO usando os dados do OCR local
-          // 🛡️ Adicionamos um loop de resiliência próprio para o Fallback (caso o Texto também dê 503)
+          // 🛡️ PROTOCOLO DE PERSISTÊNCIA EXTREMA: Loop de 10 tentativas para o Fallback
           let textSuccess = false;
-          for (let textRetry = 1; textRetry <= 3; textRetry++) {
+          const TEXT_MAX_RETRIES = 10;
+          
+          for (let textRetry = 1; textRetry <= TEXT_MAX_RETRIES; textRetry++) {
             try {
               const textModel = ai.getGenerativeModel({ model: GEMINI_MODEL_VISION });
               const textPrompt = `
-                O SERVIDOR DE VISÃO ESTÁ INSTÁVEL. Abaixo está o resultado bruto de um OCR de um gráfico.
-                Sua missão é RECONSTRUIR o JSON do gráfico usando APENAS esse texto e seguindo TODAS as regras do GiantAnimator.
+                ### SISTEMA DE RECONSTITUIÇÃO HÍBRIDA (PLANO B) ###
+                O SERVIDOR DE IMAGENS ESTÁ EM ALTA DEMANDA. Use o OCR LOCAL abaixo para reconstruir o gráfico.
+                Sua missão é gerar o JSON do gráfico seguindo TODAS as regras do GiantAnimator.
                 
-                TEXTO OCR:
+                OCR TEXT:
                 """
                 ${ocrText}
                 """
@@ -191,17 +193,29 @@ ${auditorCritique}
 
               const textResult = await textModel.generateContent(textPrompt);
               response = textResult.response;
-              console.log(`✅ [HYBRID] Reconstrução via Texto concluída com sucesso (Tentativa ${textRetry})!`);
+              console.log(`✅ [HYBRID] Reconstituição via Texto concluída (Tentativa ${textRetry}/${TEXT_MAX_RETRIES})!`);
               textSuccess = true;
               break;
             } catch (textErr: any) {
-              console.warn(`⚠️ [HYBRID] Fallback de Texto também falhou (${textRetry}/3). Retrying...`);
-              if (textRetry === 3) throw textErr; // Se falhar 3 vezes o texto, aí sim desiste
-              await new Promise(r => setTimeout(r, 3000 * textRetry));
+              const is503 = textErr.message?.includes("503") || textErr.message?.includes("UNAVAILABLE");
+              
+              if (is503 && textRetry < TEXT_MAX_RETRIES) {
+                // Backoff Exponencial com Jitter (5s, 10s, 20s... até 60s)
+                const baseDelay = Math.min(Math.pow(2, textRetry) * 3000, 60000);
+                const jitter = Math.random() * 2000;
+                const totalDelay = baseDelay + jitter;
+                
+                console.warn(`⚠️ [HYBRID] Plano B (Texto) sob carga (${textRetry}/${TEXT_MAX_RETRIES}). Novo round em ${(totalDelay/1000).toFixed(1)}s...`);
+                if (onProgress) onProgress(`⏳ Alta demanda no Google. Retentativa híbrida ${textRetry}/${TEXT_MAX_RETRIES}...`);
+                
+                await new Promise(r => setTimeout(r, totalDelay));
+                continue;
+              }
+              throw textErr; // Se não for 503 ou acabarem os retries, sobe o erro
             }
           }
 
-          if (textSuccess) break; // Sai do loop principal
+          if (textSuccess) break; // Sucesso total!
         }
         // Backoff: 2s, 4s, 8s... capado em 12s
         const delay = Math.min(Math.pow(2, retries) * 2000, 12000);
