@@ -120,8 +120,8 @@ ${auditorCritique}
   // ─── Chamada Gemini com Retry ────────────────────────────────
   let response;
   let retries = 0;
-  const MAX_RETRIES = 3; 
-  const GLOBAL_TIMEOUT_MS = 90_000;
+  const MAX_RETRIES = 10; 
+  const GLOBAL_TIMEOUT_MS = 120_000;
 
   while (retries <= MAX_RETRIES) {
     try {
@@ -169,22 +169,9 @@ ${auditorCritique}
 
         if (onProgress) onProgress(msg);
         
-        if (onProgress) onProgress(msg);
-        
-        if (onProgress) onProgress(msg);
-        await new Promise(r => setTimeout(r, 5000));
-      } else {
-        throw err;
-      }
-    }
-  }
-
-  if (!response) {
-    throw new Error("Falha na análise visual: Todas as tentativas de API falharam e o modo de reconstituição por texto está desativado para garantir a integridade dos dados.");
-  }
         // Backoff: 2s, 4s, 8s... capado em 12s
         const delay = Math.min(Math.pow(2, retries) * 2000, 12000);
-        console.warn(`⚠️ [VISION] ${isTimeout ? 'Timeout' : 'Gemini 503'}. Tentativa ${retries}/${MAX_RETRIES} em ${delay}ms...`);
+        console.warn(`⚠️ [VISION] ${isTimeout ? 'Timeout' : 'Gemini Error'}. Tentativa ${retries}/${MAX_RETRIES} em ${delay}ms...`);
         await new Promise(r => setTimeout(r, delay));
       } else {
         throw err; // Erro real (400, 401, etc) - não tenta de novo
@@ -194,7 +181,7 @@ ${auditorCritique}
 
   // ─── ✅ FIX: extrair texto corretamente ───────────────────────
   if (!response) {
-    throw new Error("Falha ao obter resposta do Gemini Vision após múltiplas tentativas.");
+    throw new Error("Falha na análise visual: Todas as tentativas de API e chaves de redundância falharam após persistência máxima (10x). Por favor, aguarde alguns instantes e tente novamente.");
   }
 
   const responseText =
