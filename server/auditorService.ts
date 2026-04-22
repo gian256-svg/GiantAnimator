@@ -54,7 +54,7 @@ export async function auditRenderFidelity(
   const prompt = buildAuditorPrompt();
 
   let retries = 0;
-  const MAX_RETRIES = 20; // ⬆️ Aumentado para tolerar instabilidades severas
+  const MAX_RETRIES = 3; // Reduzido para não travar o pipeline se o Google estiver instável
   while (retries <= MAX_RETRIES) {
     try {
       const model = ai.getGenerativeModel({ model: GEMINI_MODEL });

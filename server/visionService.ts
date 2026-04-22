@@ -120,7 +120,7 @@ ${auditorCritique}
   // ─── Chamada Gemini com Retry ────────────────────────────────
   let response;
   let retries = 0;
-  const MAX_RETRIES = 13;   // Máximo 13 tentativas para aguentar instabilidade 503
+  const MAX_RETRIES = 2;   // Reduzido para 2: Se falhar visulamente, chaveamos para modo texto rápido.
   const GLOBAL_TIMEOUT_MS = 90_000; // 90s timeout global para não travar o job
 
   while (retries <= MAX_RETRIES) {
@@ -167,9 +167,9 @@ ${auditorCritique}
         if (onProgress) onProgress(msg);
         
         if (retries > MAX_RETRIES) {
-          console.warn(`🚨 [HYBRID] Gemini Vision falhou (503). Iniciando Fallback para IA de Texto...`);
+          console.warn(`🚨 [HYBRID] Gemini Vision offline (503). Chaveando para Processamento Híbrido de Texto...`);
           
-          if (onProgress) onProgress("⚠️ Vision Offline. Tentando reconstrução via OCR Texto...");
+          if (onProgress) onProgress("🚀 Servidor instável. Ativando Reconstituição via OCR Local (Modo Híbrido)...");
 
           // FALLBACK: Chamada puramente de TEXTO usando os dados do OCR local
           const textModel = ai.getGenerativeModel({ model: GEMINI_MODEL_VISION }); // Mesmo modelo mas sem imagem
