@@ -366,3 +366,10 @@ Caso a imagem mande um título muito longo, ele não pode flanquear o Canvas de 
 12.  **Soberania de Contraste (Texto Inviolável)**:
     - Quando um `backgroundType` é fornecido, a variável `resolvedText` deve obrigatoriamente seguir `T.text` do tema e ignorar o `textColor` detectado pela visão. 
     - **Objetivo**: Garantir que, se o usuário escolher "Modo Escuro", o texto SEJA claro, e vice-versa, eliminando o erro de texto escuro sobre fundo escuro.
+
+---
+
+### 🚀 [2026-04-22] REGRA DE OURO: INICIALIZAÇÃO OBRIGATÓRIA (READ-FIRST)
+**Regra**: Sempre que o servidor for iniciado ou uma nova sessão de desenvolvimento for aberta, o Agente **DEVE** ler o `TRAINING_LOG.md` e todos os arquivos de skills (`.agent/skills/*.md`).
+- **Propósito**: Garantir que o "cérebro" do Giant esteja sincronizado com as últimas diretrizes de design, correções de bugs e preferências do usuário antes de qualquer ação.
+- **Ação**: O agente não deve prosseguir sem confirmar que revisou esses documentos.

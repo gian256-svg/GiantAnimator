@@ -1,4 +1,3 @@
-
 import 'dotenv/config';
 import express, { Request, Response } from 'express';
 import multer from 'multer';
@@ -69,6 +68,17 @@ async function saveJob(job: PipelineJob) {
     console.error(`❌ [IO] Erro ao salvar Job ${job.id}:`, err);
   }
 }
+
+/**
+ * Adiciona uma linha ao log do Job e persiste no disco
+ */
+async function appendJobLog(job: PipelineJob, message: string) {
+  const timestamp = new Date().toLocaleTimeString('pt-BR', { hour12: false });
+  const entry = `[${timestamp}] ${message}`;
+  job.log = (job.log || '') + (job.log ? '\n' : '') + entry;
+  await saveJob(job);
+}
+
 function loadJob(id: string): PipelineJob | null {
   const p = path.join(JOBS_DIR, `${id}.json`);
   if (!fs.existsSync(p)) return null;
@@ -188,7 +198,13 @@ async function processJob(
         } else {
           // Modo Rápido/Safe: Apenas análise inicial sem auditoria de fidelidade
           console.log("⏭️  [Orchestrator] Auditoria desabilitada pelo usuário. Pulando para análise direta...");
-          analysis = await analyzeChartImage(filePath, chartTheme, undefined, { includeCallouts: options.includeCallouts });
+          analysis = await analyzeChartImage(
+            filePath, 
+            chartTheme, 
+            undefined, 
+            { includeCallouts: options.includeCallouts },
+            (msg) => appendJobLog(job, msg)
+          );
         }
       } catch (err: any) {
         throw new Error(`Falha ao analisar imagem como gráfico: ${err.message}`);
@@ -338,6 +354,7 @@ app.post('/upload', upload.single('file'), async (req: Request, res: Response) =
     const jobId = uuidv4();
     const job: PipelineJob = { id: jobId, status: 'pending', progress: 0, stage: 'Aguardando...' };
     await saveJob(job);
+    await appendJobLog(job, `🚀 Enviando: ${req.file.originalname}`);
 
     console.log(`📡 [Payload] Job: ${jobId} | Auditor: ${req.body.enableAuditor} | Callouts: ${req.body.includeCallouts}`);
     
@@ -427,7 +444,15 @@ async function runSurgeryGradePipeline(
   job: any,
   includeCallouts: boolean = false
 ): Promise<ChartAnalysis> {
-  let analysis: ChartAnalysis = await analyzeChartImage(filePath, chartTheme, undefined, { includeCallouts });
+  const log = (msg: string) => appendJobLog(job, msg);
+  
+  let analysis: ChartAnalysis = await analyzeChartImage(
+    filePath, 
+    chartTheme, 
+    undefined, 
+    { includeCallouts },
+    log
+  );
   let lastAudit: any = null;
 
   for (let attempt = 1; attempt <= 2; attempt++) {
@@ -451,12 +476,18 @@ async function runSurgeryGradePipeline(
       }
 
       console.warn(`⚠️ [Orchestrator] Falha na Auditoria: ${audit.critique}`);
-      job.log = `[Audit Fail] ${audit.critique}`;
+      await appendJobLog(job, `⚠️ Auditoria: ${audit.critique.slice(0, 100)}...`);
       job.progress = 25 + (attempt * 7); 
       await saveJob(job);
 
       // Re-análise baseada na crítica
-      analysis = await analyzeChartImage(filePath, chartTheme, audit.critique); 
+      analysis = await analyzeChartImage(
+        filePath, 
+        chartTheme, 
+        audit.critique,
+        { includeCallouts },
+        log
+      ); 
     } catch (err: any) {
       console.error("❌ [Orchestrator] Erro no loop de auditoria:", err.message);
       // Se for erro de API (como 503), não adianta seguir.

@@ -2,7 +2,9 @@ import fs from "fs";
 import path from "path";
 import sharp from "sharp";
 import crypto from "crypto";
+import Tesseract from "tesseract.js";
 import { ai } from "./agent.js";
+import { HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
 import { GEMINI_MODEL_VISION } from "./calibration/constants.js";
 import { COMPONENT_REGISTRY } from "./componentRegistry.js";
 import { buildImageAnalysisPrompt } from "./prompts/imageAnalyzer.js";
@@ -15,7 +17,8 @@ export async function analyzeChartImage(
   imagePath: string, 
   requestedTheme?: string,
   auditorCritique?: string,
-  settings: { includeCallouts?: boolean } = {}
+  settings: { includeCallouts?: boolean } = {},
+  onProgress?: (message: string) => void
 ): Promise<ChartAnalysis> {
   const rawImageData = fs.readFileSync(imagePath);
 
@@ -56,20 +59,33 @@ export async function analyzeChartImage(
 
   console.log(`🔍 [VISION] Enviando para Gemini Vision...`);
 
-  // ─── Otimizar imagem (UHD-Ready para Vision — High Detail) ────
+  // ─── Otimizar imagem (1920p JPEG - Equilíbrio ideal entre fidelidade e estabilidade) ───
   const optimizedBuffer = await sharp(rawImageData)
-    .resize(3840, 2160, { fit: "inside", withoutEnlargement: true })
+    .resize(1920, 1080, { fit: "inside", withoutEnlargement: true })
+    .jpeg({ quality: 85 })
     .toBuffer();
+
+  // ─── Processamento Híbrido: OCR Local (Pre-pass) ───────────────────
+  console.log(`🧠 [HYBRID] Iniciando OCR local...`);
+  const ocrResult = await Tesseract.recognize(optimizedBuffer, 'por+eng');
+  const ocrText = ocrResult.data.text;
+  console.log(`📝 [HYBRID] Texto detectado localmente (${ocrText.length} chars)`);
+
+  // Injetar OCR no prompt para ajudar a IA
+  prompt += `\n\n### DADOS DETECTADOS VIA OCR LOCAL (Use como referência de apoio):\n${ocrText}\n`;
+
+  console.log(`📏 [VISION] Payload otimizado: ${(optimizedBuffer.length / 1024).toFixed(1)} KB`);
 
   const imageBase64  = optimizedBuffer.toString("base64");
   const registryJson = JSON.stringify(COMPONENT_REGISTRY, null, 2);
   let prompt       = buildImageAnalysisPrompt(registryJson, settings.includeCallouts);
 
-  // ─── Semantic RAG (Knowledge Injection) ──────────────────────
+  // ─── Semantic RAG (Filtragem por Pertinência) ──────────────────────
   const trainingLogPath = path.join(process.cwd(), "..", "TRAINING_LOG.md");
   if (fs.existsSync(trainingLogPath)) {
     const trainingLog = fs.readFileSync(trainingLogPath, "utf-8");
-    prompt += `\n\n### CONTEXTO PESQUISADO (Últimos aprendizados):\n${trainingLog.slice(-4000)}\n`;
+    const knowledge = getRelevantKnowledge(trainingLog, auditorCritique || "");
+    prompt += `\n\n### DIRETRIZES DE DESIGN E APRENDIZADOS RELEVANTES:\n${knowledge}\n`;
   }
 
   // Detecção Automática de Tema baseada na Luminância Original
@@ -109,14 +125,32 @@ ${auditorCritique}
       const model = ai.getGenerativeModel({ model: GEMINI_MODEL_VISION });
 
       // Timeout global para evitar que o job fique preso indefinidamente
-      const geminiCall = model.generateContent([
-        { inlineData: { data: imageBase64, mimeType: "image/png" } },
-        { text: prompt },
-      ]);
+      const geminiCall = model.generateContent({
+        contents: [
+          {
+            role: "user",
+            parts: [
+              { inlineData: { data: imageBase64, mimeType: "image/jpeg" } },
+              { text: prompt },
+            ]
+          }
+        ],
+        generationConfig: {
+          temperature: 0.1,
+          topP: 0.1,
+          maxOutputTokens: 2048,
+        },
+        safetySettings: [
+          { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+          { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
+          { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
+          { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+        ],
+      });
       const timeout = new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error(`GEMINI_TIMEOUT: API não respondeu em ${GLOBAL_TIMEOUT_MS / 1000}s`)), GLOBAL_TIMEOUT_MS)
       );
-      const result = await Promise.race([geminiCall, timeout]);
+      const result = await Promise.race([geminiCall as any, timeout]);
       response = result.response;
       break; // Sucesso!
     } catch (err: any) {
@@ -125,8 +159,33 @@ ${auditorCritique}
       
       if (isStatus503 || isTimeout) {
         retries++;
+        const msg = `⚠️ ${isTimeout ? 'Timeout' : 'Gemini 503'} - Tentativa ${retries}/${MAX_RETRIES}`;
+        
+        if (onProgress) onProgress(msg);
+        
         if (retries > MAX_RETRIES) {
-          throw new Error(`Gemini Vision indisponível após ${MAX_RETRIES} tentativas. ${isTimeout ? 'Timeout de ' + (GLOBAL_TIMEOUT_MS / 1000) + 's excedido.' : 'Erro 503.'} Tente novamente em instantes.`);
+          console.warn(`🚨 [HYBRID] Gemini Vision falhou (503). Iniciando Fallback para IA de Texto...`);
+          
+          if (onProgress) onProgress("⚠️ Vision Offline. Tentando reconstrução via OCR Texto...");
+
+          // FALLBACK: Chamada puramente de TEXTO usando os dados do OCR local
+          const textModel = ai.getGenerativeModel({ model: GEMINI_MODEL_VISION }); // Mesmo modelo mas sem imagem
+          const textPrompt = `
+            O SERVIDOR DE VISÃO ESTÁ INSTÁVEL. Abaixo está o resultado bruto de um OCR de um gráfico.
+            Sua missão é RECONSTRUIR o JSON do gráfico usando APENAS esse texto e seguindo TODAS as regras do GiantAnimator.
+            
+            TEXTO OCR:
+            """
+            ${ocrText}
+            """
+
+            ${prompt}
+          `;
+
+          const textResult = await textModel.generateContent(textPrompt);
+          response = textResult.response;
+          console.log(`✅ [HYBRID] Reconstrução via Texto concluída com sucesso!`);
+          break; // Sai do loop de retries pois o fallback funcionou
         }
         // Backoff: 2s, 4s, 8s... capado em 12s
         const delay = Math.min(Math.pow(2, retries) * 2000, 12000);
@@ -274,4 +333,42 @@ ${auditorCritique}
   console.log(`✅ [VISION] Análise concluída → ${analysis.componentId} | ${analysis.props.data.length || (analysis.props.series?.[0].data.length)} pontos`);
 
   return analysis;
+}
+
+/**
+ * Extrai apenas os blocos pertinentes do Training Log para não sobrecarregar o prompt.
+ */
+function getRelevantKnowledge(log: string, context: string): string {
+  const blocks = log.split(/\n---\n/);
+  const coreBlocks: string[] = [];
+  const specificBlocks: string[] = [];
+
+  // Keywords para busca de pertinência
+  const contextLower = context.toLowerCase();
+
+  for (const block of blocks) {
+    const blockLower = block.toLowerCase();
+    
+    // Blocos que SEMPRE devem estar presentes (Regras de Ouro e Técnicas)
+    if (blockLower.includes("regras de ouro") || blockLower.includes("regras técnicas absolutas")) {
+      coreBlocks.push(block.trim());
+      continue;
+    }
+
+    // Blocos específicos baseados no contexto (se houver auditoria ou detecção)
+    const keywords = ["line", "bar", "pie", "donut", "area", "fidelity", "fidelidade", "escala", "overlap", "colisão", "theme", "tema"];
+    if (keywords.some(k => contextLower.includes(k) && blockLower.includes(k))) {
+      specificBlocks.push(block.trim());
+    }
+  }
+
+  // Se não tiver contexto específico, pega os últimos 2 blocos de design premium para garantir estética
+  if (specificBlocks.length === 0) {
+    const designBlocks = blocks.filter(b => b.toLowerCase().includes("design") || b.toLowerCase().includes("ux")).slice(-2);
+    specificBlocks.push(...designBlocks.map(b => b.trim()));
+  }
+
+  // Combina e limita o tamanho para segurança (máximo ~2500 chars de conhecimento)
+  const combined = [...coreBlocks, ...specificBlocks].join("\n\n---\n\n");
+  return combined.length > 2500 ? combined.slice(0, 2500) + "... (truncated)" : combined;
 }

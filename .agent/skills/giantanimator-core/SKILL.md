@@ -40,7 +40,8 @@ GiantAnimator/
 ## Regras de Inicialização
 1. **NUNCA abrir o Remotion Studio** no navegador automaticamente (usar `--no-browser`).
 2. **Sempre ligar o servidor** backend (porta 3000) e o watcher de input.
-3. **Sempre ler as skills** do agente (`.agent/skills/*.md`) ao iniciar para manter contexto atualizado.
+3. **Sempre ler** as skills do agente (`.agent/skills/*.md`) e o arquivo `TRAINING_LOG.md` ao iniciar qualquer sessão ou servidor para manter o contexto inabalável.
+4. **Sempre verificar** o `git status` e os últimos commits para entender o estado atual do desenvolvimento.
 
 ## Fluxo de Funcionamento
 1. `INICIAR.bat` verifica ambiente → instala deps → inicia servidor → health check
