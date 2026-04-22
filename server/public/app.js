@@ -849,7 +849,7 @@ function startPolling(jobId, fileName, fileId) {
         setProgress(0, 'Erro ✕');
         
         renderFileQueue(); // Atualiza botão e lista
-        alert(`Status: ${errMsg}`);
+        // alert(`Status: ${errMsg}`); // Removido conforme solicitado para evitar interrupções
       }
     } catch(err) {
       console.error('Polling Error:', err);
