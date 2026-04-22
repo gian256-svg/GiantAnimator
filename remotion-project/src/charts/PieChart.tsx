@@ -308,12 +308,13 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
           }}
         >
           {slices.map((s, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: fs(12) }}>
                <div style={{ 
-                 width: fs(18), height: fs(18), borderRadius: "2px", // Aumentado de 14 para 18
+                 width: fs(18), height: fs(18), borderRadius: "2px", 
                  backgroundColor: s.color || sliceColors[i % sliceColors.length],
                  border: `${fs(2)}px solid #fff`, boxShadow: '0 0 10px rgba(0,0,0,0.3)'
                }} />
-               <div style={{ fontSize: LEGEND_SIZE, color: resolvedText, fontWeight: 600, display: 'flex', gap: fs(12) }}>
+               <div style={{ fontSize: LEGEND_SIZE, color: resolvedText, fontWeight: 600 }}>
                 {s.label} ({formatValue(s.value, unit)})
               </div>
             </div>
