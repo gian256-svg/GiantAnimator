@@ -7,7 +7,32 @@ import { type NormalizedTableData } from "./tableParserService.js";
 import { componentRegistry } from "./componentRegistry.js";
 import { GEMINI_MODEL } from "./calibration/constants.js";
 
-export const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+// Gerenciador de Chaves de API (Redundância Crítica)
+const keys = [
+  process.env.GEMINI_API_KEY,
+  process.env.GEMINI_API_KEY_2
+].filter(Boolean) as string[];
+
+let currentKeyIndex = 0;
+
+/**
+ * Retorna uma instância do GoogleGenerativeAI usando rotação de chaves.
+ * Se uma chave falhar, chamamos rotateKey() e pegamos a próxima.
+ */
+export function getAIInstance() {
+  const key = keys[currentKeyIndex] || keys[0];
+  return new GoogleGenerativeAI(key);
+}
+
+export function rotateKey() {
+  if (keys.length > 1) {
+    currentKeyIndex = (currentKeyIndex + 1) % keys.length;
+    console.warn(`🔄 [GEMINI] Chave de API rotacionada para slot ${currentKeyIndex + 1}/${keys.length}`);
+  }
+}
+
+// Para manter compatibilidade com módulos que importam 'ai'
+export const ai = getAIInstance();
 
 // ─────────────────────────────────────────────────────────
 // Carrega o system prompt base + knowledge base completo
@@ -116,7 +141,13 @@ export class GiantAnimatorAgent {
           err?.message?.includes("UNAVAILABLE");
 
         if (isRetryable && i < retries - 1) {
-          const wait = (i + 1) * (err?.status === 503 ? 2000 : 10000);
+          // Se for erro de cota ou serviço, rotacionamos a chave imediatamente
+          if (err?.status === 429 || err?.status === 503) {
+            rotateKey();
+            // Re-instancia o chat com a nova chave se necessário (neste caso simplificado, apenas o próximo send usará a nova via GiantAnimatorAgent re-init ou chamadas avulsas)
+          }
+
+          const wait = (i + 1) * (err?.status === 503 ? 1000 : 5000);
           console.warn(`⏳ [GEMINI] Erro temporário (${err?.status || '503'}) — Tentativa ${i + 1}/${retries}. Aguardando ${wait / 1000}s...`);
           await new Promise((r) => setTimeout(r, wait));
         } else {

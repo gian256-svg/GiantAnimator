@@ -123,14 +123,14 @@ ${auditorCritique}
   // ─── Chamada Gemini com Retry ────────────────────────────────
   let response;
   let retries = 0;
-  const MAX_RETRIES = 2;   // Reduzido para 2: Se falhar visulamente, chaveamos para modo texto rápido.
-  const GLOBAL_TIMEOUT_MS = 90_000; // 90s timeout global para não travar o job
+  const MAX_RETRIES = 3; 
+  const GLOBAL_TIMEOUT_MS = 90_000;
 
   while (retries <= MAX_RETRIES) {
     try {
-      const model = ai.getGenerativeModel({ model: GEMINI_MODEL_VISION });
+      const aiInstance = (await import("./agent.js")).getAIInstance();
+      const model = aiInstance.getGenerativeModel({ model: GEMINI_MODEL_VISION });
 
-      // Timeout global para evitar que o job fique preso indefinidamente
       const geminiCall = model.generateContent({
         contents: [
           {
@@ -158,14 +158,19 @@ ${auditorCritique}
       );
       const result = await Promise.race([geminiCall as any, timeout]);
       response = result.response;
-      break; // Sucesso!
+      break; 
     } catch (err: any) {
-      const isStatus503 = err.message?.includes("503") || err.status === 503 || err.message?.includes("UNAVAILABLE");
+      const isStatus503 = err.message?.includes("503") || err.status === 503 || err.message?.includes("UNAVAILABLE") || err.message?.includes("429");
       const isTimeout   = err.message?.includes("GEMINI_TIMEOUT");
       
       if (isStatus503 || isTimeout) {
         retries++;
-        const msg = `⚠️ ${isTimeout ? 'Timeout' : 'Gemini 503'} - Tentativa ${retries}/${MAX_RETRIES}`;
+        const msg = `⚠️ ${isTimeout ? 'Timeout' : 'Gemini Error'} - Tentativa ${retries}/${MAX_RETRIES}`;
+        
+        // Rotaciona a chave se houver erro de cota ou serviço
+        (await import("./agent.js")).rotateKey();
+
+        if (onProgress) onProgress(msg);
         
         if (onProgress) onProgress(msg);
         
