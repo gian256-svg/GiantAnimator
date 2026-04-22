@@ -172,23 +172,36 @@ ${auditorCritique}
           if (onProgress) onProgress("🚀 Servidor instável. Ativando Reconstituição via OCR Local (Modo Híbrido)...");
 
           // FALLBACK: Chamada puramente de TEXTO usando os dados do OCR local
-          const textModel = ai.getGenerativeModel({ model: GEMINI_MODEL_VISION }); // Mesmo modelo mas sem imagem
-          const textPrompt = `
-            O SERVIDOR DE VISÃO ESTÁ INSTÁVEL. Abaixo está o resultado bruto de um OCR de um gráfico.
-            Sua missão é RECONSTRUIR o JSON do gráfico usando APENAS esse texto e seguindo TODAS as regras do GiantAnimator.
-            
-            TEXTO OCR:
-            """
-            ${ocrText}
-            """
+          // 🛡️ Adicionamos um loop de resiliência próprio para o Fallback (caso o Texto também dê 503)
+          let textSuccess = false;
+          for (let textRetry = 1; textRetry <= 3; textRetry++) {
+            try {
+              const textModel = ai.getGenerativeModel({ model: GEMINI_MODEL_VISION });
+              const textPrompt = `
+                O SERVIDOR DE VISÃO ESTÁ INSTÁVEL. Abaixo está o resultado bruto de um OCR de um gráfico.
+                Sua missão é RECONSTRUIR o JSON do gráfico usando APENAS esse texto e seguindo TODAS as regras do GiantAnimator.
+                
+                TEXTO OCR:
+                """
+                ${ocrText}
+                """
 
-            ${prompt}
-          `;
+                ${prompt}
+              `;
 
-          const textResult = await textModel.generateContent(textPrompt);
-          response = textResult.response;
-          console.log(`✅ [HYBRID] Reconstrução via Texto concluída com sucesso!`);
-          break; // Sai do loop de retries pois o fallback funcionou
+              const textResult = await textModel.generateContent(textPrompt);
+              response = textResult.response;
+              console.log(`✅ [HYBRID] Reconstrução via Texto concluída com sucesso (Tentativa ${textRetry})!`);
+              textSuccess = true;
+              break;
+            } catch (textErr: any) {
+              console.warn(`⚠️ [HYBRID] Fallback de Texto também falhou (${textRetry}/3). Retrying...`);
+              if (textRetry === 3) throw textErr; // Se falhar 3 vezes o texto, aí sim desiste
+              await new Promise(r => setTimeout(r, 3000 * textRetry));
+            }
+          }
+
+          if (textSuccess) break; // Sai do loop principal
         }
         // Backoff: 2s, 4s, 8s... capado em 12s
         const delay = Math.min(Math.pow(2, retries) * 2000, 12000);
