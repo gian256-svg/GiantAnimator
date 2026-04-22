@@ -24,7 +24,8 @@ async function runAutonomousTests(imagePath: string, iterations: number = 10) {
             results.push({ round: i, score: audit.score, approved: audit.isApproved, type: analysis.componentId });
             
             // Verificação de Supremacia de Dados (Exemplo: 2011 deve ser > 50)
-            const val2011 = analysis.props.data.find(d => d.label.includes("2011"))?.value || analysis.props.series?.[0]?.data[0];
+            // Verificação de Supremacia de Dados (Exemplo: 2011 deve ser > 50)
+            const val2011 = (analysis.props.data as any[]).find((d: any) => d.label.includes("2011"))?.value || (analysis.props.series as any[])?.[0]?.data[0];
             console.log(`🔢 [ROUND ${i}] Valor 2011: ${val2011} (Referência: ~55)`);
             
         } catch (err: any) {

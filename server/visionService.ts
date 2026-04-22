@@ -63,7 +63,7 @@ export async function analyzeChartImage(
   const optimizedBuffer = await sharp(rawImageData)
     .resize(1920, 1080, { fit: "inside", withoutEnlargement: true })
     .normalize()
-    .modulate({ brightness: 1.1, contrast: 1.2 }) // Ilumina eixos escuros
+    .modulate({ brightness: 1.1 }) // Ilumina eixos escuros
     .sharpen({ sigma: 1.2 })   // Aumenta nitidez de micro-dados
     .jpeg({ quality: 95 })
     .toBuffer();
