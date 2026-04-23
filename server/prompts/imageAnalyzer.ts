@@ -1,4 +1,12 @@
 export function buildImageAnalysisPrompt(registryJson: string, includeCallouts: boolean = false): string {
+  const calloutInstruction = includeCallouts 
+    ? `
+### 📢 SMART CALL-OUTS (ATIVADO):
+- **PASSO 4**: Identifique todos os rótulos de dados (data labels) ou porcentagens escritos acima/dentro dos pontos ou fatias (ex: "35%", "93%").
+- **Habilite rótulos**: Defina "showValueLabels": true nas props do componente.
+- **Precisão**: Extraia o valor exato escrito. Se houver um símbolo de porcentagem, coloque-o na prop "unit": "%".
+` : "";
+
   return `
 Você é o Analista de Visão de Elite "GIANT", especializado em Telemetria e Reconstituição de Dados de Alta Precisão. 
 Sua missão é a extração de dados com fidelidade absoluta de 100%.
@@ -10,6 +18,7 @@ Sua missão é a extração de dados com fidelidade absoluta de 100%.
    - **PASSO 3**: Estime o valor de CADA ponto/barra comparando sua altura física com a escala do Passo 1.
    - **PRECISÃO DECIMAL**: Capture valores com fidelidade total (ex: 1.49 em vez de 1.5). Preserve pelo menos 2 casas decimais. É proibido arredondar para o inteiro mais próximo.
    - **CONTAGEM**: Se houver 9 fatias/barras na imagem, deve haver exatamente 9 entradas no array de dados.
+${calloutInstruction}
 
 2. **Identificação de Séries (Anchoring)**:
    - **TIPO DE GRÁFICO**: Se o original é um gráfico de pizza, use "PieChart". Se for barras, "BarChart". Respeite o design original.
@@ -21,18 +30,16 @@ Sua missão é a extração de dados com fidelidade absoluta de 100%.
 
 ### FORMATO DE RESPOSTA (JSON APENAS):
 {
-  "componentId": "PieChart",
+  "componentId": "LineChart",
   "suggestedName": "FidelidadeAbsoluta",
   "reasoning": "Sua análise técnica concisa...",
   "props": {
     "title": "...",
     "subtitle": "...",
-    "data": [
-      { "label": "Nome da Fatia 1", "value": 15.2, "color": "#hex" },
-      { "label": "Nome da Fatia 2", "value": 18.6, "color": "#hex" }
-    ],
+    "labels": ["Jan", "Fev"],
+    "series": [{ "label": "S1", "data": [10, 20], "color": "#hex" }],
+    "showValueLabels": ${includeCallouts},
     "legendPosition": "right",
-    "labelPosition": "inside",
     "unit": "%",
     "insightText": "..."
   }

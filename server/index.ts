@@ -254,8 +254,9 @@ async function finishJobRendering(jobId: string, analysis: ChartAnalysis, chartT
 
         // 🛡️ SOBERANIA DO CHECKBOX: Se callouts desativados, removemos do JSON
         if (options.includeCallouts === false) {
-            console.log("🚫 [Render] Removendo callouts (desativado pelo usuário)");
+            console.log("🚫 [Render] Removendo callouts/labels (desativado pelo usuário)");
             delete analysis.props.annotations;
+            delete analysis.props.showValueLabels;
         }
 
         // ─── Serviço de Voz (Opcional) ───────────────────

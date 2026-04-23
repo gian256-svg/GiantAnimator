@@ -27,6 +27,8 @@ export interface MultiLineChartProps {
   legendMode?: 'inline' | 'classic';
   bgStyle?: 'none' | 'mesh' | 'grid';
   backgroundType?: 'dark' | 'light';
+  showValueLabels?: boolean;
+  unit?: string;
 }
 
 export const MultiLineChart: React.FC<MultiLineChartProps> = ({
@@ -41,6 +43,8 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
   legendMode = 'inline',
   bgStyle = 'none',
   backgroundType,
+  showValueLabels = false,
+  unit = "",
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
@@ -211,10 +215,28 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
                 });
                 if (dotPop <= 0) return null;
                 return (
-                  <circle
-                    key={pIndex} cx={getX(pIndex)} cy={getY(val)} r={10 * dotPop}
-                    fill="#fff" stroke={lineColor} strokeWidth={2.5}
-                  />
+                  <g key={pIndex}>
+                    <circle
+                      cx={getX(pIndex)} cy={getY(val)} r={10 * dotPop}
+                      fill="#fff" stroke={lineColor} strokeWidth={2.5}
+                    />
+                    {showValueLabels && (
+                      <text
+                        x={getX(pIndex)}
+                        y={getY(val) - 25}
+                        textAnchor="middle"
+                        style={{
+                          fontSize: fs(18),
+                          fill: T.text,
+                          fontWeight: 700,
+                          fontFamily: Theme.typography.fontFamily,
+                          opacity: dotPop
+                        }}
+                      >
+                        {val}{unit}
+                      </text>
+                    )}
+                  </g>
                 );
               })}
             </g>

@@ -1,4 +1,5 @@
 // server/agent.ts
+
 import "dotenv/config";
 import fs   from "fs";
 import path from "path";
@@ -12,6 +13,8 @@ const keys = [
   process.env.GEMINI_API_KEY,
   process.env.GEMINI_API_KEY_2
 ].filter(Boolean) as string[];
+
+console.log(`🔑 [GEMINI] ${keys.length} chave(s) carregada(s).`);
 
 let currentKeyIndex = 0;
 

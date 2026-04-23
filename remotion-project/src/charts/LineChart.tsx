@@ -25,6 +25,7 @@ interface LineChartProps {
   backgroundType?: 'dark' | 'light';
   annotations?: any[];
   unit?: string;
+  showValueLabels?: boolean;
 }
 
 export const LineChart: React.FC<LineChartProps> = (props) => {
@@ -42,6 +43,7 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
     unit = '',
     annotations = [],
     backgroundType,
+    showValueLabels = false,
   } = props;
 
   const frame = useCurrentFrame();
@@ -188,7 +190,24 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
                 {showArea && <path d={areaPath} fill={`url(#lineGrad-${clipId}-${sIndex})`} />}
                 <polyline points={linePoints} fill="none" stroke={color} strokeWidth={fs(isHighDensity ? 2 : 4)} strokeLinecap="round" strokeLinejoin="round" />
                 {!isHighDensity && s.data.map((v: number, i: number) => (
-                  <circle key={i} cx={getX(sIndex, i)} cy={getY(v)} r={fs(5)} fill={resolvedBg} stroke={color} strokeWidth={fs(2)} />
+                  <React.Fragment key={i}>
+                    <circle cx={getX(sIndex, i)} cy={getY(v)} r={fs(5)} fill={resolvedBg} stroke={color} strokeWidth={fs(2)} />
+                    {showValueLabels && (
+                      <text
+                        x={getX(sIndex, i)}
+                        y={getY(v) - fs(20)}
+                        textAnchor="middle"
+                        style={{
+                          fontSize: fs(18),
+                          fill: resolvedText,
+                          fontWeight: 700,
+                          opacity: interpolate(progress, [0.85, 1], [0, 1])
+                        }}
+                      >
+                        {formatValue(v, unit)}
+                      </text>
+                    )}
+                  </React.Fragment>
                 ))}
               </g>
               

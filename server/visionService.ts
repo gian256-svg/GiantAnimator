@@ -14,7 +14,7 @@ import { type ChartAnalysis } from "./types.js";
  * Serviço de Visão Compartilhado para análise de imagens de gráficos.
  */
 export async function analyzeChartImage(
-  imagePath: string, 
+  imagePath: string,
   requestedTheme?: string,
   auditorCritique?: string,
   settings: { includeCallouts?: boolean } = {},
@@ -24,8 +24,8 @@ export async function analyzeChartImage(
 
   // ─── MD5 Cache ───────────────────────────────────────────────
   const IS_VERCEL = !!process.env.VERCEL;
-  const cacheKey  = `${crypto.createHash("md5").update(rawImageData).digest("hex")}_${requestedTheme || 'default'}_${auditorCritique ? crypto.createHash("md5").update(auditorCritique).digest("hex") : 'nocritic'}_v7`;
-  const cacheDir  = IS_VERCEL ? "/tmp/cache" : path.join(process.cwd(), "cache");
+  const cacheKey = `${crypto.createHash("md5").update(rawImageData).digest("hex")}_${requestedTheme || 'default'}_${auditorCritique ? crypto.createHash("md5").update(auditorCritique).digest("hex") : 'nocritic'}_v7`;
+  const cacheDir = IS_VERCEL ? "/tmp/cache" : path.join(process.cwd(), "cache");
   if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
   const cacheFile = path.join(cacheDir, `${cacheKey}.json`);
 
@@ -35,19 +35,19 @@ export async function analyzeChartImage(
       if (cached.props && (cached.props.data?.length > 0 || cached.props.series?.length > 0)) {
         return normalizeAnalysisProps(cached);
       }
-    } catch (e) {}
+    } catch (e) { }
   }
 
   // ─── Otimizar imagem ───
   const optimizedBuffer = await sharp(rawImageData)
     .resize(2560, 1440, { fit: "inside", withoutEnlargement: true })
     .normalize()
-    .modulate({ brightness: 1.1 }) 
+    .modulate({ brightness: 1.1 })
     .sharpen({ sigma: 1.2 })
     .jpeg({ quality: 98 })
     .toBuffer();
 
-  const imageBase64  = optimizedBuffer.toString("base64");
+  const imageBase64 = optimizedBuffer.toString("base64");
   const registryJson = JSON.stringify(COMPONENT_REGISTRY, null, 2);
   let prompt = buildImageAnalysisPrompt(registryJson, settings.includeCallouts);
 
@@ -61,7 +61,8 @@ export async function analyzeChartImage(
   // ─── Gemini Call ───
   let response;
   let retries = 0;
-  while (retries < 5) {
+  let lastError: any = null;
+  while (retries < 10) {
     try {
       const model = (await import("./agent.js")).getAIInstance().getGenerativeModel({ model: GEMINI_MODEL_VISION });
       const result = await model.generateContent({
@@ -78,12 +79,28 @@ export async function analyzeChartImage(
       break;
     } catch (err: any) {
       retries++;
-      if (err.message?.includes("503") || err.message?.includes("429")) (await import("./agent.js")).rotateKey();
-      await new Promise(r => setTimeout(r, 1000 * retries));
+      lastError = err;
+      const errMsg = err.message || String(err);
+      const isServiceError = errMsg.includes("503") || errMsg.includes("429") || errMsg.includes("UNAVAILABLE") || errMsg.includes("high demand");
+      
+      console.error(`❌ [VISION] Tentativa ${retries}/10 falhou: ${errMsg}`);
+      
+      if (isServiceError) {
+        (await import("./agent.js")).rotateKey();
+        const wait = Math.min(Math.pow(2, retries) * 1000, 30000); 
+        console.log(`⏳ [VISION] Aguardando ${wait/1000}s antes da próxima tentativa (503/Demand)...`);
+        await new Promise(r => setTimeout(r, wait));
+      } else {
+        // Se for erro de autenticação ou parâmetro, não adianta tentar 10 vezes
+        break;
+      }
     }
   }
 
-  if (!response) throw new Error("API Gemini falhou.");
+  if (!response) {
+    const detail = lastError?.message || "Erro desconhecido";
+    throw new Error(`API Gemini falhou após ${retries} tentativas. Detalhe: ${detail}`);
+  }
   const candidate = response.candidates?.[0];
   const responseText = candidate?.content?.parts?.[0]?.text ?? "";
   const finishReason = candidate?.finishReason;
@@ -103,7 +120,7 @@ export async function analyzeChartImage(
     const char = responseText[i];
     if (char === '"' && !escaped) inString = !inString;
     if (char === '\\' && !escaped) escaped = true; else escaped = false;
-    
+
     if (!inString) {
       if (char === '{') {
         if (depth === 0) first = i;
@@ -112,7 +129,7 @@ export async function analyzeChartImage(
         depth--;
         if (depth === 0 && first !== -1) {
           jsonStr = responseText.slice(first, i + 1);
-          break; 
+          break;
         }
       }
     }
@@ -122,7 +139,7 @@ export async function analyzeChartImage(
   if (!jsonStr && first !== -1) {
     console.warn("⚠️ [Vision] JSON truncado detectado. Tentando reparo automático de chaves...");
     let partial = responseText.slice(first);
-    
+
     // Se terminou no meio de uma string, fecha a aspa
     if (inString) {
       partial += '"';
@@ -134,7 +151,7 @@ export async function analyzeChartImage(
       partial += "}";
       tempDepth--;
     }
-    
+
     // Tenta validar se virou um JSON minimamente parseável
     try {
       // Remove vírgula trailing se existir antes de fechar (ex: "key": "val",})
@@ -165,7 +182,7 @@ export async function analyzeChartImage(
       cleanedJson += char;
     }
   }
-  
+
   // Remove trailing commas e comentários
   cleanedJson = cleanedJson.replace(/\/\/.*$/gm, "").replace(/,\s*([\]\}])/g, "$1");
 
