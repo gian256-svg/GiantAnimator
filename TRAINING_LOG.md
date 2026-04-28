@@ -530,3 +530,13 @@ Caso a imagem mande um tÃƒÂ­tulo muito longo, ele nÃƒÂ£o pode flanquear 
 2. **Safety Blindness**: Desabilitados todos os filtros de segurança do Gemini (`BLOCK_NONE`) no pipeline de visão para evitar falsos positivos que causam truncamento ou erro 400.
 3. **FinishReason Logging**: Adicionado monitoramento do motivo de término da geração para diagnosticar falhas de cota ou segurança em tempo real.
 **Resultado**: Pipeline estabilizada e resiliente a respostas parciais da IA.
+
+---
+
+### 🌊 [2026-04-28] REGRA CIRÚRGICA — WATERFALL CHARTS (UNIDADES E TOTAIS)
+**Contexto**: O Waterfall Chart estava violando a zona de segurança e adicionando um segundo Total artificial, além de omitir as unidades monetárias cruciais.
+**Ação Corretiva**: Adicionadas lógicas anti-clipping no Y-Axis, Legendas Nativas no componente, e suporte a props.unit.
+**Nova Regra para a IA de Visão**:
+1. **Identificação de Totais Absolutos**: A IA DEVE identificar se a primeira e/ou a última coluna representam um valor absoluto (ex: 'Start', 'End', 'Total') e **OBRIGATORIAMENTE** injetar a flag `"isTotal": true` nessas barras. ISSO É CRÍTICO para que a matemática de flutuação em cascata funcione. As barras intermediárias que representam mudança (aumento/queda) NÃO podem ter `isTotal`.
+2. **Unidade de Medida Monetária/Numérica**: O campo `unit` (ex: '$', 'mln', 'M', '%') DEVE ser extraído fidedignamente e colocado em `props.unit` do JSON gerado, se houver qualquer detecção de unidade na imagem de referência.
+3. **Uso de Cores e Temas**: O Waterfall usará a cor de destaque do tema (`T.colors[0]`) para Totais, `#10b981` para aumentos e `#ef4444` para quedas. Nenhuma intervenção de cor é necessária por parte da IA.

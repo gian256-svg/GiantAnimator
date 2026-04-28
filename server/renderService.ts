@@ -32,7 +32,10 @@ async function getBundle(): Promise<string> {
     console.log('📦 Criando bundle...');
     const bundleLocation = await bundle({
       entryPoint: ENTRY_POINT,
-      webpackOverride: (config) => config,
+      webpackOverride: (config) => {
+        config.cache = false;
+        return config;
+      },
     });
     
     cachedBundleLocation = bundleLocation;

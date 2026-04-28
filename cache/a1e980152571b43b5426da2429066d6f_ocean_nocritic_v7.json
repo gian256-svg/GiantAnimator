@@ -1,0 +1,69 @@
+{
+  "componentId": "WaterfallChart",
+  "suggestedName": "WaterfallChartAnalysis",
+  "reasoning": "The chart clearly depicts a Waterfall Chart, illustrating the cumulative effect of sequential positive and negative changes from an initial value to a final total. All numerical values, including initial, intermediate, and final totals, as well as increases and decreases, have been extracted with absolute fidelity. The colors for increases, decreases, and totals have been precisely identified.",
+  "props": {
+    "title": "Waterfall Chart Data Flow",
+    "data": [
+      {
+        "label": "q1",
+        "value": 50000,
+        "isTotal": true
+      },
+      {
+        "label": "Label",
+        "value": 30000
+      },
+      {
+        "label": "Label",
+        "value": -25000
+      },
+      {
+        "label": "Label",
+        "value": 40000
+      },
+      {
+        "label": "Label",
+        "value": -20000
+      },
+      {
+        "label": "Label",
+        "value": 12000
+      },
+      {
+        "label": "Label",
+        "value": 87000,
+        "isTotal": true
+      }
+    ],
+    "showValueLabels": true,
+    "seriesColors": [
+      "#E74C8B",
+      "#70C0D8",
+      "#1A1A2E"
+    ],
+    "labels": [
+      "q1",
+      "Label",
+      "Label",
+      "Label",
+      "Label",
+      "Label",
+      "Label"
+    ],
+    "series": [
+      {
+        "label": "Waterfall Chart Data Flow",
+        "data": [
+          50000,
+          30000,
+          -25000,
+          40000,
+          -20000,
+          12000,
+          87000
+        ]
+      }
+    ]
+  }
+}

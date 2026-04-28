@@ -1,4 +1,4 @@
-﻿import React, { useMemo, useId } from "react";
+import React, { useMemo, useId } from "react";
 import {
   spring,
   useCurrentFrame,
@@ -12,12 +12,14 @@ import { DynamicBackground } from "../layout/DynamicBackground";
 export interface WaterfallPoint {
   label: string;
   value: number;
+  isTotal?: boolean;
 }
 
 export interface WaterfallChartProps {
   data: WaterfallPoint[];
   title?: string;
   subtitle?: string;
+  unit?: string;
   theme?: string;
   backgroundColor?: string;
   colors?: string[];
@@ -29,6 +31,7 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
   data: propData = [],
   title,
   subtitle,
+  unit,
   theme = 'dark',
   bgStyle = 'none',
 }) => {
@@ -42,23 +45,38 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
   const waterfallData = useMemo(() => {
     let acc = 0;
     const items = data.map((d) => {
-      const start = acc;
-      acc += d.value;
-      return {
-        label: d.label,
-        value: d.value,
-        start,
+      if (d.isTotal) {
+        acc = d.value;
+        return {
+          label: d.label,
+          value: d.value,
+          start: 0,
+          end: d.value,
+          type: "total",
+        };
+      } else {
+        const start = acc;
+        acc += d.value;
+        return {
+          label: d.label,
+          value: d.value,
+          start,
+          end: acc,
+          type: d.value >= 0 ? "positive" : "negative",
+        };
+      }
+    });
+    
+    // Só adiciona a coluna "Total" sintética se a última coluna não for declarada como total
+    if (items.length > 0 && items[items.length - 1].type !== "total") {
+      items.push({
+        label: "Total",
+        value: acc,
+        start: 0,
         end: acc,
-        type: d.value >= 0 ? "positive" : "negative",
-      };
-    });
-    items.push({
-      label: "Total",
-      value: acc,
-      start: 0,
-      end: acc,
-      type: "total",
-    });
+        type: "total",
+      });
+    }
     return items;
   }, [data]);
 
@@ -73,10 +91,10 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
   // Safe Zone 4K
   const margin = 128;
   const titleHeight = 160;
-  const plotWidth = width - margin * 2;
-  const plotHeight = height - margin * 2 - titleHeight - 100;
+  const chartLeft = margin + 160; // Extra padding para proteger números grandes de violar a safe margin esquerda
+  const plotWidth = width - chartLeft - margin;
+  const plotHeight = height - margin * 2 - titleHeight - 160; // Mais espaço para a legenda (-160)
   const chartTop = margin + titleHeight;
-  const chartLeft = margin;
 
   const allBounds = waterfallData.flatMap(d => [d.start, d.end, 0]);
   const minY = Math.min(...allBounds);
@@ -89,18 +107,27 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
   const categoryWidth = plotWidth / waterfallData.length;
   const barWidth = categoryWidth * (1 - barGap);
 
-  const formatValue = (val: number) => {
+  const formatValue = (val: number, displayUnit?: string) => {
     const absVal = Math.abs(val);
     const sign = val < 0 ? "-" : "";
-    if (absVal >= 1000000) return sign + (absVal / 1000000).toFixed(1) + "M";
-    if (absVal >= 1000) return sign + (absVal / 1000).toFixed(1) + "k";
-    return val.toString();
+    let numStr = val.toString();
+    if (absVal >= 1000000) numStr = (absVal / 1000000).toFixed(1) + "M";
+    else if (absVal >= 1000) numStr = (absVal / 1000).toFixed(1) + "k";
+    
+    if (displayUnit) {
+      if (displayUnit.startsWith('$') || displayUnit.startsWith('R$') || displayUnit.startsWith('€') || displayUnit.startsWith('£')) {
+        return sign + displayUnit + numStr;
+      }
+      return sign + numStr + " " + displayUnit;
+    }
+    return sign + numStr;
   };
 
-  const getColor = (type: string) => {
+  const getColor = (type: string, index: number) => {
+    if (type === "total") return T.colors[0];
     if (type === "positive") return "#10b981";
     if (type === "negative") return "#ef4444";
-    return T.colors[0];
+    return T.colors[index % T.colors.length];
   };
 
   return (
@@ -134,8 +161,8 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
         <defs>
           {waterfallData.map((d, i) => (
             <linearGradient key={i} id={`waterGrad-${i}-${instanceId}`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={getColor(d.type)} />
-              <stop offset="100%" stopColor={getColor(d.type)} stopOpacity={0.85} />
+              <stop offset="0%" stopColor={getColor(d.type, i)} />
+              <stop offset="100%" stopColor={getColor(d.type, i)} stopOpacity={0.85} />
             </linearGradient>
           ))}
         </defs>
@@ -150,7 +177,7 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
               <React.Fragment key={v}>
                 <line x1={chartLeft} y1={y} x2={chartLeft + plotWidth} y2={y} stroke={T.grid} strokeWidth={isZero ? 2 : 1} opacity={isZero ? 1 : 0.6} />
                 <text x={chartLeft - 20} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: T.textMuted, fontFamily: Theme.typography.fontFamily }}>
-                  {formatValue(val)}
+                  {formatValue(val, unit)}
                 </text>
               </React.Fragment>
             );
@@ -204,7 +231,7 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
                     opacity: interpolate(progress, [0.8, 1], [0, 1])
                   }}
                 >
-                  {formatValue(d.value)}
+                  {formatValue(d.value, unit)}
                 </text>
               )}
 
@@ -220,6 +247,20 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
           );
         })}
       </svg>
+
+      {/* LEGEND */}
+      <div style={{ position: 'absolute', bottom: height * 0.08, width: '100%', display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 60, opacity: interpolate(frame, [40, 60], [0, 1]), pointerEvents: 'none' }}>
+        {[
+          { label: "Total", color: getColor("total", 0) },
+          { label: "Aumento", color: getColor("positive", 0) },
+          { label: "Queda", color: getColor("negative", 0) }
+        ].map((item, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div style={{ width: 24, height: 24, borderRadius: '4px', backgroundColor: item.color, boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }} />
+            <div style={{ fontSize: Theme.typography.axis.size, color: T.text, fontWeight: 600, fontFamily: Theme.typography.fontFamily }}>{item.label}</div>
+          </div>
+        ))}
+      </div>
     </AbsoluteFill>
   );
 };

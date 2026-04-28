@@ -378,6 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <button class="ve-type-btn ${detectedType === 'LineChart' ? 'active' : ''}" data-type="LineChart" title="Line Chart">📈</button>
                 <button class="ve-type-btn ${detectedType === 'PieChart' ? 'active' : ''}" data-type="PieChart" title="Pie Chart">⭕</button>
                 <button class="ve-type-btn ${detectedType === 'ComparativeBarChart' ? 'active' : ''}" data-type="ComparativeBarChart" title="Comparative Bar">⚖️</button>
+                <button class="ve-type-btn ${detectedType === 'WaterfallChart' ? 'active' : ''}" data-type="WaterfallChart" title="Waterfall Chart">🌊</button>
               </div>
             </div>
 

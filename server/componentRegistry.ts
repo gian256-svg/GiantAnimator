@@ -74,8 +74,8 @@ export const COMPONENT_REGISTRY: ComponentEntry[] = [
     id: "WaterfallChart",
     aliases: ["waterfall chart", "cascata"],
     description: "Gráfico de cascata.",
-    propsSchema: "data: { label: string, value: number, isTotal?: boolean }[], title?: string, seriesColors?: string[]",
-    exampleProps: { title: "P&L", data: [{ label: "A", value: 10 }] }
+    propsSchema: "data: { label: string, value: number, isTotal?: boolean }[], unit?: string, title?: string, seriesColors?: string[]",
+    exampleProps: { title: "P&L", unit: "$", data: [{ label: "A", value: 10 }] }
   },
   {
     id: "RadarChart",
