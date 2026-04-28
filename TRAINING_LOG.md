@@ -569,3 +569,21 @@ Caso a imagem mande um tÃƒÂ­tulo muito longo, ele nÃƒÂ£o pode flanquear 
    - Se os dados forem de **Marcas/Empresas**, deve-se buscar o logo da marca (ex: via `logo.clearbit.com` ou outra API de logo).
    - Se o dado não possuir ícone mapeável, a fallback obrigatória é exibir a Primeira Letra da categoria (ex: "A") centralizada em um fundo colorido elegante.
 2. **Obrigatoriedade de Legenda Clean**: Como os rótulos de texto das linhas foram substituídos por ícones visuais, a **ZONA 3 (Legenda Inferior)** passa a ser obrigatória para gráficos Racing. A legenda é o que resolve e nomeia o ícone para o usuário de forma "Clean".
+
+---
+
+### 🛡️ [2026-04-28] UX & INFRA — RESILIÊNCIA DO BOTÃO ANIMATE E DOWNLOAD SEPARADO
+**Problema 1 (503 Lock)**: Se a API do Gemini devolvesse um erro 503 ou 429 (Servidor Ocupado), o botão "Animate Production" ficava permanentemente desativado (disabled), forçando o usuário a dar refresh e perder o arquivo carregado.
+**Problema 2 (Auto-Download Ansioso)**: O render automático do servidor acionava um download do arquivo MP4 assim que ele ficava pronto, impedindo o usuário de avaliar o preview primeiro.
+**Solução**:
+1. **Status Recovery (UX)**: No catch do erro (ou no retorno error no frontend), a rotina reverte o status interno do arquivo (`f.status = 'pending'`), libera o boolean de renderização (`state.isRendering = false`) e chama a atualização da fila (`renderFileQueue`), reativando o botão elegantemente.
+2. **Download Opcional**: Removida a trigger de download automático. Injetado um botão manual nativo no `index.html` na barra de ações abaixo do player, garantindo que o usuário só baixe após aprovar o preview visualmente.
+
+---
+
+### 🧬 [2026-04-28] VISION — EXTRAÇÃO OBRIGATÓRIA DE GRANDEZAS (M, k, B, %)
+**Problema**: A IA de Visão estava ignorando sufixos e letras marcadoras de grandeza (como o "M" de Milhões ou "k" de Milhares) nos valores dos eixos e barras, causando perda de contexto visual em gráficos como o WaterfallChart (ex: "15" no lugar de "$15M").
+**Solução**:
+1. **Reforço de Prompt (imageAnalyzer)**: O Protocolo de Descoberta recebeu a regra "UNIDADES OBRIGATÓRIAS (CRÍTICO)". A IA agora é estritamente proibida de ignorar sufixos de grandeza e símbolos monetários, devendo OBRIGATORIAMENTE fundi-los na propriedade `unit` (ex: `"$M"`, `"$ mln"`).
+2. **valueStr Absoluto**: Reforçado que qualquer rótulo de dados visível nas fatias/barras (ex: `-$10M`) deve ser copiado fidedignamente para `valueStr`, usando a variável `value` numérica apenas para proporção em pixels.
+3. **Cache Busting de Visão**: O `cacheKey` do `visionService.ts` foi bumpado para v10 para anular análises estéreis guardadas com omissão de unidades.
