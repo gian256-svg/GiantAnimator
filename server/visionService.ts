@@ -67,7 +67,7 @@ export async function analyzeChartImage(
       const model = (await import("./agent.js")).getAIInstance().getGenerativeModel({ model: GEMINI_MODEL_VISION });
       const result = await model.generateContent({
         contents: [{ role: "user", parts: [{ inlineData: { data: imageBase64, mimeType: "image/jpeg" } }, { text: prompt }] }],
-        generationConfig: { temperature: 0.1, topP: 0.1, maxOutputTokens: 4096 },
+        generationConfig: { temperature: 0.1, topP: 0.1, maxOutputTokens: 8192 },
         safetySettings: [
           { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
           { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },

@@ -1,0 +1,61 @@
+{
+  "componentId": "HorizontalBarChart",
+  "suggestedName": "TaskDurations",
+  "reasoning": "Análise técnica de um gráfico de barras horizontais, extraindo com precisão a duração em dias para cada tarefa. Os valores foram calibrados e medidos com fidelidade de duas casas decimais em relação ao eixo X.",
+  "props": {
+    "title": "Days",
+    "subtitle": "",
+    "data": [
+      {
+        "label": "Task 1",
+        "value": 19.5
+      },
+      {
+        "label": "Task 2",
+        "value": 52.5
+      },
+      {
+        "label": "Task 3",
+        "value": 35
+      },
+      {
+        "label": "Task 4",
+        "value": 17
+      },
+      {
+        "label": "Task 5",
+        "value": 18
+      },
+      {
+        "label": "Task 6",
+        "value": 26
+      }
+    ],
+    "seriesColors": [
+      "#1f4e79"
+    ],
+    "unit": "Days",
+    "insightText": "O gráfico ilustra a duração em dias para seis tarefas distintas. A 'Task 2' apresenta a maior duração com 52.50 dias, enquanto a 'Task 4' é a mais curta com 17.00 dias. A 'Task 3' tem uma duração intermediária de 35.00 dias.",
+    "labels": [
+      "Task 1",
+      "Task 2",
+      "Task 3",
+      "Task 4",
+      "Task 5",
+      "Task 6"
+    ],
+    "series": [
+      {
+        "label": "Days",
+        "data": [
+          19.5,
+          52.5,
+          35,
+          17,
+          18,
+          26
+        ]
+      }
+    ]
+  }
+}

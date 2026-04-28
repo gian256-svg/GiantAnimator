@@ -1,0 +1,59 @@
+{
+  "componentId": "PieChart",
+  "suggestedName": "SubjectDistribution",
+  "reasoning": "O gráfico é um PieChart que exibe a distribuição de diferentes assuntos com base em seus ângulos. Os valores foram convertidos de graus para porcentagens para se adequar ao esquema de propriedades `unit: '%'`, mantendo a precisão decimal. As cores e rótulos foram extraídos diretamente da legenda e das fatias do gráfico. A legenda está posicionada à direita e os rótulos de valor (ângulos originais) estão dentro das fatias.",
+  "props": {
+    "title": "Distribuição de Assuntos por Porcentagem",
+    "subtitle": "Baseado nos ângulos fornecidos no gráfico de pizza",
+    "data": [
+      {
+        "label": "Mathematics",
+        "value": 30,
+        "color": "#BE4E24"
+      },
+      {
+        "label": "Science",
+        "value": 22.5,
+        "color": "#FFCC00"
+      },
+      {
+        "label": "Social science",
+        "value": 12.5,
+        "color": "#800040"
+      },
+      {
+        "label": "English",
+        "value": 20,
+        "color": "#000000"
+      },
+      {
+        "label": "Hindi",
+        "value": 15,
+        "color": "#808080"
+      }
+    ],
+    "legendPosition": "right",
+    "labelPosition": "inside",
+    "unit": "%",
+    "insightText": "A disciplina de Matemática representa a maior parte da distribuição com 30%, enquanto Ciências Sociais tem a menor participação com 12.5%. Inglês e Hindi representam 20% e 15%, respectivamente, e Ciência contribui com 22.5%.",
+    "labels": [
+      "Mathematics",
+      "Science",
+      "Social science",
+      "English",
+      "Hindi"
+    ],
+    "series": [
+      {
+        "label": "Distribuição de Assuntos por Porcentagem",
+        "data": [
+          30,
+          22.5,
+          12.5,
+          20,
+          15
+        ]
+      }
+    ]
+  }
+}

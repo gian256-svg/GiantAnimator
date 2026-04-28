@@ -1,0 +1,153 @@
+{
+  "componentId": "PieChart",
+  "suggestedName": "Market Share by Sector",
+  "reasoning": "Data extracted from the pie chart by precisely matching slice colors to the legend and reading percentage values directly from each segment. All 18 sectors and their respective percentages and exact hexadecimal colors have been captured with high fidelity. The sum of all percentages is 99.99%, indicating accurate data representation.",
+  "props": {
+    "title": "Market Share by Sector",
+    "subtitle": "",
+    "data": [
+      {
+        "label": "Pharmaceutical & Biotechnology",
+        "value": 2.43
+      },
+      {
+        "label": "Travel & Leisure",
+        "value": 3.28
+      },
+      {
+        "label": "Tobacco",
+        "value": 3.42
+      },
+      {
+        "label": "Life Insurance",
+        "value": 3.79
+      },
+      {
+        "label": "Beverages",
+        "value": 4.07
+      },
+      {
+        "label": "General Financial",
+        "value": 4.11
+      },
+      {
+        "label": "Electricity",
+        "value": 4.46
+      },
+      {
+        "label": "Gas, Water & Multiutilities",
+        "value": 5.25
+      },
+      {
+        "label": "Support Services",
+        "value": 5.45
+      },
+      {
+        "label": "Aerospace & Defence",
+        "value": 5.53
+      },
+      {
+        "label": "Construction & Materials",
+        "value": 5.6
+      },
+      {
+        "label": "Mining",
+        "value": 6.22
+      },
+      {
+        "label": "General Retailers",
+        "value": 7.02
+      },
+      {
+        "label": "Oil & Gas Producers",
+        "value": 7.36
+      },
+      {
+        "label": "Mobile Telecommunications",
+        "value": 7.39
+      },
+      {
+        "label": "Food Producers & Processors",
+        "value": 7.81
+      },
+      {
+        "label": "Banks",
+        "value": 8.39
+      },
+      {
+        "label": "Media",
+        "value": 8.42
+      }
+    ],
+    "seriesColors": [
+      "#800000",
+      "#800080",
+      "#4B0082",
+      "#8A2BE2",
+      "#6495ED",
+      "#000080",
+      "#ADD8E6",
+      "#6A5ACD",
+      "#87CEEB",
+      "#40E0D0",
+      "#008080",
+      "#006400",
+      "#7CFC00",
+      "#ADFF2F",
+      "#FFFF00",
+      "#DAA520",
+      "#A52A2A",
+      "#FF0000"
+    ],
+    "showValueLabels": true,
+    "legendPosition": "right",
+    "unit": "%",
+    "labelPosition": "inside",
+    "insightText": "The Media sector holds the largest market share at 8.42%, closely followed by Banks (8.39%) and Food Producers & Processors (7.81%). Conversely, Pharmaceutical & Biotechnology represents the smallest share at 2.43%.",
+    "labels": [
+      "Pharmaceutical & Biotechnology",
+      "Travel & Leisure",
+      "Tobacco",
+      "Life Insurance",
+      "Beverages",
+      "General Financial",
+      "Electricity",
+      "Gas, Water & Multiutilities",
+      "Support Services",
+      "Aerospace & Defence",
+      "Construction & Materials",
+      "Mining",
+      "General Retailers",
+      "Oil & Gas Producers",
+      "Mobile Telecommunications",
+      "Food Producers & Processors",
+      "Banks",
+      "Media"
+    ],
+    "series": [
+      {
+        "label": "Market Share by Sector",
+        "data": [
+          2.43,
+          3.28,
+          3.42,
+          3.79,
+          4.07,
+          4.11,
+          4.46,
+          5.25,
+          5.45,
+          5.53,
+          5.6,
+          6.22,
+          7.02,
+          7.36,
+          7.39,
+          7.81,
+          8.39,
+          8.42
+        ]
+      }
+    ]
+  }
+}

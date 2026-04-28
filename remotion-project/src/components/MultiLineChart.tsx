@@ -7,8 +7,9 @@ import {
   AbsoluteFill,
 } from "remotion";
 import { evolvePath } from "@remotion/paths";
-import { Theme, resolveTheme, parseSafeNumber } from '../theme';
+import { Theme, resolveTheme, parseSafeNumber, formatValue } from '../theme';
 import { DynamicBackground } from "../layout/DynamicBackground";
+import { SmartCallout } from "./SmartCallout";
 
 export interface MultiLineChartProps {
   series: {
@@ -29,6 +30,7 @@ export interface MultiLineChartProps {
   backgroundType?: 'dark' | 'light';
   showValueLabels?: boolean;
   unit?: string;
+  annotations?: any[];
 }
 
 export const MultiLineChart: React.FC<MultiLineChartProps> = ({
@@ -45,6 +47,7 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
   backgroundType,
   showValueLabels = false,
   unit = "",
+  annotations = [],
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
@@ -67,9 +70,9 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
   }
 
   // Safe Zone 4K (D2 + Spacing)
-  const margin = 128; // 128px
+  const margin = Theme.canvas.safeZoneX || 192; // Usando margem de segurança global (192px)
   const titleHeight = 160; // 160px
-  const paddingRight = legendMode === 'inline' ? 400 : margin; // EspaÃ§o para labels inline 4K
+  const paddingRight = legendMode === 'inline' ? 650 : margin; // 650px de espaço para evitar colisão 4K
   const plotWidth = width - margin - paddingRight;
   const plotHeight = height - margin * 2 - titleHeight - 100;
   const chartTop = margin + titleHeight;
@@ -264,6 +267,35 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
           );
         })}
       </svg>
+
+      {/* ANOTAÇÕES INTELIGENTES (SMART CALLOUTS) */}
+      {annotations.map((ann, i) => {
+        if (!ann || ann.index === undefined || !series[ann.seriesIndex || 0]) return null;
+        
+        const sIdx = ann.seriesIndex || 0;
+        const gIdx = Math.min(Math.max(0, ann.index), labels.length - 1);
+        
+        const seriesData = series[sIdx].data;
+        const val = seriesData[gIdx];
+        
+        const calloutX = getX(gIdx);
+        const calloutY = getY(val);
+
+        return (
+          <SmartCallout
+            key={`ann-${i}`}
+            x={calloutX}
+            y={calloutY}
+            label={ann.label}
+            value={ann.value !== undefined ? formatValue(ann.value, unit) : undefined}
+            theme={theme}
+            delay={140 + i * 15}
+            color={T.colors[0]}
+            index={i}
+            backgroundType={backgroundType}
+          />
+        );
+      })}
 
       {/* Legenda ClÃ¡ssica (ZONA 3) */}
       {legendMode === 'classic' && (

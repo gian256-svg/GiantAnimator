@@ -1,0 +1,59 @@
+{
+  "componentId": "BarChart",
+  "suggestedName": "BarChartDataVisualization",
+  "reasoning": "Extração de dados de um gráfico de barras agrupado, com valores estimados com precisão de $5.000 com base nas linhas de grade e altura das barras. As cores das séries foram extraídas diretamente da imagem para garantir fidelidade visual.",
+  "props": {
+    "title": "Bar Chart (Data Visualization)",
+    "labels": [
+      "2018",
+      "2019",
+      "2020"
+    ],
+    "series": [
+      {
+        "label": "Category 1",
+        "data": [
+          110000,
+          130000,
+          95000
+        ],
+        "color": "#4C78A8"
+      },
+      {
+        "label": "Category 2",
+        "data": [
+          230000,
+          190000,
+          165000
+        ],
+        "color": "#E17832"
+      },
+      {
+        "label": "Category 3",
+        "data": [
+          75000,
+          90000,
+          105000
+        ],
+        "color": "#969696"
+      }
+    ],
+    "showValueLabels": false,
+    "legendPosition": "bottom",
+    "unit": "$",
+    "data": [
+      {
+        "label": "2018",
+        "value": 110000
+      },
+      {
+        "label": "2019",
+        "value": 130000
+      },
+      {
+        "label": "2020",
+        "value": 95000
+      }
+    ]
+  }
+}

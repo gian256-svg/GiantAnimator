@@ -1,0 +1,8 @@
+{
+  "componentId": "HorizontalBarChart",
+  "suggestedName": "MostCommonItemsSoldByStoreLocation",
+  "reasoning": "O gráfico original é um gráfico de barras agrupadas verticais, mostrando a contagem de itens vendidos por localização da loja. O componente 'HorizontalBarChart' foi selecionado devido à sua estrutura de propriedades 'labels' e 'series', que é a mais adequada para representar dados agrupados, onde 'labels' correspondem às localizações das lojas (eixo X) e 'series' representam os tipos de itens (grupos de barras). As cores foram extraídas com precisão da legenda do gráfico original. Os valores foram calibrados com base nas linhas de grade do eixo Y, onde cada subdivisão",
+  "props": {
+    "labels": []
+  }
+}

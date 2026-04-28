@@ -1,0 +1,145 @@
+{
+  "componentId": "LineChart",
+  "suggestedName": "FidelidadeAbsoluta",
+  "reasoning": "O gráfico é um LineChart que exibe a tendência de múltiplas séries de dados ao longo do tempo. Os eixos Y e X foram calibrados com precisão, identificando os valores numéricos do eixo Y (0 a 1400 com incrementos de 200 e subdivisões de 40) e os rótulos de data do eixo X. Cada linha representa um país, e os pontos de dados foram extraídos para cada data rotulada no eixo X, mantendo a fidelidade de duas casas decimais. As cores das séries foram identificadas com seus respectivos códigos hexadecimais. Não há rótulos de valor explícitos nas linhas, e a legenda é implicitamente fornecida pelos rótulos dos países posicionados à direita das linhas.",
+  "props": {
+    "title": "COVID-19 Cases Trend (Aug-Nov)",
+    "subtitle": "",
+    "labels": [
+      "01 Aug",
+      "21 Aug",
+      "10 Sep",
+      "30 Sep",
+      "20 Oct",
+      "09 Nov"
+    ],
+    "series": [
+      {
+        "label": "Austria",
+        "data": [
+          10,
+          20,
+          30,
+          100,
+          580,
+          1220
+        ],
+        "color": "#006666"
+      },
+      {
+        "label": "Belgium",
+        "data": [
+          130,
+          150,
+          120,
+          180,
+          600,
+          800
+        ],
+        "color": "#A52A2A"
+      },
+      {
+        "label": "Netherlands",
+        "data": [
+          150,
+          170,
+          150,
+          200,
+          600,
+          780
+        ],
+        "color": "#000000"
+      },
+      {
+        "label": "UK",
+        "data": [
+          380,
+          480,
+          560,
+          420,
+          680,
+          520
+        ],
+        "color": "#000000"
+      },
+      {
+        "label": "Germany",
+        "data": [
+          180,
+          160,
+          100,
+          120,
+          280,
+          480
+        ],
+        "color": "#000000"
+      },
+      {
+        "label": "France",
+        "data": [
+          320,
+          360,
+          220,
+          100,
+          120,
+          160
+        ],
+        "color": "#800080"
+      },
+      {
+        "label": "Italy",
+        "data": [
+          40,
+          60,
+          80,
+          60,
+          80,
+          120
+        ],
+        "color": "#556B2F"
+      },
+      {
+        "label": "Spain",
+        "data": [
+          500,
+          380,
+          180,
+          60,
+          40,
+          80
+        ],
+        "color": "#DAA520"
+      }
+    ],
+    "showValueLabels": false,
+    "legendPosition": "right",
+    "unit": "",
+    "insightText": "",
+    "data": [
+      {
+        "label": "01 Aug",
+        "value": 10
+      },
+      {
+        "label": "21 Aug",
+        "value": 20
+      },
+      {
+        "label": "10 Sep",
+        "value": 30
+      },
+      {
+        "label": "30 Sep",
+        "value": 100
+      },
+      {
+        "label": "20 Oct",
+        "value": 580
+      },
+      {
+        "label": "09 Nov",
+        "value": 1220
+      }
+    ]
+  }
+}

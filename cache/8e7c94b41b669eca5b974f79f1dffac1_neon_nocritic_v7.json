@@ -1,0 +1,94 @@
+{
+  "componentId": "BarChart",
+  "suggestedName": "MarketShareSmartphoneBrands",
+  "reasoning": "O gráfico é um BarChart (barras verticais) que compara a participação de mercado de diferentes marcas de smartphones. Os dados foram extraídos com 100% de fidelidade, utilizando os rótulos de dados explícitos acima de cada barra para os valores e os rótulos do eixo X para as categorias. As cores de cada barra foram identificadas com precisão hexadecimal. O título foi capturado fielmente e a unidade de porcentagem foi aplicada, conforme solicitado pelo protocolo.",
+  "props": {
+    "title": "Market Share Comparison of Smartphone Brands",
+    "data": [
+      {
+        "label": "Product 1",
+        "value": 1
+      },
+      {
+        "label": "Product 2",
+        "value": 2
+      },
+      {
+        "label": "Product 3",
+        "value": 7
+      },
+      {
+        "label": "Product 4",
+        "value": 12
+      },
+      {
+        "label": "Product 5",
+        "value": 15
+      },
+      {
+        "label": "Product 6",
+        "value": 28
+      },
+      {
+        "label": "Product 7",
+        "value": 24
+      },
+      {
+        "label": "Product 8",
+        "value": 9
+      },
+      {
+        "label": "Product 9",
+        "value": 8
+      },
+      {
+        "label": "Product 10",
+        "value": 4
+      }
+    ],
+    "seriesColors": [
+      "#87CEEB",
+      "#4682B4",
+      "#007BFF",
+      "#FFD700",
+      "#CD853F",
+      "#4A0000",
+      "#B22222",
+      "#3CB371",
+      "#4169E1",
+      "#FF69B4"
+    ],
+    "showValueLabels": true,
+    "unit": "%",
+    "insightText": "O 'Product 6' detém a maior fatia de mercado com 28%, seguido de perto pelo 'Product 7' com 24%. Juntos, esses dois produtos representam mais da metade do mercado. Os 'Products 1' e '2' têm as menores participações, com 1% e 2% respectivamente, indicando uma concentração significativa nos principais players e uma cauda longa de produtos com menor penetração.",
+    "labels": [
+      "Product 1",
+      "Product 2",
+      "Product 3",
+      "Product 4",
+      "Product 5",
+      "Product 6",
+      "Product 7",
+      "Product 8",
+      "Product 9",
+      "Product 10"
+    ],
+    "series": [
+      {
+        "label": "Market Share Comparison of Smartphone Brands",
+        "data": [
+          1,
+          2,
+          7,
+          12,
+          15,
+          28,
+          24,
+          9,
+          8,
+          4
+        ]
+      }
+    ]
+  }
+}

@@ -11,7 +11,7 @@
     "start": "tsx server/index.ts",
     "tunnel": "concurrently \"npm run dev\" \"npx --yes localtunnel --port 3000\"",
     "tunnel:cf": "concurrently \"npm run dev\" \"npx --yes cloudflared tunnel --url http://localhost:3000 --protocol http2\"",
-    "tunnel:safe": "concurrently \"npm run dev\" \"npx serve-handler --port 3000\"", 
+    "tunnel:safe": "concurrently \"npm run dev\" \"npx serve-handler --port 3000\"",
     "sync": "powershell -ExecutionPolicy Bypass -File scripts/sync.ps1",
     "watch-sync": "powershell -ExecutionPolicy Bypass -File scripts/watch-sync.ps1",
     "build": "exit 0"
@@ -23,17 +23,18 @@
     "@remotion/google-fonts": "^4.0.446",
     "@remotion/renderer": "^4.0.446",
     "chokidar": "^3.6.0",
+    "concurrently": "^9.1.0",
     "cors": "^2.8.6",
     "dotenv": "^16.6.1",
     "express": "^4.22.1",
+    "localtunnel": "^2.0.2",
     "multer": "^2.1.1",
+    "remotion": "^4.0.453",
     "sharp": "^0.34.5",
-    "uuid": "^13.0.0",
-    "xlsx": "^0.18.5",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "concurrently": "^9.1.0",
-    "localtunnel": "^2.0.2"
+    "uuid": "^13.0.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
