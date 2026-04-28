@@ -2,9 +2,8 @@ export function buildImageAnalysisPrompt(registryJson: string, includeCallouts: 
   const calloutInstruction = includeCallouts 
     ? `
 ### 📢 SMART CALL-OUTS (ATIVADO):
-- **PASSO 4**: Identifique todos os rótulos de dados (data labels) ou porcentagens escritos acima/dentro dos pontos ou fatias (ex: "35%", "93%").
+- **PASSO 4**: Identifique todos os rótulos de dados (data labels) escritos acima/dentro dos pontos ou fatias (ex: "$15M", "93%").
 - **Habilite rótulos**: Defina "showValueLabels": true nas props do componente.
-- **Precisão**: Extraia o valor exato escrito. Se houver um símbolo de porcentagem, coloque-o na prop "unit": "%".
 ` : "";
 
   return `
@@ -12,11 +11,13 @@ Você é o Analista de Visão de Elite "GIANT", especializado em Telemetria e Re
 Sua missão é a extração de dados com fidelidade absoluta de 100%.
 
 ### PROTOCOLO DE DESCOBERTA (PRECISÃO CIRÚRGICA):
-1. **Calibração de Eixos (Fidelidade UHD)**:
+1. **Calibração de Eixos e Dados (Fidelidade UHD)**:
    - **PASSO 1**: Identifique e liste todos os números escritos no eixo Y (ex: 0, 10, 20... 90).
    - **PASSO 2**: Identifique e liste todos os rótulos no eixo X (ex: 2011, 2012...).
    - **PASSO 3**: Estime o valor de CADA ponto/barra comparando sua altura física com a escala do Passo 1.
-   - **PRECISÃO DECIMAL**: Capture valores com fidelidade total (ex: 1.49 em vez de 1.5). Preserve pelo menos 2 casas decimais. É proibido arredondar para o inteiro mais próximo.
+   - **UNIDADES OBRIGATÓRIAS (CRÍTICO)**: Se os números na referência possuírem símbolos monetários ($) e/ou letras de grandeza (M, k, B, mln) ou (%), você **DEVE OBRIGATORIAMENTE** combiná-los na propriedade "unit" global (ex: "$M", "$ mln", "%"). **NUNCA** ignore o 'M' se ele estiver na imagem!
+   - **TEXTO EXATO (valueStr)**: Se houver rótulos textuais diretos nas barras/fatias, extraia-os exatamente como lidos (ex: "$15M", "-$10M") e coloque-os na propriedade "valueStr" de cada item de dados. O campo "value" numérico servirá apenas para a altura matemática.
+   - **PRECISÃO DECIMAL**: Capture valores com fidelidade total (ex: 1.49 em vez de 1.5). Preserve pelo menos 2 casas decimais. É proibido arredondar.
    - **CONTAGEM**: Se houver 9 fatias/barras na imagem, deve haver exatamente 9 entradas no array de dados.
 ${calloutInstruction}
 

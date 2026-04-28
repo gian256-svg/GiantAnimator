@@ -755,8 +755,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 toast(`Erro: ${errorMsg}`, "error");
             }
 
-            btnRender.disabled = false;
-            btnRender.innerHTML = oldHtml;
+            f.status = 'pending'; // Reverte para pending para reativar o botão
+            state.isRendering = false;
+            renderFileQueue();
             return;
           }
           
@@ -767,6 +768,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } catch (err) {
         log(`✕ Erro: ${err.message}`, 'error');
         toast(`Erro no processamento: ${err.message}`, 'error');
+        pending.forEach(f => { if (f.status === 'processing') f.status = 'pending'; }); // Resgata arquivos travados
         state.isRendering = false;
         renderFileQueue();
       }
@@ -848,8 +850,7 @@ function startPolling(jobId, fileName, fileId) {
         log(`🎬 Vídeo UHD pronto: ${msg.videoUrl}`, 'success');
         toast('Renderização 4K concluída!', 'success');
         
-        loadVideo(msg.videoUrl, fileName, msg.duration || '');
-        triggerDownload(msg.videoUrl, fileName, jobId);
+        loadVideo(msg.videoUrl, fileName, msg.duration || '', jobId);
         
         renderFileQueue(); // Atualiza botão e lista
         refreshHistory();
@@ -886,7 +887,7 @@ function startPolling(jobId, fileName, fileId) {
 /* ═══════════════════════════════════════════════════════════════
    VIDEO PLAYER
 ═══════════════════════════════════════════════════════════════ */
-function loadVideo(url, name, duration) {
+function loadVideo(url, name, duration, jobId = null) {
   const video       = document.getElementById('preview-video');
   const placeholder = document.getElementById('player-placeholder');
   const meta        = document.getElementById('video-meta');
@@ -899,6 +900,15 @@ function loadVideo(url, name, duration) {
   state.currentVideo = { url, name };
 
   if (duration && meta) meta.textContent = `⏱ ${duration}  ·  UHD 4K Video`;
+  
+  // Ativa botão de download manual
+  const btnDownload = document.getElementById('btn-download-video');
+  if (btnDownload) {
+    btnDownload.style.display = 'inline-flex';
+    btnDownload.onclick = () => {
+      triggerDownload(url, name, jobId || state.currentJobId);
+    };
+  }
 }
 
 function triggerDownload(url, filename, jobId) {

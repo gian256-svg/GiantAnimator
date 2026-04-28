@@ -1,0 +1,64 @@
+{
+  "componentId": "WaterfallChart",
+  "suggestedName": "Análise de Receita e Custos",
+  "reasoning": "O gráfico é um Waterfall Chart, ideal para visualizar a contribuição de cada item (receitas e custos) para o total final. Os valores do eixo Y foram calibrados e os rótulos do eixo X identificados. Cada barra teve seu valor e rótulo de dados extraídos com precisão. As cores foram identificadas para as categorias de barras: verde claro para incrementos positivos, vermelho escuro para decrementos negativos e azul para o total. Observa-se que a barra 'Product Revenue' possui um tom de verde mais escuro (#1E704E) do que 'Services Revenue' (#34A853), mas para a propriedade 'seriesColors' do WaterfallChart, que geralmente aceita 3 cores (positivo, negativo, total), foi escolhido o verde claro para representar os incrementos positivos.",
+  "props": {
+    "title": "Receita e Custos",
+    "subtitle": "Visão Geral",
+    "data": [
+      {
+        "label": "Product Revenue",
+        "value": 15,
+        "valueStr": "$15M"
+      },
+      {
+        "label": "Services Revenue",
+        "value": 5,
+        "valueStr": "$5M"
+      },
+      {
+        "label": "Fixed Costs",
+        "value": -10,
+        "valueStr": "-$10M"
+      },
+      {
+        "label": "Variable Costs",
+        "value": -3,
+        "valueStr": "-$3M"
+      },
+      {
+        "label": "Total",
+        "value": 7,
+        "valueStr": "$7M",
+        "isTotal": true
+      }
+    ],
+    "showValueLabels": true,
+    "unit": "$",
+    "seriesColors": [
+      "#34A853",
+      "#7F0000",
+      "#1F77B4"
+    ],
+    "insightText": "A receita total de $20M (Produto e Serviços) é reduzida por $13M em custos (Fixos e Variáveis), resultando em um total de $7M.",
+    "labels": [
+      "Product Revenue",
+      "Services Revenue",
+      "Fixed Costs",
+      "Variable Costs",
+      "Total"
+    ],
+    "series": [
+      {
+        "label": "Receita e Custos",
+        "data": [
+          15,
+          5,
+          -10,
+          -3,
+          7
+        ]
+      }
+    ]
+  }
+}

@@ -200,8 +200,12 @@
           </div>
           <video id="preview-video" controls style="display:none; width: 100%; border-radius: var(--radius);"></video>
         </div>
-        <div class="action-bar">
-          <span id="video-meta"></span>
+        <div class="action-bar" style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px;">
+          <span id="video-meta" style="color: var(--text-muted); font-size: 13px;"></span>
+          <button id="btn-download-video" class="btn btn-primary" style="display: none; padding: 8px 16px; font-size: 13px; font-weight: bold;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            DOWNLOAD 4K
+          </button>
         </div>
       </section>
 
