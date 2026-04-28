@@ -1,0 +1,59 @@
+{
+  "componentId": "WaterfallChart",
+  "suggestedName": "RevenueAndCostsWaterfall",
+  "reasoning": "O gráfico é um Waterfall Chart que detalha a composição do 'Total' a partir de receitas e custos. Os valores de cada categoria (Product Revenue, Services Revenue, Fixed Costs, Variable Costs) são somados ou subtraídos sequencialmente para chegar ao valor 'Total'. Todos os rótulos de dados e cores foram extraídos com precisão cirúrgica.",
+  "props": {
+    "title": "Revenue and Costs Breakdown",
+    "data": [
+      {
+        "label": "Product Revenue",
+        "value": 15
+      },
+      {
+        "label": "Services Revenue",
+        "value": 5
+      },
+      {
+        "label": "Fixed Costs",
+        "value": -10
+      },
+      {
+        "label": "Variable Costs",
+        "value": -3
+      },
+      {
+        "label": "Total",
+        "value": 7,
+        "isTotal": true
+      }
+    ],
+    "unit": "$M",
+    "seriesColors": [
+      "#1A734E",
+      "#2E9E6B",
+      "#6B1A1A",
+      "#6B1A1A",
+      "#1A739E"
+    ],
+    "insightText": "O lucro total da empresa é de $7M, resultante de $20M em receitas ($15M de produtos e $5M de serviços) e $13M em custos ($10M fixos e $3M variáveis).",
+    "labels": [
+      "Product Revenue",
+      "Services Revenue",
+      "Fixed Costs",
+      "Variable Costs",
+      "Total"
+    ],
+    "series": [
+      {
+        "label": "Revenue and Costs Breakdown",
+        "data": [
+          15,
+          5,
+          -10,
+          -3,
+          7
+        ]
+      }
+    ]
+  }
+}

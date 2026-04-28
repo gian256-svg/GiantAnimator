@@ -534,9 +534,9 @@ Caso a imagem mande um tÃƒÂ­tulo muito longo, ele nÃƒÂ£o pode flanquear 
 ---
 
 ### 🌊 [2026-04-28] REGRA CIRÚRGICA — WATERFALL CHARTS (UNIDADES E TOTAIS)
-**Contexto**: O Waterfall Chart estava violando a zona de segurança e adicionando um segundo Total artificial, além de omitir as unidades monetárias cruciais.
-**Ação Corretiva**: Adicionadas lógicas anti-clipping no Y-Axis, Legendas Nativas no componente, e suporte a props.unit.
+**Contexto**: O Waterfall Chart estava violando a zona de segurança e adicionando um segundo Total artificial, além de omitir as unidades monetárias cruciais de forma literal ("-$ mln4.6").
+**Ação Corretiva**: Adicionadas lógicas anti-clipping no Y-Axis, inferência automática de Totais pelo React, e suporte ao campo `valueStr`.
 **Nova Regra para a IA de Visão**:
-1. **Identificação de Totais Absolutos**: A IA DEVE identificar se a primeira e/ou a última coluna representam um valor absoluto (ex: 'Start', 'End', 'Total') e **OBRIGATORIAMENTE** injetar a flag `"isTotal": true` nessas barras. ISSO É CRÍTICO para que a matemática de flutuação em cascata funcione. As barras intermediárias que representam mudança (aumento/queda) NÃO podem ter `isTotal`.
-2. **Unidade de Medida Monetária/Numérica**: O campo `unit` (ex: '$', 'mln', 'M', '%') DEVE ser extraído fidedignamente e colocado em `props.unit` do JSON gerado, se houver qualquer detecção de unidade na imagem de referência.
-3. **Uso de Cores e Temas**: O Waterfall usará a cor de destaque do tema (`T.colors[0]`) para Totais, `#10b981` para aumentos e `#ef4444` para quedas. Nenhuma intervenção de cor é necessária por parte da IA.
+1. **Identificação de Totais Absolutos**: A IA DEVE identificar se a primeira e/ou a última coluna representam um valor absoluto (ex: 'Start', 'End', 'Total') e **OBRIGATORIAMENTE** injetar a flag `"isTotal": true` nessas barras. **PUNIÇÃO: Se a coluna 'End' ou 'Total' não receber isTotal: true, a matemática inteira da cascata será quebrada e o gráfico será considerado uma falha crítica.**
+2. **Textos Fidedignos (valueStr)**: Para garantir que as barras exibam *exatamente* o mesmo texto da imagem original (ex: `"-10M"` ou `"23M"`), você DEVE extrair essa string exata e colocar na propriedade `"valueStr": "texto exato"`. O `value` numérico servirá apenas para a altura da barra. Os dados numéricos brutos têm prioridade máxima de acurácia.
+3. **Unidade Global**: O campo `unit` (ex: '$', '$ mln') ainda deve ser extraído em `props.unit` para compor os eixos globais.

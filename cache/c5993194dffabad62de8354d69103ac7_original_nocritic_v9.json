@@ -1,0 +1,67 @@
+{
+  "componentId": "WaterfallChart",
+  "suggestedName": "Revenue and Costs Breakdown",
+  "reasoning": "O gráfico é um Waterfall Chart, que ilustra como um valor inicial é afetado por uma série de mudanças positivas e negativas, levando a um valor final. Os valores do eixo Y foram calibrados com precisão, e os rótulos do eixo X correspondem às categorias de receita e custo. Cada barra foi medida e seu valor exato, incluindo o sinal e a unidade, foi extraído. As cores de cada barra foram identificadas com fidelidade para replicar o visual original. A propriedade 'isTotal' foi aplicada à barra final para indicar o resultado acumulado.",
+  "props": {
+    "title": "",
+    "subtitle": "",
+    "unit": "$M",
+    "data": [
+      {
+        "label": "Product Revenue",
+        "value": 15,
+        "valueStr": "$15M"
+      },
+      {
+        "label": "Services Revenue",
+        "value": 5,
+        "valueStr": "$5M"
+      },
+      {
+        "label": "Fixed Costs",
+        "value": -10,
+        "valueStr": "-$10M"
+      },
+      {
+        "label": "Variable Costs",
+        "value": -3,
+        "valueStr": "-$3M"
+      },
+      {
+        "label": "Total",
+        "value": 7,
+        "valueStr": "$7M",
+        "isTotal": true
+      }
+    ],
+    "seriesColors": [
+      "#1A734E",
+      "#2E9367",
+      "#661A1A",
+      "#661A1A",
+      "#1A6699"
+    ],
+    "showValueLabels": true,
+    "legendPosition": "none",
+    "insightText": "",
+    "labels": [
+      "Product Revenue",
+      "Services Revenue",
+      "Fixed Costs",
+      "Variable Costs",
+      "Total"
+    ],
+    "series": [
+      {
+        "label": "Série",
+        "data": [
+          15,
+          5,
+          -10,
+          -3,
+          7
+        ]
+      }
+    ]
+  }
+}

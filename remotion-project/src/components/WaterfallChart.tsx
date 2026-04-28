@@ -12,6 +12,7 @@ import { DynamicBackground } from "../layout/DynamicBackground";
 export interface WaterfallPoint {
   label: string;
   value: number;
+  valueStr?: string;
   isTotal?: boolean;
 }
 
@@ -44,12 +45,18 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
 
   const waterfallData = useMemo(() => {
     let acc = 0;
-    const items = data.map((d) => {
-      if (d.isTotal) {
+    const items = data.map((d, i) => {
+      const isActuallyTotal = d.isTotal || 
+        d.label.toLowerCase() === "total" || 
+        d.label.toLowerCase() === "end" || 
+        (i === 0 && d.label.toLowerCase() === "start");
+
+      if (isActuallyTotal) {
         acc = d.value;
         return {
           label: d.label,
           value: d.value,
+          valueStr: d.valueStr,
           start: 0,
           end: d.value,
           type: "total",
@@ -60,6 +67,7 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
         return {
           label: d.label,
           value: d.value,
+          valueStr: d.valueStr,
           start,
           end: acc,
           type: d.value >= 0 ? "positive" : "negative",
@@ -110,15 +118,27 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
   const formatValue = (val: number, displayUnit?: string) => {
     const absVal = Math.abs(val);
     const sign = val < 0 ? "-" : "";
-    let numStr = val.toString();
+    let numStr = absVal.toString();
     if (absVal >= 1000000) numStr = (absVal / 1000000).toFixed(1) + "M";
     else if (absVal >= 1000) numStr = (absVal / 1000).toFixed(1) + "k";
     
     if (displayUnit) {
-      if (displayUnit.startsWith('$') || displayUnit.startsWith('R$') || displayUnit.startsWith('€') || displayUnit.startsWith('£')) {
-        return sign + displayUnit + numStr;
+      let prefix = "";
+      let suffix = "";
+      
+      const pMatch = displayUnit.match(/^([^a-zA-Z0-9\s]+)/);
+      if (pMatch) prefix = pMatch[1].trim();
+      
+      const sMatch = displayUnit.match(/([a-zA-Z%]+.*)$/);
+      if (sMatch) {
+        suffix = sMatch[1].trim();
+        if (suffix.length > 1 && suffix !== "mln" && !suffix.startsWith("M")) {
+          suffix = " " + suffix;
+        } else if (suffix === "mln") {
+           suffix = " mln";
+        }
       }
-      return sign + numStr + " " + displayUnit;
+      return `${sign}${prefix}${numStr}${suffix}`;
     }
     return sign + numStr;
   };
@@ -231,7 +251,7 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
                     opacity: interpolate(progress, [0.8, 1], [0, 1])
                   }}
                 >
-                  {formatValue(d.value, unit)}
+                  {d.valueStr || formatValue(d.value, unit)}
                 </text>
               )}
 
