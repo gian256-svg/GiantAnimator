@@ -71,8 +71,8 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
 
   // Layout 4K UHD
   const pad          = width * 0.05;
-  const padTop       = height * 0.20; 
-  const padBot       = height * 0.15; 
+  const padTop       = height * 0.25; // Aumentado para 25% para evitar sobreposição com títulos de múltiplas linhas
+  const padBot       = height * 0.20; // Aumentado para 20% para liberar espaço para a legenda inferior 
   
   const labelWidth   = width * 0.18;
   const plotLeft     = pad + labelWidth;
@@ -186,8 +186,9 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
 
       {/* TITULO */}
       <div style={{
-        position: 'absolute', top: fs(80), width: '100%', textAlign: 'center',
+        position: 'absolute', top: fs(60), width: '80%', left: '10%', textAlign: 'center',
         color: resolvedText, fontSize: fs(72), fontWeight: 900,
+        lineHeight: 1.2,
         opacity: interpolate(frame, [0, 20], [0, 1])
       }}>
         {title}

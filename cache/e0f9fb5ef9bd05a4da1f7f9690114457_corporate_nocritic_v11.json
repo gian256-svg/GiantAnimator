@@ -1,0 +1,79 @@
+{
+  "componentId": "LineChart",
+  "suggestedName": "ServerCPULoadByDays",
+  "reasoning": "O gráfico é um Line Chart que exibe a carga da CPU do servidor ao longo dos dias da semana para duas semanas distintas (Semana 15 e Semana 16). Os eixos numéricos e categóricos foram calibrados com precisão, e todos os pontos de dados foram extraídos com seus valores exatos e rótulos de dados visíveis. A unidade de medida é porcentagem. A legenda foi identificada e posicionada corretamente.",
+  "props": {
+    "title": "Server CPU Load by Days",
+    "labels": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
+    "series": [
+      {
+        "label": "Week 15",
+        "data": [
+          35,
+          42,
+          18,
+          71,
+          93,
+          43,
+          23
+        ],
+        "color": "#000000"
+      },
+      {
+        "label": "Week 16",
+        "data": [
+          15,
+          23,
+          18,
+          39,
+          64,
+          10,
+          6
+        ],
+        "color": "#000000"
+      }
+    ],
+    "showValueLabels": true,
+    "legendPosition": "bottom",
+    "unit": "%",
+    "insightText": "A carga da CPU do servidor apresenta padrões distintos entre a Semana 15 e a Semana 16. A Semana 15 geralmente registrou cargas de CPU mais elevadas, atingindo um pico de 93% na sexta-feira. Em contraste, a Semana 16 teve seu pico na sexta-feira com 64%. Ambas as semanas demonstram uma queda significativa na carga da CPU durante o fim de semana, com a Semana 16 caindo para 6% no domingo.",
+    "data": [
+      {
+        "label": "Monday",
+        "value": 35
+      },
+      {
+        "label": "Tuesday",
+        "value": 42
+      },
+      {
+        "label": "Wednesday",
+        "value": 18
+      },
+      {
+        "label": "Thursday",
+        "value": 71
+      },
+      {
+        "label": "Friday",
+        "value": 93
+      },
+      {
+        "label": "Saturday",
+        "value": 43
+      },
+      {
+        "label": "Sunday",
+        "value": 23
+      }
+    ]
+  }
+}

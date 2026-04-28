@@ -645,7 +645,7 @@ export function resolveTheme(theme?: string, baseColor?: string, backgroundType?
     }
   }
 
-  // APLICAÇÃO FINAL DO backgroundType (Sobrescreve tudo se presente)
+  // APLICAÇÃO FINAL DO backgroundType explícito (Sobrescreve tudo se presente)
   if (backgroundType) {
     if (backgroundType === 'light') {
       config.background = '#FAF9F6'; // Off-white padrão premium
@@ -660,7 +660,29 @@ export function resolveTheme(theme?: string, baseColor?: string, backgroundType?
       config.axis = 'rgba(232,234,246,0.25)';
       config.grid = 'rgba(232,234,246,0.12)';
     }
+  }
+
+  // 🛡️ AUTO-CONTRAST GUARD (Regra de Resiliência Visual)
+  // Verifica se as cores das linhas/barras conflitam com o fundo atual.
+  const primaryColorDark = isColorDark(config.colors[0]);
+  const bgDark = isColorDark(config.background);
+
+  // Se ambos são escuros, o gráfico sumiria. Forçamos o fundo para claro.
+  if (primaryColorDark && bgDark) {
+      config.background = '#FAF9F6'; 
+      config.text = '#0f172a';
+      config.textMuted = '#475569';
+      config.axis = 'rgba(15,23,42,0.45)';
+      config.grid = 'rgba(15,23,42,0.18)';
   } 
+  // Se ambos são claros (ex: linhas brancas no fundo branco), forçamos para escuro.
+  else if (!primaryColorDark && !bgDark) {
+      config.background = '#0f1117';
+      config.text = '#e8eaf6';
+      config.textMuted = '#8892b0';
+      config.axis = 'rgba(232,234,246,0.25)';
+      config.grid = 'rgba(232,234,246,0.12)';
+  }
 
   return config;
 }

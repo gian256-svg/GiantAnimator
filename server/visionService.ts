@@ -23,8 +23,9 @@ export async function analyzeChartImage(
   const rawImageData = fs.readFileSync(imagePath);
 
   // ─── MD5 Cache ───────────────────────────────────────────────
+  const CACHE_VERSION = 'v12';
   const IS_VERCEL = !!process.env.VERCEL;
-  const cacheKey = `${crypto.createHash("md5").update(rawImageData).digest("hex")}_${requestedTheme || 'default'}_${auditorCritique ? crypto.createHash("md5").update(auditorCritique).digest("hex") : 'nocritic'}_v10`;
+  const cacheKey = `${crypto.createHash("md5").update(rawImageData).digest("hex")}_${requestedTheme || 'default'}_${auditorCritique ? crypto.createHash("md5").update(auditorCritique).digest("hex") : 'nocritic'}_${CACHE_VERSION}`;
   const cacheDir = IS_VERCEL ? "/tmp/cache" : path.join(process.cwd(), "cache");
   if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
   const cacheFile = path.join(cacheDir, `${cacheKey}.json`);

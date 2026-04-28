@@ -1,0 +1,94 @@
+{
+  "componentId": "HorizontalBarChart",
+  "suggestedName": "SportsParticipationByGender",
+  "reasoning": "O gráfico é um gráfico de barras horizontais que compara a porcentagem de participação em diferentes esportes entre meninos e meninas. A estrutura de dados com 'labels' para os esportes e 'series' para os gêneros (Boys e Girls) é a mais adequada para representar os dados agrupados por categoria.",
+  "props": {
+    "title": "Sports practiced by 15-year-old students in Jamie's school, by gender",
+    "subtitle": "Chart 5.2.3",
+    "labels": [
+      "Athletics",
+      "Baseball",
+      "Basketball",
+      "Football",
+      "Soccer",
+      "Swimming",
+      "Tennis",
+      "Volleyball",
+      "Wrestling"
+    ],
+    "series": [
+      {
+        "label": "Boys",
+        "data": [
+          17.5,
+          23.5,
+          24.5,
+          2.5,
+          16.5,
+          8.5,
+          8,
+          9.5,
+          5
+        ],
+        "color": "#D9EDC8"
+      },
+      {
+        "label": "Girls",
+        "data": [
+          17,
+          17,
+          40,
+          40,
+          19.5,
+          12,
+          7.5,
+          24,
+          9.5
+        ],
+        "color": "#66B247"
+      }
+    ],
+    "showValueLabels": false,
+    "legendPosition": "bottom",
+    "unit": "%",
+    "insightText": "O gráfico mostra a porcentagem de estudantes de 15 anos na escola de Jamie que praticam diferentes esportes, segmentado por gênero. Observa-se que Basquetebol e Futebol são os esportes com maior participação feminina, ambos com 40%, enquanto a participação masculina é mais distribuída, com Baseball e Basquetebol liderando entre os meninos. Futebol tem uma participação masculina significativamente menor (2.5%) em comparação com a feminina.",
+    "data": [
+      {
+        "label": "Athletics",
+        "value": 17.5
+      },
+      {
+        "label": "Baseball",
+        "value": 23.5
+      },
+      {
+        "label": "Basketball",
+        "value": 24.5
+      },
+      {
+        "label": "Football",
+        "value": 2.5
+      },
+      {
+        "label": "Soccer",
+        "value": 16.5
+      },
+      {
+        "label": "Swimming",
+        "value": 8.5
+      },
+      {
+        "label": "Tennis",
+        "value": 8
+      },
+      {
+        "label": "Volleyball",
+        "value": 9.5
+      },
+      {
+        "label": "Wrestling",
+        "value": 5
+      }
+    ]
+  }
+}

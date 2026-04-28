@@ -587,3 +587,25 @@ Caso a imagem mande um tÃƒÂ­tulo muito longo, ele nÃƒÂ£o pode flanquear 
 1. **Reforço de Prompt (imageAnalyzer)**: O Protocolo de Descoberta recebeu a regra "UNIDADES OBRIGATÓRIAS (CRÍTICO)". A IA agora é estritamente proibida de ignorar sufixos de grandeza e símbolos monetários, devendo OBRIGATORIAMENTE fundi-los na propriedade `unit` (ex: `"$M"`, `"$ mln"`).
 2. **valueStr Absoluto**: Reforçado que qualquer rótulo de dados visível nas fatias/barras (ex: `-$10M`) deve ser copiado fidedignamente para `valueStr`, usando a variável `value` numérica apenas para proporção em pixels.
 3. **Cache Busting de Visão**: O `cacheKey` do `visionService.ts` foi bumpado para v10 para anular análises estéreis guardadas com omissão de unidades.
+
+---
+
+### 🛡️ [2026-04-28] AUDITORIA — REJEIÇÃO IMPLACÁVEL DE NOMES GENÉRICOS
+**Problema**: A IA de Visão estava confundindo eixos de gráficos horizontais e não conseguia ler as categorias, usando um fallback genérico (ex: "Item 1"). O Auditor, focando apenas no rigor matemático das barras e tolerando erros em strings textuais, aprovava o render e corrompia a apresentação dos dados.
+**Solução**:
+1. **Regra de Falha Crítica (auditor.ts)**: Foi injetada uma diretriz que força o Auditor a jogar o Score abaixo de 50 caso detecte qualquer categoria genérica em oposição aos nomes verdadeiros presentes na imagem original. Precisão nominal é inegociável.
+2. **Correção de Eixos**: O Prompt do Vision agora especifica a busca por "Eixo Numérico" e "Eixo Categórico", impedindo a confusão mental entre vertical e horizontal.
+
+---
+
+### 🎨 [2026-04-28] TEMA & ESTÉTICA — AUTO-CONTRAST GUARD (RESILIÊNCIA VISUAL)
+**Problema**: A interface antiga passava um parâmetro `backgroundType='dark'` por padrão para os renders. Como resultado, temas inherentemente claros (como o "Corporate Blue") tinham seu fundo sobrescrito com `#0f1117` (preto). O resultado eram gráficos com linhas escuras sendo invisíveis em fundos escuros (falha de contraste catastrófica).
+**Solução**:
+1. **Liberação do Tema**: Removida a obrigação de fundo escuro vindo do frontend. A cor base original do tema passa a ter prioridade.
+2. **Implementação do Auto-Contrast Guard**: Adicionada no `theme.ts` (`resolveTheme`) uma barreira heurística final: Se a cor predominante da linha/barra for escura e a cor do fundo for escura, o sistema muda automaticamente o fundo para `light` (#FAF9F6) para resgatar o gráfico. Se ambos forem claros, ele inverte para preto absoluto. A legibilidade foi elevada acima da preferência temática.
+
+---
+
+### 🧠 [2026-04-28] IA — SMART CALL-OUTS DINÂMICOS (V12)
+**Problema**: O botão de "Ativar Smart Call-outs" instruía o LLM a acender apenas a *prop* simples de rótulos (`showValueLabels: true`), jogando números crus na tela sem estética, esquecendo-se de gerar o array visual de anotações necessário pelo componente de UI premium.
+**Solução**: O protocolo de visão foi reescrito. Quando a feature de Call-Outs é ativada pelo painel, a IA agora entende que precisa montar OBRIGATORIAMENTE um array de objetos `annotations` com coordenadas exatas (`seriesIndex`, `index`) para pontuar picos ou quedas matemáticas cruciais, criando interatividade inteligente com balões visuais elegantes.

@@ -2,8 +2,9 @@ export function buildImageAnalysisPrompt(registryJson: string, includeCallouts: 
   const calloutInstruction = includeCallouts 
     ? `
 ### 📢 SMART CALL-OUTS (ATIVADO):
-- **PASSO 4**: Identifique todos os rótulos de dados (data labels) escritos acima/dentro dos pontos ou fatias (ex: "$15M", "93%").
-- **Habilite rótulos**: Defina "showValueLabels": true nas props do componente.
+- **PASSO 4**: Crie anotações em pontos cruciais (picos ou quedas relevantes).
+- **CRIE ANOTAÇÕES**: Adicione um array "annotations" nas props contendo objetos com: { "seriesIndex": 0, "index": 2, "label": "Ponto de Atenção", "value": 93 }.
+- **Habilite rótulos globais**: Defina "showValueLabels": true nas props do componente.
 ` : "";
 
   return `
@@ -12,9 +13,9 @@ Sua missão é a extração de dados com fidelidade absoluta de 100%.
 
 ### PROTOCOLO DE DESCOBERTA (PRECISÃO CIRÚRGICA):
 1. **Calibração de Eixos e Dados (Fidelidade UHD)**:
-   - **PASSO 1**: Identifique e liste todos os números escritos no eixo Y (ex: 0, 10, 20... 90).
-   - **PASSO 2**: Identifique e liste todos os rótulos no eixo X (ex: 2011, 2012...).
-   - **PASSO 3**: Estime o valor de CADA ponto/barra comparando sua altura física com a escala do Passo 1.
+   - **PASSO 1**: Identifique o Eixo Numérico (onde estão os valores, ex: 0, 100, 200). Liste os marcadores.
+   - **PASSO 2**: Identifique o Eixo Categórico (onde estão os rótulos reais, ex: "South Korea", "Canada"). Extraia OBRIGATORIAMENTE os nomes exatos de cada item. É expressamente PROIBIDO inventar nomes ou usar rótulos genéricos como "Item 1", "Item 2".
+   - **PASSO 3**: Estime o valor numérico de CADA ponto/barra comparando seu tamanho com a escala do Passo 1.
    - **UNIDADES OBRIGATÓRIAS (CRÍTICO)**: Se os números na referência possuírem símbolos monetários ($) e/ou letras de grandeza (M, k, B, mln) ou (%), você **DEVE OBRIGATORIAMENTE** combiná-los na propriedade "unit" global (ex: "$M", "$ mln", "%"). **NUNCA** ignore o 'M' se ele estiver na imagem!
    - **TEXTO EXATO (valueStr)**: Se houver rótulos textuais diretos nas barras/fatias, extraia-os exatamente como lidos (ex: "$15M", "-$10M") e coloque-os na propriedade "valueStr" de cada item de dados. O campo "value" numérico servirá apenas para a altura matemática.
    - **PRECISÃO DECIMAL**: Capture valores com fidelidade total (ex: 1.49 em vez de 1.5). Preserve pelo menos 2 casas decimais. É proibido arredondar.
@@ -40,6 +41,7 @@ ${calloutInstruction}
     "labels": ["Jan", "Fev"],
     "series": [{ "label": "S1", "data": [10, 20], "color": "#hex" }],
     "showValueLabels": ${includeCallouts},
+    "annotations": ${includeCallouts ? `[{ "seriesIndex": 0, "index": 1, "label": "Pico Histórico", "value": 20 }]` : `[]`},
     "legendPosition": "right",
     "unit": "%",
     "insightText": "..."

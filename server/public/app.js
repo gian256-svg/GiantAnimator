@@ -624,7 +624,6 @@ document.addEventListener('DOMContentLoaded', () => {
               const container = document.getElementById('visual-editor-container');
               const title    = document.getElementById('edit-title')?.value || '';
               const subtitle = document.getElementById('edit-subtitle')?.value || '';
-              const isDarkBg = document.getElementById('edit-dark-mode')?.checked ?? true;
               const engine   = document.getElementById('edit-engine')?.value || 'remotion';
 
               // ── Novo Editor Premium ───────────────────────────────────────
@@ -691,7 +690,6 @@ document.addEventListener('DOMContentLoaded', () => {
                       originalName: state.originalFilename,
                       chartTheme: document.getElementById('chart-theme')?.value || 'dark',
                       options: {
-                        backgroundType: isDarkBg ? 'dark' : 'light',
                         engine: engine
                       },
                       includeCallouts: document.getElementById('toggle-callouts')?.checked || false
