@@ -96,13 +96,11 @@ function loadJob(id: string): PipelineJob | null {
 let bundlePromise: Promise<string> | null = null;
 async function getBundle() {
   if (IS_VERCEL) return "";
-  if (!bundlePromise) {
-    console.log('📦 [REMOTION] Criando bundle 4K...');
-    bundlePromise = bundle({
-      entryPoint: REMOTION_ENTRY,
-      webpackOverride: (c) => c,
-    });
-  }
+  console.log('📦 [REMOTION] Criando bundle 4K...');
+  bundlePromise = bundle({
+    entryPoint: REMOTION_ENTRY,
+    webpackOverride: (c) => c,
+  });
   return bundlePromise;
 }
 
@@ -145,16 +143,30 @@ async function processJob(
         const aiResponse = await agent.analyzeTable(parsed);
         let props = aiResponse;
 
-        // Se o Gemini não retornar 'data' mas tivermos colunas identificáveis, ajudamos
-        if (!props.data || props.data.length === 0) {
-          const labelCol = catCols[0] || parsed.headers[0];
-          const valCol   = numericCols[0] || parsed.headers[1];
+        // 🔒 BLINDAGEM DE DADOS MATRICIAIS
+        // O LLM frequentemente erra a formatação (ex: aninha 'series' dentro de 'data' ou resume linhas).
+        // Para arquivos de tabela, a IA dita APENAS metadados (Cores, Título, Tipo de Gráfico).
+        // A matriz de dados é SEMPRE recriada à força usando a leitura local perfeita.
+        delete props.data;
+        delete props.series;
+        delete props.labels;
 
-          props.data = parsed.rows.map(row => ({
-            label: String(row[labelCol]),
-            value: Number(row[valCol])
-          }));
-          delete props.series; // Remove series para não conflitar
+        const labelCol = catCols[0] || parsed.headers[0];
+        
+        if (numericCols.length > 1) {
+            // Múltiplas séries / Racing Chart - FORÇA A SELEÇÃO
+            props.componentId = parsed.isTimeSeries ? 'RacingLineChart' : 'MultiLineChart';
+            props.labels = parsed.rows.map(row => String(row[labelCol]));
+            props.series = numericCols.map(col => ({
+                label: col,
+                data: parsed.rows.map(row => Number(row[col]))
+            }));
+        } else {
+            // Gráfico de série única
+            props.data = parsed.rows.map(row => ({
+               label: String(row[labelCol]),
+               value: Number(row[numericCols[0]])
+            }));
         }
 
         // 🔥 Final Pass

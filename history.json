@@ -1,170 +1,30 @@
 [
   {
-    "filename": "Revenue and Costs Breakdown_AN_imagem_colada_1777399164336.mp4",
-    "outputFile": "Revenue and Costs Breakdown_AN_imagem_colada_1777399164336.mp4",
+    "filename": "VariaçãodeValoresporPaís(2016-2025)_AN_inflation.csv.mp4",
+    "outputFile": "VariaçãodeValoresporPaís(2016-2025)_AN_inflation.csv.mp4",
     "status": "done",
-    "id": "34b20872-8bc2-49d0-8a24-d5adcfcdda0d",
-    "createdAt": "2026-04-28T18:01:22.005Z"
+    "id": "67c8335d-7a70-4408-9cb7-b8cf9ae4fb5b",
+    "createdAt": "2026-04-28T20:23:25.622Z"
   },
   {
-    "filename": "RevenueAndCostsWaterfall_AN_imagem_colada_1777398655852.mp4",
-    "outputFile": "RevenueAndCostsWaterfall_AN_imagem_colada_1777398655852.mp4",
+    "filename": "TendênciasdeVariaçãoAnualporPaís_AN_inflation.csv.mp4",
+    "outputFile": "TendênciasdeVariaçãoAnualporPaís_AN_inflation.csv.mp4",
     "status": "done",
-    "id": "e9283444-3c7c-43ab-a160-f01a984bd174",
-    "createdAt": "2026-04-28T17:52:33.528Z"
+    "id": "e666cf84-e42f-49c9-92e8-1e0b772f0605",
+    "createdAt": "2026-04-28T20:13:28.107Z"
   },
   {
-    "filename": "ACME_Revenue_Flow_2017_AN_imagem_colada_1777398330630.mp4",
-    "outputFile": "ACME_Revenue_Flow_2017_AN_imagem_colada_1777398330630.mp4",
+    "filename": "TendênciasdeVariaçãoAnualporPaís_AN_inflation.csv.mp4",
+    "outputFile": "TendênciasdeVariaçãoAnualporPaís_AN_inflation.csv.mp4",
     "status": "done",
-    "id": "f117334f-0e8c-4e0f-8415-805a2eb74caf",
-    "createdAt": "2026-04-28T17:46:58.590Z"
+    "id": "39b498c5-beb6-45cf-a201-a9a8d3346509",
+    "createdAt": "2026-04-28T20:06:09.846Z"
   },
   {
-    "filename": "ACMERevenueFlow2017_AN_imagem_colada_1777396859247.mp4",
-    "outputFile": "ACMERevenueFlow2017_AN_imagem_colada_1777396859247.mp4",
+    "filename": "TendênciasdeVariaçãoAnualporPaís_AN_inflation.csv.mp4",
+    "outputFile": "TendênciasdeVariaçãoAnualporPaís_AN_inflation.csv.mp4",
     "status": "done",
-    "id": "52488dad-0f53-447a-93c0-6bb65f6c6fca",
-    "createdAt": "2026-04-28T17:23:54.363Z"
-  },
-  {
-    "filename": "ACME_Revenue_Flow_2017_AN_imagem_colada_1777396586682.mp4",
-    "outputFile": "ACME_Revenue_Flow_2017_AN_imagem_colada_1777396586682.mp4",
-    "status": "done",
-    "id": "239e8747-d618-4971-a080-9e04e5e54afc",
-    "createdAt": "2026-04-28T17:17:35.318Z"
-  },
-  {
-    "filename": "ACME_Revenue_Flow_2017_AN_imagem_colada_1777396049436.mp4",
-    "outputFile": "ACME_Revenue_Flow_2017_AN_imagem_colada_1777396049436.mp4",
-    "status": "done",
-    "id": "15961969-205b-409a-ada2-9d74df6cb452",
-    "createdAt": "2026-04-28T17:08:21.911Z"
-  },
-  {
-    "filename": "WaterfallChartAnalysis_AN_imagem_colada_1777395074872.mp4",
-    "outputFile": "WaterfallChartAnalysis_AN_imagem_colada_1777395074872.mp4",
-    "status": "done",
-    "id": "bdc47e7c-d7fb-45f4-a8b2-ced1798c2ffe",
-    "createdAt": "2026-04-28T16:53:15.252Z"
-  },
-  {
-    "filename": "FidelidadeAbsoluta_AN_imagem_colada_1777394117108.mp4",
-    "outputFile": "FidelidadeAbsoluta_AN_imagem_colada_1777394117108.mp4",
-    "status": "done",
-    "id": "261ac91c-4828-4c3b-8bf7-9b0ff25b89c4",
-    "createdAt": "2026-04-28T16:36:42.928Z"
-  },
-  {
-    "filename": "MarketShareSmartphoneBrands_AN_imagem_colada_1777393377594.mp4",
-    "outputFile": "MarketShareSmartphoneBrands_AN_imagem_colada_1777393377594.mp4",
-    "status": "done",
-    "id": "881455a3-b9d4-42d0-a924-4a48b9c1d235",
-    "createdAt": "2026-04-28T16:24:28.977Z"
-  },
-  {
-    "filename": "Market Share by Sector_AN_imagem_colada_1777393127882.mp4",
-    "outputFile": "Market Share by Sector_AN_imagem_colada_1777393127882.mp4",
-    "status": "done",
-    "id": "9d077366-f84c-4397-a28d-7cfef961234b",
-    "createdAt": "2026-04-28T16:20:37.315Z"
-  },
-  {
-    "filename": "BarChartDataVisualization_AN_imagem_colada_1777388471016.mp4",
-    "outputFile": "BarChartDataVisualization_AN_imagem_colada_1777388471016.mp4",
-    "status": "done",
-    "id": "7c5a5511-8be0-4a47-b772-540420fc1886",
-    "createdAt": "2026-04-28T15:02:35.421Z"
-  },
-  {
-    "filename": "ServerCPULoadAnalysis_AN_imagem_colada_1776946494164.mp4",
-    "outputFile": "ServerCPULoadAnalysis_AN_imagem_colada_1776946494164.mp4",
-    "status": "done",
-    "id": "6780dea2-c38d-4af0-bd96-ea3c905dba0b",
-    "createdAt": "2026-04-23T12:19:15.339Z"
-  },
-  {
-    "filename": "StreamingServiceMarketShare_AN_imagem_colada_1776945334426.mp4",
-    "outputFile": "StreamingServiceMarketShare_AN_imagem_colada_1776945334426.mp4",
-    "status": "done",
-    "id": "242ed0c9-4d57-4679-a9ab-4a75d4e6c85b",
-    "createdAt": "2026-04-23T11:58:20.586Z"
-  },
-  {
-    "filename": "TaskDurations_AN_imagem_colada_1776891236224.mp4",
-    "outputFile": "TaskDurations_AN_imagem_colada_1776891236224.mp4",
-    "status": "done",
-    "id": "f507eee6-ea5f-4496-ab5b-5f5eb0779ea4",
-    "createdAt": "2026-04-22T20:55:01.985Z"
-  },
-  {
-    "filename": "PopulationDistributionEU2021_AN_imagem_colada_1776889591468.mp4",
-    "outputFile": "PopulationDistributionEU2021_AN_imagem_colada_1776889591468.mp4",
-    "status": "done",
-    "id": "57e82618-9868-403c-b9b8-ae62eb0da626",
-    "createdAt": "2026-04-22T20:28:27.443Z"
-  },
-  {
-    "filename": "PopulationDistributionEU2021_AN_imagem_colada_1776889300356.mp4",
-    "outputFile": "PopulationDistributionEU2021_AN_imagem_colada_1776889300356.mp4",
-    "status": "done",
-    "id": "7f37377d-6b11-4460-9082-21fed53971be",
-    "createdAt": "2026-04-22T20:23:13.699Z"
-  },
-  {
-    "filename": "FidelidadeAbsoluta_AN_imagem_colada_1776887774596.mp4",
-    "outputFile": "FidelidadeAbsoluta_AN_imagem_colada_1776887774596.mp4",
-    "status": "done",
-    "id": "1f5c22e5-469f-4882-b568-45ada000778b",
-    "createdAt": "2026-04-22T19:59:38.312Z"
-  },
-  {
-    "filename": "FidelidadeAbsoluta_AN_imagem_colada_1776873682638.mp4",
-    "outputFile": "FidelidadeAbsoluta_AN_imagem_colada_1776873682638.mp4",
-    "status": "done",
-    "id": "f1aae3f8-4760-4eea-bd8f-7d4cebc42ca9",
-    "createdAt": "2026-04-22T16:02:52.951Z"
-  },
-  {
-    "filename": "FidelidadeAbsoluta_AN_imagem_colada_1776872865414.mp4",
-    "outputFile": "FidelidadeAbsoluta_AN_imagem_colada_1776872865414.mp4",
-    "status": "done",
-    "id": "42170d5e-35c1-49c8-879d-3048fbd73067",
-    "createdAt": "2026-04-22T15:50:23.709Z"
-  },
-  {
-    "filename": "ProducaoMensalPorPlanta_AN_imagem_colada_1776871743801.mp4",
-    "outputFile": "ProducaoMensalPorPlanta_AN_imagem_colada_1776871743801.mp4",
-    "status": "done",
-    "id": "73ba5ce6-2945-4dae-b546-84857aa1b314",
-    "createdAt": "2026-04-22T15:31:06.289Z"
-  },
-  {
-    "filename": "ProducaoMensalPorPlanta_AN_imagem_colada_1776871338105.mp4",
-    "outputFile": "ProducaoMensalPorPlanta_AN_imagem_colada_1776871338105.mp4",
-    "status": "done",
-    "id": "2f8bb695-f349-4e53-8a28-6588c95c45a0",
-    "createdAt": "2026-04-22T15:23:53.220Z"
-  },
-  {
-    "filename": "ProducaoMensalPorPlanta_AN_imagem_colada_1776870914920.mp4",
-    "outputFile": "ProducaoMensalPorPlanta_AN_imagem_colada_1776870914920.mp4",
-    "status": "done",
-    "id": "75a49fbe-4a6b-4fab-bbf0-7b9b0be9e69f",
-    "createdAt": "2026-04-22T15:21:28.836Z"
-  },
-  {
-    "filename": "VendasAnuaisPorSerie_AN_imagem_colada_1776869394239.mp4",
-    "outputFile": "VendasAnuaisPorSerie_AN_imagem_colada_1776869394239.mp4",
-    "status": "done",
-    "id": "50097d38-b8ca-4ea8-bcf1-7a69c8911f66",
-    "createdAt": "2026-04-22T14:50:50.401Z"
-  },
-  {
-    "filename": "MarketShareComparisonSmartphoneBrands_AN_imagem_colada_1776868945832.mp4",
-    "outputFile": "MarketShareComparisonSmartphoneBrands_AN_imagem_colada_1776868945832.mp4",
-    "status": "done",
-    "id": "8512dfc3-2c7d-4dd3-a3e6-ecb9bc488871",
-    "createdAt": "2026-04-22T14:43:20.891Z"
+    "id": "a1dff99b-cc23-4558-8ab6-cdf83e28849a",
+    "createdAt": "2026-04-28T20:00:51.500Z"
   }
 ]

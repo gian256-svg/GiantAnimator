@@ -78,14 +78,14 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
   const chartTop = margin + titleHeight;
   const chartLeft = margin;
 
-  // Escala Y Adaptativa (FIX: Garantir gaps mÃ­nimos para evitar NaN)
+  // Escala Y Adaptativa (FIX: Garantir gaps mínimos para evitar NaN)
   const allValues = series.flatMap((s) => s.data);
   const dataMin = Math.min(...allValues);
   const dataMax = Math.max(...allValues);
   const yMin = dataMin;
   let yMax = dataMax;
 
-  // REGRA DE OURO: Evitar divisÃ£o por zero se todos os valores forem iguais ou zero
+  // REGRA DE OURO: Evitar divisão por zero se todos os valores forem iguais ou zero
   if (yMax === yMin) {
     yMax = yMin + 10;
     if (yMax === 0) yMax = 100;
@@ -94,7 +94,7 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
   const getX = (index: number) => chartLeft + (index / (labels.length - 1)) * plotWidth;
   const getY = (val: number) => {
     const v = parseSafeNumber(val, yMin);
-    const range = Math.max(0.1, yMax - yMin); // Fallback de seguranÃ§a 4K
+    const range = Math.max(0.1, yMax - yMin); // Fallback de segurança 4K
     return chartTop + plotHeight - ((v - yMin) / range) * plotHeight;
   };
 
@@ -108,7 +108,7 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
       color: s.color || T.colors[i % T.colors.length]
     })).sort((a, b) => a.y - b.y);
 
-    const minGap = 45; // Threshold colisÃ£o 4K
+    const minGap = 45; // Threshold colisão 4K
     for (let iter = 0; iter < 10; iter++) {
       for (let i = 0; i < basePositions.length - 1; i++) {
         const diff = basePositions[i + 1].y - basePositions[i].y;
@@ -120,7 +120,7 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
       }
     }
     return basePositions;
-  }, [series, legendMode, yMin, yMax, chartTop, plotHeight]); // Adicionado dependÃªncias de escala
+  }, [series, legendMode, yMin, yMax, chartTop, plotHeight]); // Adicionado dependências de escala
 
   // Helper de escala 4K
   const fs = (base: number) => Math.round(base * (width / 1920));
@@ -155,7 +155,7 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
       </div>
 
       <svg width={width} height={height} style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}>
-        {/* ZONA 2: GrÃ¡fico - Gridlines (Regra D3) */}
+        {/* ZONA 2: Gráfico - Gridlines (Regra D3) */}
         <g opacity={interpolate(frame, [5, 25], [0, 0.6])}>
           {[0, 0.25, 0.5, 0.75, 1].map((v, i) => {
             const val = yMin + v * (yMax - yMin);
@@ -297,7 +297,7 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
         );
       })}
 
-      {/* Legenda ClÃ¡ssica (ZONA 3) */}
+      {/* Legenda Clássica (ZONA 3) */}
       {legendMode === 'classic' && (
         <div style={{
           position: 'absolute', bottom: height * 0.08, width: '100%', display: 'flex', justifyContent: 'center', gap: 40,

@@ -348,7 +348,10 @@ document.addEventListener('DOMContentLoaded', () => {
         dataPoints.push({ label: label || `Item ${i+1}`, value: Number(series[0].data?.[i] ?? 0) });
       });
     } else if (props.data && props.data.length > 0) {
-      dataPoints = props.data.map(d => ({ label: d.label, value: Number(d.value) }));
+      dataPoints = props.data.map(d => {
+        if (d.values) return { label: d.label, value: d.values[0] || 0, values: d.values };
+        return { label: d.label, value: Number(d.value) };
+      });
     }
     if (dataPoints.length === 0) {
       dataPoints = [{ label: 'Categoria 1', value: 0 }];
@@ -376,6 +379,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <button class="ve-type-btn ${detectedType === 'BarChart' ? 'active' : ''}" data-type="BarChart" title="Bar Chart (Vertical)">📊</button>
                 <button class="ve-type-btn ${detectedType === 'HorizontalBarChart' ? 'active' : ''}" data-type="HorizontalBarChart" title="Horizontal Bar">➖</button>
                 <button class="ve-type-btn ${detectedType === 'LineChart' ? 'active' : ''}" data-type="LineChart" title="Line Chart">📈</button>
+                <button class="ve-type-btn ${detectedType === 'RacingLineChart' ? 'active' : ''}" data-type="RacingLineChart" title="Line Race Chart">🏁</button>
                 <button class="ve-type-btn ${detectedType === 'PieChart' ? 'active' : ''}" data-type="PieChart" title="Pie Chart">⭕</button>
                 <button class="ve-type-btn ${detectedType === 'ComparativeBarChart' ? 'active' : ''}" data-type="ComparativeBarChart" title="Comparative Bar">⚖️</button>
                 <button class="ve-type-btn ${detectedType === 'WaterfallChart' ? 'active' : ''}" data-type="WaterfallChart" title="Waterfall Chart">🌊</button>
@@ -515,8 +519,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         svg.innerHTML = paths;
 
-      } else if (editorType === 'LineChart') {
-        // ── Line ──
+      } else if (editorType === 'LineChart' || editorType === 'RacingLineChart' || editorType === 'MultiLineChart') {
+        // ── Line / Racing Preview ──
         const getX = i => PAD_L + (i / Math.max(n - 1, 1)) * plotW;
         const getY = v => PAD_T + plotH - ((v - minVal) / (maxVal - minVal || 1)) * plotH;
         const pts = editorData.map((d, i) => `${getX(i)},${getY(d.value)}`).join(' ');
@@ -644,21 +648,35 @@ document.addEventListener('DOMContentLoaded', () => {
               editedAnalysis.props.labels   = newLabels;
 
               // Propaga o tipo de gráfico se o usuário trocou no switcher
-              if (container && typeof container._getEditorType === 'function') {
-                  editedAnalysis.componentId = container._getEditorType();
-              }
+              const newType = (container && typeof container._getEditorType === 'function') 
+                              ? container._getEditorType() 
+                              : editedAnalysis.componentId;
+              editedAnalysis.componentId = newType;
 
-              // Atualizar séries de dados
-              if (editedAnalysis.props.series) {
-                  editedAnalysis.props.series[0].data = newData;
+              const isMultiLine = newType === 'LineChart' || newType === 'RacingLineChart' || newType === 'MultiLineChart';
+
+              if (!isMultiLine) {
+                  // Atualizar séries de dados single-column
+                  if (editedAnalysis.props.series) {
+                      editedAnalysis.props.series[0].data = newData;
+                  } else {
+                      editedAnalysis.props.series = [{ label: title || 'Série 1', data: newData }];
+                  }
+                  if (editedAnalysis.props.data) {
+                      editedAnalysis.props.data = newLabels.map((l, i) => ({ label: l, value: newData[i] }));
+                  }
+                  if (editedAnalysis.props.datasets) {
+                      editedAnalysis.props.datasets[0].data = newData;
+                  }
+                  editedAnalysis.props.labels = newLabels;
               } else {
-                  editedAnalysis.props.series = [{ label: title || 'Série 1', data: newData }];
-              }
-              if (editedAnalysis.props.data) {
-                  editedAnalysis.props.data = newLabels.map((l, i) => ({ label: l, value: newData[i] }));
-              }
-              if (editedAnalysis.props.datasets) {
-                  editedAnalysis.props.datasets[0].data = newData;
+                  // Para MultiLineChart, NÃO sobrescrevemos series/labels com dados da Grid 
+                  // porque a Grid não suporta múltiplas colunas editáveis ainda.
+                  // Apenas garantimos que a estrutura esteja correta caso tenha vindo de outro tipo.
+                  if (!editedAnalysis.props.series || !editedAnalysis.props.labels) {
+                      editedAnalysis.props.labels = newLabels;
+                      editedAnalysis.props.series = [{ label: title || 'Série 1', data: newData }];
+                  }
               }
 
               modal.style.display = 'none';

@@ -9,6 +9,7 @@ import { HorizontalBarChart } from "./charts/HorizontalBarChart";
 import { ComparativeBarChart } from "./components/ComparativeBarChart";
 import { DonutChart }         from "./components/DonutChart";
 import { MultiLineChart }     from "./components/MultiLineChart";
+import { RacingLineChart }    from "./components/RacingLineChart";
 import { HeatmapChart }       from "./components/HeatmapChart";
 import { RadarChart }         from "./components/RadarChart";
 import { FunnelChart }        from "./components/FunnelChart";
@@ -36,7 +37,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="HorizontalBarChart" component={HorizontalBarChart as any} durationInFrames={600} fps={30} width={3840} height={2160} defaultProps={{ data: [{ label: "A", value: 1 }] }} />
       <Composition id="ComparativeBarChart" component={ComparativeBarChart as any} durationInFrames={600} fps={30} width={3840} height={2160} defaultProps={{} as any} />
       <Composition id="DonutChart" component={DonutChart as any} durationInFrames={600} fps={30} width={3840} height={2160} defaultProps={{ data: [{ label: "A", value: 1 }] }} />
-      <Composition id="MultiLineChart" component={MultiLineChart as any} durationInFrames={600} fps={30} width={3840} height={2160} defaultProps={{ series: [{label: "A", data: [1], color: "#FF0000"}], labels: ["0"] }} />
+      <Composition id="RacingLineChart" component={RacingLineChart as any} durationInFrames={600} fps={30} width={3840} height={2160} defaultProps={{ series: [{label: "A", data: [1], color: "#FF0000"}], labels: ["0"] }} />
       
       <Composition id="BarChartRace" component={BarChartRace as any} durationInFrames={600} fps={30} width={3840} height={2160} />
       <Composition id="ReasonScene" component={ReasonScene} durationInFrames={360} fps={30} width={3840} height={2160} />

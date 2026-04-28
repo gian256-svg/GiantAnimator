@@ -241,6 +241,7 @@ TAREFA:
 Com base nos dados, escolha o tipo de gráfico mais adequado e gere a configuração completa.
 
 REGRAS:
+- FIDELIDADE ABSOLUTA AOS DADOS: Você DEVE usar TODOS os dados fornecidos na íntegra. NÃO resuma, NÃO agregue, NÃO omita e NÃO halucine dados ou rótulos (labels). A saída 'data' ou 'series' deve ter o número EXATO de linhas passadas nos dados originais e com os MESMOS valores exatos.
 - Se houver 1 coluna categórica + 1 numérica -> prefira BarChart ou HorizontalBarChart
 - Se houver 1 coluna de tempo/data + 1 numérica -> prefira LineChart
 - Se os valores somam ~100% -> prefira PieChart ou DonutChart

@@ -59,7 +59,7 @@ export interface NormalizedTableData {
     /** Se a estrutura de dados é uma série temporal */
     isTimeSeries?: boolean;
     /** Tipo de gráfico sugerido localmente, sem IA */
-    suggestedChartType?: 'LineChart' | 'BarChart' | 'HorizontalBarChart' | 'PieChart' | 'MultiLineChart';
+    suggestedChartType?: 'LineChart' | 'BarChart' | 'HorizontalBarChart' | 'PieChart' | 'RacingLineChart';
     /** Outliers detectados (valores que desviam >3x da média) */
     outliers?: { column: string; value: number; rowIndex: number }[];
     /** Avisos para o usuário sobre os dados */
@@ -114,7 +114,8 @@ export const tableParserService = {
             (workbook as any)._detectedDelimiter = delimiter;
         } else {
             // .xlsx, .xls, .ods
-            workbook = XLSX.readFile(filePath);
+            const buffer = fs.readFileSync(filePath);
+            workbook = XLSX.read(buffer, { type: 'buffer' });
         }
 
         // Usa a primeira aba
@@ -123,11 +124,33 @@ export const tableParserService = {
         console.log(`📖 [Parser] Lendo aba: ${sheetName}`);
 
         // Converte para array de objetos com limpeza agressiva
-        const rawRows = XLSX.utils.sheet_to_json<Record<string, any>>(sheet, { 
+        let rawRows = XLSX.utils.sheet_to_json<Record<string, any>>(sheet, { 
             defval: '', 
             blankrows: false, 
             raw: false 
         });
+
+        // ── Heurística: CSV Colapsado em XLSX ───────────────────────────
+        // Se a planilha inteira foi jogada na coluna A pelo Excel
+        if (rawRows.length > 0) {
+            const firstRowKeys = Object.keys(rawRows[0]);
+            if (firstRowKeys.length === 1) {
+                const theKey = firstRowKeys[0];
+                if (theKey.includes(',') || theKey.includes(';')) {
+                    console.log(`⚠️ [Parser] Excel com apenas 1 coluna cheia de delimitadores. Re-parseando como CSV embutido.`);
+                    const delim = detectDelimiter(theKey + '\n' + String(rawRows[0][theKey]));
+                    const headers = theKey.split(delim).map(h => h.trim());
+                    rawRows = rawRows.map(row => {
+                        const values = String(row[theKey]).split(delim);
+                        const newRow: any = {};
+                        headers.forEach((h, i) => {
+                            newRow[h] = values[i] !== undefined ? values[i].trim() : '';
+                        });
+                        return newRow;
+                    });
+                }
+            }
+        }
 
         // Limpeza de chaves e valores (Remover %, $, etc dos nomes das colunas e valores)
         const rows = rawRows.map(row => {
@@ -334,8 +357,8 @@ export function suggestChartType(
     const { numericColumns, categoricalColumns } = summary;
     const numSeriesCount = numericColumns.length;
 
-    // Série temporal com mais de 1 série numérica → MultiLine
-    if (isTimeSeries && numSeriesCount > 1) return 'MultiLineChart';
+    // Série temporal com mais de 1 série numérica → RacingLineChart
+    if (isTimeSeries && numSeriesCount > 1) return 'RacingLineChart';
 
     // Série temporal com 1 série → LineChart
     if (isTimeSeries && numSeriesCount === 1) return 'LineChart';

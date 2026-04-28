@@ -540,3 +540,32 @@ Caso a imagem mande um tÃƒÂ­tulo muito longo, ele nÃƒÂ£o pode flanquear 
 1. **Identificação de Totais Absolutos**: A IA DEVE identificar se a primeira e/ou a última coluna representam um valor absoluto (ex: 'Start', 'End', 'Total') e **OBRIGATORIAMENTE** injetar a flag `"isTotal": true` nessas barras. **PUNIÇÃO: Se a coluna 'End' ou 'Total' não receber isTotal: true, a matemática inteira da cascata será quebrada e o gráfico será considerado uma falha crítica.**
 2. **Textos Fidedignos (valueStr)**: Para garantir que as barras exibam *exatamente* o mesmo texto da imagem original (ex: `"-10M"` ou `"23M"`), você DEVE extrair essa string exata e colocar na propriedade `"valueStr": "texto exato"`. O `value` numérico servirá apenas para a altura da barra. Os dados numéricos brutos têm prioridade máxima de acurácia.
 3. **Unidade Global**: O campo `unit` (ex: '$', '$ mln') ainda deve ser extraído em `props.unit` para compor os eixos globais.
+
+---
+
+### 🏎️ [2026-04-28] REGRA DE EXCEÇÃO — RACING LINE CHARTS (DINÂMICA DE TEMPO REAL)
+**Contexto**: O RacingLineChart (Gráficos de "Corrida" ao longo do tempo) tem uma natureza orgânica que conflita diretamente com as regras rígidas de Gráficos Estáticos (como LineChart e BarChart).
+**Regras de Exceção (Invioláveis)**:
+1. **Duração da Animação**: Enquanto os gráficos padrão finalizam suas revelações em frames fixos (ex: Ato 2 aos 150f), o `RacingLineChart` DEVE preencher ativamente todo o tempo disponível no `durationInFrames` da composição, finalizando sua corrida fluida e constante apenas no final da timeline.
+2. **Escala Y Mutável (Breathing Zoom)**: É PROIBIDO forçar uma base fixa baseada no máximo histórico (o que esmagaria todas as outras linhas se ocorresse um outlier) para o RacingChart. O Zoom In e Zoom Out (Eixo Y) devem ocorrer de forma fluida baseando-se estritamente nos valores correntes da janela atual, permitindo que a câmera dê zoom caso os números desçam.
+3. **Eixo X Panning (Squash & Scroll)**: O Eixo X NÃO deve estar estaticamente presente desde o início. A timeline deve "nascer" da esquerda para a direita, e ao atingir o limite, empurrar o histórico passado para a esquerda (Panning), criando o efeito esteira de uma corrida.
+**Importante**: Estas regras são EXCLUSIVAS e BLINDADAS para os gráficos dinâmicos tipo `Racing`. Elas NUNCA devem ser importadas, mencionadas ou aplicadas em componentes estáticos como `LineChart` ou `BarChart`.
+
+---
+
+### 🛡️ [2026-04-28] INFRA — CACHE BUSTING DE COMPONENTES REMOTION
+**Problema**: O botão "Render" continuava exportando versões antigas do código porque o `getBundle()` memorizava a `bundlePromise` na primeira execução do servidor, ignorando totalmente hot-reloads das edições nos componentes `.tsx`.
+**Solução**:
+1. **Dev Mode Cache Buster**: Removido o bloqueio `if (!bundlePromise)` no `server/index.ts`. O pacote agora é recompilado sempre que for solicitado.
+2. **Impacto**: O tempo de renderização em desenvolvimento aumentou alguns segundos (devido ao bundling constante), mas garante **100% de consistência** entre a versão editada no disco e o MP4 final gerado pela UI.
+
+---
+
+### 🎨 [2026-04-28] ESTÉTICA E UX — RACING CHART (PREMIUM ICONS & LOGOS)
+**Contexto**: O Racing Line Chart estava visualmente poluído com o nome das séries atropelando a cabeça das linhas animadas.
+**Regras de Design Aplicadas**:
+1. **Dynamic Heads (Bandeiras/Logos)**: A cabeça líder da linha no `RacingLineChart` deve apresentar um ícone inteligente (redondo 32x32 com borda colorida). O sistema deve inferir o contexto:
+   - Se os dados forem de **Países**, deve-se buscar a bandeira via API `flagcdn` ou similar.
+   - Se os dados forem de **Marcas/Empresas**, deve-se buscar o logo da marca (ex: via `logo.clearbit.com` ou outra API de logo).
+   - Se o dado não possuir ícone mapeável, a fallback obrigatória é exibir a Primeira Letra da categoria (ex: "A") centralizada em um fundo colorido elegante.
+2. **Obrigatoriedade de Legenda Clean**: Como os rótulos de texto das linhas foram substituídos por ícones visuais, a **ZONA 3 (Legenda Inferior)** passa a ser obrigatória para gráficos Racing. A legenda é o que resolve e nomeia o ícone para o usuário de forma "Clean".

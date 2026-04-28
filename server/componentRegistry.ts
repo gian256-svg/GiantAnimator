@@ -16,10 +16,17 @@ export const COMPONENT_REGISTRY: ComponentEntry[] = [
   },
   {
     id: "LineChart",
-    aliases: ["line chart", "linha", "tendência"],
-    description: "Gráfico de linha simples ou múltipla.",
+    aliases: ["line chart", "linha", "tendência", "multi line chart", "linhas múltiplas"],
+    description: "Gráfico de linhas animadas para evolução temporal.",
     propsSchema: "labels: string[], series: { label: string, data: number[] }[], title?: string, backgroundColor?: string, textColor?: string, seriesColors?: string[], bgStyle?: 'none'|'mesh'|'grid', showValueLabels?: boolean",
-    exampleProps: { title: "Tendência", labels: ["Jan", "Fev"], series: [{ label: "Q1", data: [10, 20] }], bgStyle: "mesh" }
+    exampleProps: { title: "Evolução", labels: ["Jan", "Fev"], series: [{ label: "A", data: [10, 20] }] }
+  },
+  {
+    id: "RacingLineChart",
+    aliases: ["racing line chart", "racing chart", "corrida", "line race"],
+    description: "Gráfico de corrida de linhas com zoom out progressivo no eixo Y.",
+    propsSchema: "labels: string[], series: { label: string, data: number[] }[], title?: string, backgroundColor?: string, textColor?: string, seriesColors?: string[], bgStyle?: 'none'|'mesh'|'grid', showValueLabels?: boolean",
+    exampleProps: { title: "Corrida Evolutiva", labels: ["Jan", "Fev"], series: [{ label: "Brasil", data: [10, 50] }] }
   },
   {
     id: "PieChart",
