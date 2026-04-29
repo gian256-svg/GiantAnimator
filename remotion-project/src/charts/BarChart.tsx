@@ -6,7 +6,7 @@ import {
   interpolate,
   AbsoluteFill,
 } from "remotion";
-import { Theme, resolveTheme, formatValue, getNiceScale } from "../theme";
+import { Theme, resolveTheme, formatValue, getNiceScale, parseSafeNumber } from "../theme";
 import { DynamicBackground } from "../layout/DynamicBackground";
 import { SmartCallout } from "../components/SmartCallout";
 
