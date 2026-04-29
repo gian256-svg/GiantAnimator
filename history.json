@@ -1,5 +1,19 @@
 [
   {
+    "filename": "SalesDistributionByType_AN_imagem_colada_1777498249066.mp4",
+    "outputFile": "SalesDistributionByType_AN_imagem_colada_1777498249066.mp4",
+    "status": "done",
+    "id": "6ca7e9d8-cf44-4fa7-bb8a-9d960c235c98",
+    "createdAt": "2026-04-29T21:32:36.513Z"
+  },
+  {
+    "filename": "WildlifePopulationTrends_AN_imagem_colada_1777497225227.mp4",
+    "outputFile": "WildlifePopulationTrends_AN_imagem_colada_1777497225227.mp4",
+    "status": "done",
+    "id": "cb8d996e-035d-4d37-bdfb-54477b2fa10e",
+    "createdAt": "2026-04-29T21:15:15.783Z"
+  },
+  {
     "filename": "ServerCPULoadByDays_AN_imagem_colada_1777410886378.mp4",
     "outputFile": "ServerCPULoadByDays_AN_imagem_colada_1777410886378.mp4",
     "status": "done",

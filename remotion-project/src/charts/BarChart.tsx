@@ -53,7 +53,7 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
   // Resolve tema
   const T = resolveTheme(theme, backgroundColor, backgroundType);
   const resolvedBg = backgroundType ? T.background : (backgroundColor ?? T.background);
-  const resolvedText  = backgroundType ? T.text : (textColor ?? T.text);
+  const resolvedText = backgroundType ? T.text : (textColor ?? T.text);
   const resolvedColors = colors && colors.length > 0 ? colors : [...T.colors];
 
   // Normalização de dados com Safe-Guards
@@ -77,26 +77,26 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
 
   const allValues = normalizedSeries.flatMap(s => s.data).map(v => Number(v)).filter(v => isFinite(v));
   if (allValues.length === 0 || xAxisLabels.length === 0) {
-      return <AbsoluteFill style={{ backgroundColor: resolvedBg }} />;
+    return <AbsoluteFill style={{ backgroundColor: resolvedBg }} />;
   }
 
   const safeDataCount = xAxisLabels.length || 1;
-  const seriesCount   = normalizedSeries.length;
+  const seriesCount = normalizedSeries.length;
 
   // ─── SMART UNIT HANDLING ───
-  const isLongUnit  = unit.length > 6;
+  const isLongUnit = unit.length > 6;
   const displayUnit = isLongUnit ? "" : unit;
-  const unitNote    = isLongUnit ? `Unidade: ${unit}` : "";
+  const unitNote = isLongUnit ? `Unidade: ${unit}` : "";
 
   // ─── Layout responsivo ───
-  const fs = (base: number) => Math.round(base * (width / 1280));
+  const fs = (base: number) => Math.round(base * (width / 1920));
   const pad = width * 0.04;
   const padTop = height * 0.22; // Aumentado de 0.20 para 0.22 para Equilíbrio Vertical
-  const padBot = height * 0.12; 
+  const padBot = height * 0.12;
 
-  const plotLeft = pad + width * (isLongUnit ? 0.12 : 0.08);   
+  const plotLeft = pad + width * (isLongUnit ? 0.12 : 0.08);
   const plotTop = padTop;
-  const plotWidth = width - plotLeft - (pad * 1.5); 
+  const plotWidth = width - plotLeft - (pad * 1.5);
   const plotHeight = height - padTop - padBot;
 
   const dataMinRaw = Math.min(...allValues, 0);
@@ -107,22 +107,24 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
   const dataMax = niceScale[niceScale.length - 1];
   const dataMin = niceScale[0];
   const range   = dataMax - dataMin || 0.0001;
-  const maxVal  = dataMax; 
-  
+  const maxVal  = dataMax;
   const categoryWidth = plotWidth / safeDataCount;
-  const groupGap      = 0.3;
-  const innerGap      = 0.05;
-  const availableW    = categoryWidth * (1 - groupGap);
-  const barWidth      = (availableW / seriesCount) * (1 - innerGap);
+  const groupGap = 0.3;
+  const innerGap = 0.05;
+  const availableW = categoryWidth * (1 - groupGap);
+  const barWidth = (availableW / seriesCount) * (1 - innerGap);
 
   const shouldRotateLabels = safeDataCount > 8;
-  const getY = (v: number) => plotTop + plotHeight - (v / maxVal) * plotHeight;
+  const getY = (v: number) => {
+    const val = parseSafeNumber(v, dataMin);
+    return plotTop + plotHeight - ((val - dataMin) / (range || 1)) * plotHeight;
+  };
 
   return (
     <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
-      <DynamicBackground 
-        baseColor={resolvedBg} 
-        accentColor={resolvedColors[0]} 
+      <DynamicBackground
+        baseColor={resolvedBg}
+        accentColor={resolvedColors[0]}
         backgroundType={backgroundType}
       />
       <svg width={width} height={height} style={{ position: "absolute", top: 0, left: 0 }}>
@@ -179,13 +181,13 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
 
             return (
               <g key={`${groupIdx}-${seriesIdx}`}>
-                <rect 
-                  x={bX} 
-                  y={bY} 
-                  width={barWidth} 
-                  height={currentH} 
-                  fill={seriesCount > 1 ? `url(#barGrad-${seriesIdx}-${instanceId})` : (s.color || resolvedColors[groupIdx % resolvedColors.length])} 
-                  rx={fs(4)} 
+                <rect
+                  x={bX}
+                  y={bY}
+                  width={barWidth}
+                  height={currentH}
+                  fill={seriesCount > 1 ? `url(#barGrad-${seriesIdx}-${instanceId})` : (s.color || resolvedColors[groupIdx % resolvedColors.length])}
+                  rx={fs(4)}
                 />
                 {progress > 0.8 && (
                   <text x={bX + barWidth / 2} y={bY - fs(8)} textAnchor="middle" style={{ fontSize: fs(shouldRotateLabels ? 11 : 16), fill: resolvedText, fontWeight: 700, opacity: op, ...Theme.typography.tabularNums }}>
@@ -206,12 +208,12 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
       {/* ANOTAÇÕES INTELIGENTES (SMART CALLOUTS) */}
       {annotations.map((ann, i) => {
         if (!ann || ann.index === undefined || !normalizedSeries[ann.seriesIndex || 0]) return null;
-        
+
         const sIdx = ann.seriesIndex || 0;
         const gIdx = Math.min(Math.max(0, ann.index), xAxisLabels.length - 1);
-        
+
         const val = normalizedSeries[sIdx].data[gIdx] || 0;
-        
+
         const groupX = plotLeft + gIdx * categoryWidth + (categoryWidth * groupGap) / 2;
         const bX = groupX + sIdx * (barWidth * (1 + innerGap));
         const calloutX = bX + barWidth / 2;

@@ -670,6 +670,7 @@ export function resolveTheme(theme?: string, baseColor?: string, backgroundType?
   // Se ambos são escuros, o gráfico sumiria. Forçamos o fundo para claro.
   if (primaryColorDark && bgDark) {
       config.background = '#FAF9F6'; 
+      config.surface = '#ffffff';
       config.text = '#0f172a';
       config.textMuted = '#475569';
       config.axis = 'rgba(15,23,42,0.45)';
@@ -678,6 +679,7 @@ export function resolveTheme(theme?: string, baseColor?: string, backgroundType?
   // Se ambos são claros (ex: linhas brancas no fundo branco), forçamos para escuro.
   else if (!primaryColorDark && !bgDark) {
       config.background = '#0f1117';
+      config.surface = '#1a1d27';
       config.text = '#e8eaf6';
       config.textMuted = '#8892b0';
       config.axis = 'rgba(232,234,246,0.25)';

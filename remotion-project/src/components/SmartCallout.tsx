@@ -134,7 +134,7 @@ export const SmartCallout: React.FC<SmartCalloutProps> = ({
           <div style={{
             fontSize: fs(Theme.typography.labelSize),
             fontWeight: Theme.typography.weightBold,
-            color: resolvedText,
+            color: T.text, // Forçando uso direto do texto do tema para contraste garantido
             lineHeight: 1.2,
           }}>
             {label}

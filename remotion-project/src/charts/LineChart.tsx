@@ -73,9 +73,9 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
       }));
       xAxisLabels = rawData.labels;
     } else if (Array.isArray(rawData)) {
-      normalizedSeries = [{ 
-        label: title, 
-        data: rawData.map((d: any) => parseSafeNumber(d.value, 0)) 
+      normalizedSeries = [{
+        label: title,
+        data: rawData.map((d: any) => parseSafeNumber(d.value, 0))
       }];
       xAxisLabels = rawData.map((d: any) => d.label);
     }
@@ -84,7 +84,7 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
   }
 
   if (!xAxisLabels || xAxisLabels.length === 0 || !normalizedSeries || normalizedSeries.length === 0) {
-     return <AbsoluteFill style={{ backgroundColor: resolvedBg }} />;
+    return <AbsoluteFill style={{ backgroundColor: resolvedBg }} />;
   }
 
   // Propriedades Estendidas (UHD High-Fidelity)
@@ -94,8 +94,8 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
   // Layout 4K UHD - Seguindo FILOSOFIA 4K
   const fs = (base: number) => Math.round(base * (width / 1920));
   const pad = width * 0.05;
-  const padTop = height * 0.22; 
-  const padBot = height * 0.12; 
+  const padTop = height * 0.22;
+  const padBot = height * 0.12;
   const plotLeft = pad + width * 0.06;
   const plotTop = padTop;
   const rightBuffer = fs(160); // Espaço garantido para labels diretos
@@ -104,11 +104,11 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
 
   const allValues = normalizedSeries.flatMap(s => s.data).map(v => Number(v)).filter(v => isFinite(v));
   if (allValues.length === 0) return <AbsoluteFill style={{ backgroundColor: resolvedBg }} />;
-  
+
   const niceScale = getNiceScale(Math.max(...allValues, 1) * 1.05, Math.min(...allValues, 0), 5);
   const dataMax = niceScale[niceScale.length - 1];
   const dataMin = niceScale[0];
-  
+
   const range = (dataMax - dataMin) || 0.0001;
   const minV = dataMin;
 
@@ -147,9 +147,9 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
 
   return (
     <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
-      <DynamicBackground 
-        baseColor={resolvedBg} 
-        accentColor={resolvedColors[0]} 
+      <DynamicBackground
+        baseColor={resolvedBg}
+        accentColor={resolvedColors[0]}
         backgroundType={backgroundType}
       />
       <svg width={width} height={height} style={{ overflow: "visible", position: "relative", zIndex: 1 }}>
@@ -171,7 +171,7 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
           return (
             <React.Fragment key={val}>
               <line x1={plotLeft} y1={y} x2={plotLeft + plotWidth} y2={y} stroke={T.grid} strokeWidth={fs(1)} strokeDasharray={fs(8)} />
-              <text x={plotLeft - fs(20)} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: fs(22), fill: T.textMuted, fontWeight: 500, fontFamily: Theme.typography.fontFamily }}>{val >= 1000 ? (val/1000).toFixed(1) + 'k' : val}</text>
+              <text x={plotLeft - fs(20)} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: fs(22), fill: T.textMuted, fontWeight: 500, fontFamily: Theme.typography.fontFamily }}>{val >= 1000 ? (val / 1000).toFixed(1) + 'k' : val}</text>
             </React.Fragment>
           );
         })}
@@ -210,20 +210,20 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
                   </React.Fragment>
                 ))}
               </g>
-              
+
               {/* direct labeling no final */}
-              <text 
-                x={lastX + fs(15)} 
-                y={labelYPositions[sIndex]} 
-                dominantBaseline="middle" 
-                style={{ 
-                  fontSize: fs(24), 
-                  fill: color, 
+              <text
+                x={lastX + fs(15)}
+                y={labelYPositions[sIndex]}
+                dominantBaseline="middle"
+                style={{
+                  fontSize: fs(24),
+                  fill: color,
                   fontWeight: 800,
                   opacity: interpolate(
-                    progress, 
-                    [0.9, 1.0], 
-                    [0, 1], 
+                    progress,
+                    [0.9, 1.0],
+                    [0, 1],
                     { extrapolateLeft: 'clamp' }
                   )
                 }}
@@ -238,14 +238,14 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
         {xAxisLabels.map((l, i) => {
           if (xAxisLabels.length > 20 && i % Math.ceil(xAxisLabels.length / 10) !== 0) return null;
           return (
-            <text 
-              key={i} 
-              x={plotLeft + (i / (xAxisLabels.length - 1 || 1)) * plotWidth} 
-              y={plotTop + plotHeight + fs(28)} 
-              textAnchor="middle" 
-              style={{ 
-                fontSize: fs(Theme.typography.axisSize / 3), 
-                fill: T.textMuted, 
+            <text
+              key={i}
+              x={plotLeft + (i / (xAxisLabels.length - 1 || 1)) * plotWidth}
+              y={plotTop + plotHeight + fs(28)}
+              textAnchor="middle"
+              style={{
+                fontSize: fs(Theme.typography.axisSize / 3),
+                fill: T.textMuted,
                 opacity: interpolate(frame, [20, 40], [0, 1]) // Mais cedo para visibilidade no preview
               }}
             >
@@ -259,10 +259,10 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
       {annotations.map((ann, i) => {
         // Ignora anotações mal formatadas ou de séries inexistentes
         if (!ann || ann.index === undefined || !normalizedSeries[ann.seriesIndex || 0]) return null;
-        
+
         const seriesData = normalizedSeries[ann.seriesIndex || 0].data;
         const validIndex = Math.min(Math.max(0, ann.index), seriesData.length - 1);
-        
+
         const val = seriesData[validIndex];
         const x = plotLeft + (validIndex / (seriesData.length - 1 || 1)) * plotWidth;
         const calloutY = getY(val);

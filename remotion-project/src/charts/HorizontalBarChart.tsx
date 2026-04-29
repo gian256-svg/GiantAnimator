@@ -66,9 +66,13 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
      return <AbsoluteFill style={{ backgroundColor: resolvedBg }} />;
   }
 
-  const dataMaxRaw = Math.max(...allValues, 1);
-  const niceScale = getNiceScale(dataMaxRaw * 1.15, 0, 5);
-  const maxVal = niceScale[niceScale.length - 1];
+  const dataMinRaw = Math.min(...allValues, 0);
+  const dataMaxRaw = Math.max(...allValues, 0.0001);
+  const niceScale = getNiceScale(dataMaxRaw * 1.15, dataMinRaw, 5);
+  const dataMin = niceScale[0];
+  const dataMax = niceScale[niceScale.length - 1];
+  const maxVal = dataMax;
+  const range = dataMax - dataMin || 0.0001;
 
   // Layout 4K UHD
   const pad          = width * 0.05;
@@ -97,7 +101,7 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
       <svg width={width} height={height} style={{ overflow: "visible", position: "relative", zIndex: 10 }}>
         {/* GRID X e LABELS */}
         {niceScale.map(val => {
-          const x = plotLeft + (val / maxVal) * plotWidth;
+          const x = plotLeft + ((val - dataMin) / range) * plotWidth;
           return (
             <g key={val}>
               <line 
@@ -136,7 +140,7 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
                 const progress = spring({ frame: frame - delay, fps, config: { damping: 50, stiffness: 200 } });
                 
                 const bY = gY + sIdx * (groupHeight / (normalizedSeries.length || 1));
-                const bW = Math.max(1, (val / maxVal) * plotWidth * progress);
+                const bW = Math.max(1, ((val - dataMin) / (range || 1)) * plotWidth * progress);
                 const color = s.color || T.colors[sIdx % T.colors.length];
                 
                 return (
