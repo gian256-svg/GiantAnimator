@@ -6,7 +6,7 @@ import {
   interpolate,
   AbsoluteFill,
 } from "remotion";
-import { Theme, resolveTheme } from '../theme';
+import { Theme, resolveTheme, getNiceScale } from '../theme';
 import { DynamicBackground } from "../layout/DynamicBackground";
 
 export interface WaterfallPoint {
@@ -105,8 +105,13 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
   const chartTop = margin + titleHeight;
 
   const allBounds = waterfallData.flatMap(d => [d.start, d.end, 0]);
-  const minY = Math.min(...allBounds);
-  const maxY = Math.max(...allBounds);
+  const minYRaw = Math.min(...allBounds);
+  const maxYRaw = Math.max(...allBounds);
+  
+  const niceScale = getNiceScale(maxYRaw * 1.1, minYRaw, 5);
+  const minY = niceScale[0];
+  const maxY = niceScale[niceScale.length - 1];
+  
   const rangeY = (maxY - minY) || 1;
 
   const getY = (val: number) => chartTop + plotHeight - ((val - minY) / rangeY) * plotHeight;
@@ -189,14 +194,13 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
 
         {/* ZONA 2: GrÃ¡fico - Gridlines */}
         <g opacity={interpolate(frame, [5, 25], [0, 0.6])}>
-          {[0, 0.25, 0.5, 0.75, 1].map((v) => {
-            const val = minY + v * rangeY;
+          {niceScale.map((val) => {
             const y = getY(val);
             const isZero = Math.abs(val) < 0.1;
             return (
-              <React.Fragment key={v}>
+              <React.Fragment key={val}>
                 <line x1={chartLeft} y1={y} x2={chartLeft + plotWidth} y2={y} stroke={T.grid} strokeWidth={isZero ? 2 : 1} opacity={isZero ? 1 : 0.6} />
-                <text x={chartLeft - 20} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: T.textMuted, fontFamily: Theme.typography.fontFamily }}>
+                <text x={chartLeft - 20} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.ui?.axisText || T.textMuted, fontFamily: Theme.typography.fontFamily }}>
                   {formatValue(val, unit)}
                 </text>
               </React.Fragment>

@@ -1,8 +1,16 @@
-# GiantAnimator Ã¢â‚¬â€� TRAINING LOG (Knowledge Base)
-> Registro centralizado de aprendizados, regras de design e evoluÃƒÂ§ÃƒÂµes do agente.
-> Este arquivo SUBSTITUI oficialmente o antigo `knowledge_log` e concentra o cÃƒÂ©rebro do Giant.
+# GiantAnimator — TRAINING LOG (Histórico Cronológico)
+> Registro centralizado do histórico de evolução, debugs passados e aprendizados.
+
+> [!IMPORTANT]
+> **REGRAS ATIVAS MOVIDAS**
+> Este arquivo agora serve APENAS como diário histórico ("como chegamos até aqui").
+> As **LEIS DE OURO** que devem ser obedecidas pela IA foram compactadas e isoladas para maior precisão em:
+> - `.agent/knowledge/active-vision-rules.md`
+> - `.agent/knowledge/active-design-rules.md`
 
 ---
+
+
 
 ### Ã°Å¸Â§Â  META-REGRA 0: APRENDIZADO CONTÃƒï¿½NUO (ETERNAL LEARNING)
 Data: 2026-04-20

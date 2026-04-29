@@ -1,4 +1,4 @@
-﻿import React, { useMemo, useId } from "react";
+import React, { useMemo, useId } from "react";
 import {
   spring,
   useCurrentFrame,
@@ -6,7 +6,7 @@ import {
   interpolate,
   AbsoluteFill,
 } from "remotion";
-import { Theme, resolveTheme } from '../theme';
+import { Theme, resolveTheme, getNiceScale, formatValue } from '../theme';
 import { DynamicBackground } from "../layout/DynamicBackground";
 
 export interface BoxSet {
@@ -62,8 +62,12 @@ export const BoxPlotChart: React.FC<BoxPlotChartProps> = ({
   const chartLeft = margin + 100;
 
   const allVals = data.flatMap(d => [d.min, d.max, d.q1, d.q3, d.median, ...(d.outliers || [])]);
-  const minVal = Math.min(...allVals, 0) * 0.95;
-  const maxVal = Math.max(...allVals) * 1.05;
+  const minValRaw = Math.min(...allVals, 0) * 0.95;
+  const maxValRaw = Math.max(...allVals) * 1.05;
+  
+  const niceScale = getNiceScale(maxValRaw, minValRaw, 5);
+  const minVal = niceScale[0];
+  const maxVal = niceScale[niceScale.length - 1];
   const rangeY = (maxVal - minVal) || 1;
 
   const getX = (i: number) => chartLeft + (i + 0.5) * (plotWidth / data.length);
@@ -110,14 +114,13 @@ export const BoxPlotChart: React.FC<BoxPlotChartProps> = ({
 
         {/* ZONA 2 â€” GrÃ¡fico */}
         <g opacity={interpolate(frame, [5, 25], [0, 0.6])}>
-          {[0, 0.25, 0.5, 0.75, 1].map(v => {
-            const val = minVal + v * (maxVal - minVal);
+          {niceScale.map(val => {
             const y = getY(val);
             return (
-              <React.Fragment key={v}>
+              <React.Fragment key={val}>
                 <line x1={chartLeft} y1={y} x2={chartLeft + plotWidth} y2={y} stroke={T.grid} strokeWidth={1} />
-                <text x={chartLeft - 20} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: T.textMuted, fontFamily: Theme.typography.fontFamily }}>
-                  {Math.round(val).toLocaleString()}
+                <text x={chartLeft - 20} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.ui?.axisText || T.textMuted, fontFamily: Theme.typography.fontFamily }}>
+                  {formatValue(val)}
                 </text>
               </React.Fragment>
             );

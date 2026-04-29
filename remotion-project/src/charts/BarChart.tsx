@@ -6,7 +6,7 @@ import {
   interpolate,
   AbsoluteFill,
 } from "remotion";
-import { Theme, resolveTheme, formatValue } from "../theme";
+import { Theme, resolveTheme, formatValue, getNiceScale } from "../theme";
 import { DynamicBackground } from "../layout/DynamicBackground";
 import { SmartCallout } from "../components/SmartCallout";
 
@@ -25,6 +25,7 @@ interface BarChartProps {
   bgStyle?: any;
   backgroundType?: 'dark' | 'light';
   annotations?: any[];
+  showLegend?: boolean;
 }
 
 export const BarChart: React.FC<BarChartProps> = (props) => {
@@ -42,6 +43,7 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
     showValueLabels = false,
     annotations = [],
     backgroundType,
+    showLegend,
   } = props;
 
   const frame = useCurrentFrame();
@@ -97,12 +99,15 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
   const plotWidth = width - plotLeft - (pad * 1.5); 
   const plotHeight = height - padTop - padBot;
 
-  const dataMin = Math.min(...allValues, 0);
-  const dataMax = Math.max(...allValues, 0.0001); // Prevent zero axis
-  const range   = dataMax - dataMin;
+  const dataMinRaw = Math.min(...allValues, 0);
+  const dataMaxRaw = Math.max(...allValues, 0.0001); // Prevent zero axis
   
   // REGRA: Aumentar escala em 15% para caber labels no topo (Surgical-Grade)
-  const maxVal  = dataMax * 1.15; 
+  const niceScale = getNiceScale(dataMaxRaw * 1.15, dataMinRaw, 5);
+  const dataMax = niceScale[niceScale.length - 1];
+  const dataMin = niceScale[0];
+  const range   = dataMax - dataMin || 0.0001;
+  const maxVal  = dataMax; 
   
   const categoryWidth = plotWidth / safeDataCount;
   const groupGap      = 0.3;
@@ -138,8 +143,7 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
         </defs>
 
         {/* GRID Y */}
-        {[0, 0.25, 0.5, 0.75, 1].map((v) => {
-          const val = dataMin + v * range;
+        {niceScale.map((val) => {
           const y = getY(val);
           const op = interpolate(frame, [5, 25], [0, 0.85], { extrapolateRight: "clamp" });
           return (
@@ -230,7 +234,7 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
       })}
 
       {/* LEGEND */}
-      {seriesCount > 1 && (
+      {seriesCount > 1 && showLegend !== false && (
         <div style={{ position: 'absolute', bottom: height * 0.08, width: '100%', display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: fs(40), opacity: interpolate(frame, [40, 60], [0, 1]), pointerEvents: 'none' }}>
           {normalizedSeries.map((s, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: fs(10) }}>

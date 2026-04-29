@@ -1,4 +1,4 @@
-﻿import React, { useMemo } from "react";
+import React, { useMemo } from "react";
 import {
   spring,
   useCurrentFrame,
@@ -6,7 +6,7 @@ import {
   interpolate,
   AbsoluteFill,
 } from "remotion";
-import { Theme, resolveTheme } from '../theme';
+import { Theme, resolveTheme, getNiceScale } from '../theme';
 import { DynamicBackground } from "../layout/DynamicBackground";
 
 export interface CandleData {
@@ -57,8 +57,13 @@ export const CandlestickChart: React.FC<CandlestickChartProps> = ({
   const chartLeft = margin;
 
   const allValues = data.flatMap(d => [d.high, d.low]);
-  const minY = Math.min(...allValues);
-  const maxY = Math.max(...allValues);
+  const minYRaw = Math.min(...allValues);
+  const maxYRaw = Math.max(...allValues);
+  
+  const niceScale = getNiceScale(maxYRaw * 1.05, minYRaw, 5);
+  const minY = niceScale[0];
+  const maxY = niceScale[niceScale.length - 1];
+  
   const rangeY = (maxY - minY) || 1;
   const extentY = [minY, maxY];
   const screenRangeY = extentY[1] - extentY[0];
@@ -105,13 +110,12 @@ export const CandlestickChart: React.FC<CandlestickChartProps> = ({
       <svg width={width} height={height} style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}>
         {/* ZONA 2: GrÃ¡fico - Gridlines */}
         <g opacity={interpolate(frame, [5, 25], [0, 0.6])}>
-          {[0, 0.25, 0.5, 0.75, 1].map((v) => {
-            const val = extentY[0] + v * screenRangeY;
+          {niceScale.map((val) => {
             const y = getY(val);
             return (
-              <React.Fragment key={v}>
+              <React.Fragment key={val}>
                 <line x1={chartLeft} y1={y} x2={chartLeft + plotWidth} y2={y} stroke={T.grid} strokeWidth={1} />
-                <text x={chartLeft - 20} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.ui.axisText, fontFamily: Theme.typography.fontFamily }}>
+                <text x={chartLeft - 20} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.ui?.axisText || T.textMuted, fontFamily: Theme.typography.fontFamily }}>
                   {formatValue(val)}
                 </text>
               </React.Fragment>

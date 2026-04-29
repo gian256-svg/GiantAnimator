@@ -8,7 +8,7 @@ import {
   Easing,
   Img
 } from "remotion";
-import { Theme, resolveTheme, parseSafeNumber, formatValue } from '../theme';
+import { Theme, resolveTheme, parseSafeNumber, formatValue, getNiceScale } from '../theme';
 import { DynamicBackground } from "../layout/DynamicBackground";
 import { SmartCallout } from "./SmartCallout";
 
@@ -129,9 +129,12 @@ export const RacingLineChart: React.FC<RacingLineChartProps> = ({
     });
   }, [series, labels]);
 
-  const dynamicYMax = indexCeil > indexFloor
+  const dynamicYMaxRaw = indexCeil > indexFloor
     ? interpolate(fraction, [0, 1], [maxAtIndices[indexFloor], maxAtIndices[indexCeil]])
     : maxAtIndices[indexFloor];
+
+  const niceScale = getNiceScale(dynamicYMaxRaw, yMin, 5);
+  const dynamicYMax = niceScale[niceScale.length - 1];
 
   const getY = (val: number) => {
     const v = parseSafeNumber(val, yMin);
@@ -215,9 +218,8 @@ export const RacingLineChart: React.FC<RacingLineChartProps> = ({
 
         {/* ZONA 2: Gráfico - Gridlines */}
         <g opacity={interpolate(frame, [5, 25], [0, 0.6])}>
-          {[0, 0.25, 0.5, 0.75, 1].map((v, i) => {
-            const val = yMin + v * (dynamicYMax - yMin);
-            const y = chartTop + plotHeight - v * plotHeight;
+          {niceScale.map((val, i) => {
+            const y = chartTop + plotHeight - ((val - yMin) / (dynamicYMax - yMin || 0.0001)) * plotHeight;
             return (
               <React.Fragment key={i}>
                 <line x1={chartLeft} y1={y} x2={chartLeft + plotWidth} y2={y} stroke={T.grid} strokeWidth={2} />
@@ -225,7 +227,7 @@ export const RacingLineChart: React.FC<RacingLineChartProps> = ({
                   x={chartLeft - 20} y={y} textAnchor="end" dominantBaseline="middle" 
                   style={{ fontSize: Theme.typography.axis.size, fill: T.textMuted, fontFamily: Theme.typography.fontFamily, fontWeight: 600 }}
                 >
-                  {val >= 1000 ? `${(val / 1000).toFixed(1)}k` : Math.round(val)}
+                  {formatValue(val)}
                 </text>
               </React.Fragment>
             );

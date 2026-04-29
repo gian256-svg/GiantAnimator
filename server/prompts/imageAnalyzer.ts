@@ -3,7 +3,8 @@ export function buildImageAnalysisPrompt(registryJson: string, includeCallouts: 
     ? `
 ### 📢 SMART CALL-OUTS (ATIVADO):
 - **PASSO 4**: Crie anotações em pontos cruciais (picos ou quedas relevantes).
-- **CRIE ANOTAÇÕES**: Adicione um array "annotations" nas props contendo objetos com: { "seriesIndex": 0, "index": 2, "label": "Ponto de Atenção", "value": 93 }.
+- **CRIE ANOTAÇÕES**: Adicione o array "annotations". **CRÍTICO:** A propriedade "seriesIndex" DEVE corresponder matematicamente ao índice da série afetada no array \`series\` (0, 1, 2...). A propriedade "index" DEVE corresponder matematicamente ao índice no array \`labels\` (0, 1, 2...). Se você errar esses índices, o rótulo flutuará em cima do dado errado!
+- **Exemplo de formato**: { "seriesIndex": <INT>, "index": <INT>, "label": "Pico de Vendas", "value": 93 }
 - **Habilite rótulos globais**: Defina "showValueLabels": true nas props do componente.
 ` : "";
 
@@ -27,8 +28,7 @@ ${calloutInstruction}
    - **CORES**: Extraia o Hex exato da série original.
 
 3. **Análise de Layout e Organização Premium**:
-   - **LEGENDA**: Identifique se houver legenda. **Sempre tente incluir uma legenda organizada** para clareza UHD. Defina "legendPosition" como 'bottom' (embaixo) ou 'right' (lateral). Use 'right' se o original tiver muitos itens ou já for lateral.
-   - **RÓTULOS**: Defina "labelPosition" como 'inside', 'outside' ou 'auto'. Use 'outside' se as fatias forem pequenas.
+   - **LEGENDA E SÉRIES**: Se a imagem original POSSUIR uma legenda com nomes, copie-os exatos. Se a imagem NÃO POSSUIR nomes explícitos para as séries, você DEVE desativar a legenda (\`"showLegend": false\`) no JSON e deixar as labels das séries vazias \`""\`. É EXPRESSAMENTE PROIBIDO inventar nomes genéricos como "Series 1", "Item 1".
 
 ### FORMATO DE RESPOSTA (JSON APENAS):
 {
@@ -41,7 +41,8 @@ ${calloutInstruction}
     "labels": ["Jan", "Fev"],
     "series": [{ "label": "S1", "data": [10, 20], "color": "#hex" }],
     "showValueLabels": ${includeCallouts},
-    "annotations": ${includeCallouts ? `[{ "seriesIndex": 0, "index": 1, "label": "Pico Histórico", "value": 20 }]` : `[]`},
+    "showLegend": true,
+    "annotations": ${includeCallouts ? `[{ "seriesIndex": "<CALCULE_O_INDICE_DA_SERIE>", "index": "<CALCULE_O_INDICE_DO_EIXO_X>", "label": "Motivo", "value": 20 }]` : `[]`},
     "legendPosition": "right",
     "unit": "%",
     "insightText": "..."

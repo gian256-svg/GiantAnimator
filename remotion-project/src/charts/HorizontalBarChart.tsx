@@ -6,7 +6,7 @@ import {
   interpolate,
   AbsoluteFill,
 } from "remotion";
-import { Theme, resolveTheme, formatValue } from '../theme';
+import { Theme, resolveTheme, formatValue, getNiceScale } from '../theme';
 import { DynamicBackground } from "../layout/DynamicBackground";
 import { SmartCallout } from "../components/SmartCallout";
 
@@ -66,8 +66,9 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
      return <AbsoluteFill style={{ backgroundColor: resolvedBg }} />;
   }
 
-  const dataMax = Math.max(...allValues, 1);
-  const maxVal  = dataMax;
+  const dataMaxRaw = Math.max(...allValues, 1);
+  const niceScale = getNiceScale(dataMaxRaw * 1.15, 0, 5);
+  const maxVal = niceScale[niceScale.length - 1];
 
   // Layout 4K UHD
   const pad          = width * 0.05;
@@ -95,10 +96,10 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
 
       <svg width={width} height={height} style={{ overflow: "visible", position: "relative", zIndex: 10 }}>
         {/* GRID X e LABELS */}
-        {[0, 0.25, 0.5, 0.75, 1].map(v => {
-          const x = plotLeft + v * plotWidth;
+        {niceScale.map(val => {
+          const x = plotLeft + (val / maxVal) * plotWidth;
           return (
-            <g key={v}>
+            <g key={val}>
               <line 
                 x1={x} y1={plotTop} x2={x} y2={plotTop + plotHeight} 
                 stroke={T.grid} strokeWidth={fs(2)} opacity={0.8} 
@@ -108,7 +109,7 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
                 textAnchor="middle" 
                 style={{ fontSize: fs(24), fill: T.textMuted, fontWeight: 500 }}
               >
-                {formatValue(v * maxVal, unit)}
+                {formatValue(val, unit)}
               </text>
             </g>
           );

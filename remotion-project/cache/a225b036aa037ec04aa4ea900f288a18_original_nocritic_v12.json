@@ -1,0 +1,74 @@
+{
+  "componentId": "BarChart",
+  "suggestedName": "BarChartDataVisualization",
+  "reasoning": "O gráfico original é um gráfico de barras agrupadas, mostrando a evolução de três séries de dados ao longo de três anos (2018, 2019, 2020). A extração de dados foi realizada com calibração precisa dos eixos numérico e categórico, estimando os valores de cada barra com fidelidade. As cores das séries foram identificadas e as anotações foram adicionadas para os pontos de maior e menor valor. A ausência de uma legenda explícita no gráfico original levou à desativação da propriedade 'showLegend' e ao uso de rótulos de série vazios, conforme o protocolo.",
+  "props": {
+    "title": "Bar Chart (Data Visualization)",
+    "labels": [
+      "2018",
+      "2019",
+      "2020"
+    ],
+    "series": [
+      {
+        "label": "",
+        "data": [
+          110000,
+          130000,
+          95000
+        ],
+        "color": "#4472C4"
+      },
+      {
+        "label": "",
+        "data": [
+          230000,
+          195000,
+          165000
+        ],
+        "color": "#ED7D31"
+      },
+      {
+        "label": "",
+        "data": [
+          75000,
+          90000,
+          105000
+        ],
+        "color": "#A5A5A5"
+      }
+    ],
+    "showValueLabels": true,
+    "showLegend": false,
+    "annotations": [
+      {
+        "seriesIndex": 1,
+        "index": 0,
+        "label": "Maior Valor",
+        "value": 230000
+      },
+      {
+        "seriesIndex": 2,
+        "index": 0,
+        "label": "Menor Valor",
+        "value": 75000
+      }
+    ],
+    "unit": "$",
+    "insightText": "A série laranja (representando a segunda categoria) apresentou o maior valor em 2018, com $230,000.00, e uma tendência de queda ao longo dos anos. Em contraste, a série cinza (terceira categoria) mostrou uma tendência de crescimento constante, atingindo $105,000.00 em 2020. A série azul (primeira categoria) teve um pico em 2019 e uma leve queda em 2020.",
+    "data": [
+      {
+        "label": "2018",
+        "value": 110000
+      },
+      {
+        "label": "2019",
+        "value": 130000
+      },
+      {
+        "label": "2020",
+        "value": 95000
+      }
+    ]
+  }
+}

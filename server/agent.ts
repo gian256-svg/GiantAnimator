@@ -41,15 +41,19 @@ export const ai = getAIInstance();
 // Carrega o system prompt base + knowledge base completo
 // ─────────────────────────────────────────────────────────
 function buildSystemPrompt(): string {
+  const rootDir = process.cwd().endsWith("server") ? path.join(process.cwd(), "..") : process.cwd();
+
   const knowledgeFiles = [
-    ".agent/knowledge/remotion-charts.md",
-    ".agent/knowledge/remotion-spring.md",
-    ".agent/knowledge/highcharts-visual-rules.md",  // ✅ Regras de Ouro
-    "TRAINING_LOG.md",                              // ✅ APRENDIZADOS E UI/UX PRO MAX
+    ".agent/knowledge/active-vision-rules.md",      // ✅ REGRAS ATIVAS DE VISÃO
+    ".agent/knowledge/active-design-rules.md",      // ✅ REGRAS ATIVAS DE DESIGN
+    ".agent/knowledge/active-coding-rules.md",      // ✅ REGRAS ATIVAS DE CÓDIGO
+    ".agent/knowledge/active-system-rules.md",      // ✅ REGRAS ATIVAS DE SISTEMA
+    "TRAINING_LOG.md",                              // ✅ HISTÓRICO CRONOLÓGICO
     "agent-backup/SYSTEM_PROMPT.md",
   ];
 
   const knowledge = knowledgeFiles
+    .map(f => path.join(rootDir, f))
     .filter(fs.existsSync)
     .map((f) => {
       const label = path.basename(f, ".md").toUpperCase();
@@ -65,6 +69,12 @@ de gráficos usando Remotion, controlado por IA.
 Sempre dar preferência ao layout original do gráfico.
 Se o usuário enviou uma referência visual, replique-a fielmente.
 NÃO improvise design. NÃO melhore sem ser solicitado.
+
+## 🛡️ CRÍTICA ATIVA (ANTI-REINCIDÊNCIA):
+Antes de emitir qualquer resposta, código ou configuração JSON, VOCÊ DEVE OBRIGATORIAMENTE realizar uma validação interna e silenciosa:
+"A minha resposta viola alguma das diretrizes listadas em ACTIVE-VISION-RULES, ACTIVE-DESIGN-RULES, ACTIVE-CODING-RULES ou ACTIVE-SYSTEM-RULES?"
+Se a resposta for sim, corrija sua saída ANTES de enviá-la ao usuário.
+
 
 ## Suas responsabilidades:
 1. Interpretar imagens de gráficos enviadas pelo usuário

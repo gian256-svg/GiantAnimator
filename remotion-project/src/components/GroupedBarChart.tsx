@@ -1,4 +1,4 @@
-﻿import React, { useId } from "react";
+import React, { useId } from "react";
 import {
   spring,
   useCurrentFrame,
@@ -6,7 +6,7 @@ import {
   AbsoluteFill,
   interpolate
 } from "remotion";
-import { Theme, resolveTheme } from '../theme';
+import { Theme, resolveTheme, getNiceScale } from '../theme';
 import { DynamicBackground } from "../layout/DynamicBackground";
 
 export interface GroupedBarSeries {
@@ -64,7 +64,12 @@ export const GroupedBarChart: React.FC<GroupedBarChartProps> = ({
     );
   }
 
-  const maxValue = Math.max(...series.flatMap(s => s.values), 1);
+  const maxValueRaw = Math.max(...series.flatMap(s => s.values), 1);
+  const dataMinRaw = Math.min(...series.flatMap(s => s.values), 0);
+  const niceScale = getNiceScale(maxValueRaw * 1.15, dataMinRaw, 5);
+  const maxValue = niceScale[niceScale.length - 1];
+  const dataMin = niceScale[0];
+  const range = maxValue - dataMin || 0.0001;
   const groupGap = 0.3;
   const barGap = 0.1;
   const categoryWidth = plotWidth / categories.length;
@@ -128,12 +133,12 @@ export const GroupedBarChart: React.FC<GroupedBarChartProps> = ({
 
         {/* Grid Y */}
         <g opacity={0.4}>
-          {[0, 0.25, 0.5, 0.75, 1].map(v => {
-            const y = chartTop + plotHeight - v * plotHeight;
+          {niceScale.map(val => {
+            const y = chartTop + plotHeight - ((val - dataMin) / range) * plotHeight;
             return (
-              <React.Fragment key={v}>
+              <React.Fragment key={val}>
                 <line x1={margin} y1={y} x2={width - margin} y2={y} stroke={T.grid} strokeWidth={1} />
-                <text x={margin - 20} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.ui.axisText, fontFamily: Theme.typography.fontFamily }}>{formatValue(v * maxValue)}</text>
+                <text x={margin - 20} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.ui?.axisText || T.textMuted, fontFamily: Theme.typography.fontFamily }}>{formatValue(val)}</text>
               </React.Fragment>
             );
           })}
@@ -148,7 +153,7 @@ export const GroupedBarChart: React.FC<GroupedBarChartProps> = ({
             <g key={ci}>
               {series.map((s, si) => {
                 const x = groupX + si * (barWidth / (1 - barGap));
-                const h = (s.values[ci] / maxValue) * plotHeight * groupProgress;
+                const h = ((s.values[ci] - dataMin) / range) * plotHeight * groupProgress;
                 const y = chartTop + plotHeight - h;
                 const isGroupHighlighted = highlightGroup === ci;
 

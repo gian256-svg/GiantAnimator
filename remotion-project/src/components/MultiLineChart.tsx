@@ -7,7 +7,7 @@ import {
   AbsoluteFill,
 } from "remotion";
 import { evolvePath } from "@remotion/paths";
-import { Theme, resolveTheme, parseSafeNumber, formatValue } from '../theme';
+import { Theme, resolveTheme, parseSafeNumber, formatValue, getNiceScale } from '../theme';
 import { DynamicBackground } from "../layout/DynamicBackground";
 import { SmartCallout } from "./SmartCallout";
 
@@ -80,10 +80,12 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
 
   // Escala Y Adaptativa (FIX: Garantir gaps mínimos para evitar NaN)
   const allValues = series.flatMap((s) => s.data);
-  const dataMin = Math.min(...allValues);
-  const dataMax = Math.max(...allValues);
-  const yMin = dataMin;
-  let yMax = dataMax;
+  const dataMinRaw = Math.min(...allValues);
+  const dataMaxRaw = Math.max(...allValues);
+  
+  const niceScale = getNiceScale(dataMaxRaw * 1.15, dataMinRaw, 5);
+  const yMin = niceScale[0];
+  let yMax = niceScale[niceScale.length - 1];
 
   // REGRA DE OURO: Evitar divisão por zero se todos os valores forem iguais ou zero
   if (yMax === yMin) {
@@ -157,8 +159,7 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
       <svg width={width} height={height} style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}>
         {/* ZONA 2: Gráfico - Gridlines (Regra D3) */}
         <g opacity={interpolate(frame, [5, 25], [0, 0.6])}>
-          {[0, 0.25, 0.5, 0.75, 1].map((v, i) => {
-            const val = yMin + v * (yMax - yMin);
+          {niceScale.map((val, i) => {
             const y = getY(val);
             return (
               <React.Fragment key={i}>
@@ -167,7 +168,7 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
                   x={chartLeft - 20} y={y} textAnchor="end" dominantBaseline="middle" 
                   style={{ fontSize: Theme.typography.axis.size, fill: T.textMuted, fontFamily: Theme.typography.fontFamily, fontWeight: 600 }}
                 >
-                  {val >= 1000 ? `${(val / 1000).toFixed(1)}k` : Math.round(val)}
+                  {formatValue(val)}
                 </text>
               </React.Fragment>
             );

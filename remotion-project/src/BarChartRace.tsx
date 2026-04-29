@@ -5,7 +5,7 @@ import {
   useVideoConfig,
   Easing,
 } from 'remotion';
-import { Theme, resolveTheme } from './theme';
+import { Theme, resolveTheme, getNiceScale, formatValue } from './theme';
 
 interface BarChartRaceProps {
   title?: string;
@@ -81,7 +81,9 @@ export const BarChartRace: React.FC<BarChartRaceProps> = ({
   });
 
   // Valor máximo para escala do eixo X (Anima junto)
-  const maxValue = Math.max(...currentValues) * 1.1;
+  const maxValRaw = Math.max(...currentValues) * 1.1;
+  const niceScale = getNiceScale(maxValRaw, 0, 5);
+  const maxValue = niceScale[niceScale.length - 1];
 
   return (
     <AbsoluteFill style={{ backgroundColor: T.background, padding }}>
@@ -97,10 +99,10 @@ export const BarChartRace: React.FC<BarChartRaceProps> = ({
 
       <div style={{ position: 'relative', width: chartWidth, height: chartHeight, marginTop: 40 }}>
         {/* Eixo X e Gridlines sutis */}
-        {[0, 0.25, 0.5, 0.75, 1].map((p, k) => (
+        {niceScale.map((val, k) => (
           <div key={k} style={{
             position: 'absolute',
-            left: `${p * 100}%`,
+            left: `${(val / maxValue) * 100}%`,
             top: 0,
             bottom: 0,
             width: 1,
@@ -113,7 +115,7 @@ export const BarChartRace: React.FC<BarChartRaceProps> = ({
               bottom: -25,
               transform: 'translateX(-50%)',
             }}>
-              {Math.round(p * maxValue)}
+              {formatValue(val)}
             </span>
           </div>
         ))}

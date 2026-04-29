@@ -6,7 +6,7 @@ import {
   interpolate,
   AbsoluteFill,
 } from "remotion";
-import { Theme, resolveTheme } from '../theme';
+import { Theme, resolveTheme, getNiceScale, formatValue } from '../theme';
 import { DynamicBackground } from "../layout/DynamicBackground";
 
 export interface AreaChartProps {
@@ -66,8 +66,11 @@ export const AreaChart: React.FC<AreaChartProps> = ({
   if (xAxisLabels.length < 2) return null;
 
   const allValues = normalizedSeries.flatMap((s) => s.data);
-  const minV = Math.min(...allValues, 0);
-  const maxV = Math.max(...allValues, 1);
+  const rawMin = Math.min(...allValues, 0);
+  const rawMax = Math.max(...allValues, 1);
+  const niceScale = getNiceScale(rawMax * 1.15, rawMin, 5);
+  const maxV = niceScale[niceScale.length - 1];
+  const minV = niceScale[0];
   const range = maxV - minV || 1;
 
   const getX = (i: number) => plotLeft + (i / (xAxisLabels.length - 1)) * plotWidth;
@@ -99,11 +102,10 @@ export const AreaChart: React.FC<AreaChartProps> = ({
       <svg width={width} height={height} style={{ overflow: "visible" }}>
         {/* GRID Y */}
         <g>
-          {[0, 0.25, 0.5, 0.75, 1].map((v) => {
-            const val = minV + v * range;
+          {niceScale.map((val) => {
             const y = getY(val);
             return (
-              <React.Fragment key={v}>
+              <React.Fragment key={val}>
                 <line x1={plotLeft} y1={y} x2={plotLeft + plotWidth} y2={y} stroke="rgba(255, 255, 255, 0.15)" strokeWidth={2} />
                 <text
                   x={plotLeft - 30}
@@ -112,7 +114,7 @@ export const AreaChart: React.FC<AreaChartProps> = ({
                   dominantBaseline="middle"
                   style={{ fontSize: 32, fill: "rgba(255, 255, 255, 0.6)", fontFamily: Theme.typography.fontFamily }}
                 >
-                  {format(val)}
+                  {formatValue(val)}
                 </text>
               </React.Fragment>
             );

@@ -706,7 +706,8 @@ export const formatValue = (n: number, unit = '') => {
 
   if (unit === 'M' || unit === 'k') return valueStr;
   
-  return unit ? `${valueStr}${unit}` : valueStr;
+  const isPrefix = unit.includes('$') || unit.includes('£') || unit.includes('€') || unit.trim().toLowerCase() === 'r$';
+  return isPrefix ? `${unit.trim()}${valueStr}` : (unit ? `${valueStr} ${unit}`.trim() : valueStr);
 };
 
 /**

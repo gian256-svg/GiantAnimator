@@ -6,7 +6,7 @@ import {
   interpolate,
   spring,
 } from "remotion";
-import { Theme, resolveTheme } from "../theme";
+import { Theme, resolveTheme, getNiceScale, formatValue } from "../theme";
 import { DynamicBackground } from "../layout/DynamicBackground";
 
 export interface BubbleChartProps {
@@ -52,10 +52,15 @@ export const BubbleChart: React.FC<BubbleChartProps> = ({
 
   if (allPoints.length === 0) return null;
 
-  const xMin = Math.min(...allPoints.map((p) => p.x));
-  const xMax = Math.max(...allPoints.map((p) => p.x));
-  const yMin = Math.min(...allPoints.map((p) => p.y));
-  const yMax = Math.max(...allPoints.map((p) => p.y));
+  const xMinRaw = Math.min(...allPoints.map((p) => p.x));
+  const xMaxRaw = Math.max(...allPoints.map((p) => p.x));
+  const yMinRaw = Math.min(...allPoints.map((p) => p.y));
+  const yMaxRaw = Math.max(...allPoints.map((p) => p.y));
+  
+  const niceX = getNiceScale(xMaxRaw * 1.05, xMinRaw, 5);
+  const niceY = getNiceScale(yMaxRaw * 1.05, yMinRaw, 5);
+  const xMin = niceX[0], xMax = niceX[niceX.length - 1];
+  const yMin = niceY[0], yMax = niceY[niceY.length - 1];
   const maxR = Math.max(...allPoints.map(p => p.r || 1));
 
   const xRange = (xMax - xMin) || 1;
@@ -88,22 +93,26 @@ export const BubbleChart: React.FC<BubbleChartProps> = ({
       <svg width={width} height={height} style={{ overflow: "visible" }}>
         {/* GRID & AXIS TICKS */}
         <g>
-          {[0, 0.25, 0.5, 0.75, 1].map((v, i) => {
+          {niceY.map((yVal, i) => {
+            const v = (yVal - yMin) / yRange;
             const yPos = MARGIN.top + (1 - v) * plotHeight;
-            const xPos = MARGIN.left + v * plotWidth;
-            const yVal = yMin + v * yRange;
-            const xVal = xMin + v * xRange;
-
             return (
-              <React.Fragment key={i}>
+              <React.Fragment key={`y-${i}`}>
                 <line x1={MARGIN.left} y1={yPos} x2={MARGIN.left + plotWidth} y2={yPos} stroke={T.grid} strokeWidth={3} />
                 <text x={MARGIN.left - 40} y={yPos} textAnchor="end" dominantBaseline="middle" style={{ fontSize: 36, fill: resolvedText, opacity: 0.7 }}>
-                  {yVal.toFixed(1).replace(".0", "")}
+                  {formatValue(yVal)}
                 </text>
-
+              </React.Fragment>
+            );
+          })}
+          {niceX.map((xVal, i) => {
+            const v = (xVal - xMin) / xRange;
+            const xPos = MARGIN.left + v * plotWidth;
+            return (
+              <React.Fragment key={`x-${i}`}>
                 <line x1={xPos} y1={MARGIN.top} x2={xPos} y2={MARGIN.top + plotHeight} stroke={T.grid} strokeWidth={3} />
                 <text x={xPos} y={MARGIN.top + plotHeight + 60} textAnchor="middle" style={{ fontSize: 36, fill: resolvedText, opacity: 0.7 }}>
-                  {xVal.toFixed(1).replace(".0", "")}
+                  {formatValue(xVal)}
                 </text>
               </React.Fragment>
             );

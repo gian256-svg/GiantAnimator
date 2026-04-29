@@ -52,9 +52,16 @@ export async function analyzeChartImage(
   const registryJson = JSON.stringify(COMPONENT_REGISTRY, null, 2);
   let prompt = buildImageAnalysisPrompt(registryJson, settings.includeCallouts);
 
-  const trainingLogPath = path.join(process.cwd(), "..", "TRAINING_LOG.md");
-  if (fs.existsSync(trainingLogPath)) {
-    prompt += `\n\n### DIRETRIZES DE DESIGN:\n${fs.readFileSync(trainingLogPath, "utf-8").slice(-3000)}\n`;
+  const rootDir = process.cwd().endsWith("server") ? path.join(process.cwd(), "..") : process.cwd();
+  const visionRulesPath = path.join(rootDir, ".agent", "knowledge", "active-vision-rules.md");
+  const designRulesPath = path.join(rootDir, ".agent", "knowledge", "active-design-rules.md");
+  
+  let activeRules = "";
+  if (fs.existsSync(visionRulesPath)) activeRules += fs.readFileSync(visionRulesPath, "utf-8") + "\n\n";
+  if (fs.existsSync(designRulesPath)) activeRules += fs.readFileSync(designRulesPath, "utf-8") + "\n";
+
+  if (activeRules) {
+    prompt += `\n\n### DIRETRIZES ATIVAS (REGRAS DE OURO):\n${activeRules}\n`;
   }
 
   if (auditorCritique) prompt += `\n### ⚠️ FEEDBACK AUDITORIA:\n${auditorCritique}\n`;

@@ -56,4 +56,7 @@ curl http://localhost:3000/knowledge/summary
 ```
 
 ## Regra Principal
-Sempre que aprender algo novo e relevante, PROATIVAMENTE perguntar: "Quer que eu registre isso no knowledge base para não esquecer?" E se confirmado, usar a API acima para persistir.
+Sempre que aprender algo novo e relevante, PROATIVAMENTE perguntar: "Quer que eu registre isso no knowledge base para não esquecer?"
+Se confirmado:
+1. Registre o contexto completo e histórico do erro/solução no `TRAINING_LOG.md`.
+2. Extraia APENAS a regra seca e inviolável e adicione em `.agent/knowledge/active-vision-rules.md` ou `.agent/knowledge/active-design-rules.md`, para garantir que o Cérebro absorva a regra sem inchar o prompt histórico.
