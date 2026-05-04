@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { PATHS } from './paths.js';
+import { syncHistoryJob } from './supabaseService.js';
 
 // ✅ Voltando para o local centralizado, longe do cache do servidor
 const HISTORY_FILE = path.join(PATHS.root, 'history.json');
@@ -70,6 +71,7 @@ export function addJob(data: Omit<Job, 'id' | 'createdAt'>): Job {
     jobs.unshift(job);
     if (jobs.length > 50) jobs.splice(50);
     saveJobs(jobs);
+    syncHistoryJob(job);
     return job;
 }
 
@@ -89,11 +91,12 @@ export function updateJobStatus(
     const jobs = loadJobs();
     const idx = jobs.findIndex(j => j.id === id);
     if (idx === -1) return undefined;
-    
+
     jobs[idx].status = status;
     if (outputFile) jobs[idx].outputFile = outputFile;
-    
+
     saveJobs(jobs);
+    syncHistoryJob(jobs[idx]);
     return jobs[idx];
 }
 

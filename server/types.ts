@@ -11,6 +11,7 @@ export interface ChartAnalysis {
   props: any; // Props variam drasticamente entre os 31 componentes
   reasoning: string;
   suggestedName?: string; // Três palavras sem espaço resumindo o gráfico
+  engine?: string;
 }
 
 export interface ChartProps {

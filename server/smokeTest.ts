@@ -8,7 +8,7 @@ import { PATHS } from "./paths.js";
  * Smoke Test — Simula o fluxo do Pipeline com uma imagem de teste.
  */
 async function runSmokeTest() {
-  const TEST_IMAGE = path.join(PATHS.input, "test_bar_chart.png");
+  const TEST_IMAGE = path.join(PATHS.input, "final_surgery_test.png");
 
   console.log("🚀 Iniciando Smoke Test do Pipeline...");
 

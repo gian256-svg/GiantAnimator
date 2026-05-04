@@ -9,6 +9,7 @@ import { bundle } from '@remotion/bundler';
 import { renderMedia, selectComposition } from '@remotion/renderer';
 
 import { getHistory, addJob, clearHistory } from './historyService.js';
+import { syncPipelineJob, seedComponentRegistry, syncTrainingLog } from './supabaseService.js';
 import { analyzeChartImage } from './visionService.js';
 import { generateStill } from './renderService.js';
 import { auditRenderFidelity } from './auditorService.js';
@@ -67,6 +68,7 @@ async function saveJob(job: PipelineJob) {
   } catch (err) {
     console.error(`❌ [IO] Erro ao salvar Job ${job.id}:`, err);
   }
+  syncPipelineJob(job);
 }
 
 /**
@@ -115,7 +117,7 @@ async function processJob(
   if (!job) return;
   job.status = 'processing';
   job.progress = 10;
-  job.stage = 'Iniciando...';
+  job.stage = 'Pedro: Recebendo arquivo...';
   job.options = options;
   saveJob(job);
 
@@ -130,7 +132,7 @@ async function processJob(
     let analysis: ChartAnalysis;
 
     if (isData) {
-      job.stage = 'Processando Planilha Analítica...';
+      job.stage = 'Mateus: Processando planilha...';
       job.progress = 20;
       saveJob(job);
 
@@ -201,7 +203,7 @@ async function processJob(
         throw new Error(`Falha ao analisar dados da planilha: ${err.message}`);
       }
     } else {
-      job.stage = 'IA Vision: Analisando Gráfico...';
+      job.stage = 'João: Analisando referência visual...';
       job.progress = 25;
       await saveJob(job);
       try {
@@ -225,21 +227,42 @@ async function processJob(
     }
 
     job.progress = 40;
-    job.stage = 'IA: Estrutura Identificada';
+    job.stage = 'João: Estrutura identificada';
     job.log = `Componente: ${analysis.componentId}`;
+    await saveJob(job);
+
+    // ─── AGENTE DE INSIGHTS (Ollama Local -> Fallback Claude) ───
+    job.stage = 'Felipe: Gerando insights...';
+    try {
+      const { generateInsightsWithOllama } = await import("./ollamaService.js");
+      analysis.props.insightText = await generateInsightsWithOllama(analysis.props);
+      job.log += `\n✨ [Ollama] Insight Local: ${analysis.props.insightText}`;
+    } catch (ollamaErr) {
+      console.warn("⚠️ Ollama offline. Tentando Claude para insights...");
+      if (process.env.ANTHROPIC_API_KEY) {
+        try {
+          const { generateInsightsWithClaude } = await import("./claudeService.js");
+          analysis.props.insightText = await generateInsightsWithClaude(analysis.props);
+          job.log += `\n✨ [Claude] Insight: ${analysis.props.insightText}`;
+        } catch (claudeErr: any) {
+          console.error('❌ [Claude] Erro ao gerar insight:', claudeErr.message);
+        }
+      }
+    }
+
     job.analysis = analysis;
     await saveJob(job);
 
     if (options.reviewRequired) {
       job.status = 'awaiting_review';
-      job.stage = 'IA: Análise Pronta para Revisão';
+      job.stage = 'Felipe: Análise pronta para revisão';
       job.progress = 100;
       await saveJob(job);
       return;
     }
 
     // Prossiga para o render direto se não houver revisão
-    await finishJobRendering(jobId, analysis, chartTheme, originalName);
+    await finishJobRendering(jobId, analysis, chartTheme, originalName, options.customPalette);
 
   } catch (err: any) {
     console.error("Error Job:", err);
@@ -252,15 +275,23 @@ async function processJob(
 /**
  * Parte 2 do Pipeline: Renderização e Serviços Adicionais
  */
-async function finishJobRendering(jobId: string, analysis: ChartAnalysis, chartTheme: string, originalName: string) {
+async function finishJobRendering(jobId: string, analysis: ChartAnalysis, chartTheme: string, originalName: string, customPalette?: any) {
     const job = loadJob(jobId);
     if (!job) return;
 
     try {
         job.status = 'rendering';
         job.progress = 50;
-        job.stage = 'Configurando Renderização...';
+        job.stage = 'André: Configurando renderização...';
         await saveJob(job);
+
+        // Se for tema customizado, injeta as cores na análise
+        if (chartTheme === 'custom' && customPalette) {
+            console.log("🎨 [Render] Aplicando paleta customizada...");
+            analysis.props.backgroundColor = customPalette.bg;
+            analysis.props.textColor = customPalette.text;
+            analysis.props.colors = customPalette.colors;
+        }
 
         const options = job.options || {};
 
@@ -273,7 +304,7 @@ async function finishJobRendering(jobId: string, analysis: ChartAnalysis, chartT
 
         // ─── Serviço de Voz (Opcional) ───────────────────
         if (options.enableVoiceover && options.elevenlabsKey) {
-            job.stage = 'Gerando Locução IA...';
+            job.stage = 'Bartolomeu: Gerando locução...';
             await saveJob(job);
             const narrationText = analysis.props.insightText || `${analysis.props.title}. ${analysis.props.subtitle}`;
             const audioPath = await generateVoiceover(narrationText, options.elevenlabsKey, jobId);
@@ -288,7 +319,7 @@ async function finishJobRendering(jobId: string, analysis: ChartAnalysis, chartT
         // ─── MOTOR HYPERFRAMES (HTML/GSAP) ────────────────
         if (analysis.engine === 'hyperframes' || options.engine === 'hyperframes') {
             const outputName = `${summary}_HF_${cleanOriginal}.mp4`;
-            job.stage = 'Renderizando via Hyperframes (HTML)...';
+            job.stage = 'André: Renderizando via Hyperframes...';
             await saveJob(job);
             
             const htmlContent = analysis.props.html || `
@@ -309,7 +340,7 @@ async function finishJobRendering(jobId: string, analysis: ChartAnalysis, chartT
             addJob({ filename: outputName, outputFile: outputName, status: 'done' });
             job.status = 'done';
             job.progress = 100;
-            job.stage = 'Concluído!';
+            job.stage = 'André: Concluído!';
             job.videoUrl = videoUrl;
             await saveJob(job);
             return;
@@ -317,7 +348,7 @@ async function finishJobRendering(jobId: string, analysis: ChartAnalysis, chartT
 
         // ─── MOTOR REMOTION (React/UHD) ───────────────────
         job.progress = 60;
-        job.stage = 'Renderizando 4K UHD...';
+        job.stage = 'André: Renderizando 4K UHD...';
         await saveJob(job);
 
         const outputName = `${summary}_AN_${cleanOriginal}.mp4`;
@@ -350,7 +381,7 @@ async function finishJobRendering(jobId: string, analysis: ChartAnalysis, chartT
         addJob({ filename: outputName, outputFile: outputName, status: 'done' });
         job.status = 'done';
         job.progress = 100;
-        job.stage = 'Concluído!';
+        job.stage = 'André: Concluído!';
         job.videoUrl = videoUrl;
         await saveJob(job);
 
@@ -380,6 +411,7 @@ app.post('/upload', upload.single('file'), async (req: Request, res: Response) =
     
     const options = {
       chartTheme: req.body.chartTheme || 'dark',
+      customPalette: req.body.customPalette ? JSON.parse(req.body.customPalette) : null,
       includeCallouts: req.body.includeCallouts === 'true',
       enableAuditor: String(req.body.enableAuditor) !== 'false', 
       enableVoiceover: req.body.enableVoiceover === 'true',
@@ -396,10 +428,34 @@ app.post('/upload', upload.single('file'), async (req: Request, res: Response) =
   }
 });
 
+app.get('/debug/sync-supabase', async (req: Request, res: Response) => {
+    try {
+        console.log("📡 [DEBUG] Sincronização manual solicitada...");
+        await seedComponentRegistry();
+        
+        if (fs.existsSync('TRAINING_LOG.md')) {
+            await syncTrainingLog(fs.readFileSync('TRAINING_LOG.md', 'utf-8'));
+        }
+
+        const knowledgeDir = path.join('.agent', 'knowledge');
+        if (fs.existsSync(knowledgeDir)) {
+            const files = fs.readdirSync(knowledgeDir).filter(f => f.endsWith('.md'));
+            for (const f of files) {
+                const content = fs.readFileSync(path.join(knowledgeDir, f), 'utf-8');
+                await syncTrainingLog(content, f.replace('.md', '')); 
+            }
+        }
+
+        res.json({ success: true, message: "Sincronização iniciada. Verifique os logs do servidor para detalhes." });
+    } catch (err: any) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 app.post('/jobs/:jobId/start-render', async (req: Request, res: Response) => {
   try {
     const { jobId } = req.params;
-    const { analysis, originalName, chartTheme, isDarkBg, includeCallouts } = req.body;
+    const { analysis, originalName, chartTheme, isDarkBg, includeCallouts, customPalette } = req.body;
     
     if (chartTheme && chartTheme !== 'original' && analysis && analysis.props) {
         delete analysis.props.backgroundColor;
@@ -423,7 +479,7 @@ app.post('/jobs/:jobId/start-render', async (req: Request, res: Response) => {
     }
     
     console.log(`🎬 [RENDER] Iniciando render final para Job: ${jobId}`);
-    finishJobRendering(String(jobId), analysis, chartTheme, originalName);
+    finishJobRendering(String(jobId), analysis, chartTheme, originalName, customPalette);
     res.json({ success: true });
   } catch (err: any) {
     console.error("❌ [Route] Erro no /start-render:", err);
@@ -483,7 +539,7 @@ async function runSurgeryGradePipeline(
   for (let attempt = 1; attempt <= 2; attempt++) {
     console.log(`🤖 [Orchestrator] Iniciando Auditoria Silent (Tentativa ${attempt})...`);
     job.progress = 25 + (attempt * 5); 
-    job.stage = `Auditando Fidelidade (Tentativa ${attempt})...`;
+    job.stage = `Tomé: Auditando fidelidade (tentativa ${attempt})...`;
     await saveJob(job);
 
     try {
@@ -550,6 +606,25 @@ async function runSurgeryGradePipeline(
   🔗 http://localhost:${port} (Local)
   ✦ ───────────────────────────────────────── ✦
             `);
+            
+            // 📡 SINCRONIZAÇÃO SUPABASE (MEGA DATABASE)
+            seedComponentRegistry();
+            
+            // Sincroniza LOG de Treinamento
+            if (fs.existsSync('TRAINING_LOG.md')) {
+                syncTrainingLog(fs.readFileSync('TRAINING_LOG.md', 'utf-8'));
+            }
+
+            // Sincroniza Regras Ativas (.agent/knowledge)
+            const knowledgeDir = path.join('.agent', 'knowledge');
+            if (fs.existsSync(knowledgeDir)) {
+                const files = fs.readdirSync(knowledgeDir).filter(f => f.endsWith('.md'));
+                files.forEach(f => {
+                    const content = fs.readFileSync(path.join(knowledgeDir, f), 'utf-8');
+                    syncTrainingLog(content, f.replace('.md', '')); 
+                });
+            }
+
             if (!IS_VERCEL) {
                 getBundle();
                 startWatcher(PATHS.input);

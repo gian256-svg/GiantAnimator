@@ -15,7 +15,7 @@ export async function generateVoiceover(text: string, apiKey: string, jobId: str
         const voiceId = 'pNInz6obpgDQGcFmaJgB'; // Adam - Pro Voice
         const url = `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`;
 
-        const response = await axios({
+        const response = await (axios as any)({
             method: 'post',
             url: url,
             data: {

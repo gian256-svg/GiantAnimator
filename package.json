@@ -17,11 +17,13 @@
     "build": "exit 0"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.92.0",
     "@google/genai": "^1.48.0",
     "@google/generative-ai": "^0.24.1",
     "@remotion/bundler": "^4.0.446",
     "@remotion/google-fonts": "^4.0.446",
     "@remotion/renderer": "^4.0.446",
+    "axios": "^1.16.0",
     "chokidar": "^3.6.0",
     "concurrently": "^9.1.0",
     "cors": "^2.8.6",

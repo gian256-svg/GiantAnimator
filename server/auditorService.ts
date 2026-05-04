@@ -1,5 +1,4 @@
 import fs from 'fs';
-import path from 'path';
 import sharp from 'sharp';
 import { ai } from './agent.js';
 import { buildAuditorPrompt } from './prompts/auditor.js';
@@ -15,19 +14,6 @@ export interface FidelityAudit {
   };
 }
 
-/** Detecta o MIME type correto a partir da extensão do arquivo */
-function getMimeType(filePath: string): string {
-  const ext = path.extname(filePath).toLowerCase();
-  const map: Record<string, string> = {
-    '.jpg':  'image/jpeg',
-    '.jpeg': 'image/jpeg',
-    '.webp': 'image/webp',
-    '.gif':  'image/gif',
-    '.png':  'image/png',
-  };
-  return map[ext] ?? 'image/png';
-}
-
 /**
  * Auditoria de Fidelidade: Compara o original com o renderizado
  */
@@ -35,7 +21,7 @@ export async function auditRenderFidelity(
   originalImagePath: string,
   renderedStillPath: string
 ): Promise<FidelityAudit> {
-  console.log(`🔍 [AUDITOR] Iniciando auditoria de fidelidade...`);
+  console.log(`🔍 [Tomé] Iniciando auditoria de fidelidade...`);
   
   const originalRaw = fs.readFileSync(originalImagePath);
   const renderedRaw = fs.readFileSync(renderedStillPath);
@@ -94,7 +80,40 @@ export async function auditRenderFidelity(
                            err.message?.includes("API");
 
       if (isGoogleError) {
-        console.warn(`⚠️ [AUDITOR] Google Vision offline. Ativando 'Confiança Tácita (Resiliência)'.`);
+        // ── Fallback 2: Groq ─────────────────────────────────────
+        if (process.env.GROQ_API_KEY) {
+          console.warn(`⚠️ [AUDITOR] Gemini offline. Chaveando para GROQ AUDITOR...`);
+          try {
+            const { auditRenderFidelityWithGroq } = await import("./groqService.js");
+            const audit = await auditRenderFidelityWithGroq(originalImagePath, renderedStillPath);
+            return audit;
+          } catch (groqErr: any) {
+            console.error("❌ Fallback Groq Auditor falhou:", groqErr.message);
+          }
+        }
+
+        // ── Fallback 3: Claude ───────────────────────────────────
+        if (process.env.ANTHROPIC_API_KEY) {
+          console.warn(`⚠️ [AUDITOR] Groq indisponível. Chaveando para CLAUDE AUDITOR...`);
+          try {
+            const { auditRenderFidelityWithClaude } = await import("./claudeService.js");
+            const audit = await auditRenderFidelityWithClaude(originalImagePath, renderedStillPath);
+            return audit;
+          } catch (claudeErr: any) {
+            console.error("❌ Fallback Claude Auditor falhou:", claudeErr.message);
+          }
+        }
+
+        // ── Fallback 4: Ollama local ─────────────────────────────
+        try {
+          const { auditRenderFidelityWithOllama } = await import("./ollamaService.js");
+          const audit = await auditRenderFidelityWithOllama(originalImagePath, renderedStillPath);
+          return audit;
+        } catch (ollamaErr: any) {
+          console.warn("⚠️ [AUDITOR] Ollama local offline para auditoria.");
+        }
+
+        console.warn(`⚠️ [AUDITOR] Todos os provedores offline. Ativando 'Confiança Tácita (Resiliência)'.`);
         return {
           score: 95,
           isApproved: true,

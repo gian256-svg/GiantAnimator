@@ -1,0 +1,62 @@
+{
+  "componentId": "PieChart",
+  "suggestedName": "SubjectDistribution",
+  "reasoning": "The image displays a pie chart showing the distribution of different subjects with their respective angles. The component 'PieChart' is the most appropriate for this type of visualization. Values are extracted directly from the chart slices and labels from the legend. Colors are matched to the corresponding slices.",
+  "props": {
+    "title": "",
+    "subtitle": "",
+    "data": [
+      {
+        "label": "Mathematics",
+        "value": 108
+      },
+      {
+        "label": "Science",
+        "value": 81
+      },
+      {
+        "label": "Social science",
+        "value": 45
+      },
+      {
+        "label": "English",
+        "value": 72
+      },
+      {
+        "label": "Hindi",
+        "value": 54
+      }
+    ],
+    "unit": "°",
+    "showValueLabels": true,
+    "showLegend": true,
+    "legendPosition": "right",
+    "labelPosition": "inside",
+    "seriesColors": [
+      "#C05000",
+      "#FFCC00",
+      "#800040",
+      "#000000",
+      "#808080"
+    ],
+    "labels": [
+      "Mathematics",
+      "Science",
+      "Social science",
+      "English",
+      "Hindi"
+    ],
+    "series": [
+      {
+        "label": "Série",
+        "data": [
+          108,
+          81,
+          45,
+          72,
+          54
+        ]
+      }
+    ]
+  }
+}

@@ -23,7 +23,7 @@ export async function analyzeChartImage(
   const rawImageData = fs.readFileSync(imagePath);
 
   // ─── MD5 Cache ───────────────────────────────────────────────
-  const CACHE_VERSION = 'v12';
+  const CACHE_VERSION = 'v15';
   const IS_VERCEL = !!process.env.VERCEL;
   const cacheKey = `${crypto.createHash("md5").update(rawImageData).digest("hex")}_${requestedTheme || 'default'}_${auditorCritique ? crypto.createHash("md5").update(auditorCritique).digest("hex") : 'nocritic'}_${CACHE_VERSION}`;
   const cacheDir = IS_VERCEL ? "/tmp/cache" : path.join(process.cwd(), "cache");
@@ -106,8 +106,50 @@ export async function analyzeChartImage(
   }
 
   if (!response) {
+    // ── Fallback 2: Groq (Llama 3.2 Vision 90B — grátis) ────────
+    if (process.env.GROQ_API_KEY) {
+      if (onProgress) onProgress("⚠️ Gemini fora do ar. Chaveando para GROQ (Llama Vision)...");
+      console.warn("⚠️ Gemini fora do ar. Usando Groq como fallback...");
+      try {
+        const { analyzeChartImageWithGroq } = await import("./groqService.js");
+        const groqAnalysis = await analyzeChartImageWithGroq(imagePath, auditorCritique, settings);
+        const normalized = normalizeAnalysisProps(groqAnalysis);
+        fs.writeFileSync(cacheFile, JSON.stringify(normalized, null, 2));
+        return normalized;
+      } catch (groqErr: any) {
+        console.error("❌ Fallback Groq falhou:", groqErr.message);
+      }
+    }
+
+    // ── Fallback 3: Claude ───────────────────────────────────────
+    if (process.env.ANTHROPIC_API_KEY) {
+      if (onProgress) onProgress("⚠️ Groq indisponível. Chaveando para CLAUDE VISION...");
+      console.warn("⚠️ Tentando Claude como fallback...");
+      try {
+        const { analyzeChartImageWithClaude } = await import("./claudeService.js");
+        const claudeAnalysis = await analyzeChartImageWithClaude(imagePath, auditorCritique, settings);
+        const normalized = normalizeAnalysisProps(claudeAnalysis);
+        fs.writeFileSync(cacheFile, JSON.stringify(normalized, null, 2));
+        return normalized;
+      } catch (claudeErr: any) {
+        console.error("❌ Fallback Claude falhou:", claudeErr.message);
+      }
+    }
+
+    // ── Fallback 4: Ollama local ─────────────────────────────────
+    try {
+      if (onProgress) onProgress("⚠️ APIs cloud indisponíveis. Chaveando para OLLAMA local...");
+      const { analyzeChartImageWithOllama } = await import("./ollamaService.js");
+      const ollamaAnalysis = await analyzeChartImageWithOllama(imagePath, prompt);
+      const normalized = normalizeAnalysisProps(ollamaAnalysis);
+      fs.writeFileSync(cacheFile, JSON.stringify(normalized, null, 2));
+      return normalized;
+    } catch (ollamaErr: any) {
+      console.warn("⚠️ [OLLAMA] Fallback local falhou ou Ollama offline.");
+    }
+
     const detail = lastError?.message || "Erro desconhecido";
-    throw new Error(`API Gemini falhou após ${retries} tentativas. Detalhe: ${detail}`);
+    throw new Error(`Todos os provedores falharam (Gemini → Groq → Claude → Ollama). Detalhe: ${detail}`);
   }
   const candidate = response.candidates?.[0];
   const responseText = candidate?.content?.parts?.[0]?.text ?? "";
@@ -206,7 +248,7 @@ export async function analyzeChartImage(
   return analysis;
 }
 
-function normalizeAnalysisProps(analysis: ChartAnalysis): ChartAnalysis {
+export function normalizeAnalysisProps(analysis: ChartAnalysis): ChartAnalysis {
   if (!analysis.props) analysis.props = {};
   const p = analysis.props;
   if (!p.labels) p.labels = [];

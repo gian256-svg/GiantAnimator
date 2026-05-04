@@ -1,12 +1,13 @@
-import React from "react";
+import React, { useId } from "react";
 import {
   useCurrentFrame,
   useVideoConfig,
   interpolate,
   AbsoluteFill,
   Easing,
+  spring
 } from "remotion";
-import { Theme, resolveTheme, formatValue, parseSafeNumber, getNiceScale } from '../theme';
+import { Theme, resolveTheme, formatValue, parseSafeNumber, getNiceScale, wrapText } from '../theme';
 import { DynamicBackground } from "../layout/DynamicBackground";
 import { SmartCallout } from "../components/SmartCallout";
 
@@ -18,6 +19,7 @@ interface LineChartProps {
   subtitle?: string;
   showArea?: boolean;
   colors?: string[];
+  seriesColors?: string[];
   theme?: string;
   backgroundColor?: string;
   textColor?: string;
@@ -26,6 +28,7 @@ interface LineChartProps {
   annotations?: any[];
   unit?: string;
   showValueLabels?: boolean;
+  showLegend?: boolean;
 }
 
 export const LineChart: React.FC<LineChartProps> = (props) => {
@@ -37,6 +40,7 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
     subtitle = "",
     showArea = false,
     colors,
+    seriesColors,
     theme = "dark",
     backgroundColor,
     textColor,
@@ -44,21 +48,23 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
     annotations = [],
     backgroundType,
     showValueLabels = false,
+    showLegend = true,
   } = props;
 
   const frame = useCurrentFrame();
-  const { width, height } = useVideoConfig(); // fps unused
+  const { width, height, fps } = useVideoConfig();
+  const instanceId = useId().replace(/:/g, "");
 
-  // Resolve tema com detecção adaptativa de contraste
-  const T = resolveTheme(theme ?? 'dark', backgroundColor, backgroundType);
-  const resolvedBg = backgroundType ? T.background : (backgroundColor ?? T.background);
-  const resolvedText = backgroundType ? T.text : (textColor ?? T.text);
-  const resolvedColors = colors && colors.length > 0 ? colors : [...T.colors];
+  // Resolve tema
+  const T = resolveTheme(theme ?? 'dark', backgroundColor, backgroundType, colors || seriesColors, textColor);
+  const resolvedBg = T.background;
+  const resolvedText = T.text;
+  const paletteFromProps = (colors ?? seriesColors)?.filter(Boolean) ?? [];
+  const resolvedColors = paletteFromProps.length > 0 ? paletteFromProps : [...T.colors];
 
-  // Identificador único para clipPath (REGRA SVG: IDs não podem começar com número!)
-  const clipId = React.useMemo(() => `lc-clip-${Math.random().toString(36).substr(2, 9)}`, []);
+  const clipId = React.useMemo(() => `lc-clip-${instanceId}`, [instanceId]);
 
-  // Normalização de dados com Safe-Guards
+  // Normalização de dados
   let normalizedSeries: { label: string; data: number[]; color?: string }[] = [];
   let xAxisLabels: string[] = [];
 
@@ -74,7 +80,7 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
       xAxisLabels = rawData.labels;
     } else if (Array.isArray(rawData)) {
       normalizedSeries = [{
-        label: title,
+        label: title || "Série 1",
         data: rawData.map((d: any) => parseSafeNumber(d.value, 0))
       }];
       xAxisLabels = rawData.map((d: any) => d.label);
@@ -87,30 +93,43 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
     return <AbsoluteFill style={{ backgroundColor: resolvedBg }} />;
   }
 
-  // Propriedades Estendidas (UHD High-Fidelity)
-  // const showEndLabels = true; // Unused but kept for reference if needed
-  const isHighDensity = normalizedSeries.some(s => s.data.length > 25);
+  const isHighDensity = xAxisLabels.length > 30;
 
-  // Layout 4K UHD - Seguindo FILOSOFIA 4K
+  // ── Layout Responsivo 4K ─────────────────────────────────────
   const fs = (base: number) => Math.round(base * (width / 1920));
-  const pad = width * 0.05;
-  const padTop = height * 0.22;
-  const padBot = height * 0.12;
-  const plotLeft = pad + width * 0.06;
-  const plotTop = padTop;
-  const rightBuffer = fs(160); // Espaço garantido para labels diretos
-  const plotWidth = width - plotLeft - rightBuffer;
-  const plotHeight = height - padTop - padBot;
+  
+  // REGRA DE OURO: Espaçamento dinâmico baseado na existência de Header
+  const hasHeader = (title && title.trim().length > 0) || (subtitle && subtitle.trim().length > 0);
+  const margin = hasHeader ? fs(128) : fs(60); 
+  const titleH = hasHeader ? fs(160) : 0;
+  const legendGapTop = hasHeader ? fs(24) : fs(10);
 
-  const allValues = normalizedSeries.flatMap(s => s.data).map(v => Number(v)).filter(v => isFinite(v));
-  if (allValues.length === 0) return <AbsoluteFill style={{ backgroundColor: resolvedBg }} />;
+  // ── Legenda: acima do gráfico, centralizada ──────────────────
+  const LEGEND_FONT_SIZE = fs(28);
+  const LEGEND_LINE_H = LEGEND_FONT_SIZE * 1.35;
+  const MAX_CHARS_PER_LINE = 28;
+  const ICON_SIZE = fs(32);
+  const ICON_TEXT_GAP = fs(12);
 
-  const niceScale = getNiceScale(Math.max(...allValues, 1) * 1.05, Math.min(...allValues, 0), 5);
+  const seriesCount = normalizedSeries.length;
+  const legendLinesPerItem = normalizedSeries.map(s => wrapText(s.label, MAX_CHARS_PER_LINE));
+  const maxLegendLines = Math.max(...legendLinesPerItem.map(l => l.length), 1);
+  const legendBlockH = (showLegend && seriesCount > 1) ? (ICON_SIZE + (maxLegendLines - 1) * LEGEND_LINE_H + fs(20)) : 0;
+
+  const legendTop = margin + titleH + legendGapTop;
+  const chartTop = legendTop + (legendBlockH > 0 ? legendBlockH + fs(32) : 0);
+  const padBot = fs(120);
+
+  const plotLeft = margin + fs(100);
+  const rightBuffer = fs(160);
+  const plotWidth = width - plotLeft - margin - rightBuffer;
+  const plotHeight = height - chartTop - padBot;
+
+  const allValues = normalizedSeries.flatMap(s => s.data);
+  const niceScale = getNiceScale(Math.max(...allValues, 1) * 1.1, Math.min(...allValues, 0), 5);
   const dataMax = niceScale[niceScale.length - 1];
   const dataMin = niceScale[0];
-
   const range = (dataMax - dataMin) || 0.0001;
-  const minV = dataMin;
 
   const getX = (seriesIdx: number, dataIdx: number) => {
     const seriesLen = normalizedSeries[seriesIdx].data.length;
@@ -118,28 +137,24 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
   };
   const getY = (v: number) => {
     const val = parseSafeNumber(v, dataMin);
-    return plotTop + plotHeight - ((val - minV) / range) * plotHeight;
+    return chartTop + plotHeight - ((val - dataMin) / range) * plotHeight;
   };
 
-  // Algoritmo Anti-Colisão para Labels no Eixo Y (Direct Labeling)
+  // Direct Labeling Y-Positions
   const sortedByLastVal = [...normalizedSeries]
     .map((s, idx) => ({ s, idx, y: getY(s.data[s.data.length - 1]) }))
     .sort((a, b) => a.y - b.y);
 
   const labelYPositions: Record<number, number> = {};
-  const MIN_LABEL_GAP = fs(28);
+  const MIN_LABEL_GAP = fs(30);
   let currentY = -9999;
-
   sortedByLastVal.forEach(item => {
-    if (item.y < currentY + MIN_LABEL_GAP) {
-      item.y = currentY + MIN_LABEL_GAP;
-    }
+    if (item.y < currentY + MIN_LABEL_GAP) item.y = currentY + MIN_LABEL_GAP;
     labelYPositions[item.idx] = item.y;
     currentY = item.y;
   });
 
-  // REGRA UNIFICADA: Revelação estendida para trim path mais lento (8s / 240f)
-  const progress = interpolate(frame, [30, 30 + 240], [0, 1], {
+  const progress = interpolate(frame, [30, 180], [0, 1], {
     easing: Easing.bezier(0.1, 0, 0.1, 1),
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
@@ -152,81 +167,89 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
         accentColor={resolvedColors[0]}
         backgroundType={backgroundType}
       />
+      
+      {/* Cabeçalho - Só renderiza se houver conteúdo para evitar espaço morto */}
+      {hasHeader && (
+        <div style={{ position: "absolute", top: margin, width: "100%", textAlign: "center", opacity: interpolate(frame, [0, 20], [0, 1]), zIndex: 5 }}>
+          {title && <div style={{ fontSize: fs(Theme.typography.title.size), fontWeight: 800, color: resolvedText }}>{title}</div>}
+          {subtitle && <div style={{ fontSize: fs(Theme.typography.subtitle.size), color: T.textMuted, marginTop: fs(10) }}>{subtitle}</div>}
+        </div>
+      )}
+
       <svg width={width} height={height} style={{ overflow: "visible", position: "relative", zIndex: 1 }}>
         <defs>
           <clipPath id={clipId}>
-            <rect x={0} y={0} width={progress === 1 ? width + 500 : plotLeft + (plotWidth + 100) * progress} height={height} />
+            <rect x={0} y={0} width={plotLeft + (plotWidth + 100) * progress} height={height} />
           </clipPath>
-          {normalizedSeries.map((_, i) => (
-            <linearGradient key={i} id={`lineGrad-${clipId}-${i}`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={normalizedSeries[i].color || resolvedColors[i % resolvedColors.length]} stopOpacity={0.2} />
-              <stop offset="100%" stopColor={normalizedSeries[i].color || resolvedColors[i % resolvedColors.length]} stopOpacity={0} />
-            </linearGradient>
-          ))}
+          {normalizedSeries.map((s, i) => {
+             const color = s.color || resolvedColors[i % resolvedColors.length];
+             return (
+              <linearGradient key={i} id={`lineGrad-${clipId}-${i}`} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={color} stopOpacity={0.2} />
+                <stop offset="100%" stopColor={color} stopOpacity={0} />
+              </linearGradient>
+            );
+          })}
         </defs>
 
-        {/* GRID & Y-AXIS NICE LABELS */}
+        {/* Legenda Dinâmica no Topo */}
+        {showLegend && seriesCount > 1 && (
+          <g opacity={interpolate(frame, [15, 35], [0, 1])}>
+            {normalizedSeries.map((s, i) => {
+              const itemW = plotWidth / seriesCount;
+              const centerX = plotLeft + i * itemW + itemW / 2;
+              const lines = legendLinesPerItem[i];
+              const blockW = ICON_SIZE + ICON_TEXT_GAP + (Math.min(s.label.length, MAX_CHARS_PER_LINE) * fs(15));
+              const startX = centerX - blockW / 2;
+              
+              return (
+                <g key={i} transform={`translate(${startX}, ${legendTop})`}>
+                  <line x1={0} y1={LEGEND_LINE_H/2} x2={ICON_SIZE} y2={LEGEND_LINE_H/2} stroke={s.color || resolvedColors[i % resolvedColors.length]} strokeWidth={fs(6)} strokeLinecap="round" y={(maxLegendLines * LEGEND_LINE_H - fs(6)) / 2} />
+                  <text x={ICON_SIZE + ICON_TEXT_GAP} style={{ fontSize: LEGEND_FONT_SIZE, fill: T.textMuted, fontWeight: 600 }}>
+                    {lines.map((line, li) => (
+                      <tspan key={li} x={ICON_SIZE + ICON_TEXT_GAP} dy={li === 0 ? LEGEND_FONT_SIZE * 0.8 : LEGEND_LINE_H}>{line}</tspan>
+                    ))}
+                  </text>
+                </g>
+              );
+            })}
+          </g>
+        )}
+
+        {/* Grid Y */}
         {niceScale.map((val) => {
           const y = getY(val);
           return (
             <React.Fragment key={val}>
-              <line x1={plotLeft} y1={y} x2={plotLeft + plotWidth} y2={y} stroke={T.grid} strokeWidth={fs(1)} strokeDasharray={fs(8)} />
-              <text x={plotLeft - fs(20)} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: fs(22), fill: T.textMuted, fontWeight: 500, fontFamily: Theme.typography.fontFamily }}>{val >= 1000 ? (val / 1000).toFixed(1) + 'k' : val}</text>
+              <line x1={plotLeft} y1={y} x2={plotLeft + plotWidth} y2={y} stroke={T.grid} strokeWidth={fs(1.5)} strokeDasharray={fs(8)} />
+              <text x={plotLeft - fs(20)} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: fs(22), fill: T.textMuted, fontWeight: 500 }}>
+                {formatValue(val, unit)}
+              </text>
             </React.Fragment>
           );
         })}
 
-        {/* SÉRIES */}
+        {/* Séries */}
         {normalizedSeries.map((s, sIndex) => {
           const color = s.color || resolvedColors[sIndex % resolvedColors.length];
           const linePoints = s.data.map((v, i) => `${getX(sIndex, i)},${getY(v)}`).join(" ");
-          const areaPath = `M ${getX(sIndex, 0)},${getY(s.data[0])} ` + s.data.slice(1).map((v, i) => `L ${getX(sIndex, i + 1)},${getY(v)}`).join(" ") + ` L ${getX(sIndex, s.data.length - 1)},${plotTop + plotHeight} L ${getX(sIndex, 0)},${plotTop + plotHeight} Z`;
-
-          const lastX = getX(sIndex, s.data.length - 1);
+          const areaPath = `M ${getX(sIndex, 0)},${getY(s.data[0])} ` + s.data.slice(1).map((v, i) => `L ${getX(sIndex, i + 1)},${getY(v)}`).join(" ") + ` L ${getX(sIndex, s.data.length - 1)},${chartTop + plotHeight} L ${getX(sIndex, 0)},${chartTop + plotHeight} Z`;
 
           return (
             <g key={sIndex}>
               <g clipPath={`url(#${clipId})`}>
                 {showArea && <path d={areaPath} fill={`url(#lineGrad-${clipId}-${sIndex})`} />}
-                <polyline points={linePoints} fill="none" stroke={color} strokeWidth={fs(isHighDensity ? 2 : 4)} strokeLinecap="round" strokeLinejoin="round" />
+                <polyline points={linePoints} fill="none" stroke={color} strokeWidth={fs(isHighDensity ? 2 : 5)} strokeLinecap="round" strokeLinejoin="round" />
                 {!isHighDensity && s.data.map((v: number, i: number) => (
-                  <React.Fragment key={i}>
-                    <circle cx={getX(sIndex, i)} cy={getY(v)} r={fs(5)} fill={resolvedBg} stroke={color} strokeWidth={fs(2)} />
-                    {showValueLabels && (
-                      <text
-                        x={getX(sIndex, i)}
-                        y={getY(v) - fs(20)}
-                        textAnchor="middle"
-                        style={{
-                          fontSize: fs(18),
-                          fill: resolvedText,
-                          fontWeight: 700,
-                          opacity: interpolate(progress, [0.85, 1], [0, 1])
-                        }}
-                      >
-                        {formatValue(v, unit)}
-                      </text>
-                    )}
-                  </React.Fragment>
+                  <circle key={i} cx={getX(sIndex, i)} cy={getY(v)} r={fs(6)} fill={resolvedBg} stroke={color} strokeWidth={fs(3)} />
                 ))}
               </g>
-
-              {/* direct labeling no final */}
+              {/* Direct Labeling */}
               <text
-                x={lastX + fs(15)}
+                x={getX(sIndex, s.data.length - 1) + fs(20)}
                 y={labelYPositions[sIndex]}
                 dominantBaseline="middle"
-                style={{
-                  fontSize: fs(24),
-                  fill: color,
-                  fontWeight: 800,
-                  opacity: interpolate(
-                    progress,
-                    [0.9, 1.0],
-                    [0, 1],
-                    { extrapolateLeft: 'clamp' }
-                  )
-                }}
+                style={{ fontSize: fs(24), fill: color, fontWeight: 800, opacity: interpolate(progress, [0.95, 1], [0, 1]) }}
               >
                 {s.label}
               </text>
@@ -234,20 +257,16 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
           );
         })}
 
-        {/* X AXIS */}
+        {/* Eixo X */}
         {xAxisLabels.map((l, i) => {
           if (xAxisLabels.length > 20 && i % Math.ceil(xAxisLabels.length / 10) !== 0) return null;
           return (
             <text
               key={i}
               x={plotLeft + (i / (xAxisLabels.length - 1 || 1)) * plotWidth}
-              y={plotTop + plotHeight + fs(28)}
+              y={chartTop + plotHeight + fs(45)}
               textAnchor="middle"
-              style={{
-                fontSize: fs(Theme.typography.axisSize / 3),
-                fill: T.textMuted,
-                opacity: interpolate(frame, [20, 40], [0, 1]) // Mais cedo para visibilidade no preview
-              }}
+              style={{ fontSize: fs(22), fill: T.textMuted, opacity: interpolate(frame, [20, 40], [0, 1]) }}
             >
               {l}
             </text>
@@ -255,52 +274,33 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
         })}
       </svg>
 
-      {/* ANOTAÇÕES INTELIGENTES (SMART CALLOUTS) */}
-      {annotations.map((ann, i) => {
-        // Ignora anotações mal formatadas ou de séries inexistentes
-        if (!ann || ann.index === undefined || !normalizedSeries[ann.seriesIndex || 0]) return null;
+      {/* Container de Callouts com Z-Index Superior Garantido */}
+      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 100, pointerEvents: 'none' }}>
+        {annotations.map((ann, i) => {
+          if (!ann || ann.index === undefined || !normalizedSeries[ann.seriesIndex || 0]) return null;
+          const sIdx = ann.seriesIndex || 0;
+          const data = normalizedSeries[sIdx].data;
+          const idx = Math.min(Math.max(0, ann.index), data.length - 1);
+          const val = data[idx];
+          const x = getX(sIdx, idx);
+          const y = getY(val);
 
-        const seriesData = normalizedSeries[ann.seriesIndex || 0].data;
-        const validIndex = Math.min(Math.max(0, ann.index), seriesData.length - 1);
-
-        const val = seriesData[validIndex];
-        const x = plotLeft + (validIndex / (seriesData.length - 1 || 1)) * plotWidth;
-        const calloutY = getY(val);
-
-        return (
-          <SmartCallout
-            key={`ann-${i}`}
-            x={x}
-            y={calloutY}
-            label={ann.label}
-            value={ann.value !== undefined ? formatValue(ann.value, unit) : undefined}
-            theme={theme}
-            delay={140 + i * 15}
-            color={T.colors[0]}
-            index={i}
-            backgroundType={backgroundType}
-          />
-        );
-      })}
-
-      {/* REGRA 1020: HEADER DEVE VIR APÓS O SVG PARA Z-INDEX GARANTIDO */}
-      <div style={{ position: "absolute", top: height * 0.04, width: "100%", textAlign: "center", opacity: interpolate(frame, [0, 20], [0, 1]), pointerEvents: 'none', padding: `0 ${fs(100)}px` }}>
-        {title && <div style={{ fontSize: fs(40), fontWeight: 800, color: resolvedText, letterSpacing: "-0.5px", textTransform: 'uppercase', lineHeight: 1.1 }}>{title}</div>}
-        {subtitle && <div style={{ fontSize: fs(24), color: T.textMuted, marginTop: fs(8), fontWeight: 500 }}>{subtitle}</div>}
+          return (
+            <SmartCallout
+              key={`ann-${i}`}
+              x={x}
+              y={y}
+              label={ann.label}
+              value={formatValue(val, unit)}
+              theme={theme}
+              delay={140 + i * 15}
+              color={normalizedSeries[sIdx].color || T.colors[sIdx % T.colors.length]}
+              index={i}
+              backgroundType={backgroundType}
+            />
+          );
+        })}
       </div>
-
-      {/* LEGEND - Escondida se houver muitos itens para evitar redundância com Direct Labeling */}
-      {normalizedSeries.length > 1 && normalizedSeries.length <= 4 && (
-        <div style={{ position: 'absolute', bottom: height * 0.08, width: '100%', display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: fs(40), opacity: interpolate(frame, [150, 180], [0, 1]), pointerEvents: 'none' }}>
-          {normalizedSeries.map((s, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: fs(12) }}>
-              <div style={{ width: fs(24), height: fs(6), backgroundColor: s.color || resolvedColors[i % resolvedColors.length], borderRadius: fs(3) }} />
-              <div style={{ fontSize: fs(20), color: resolvedText, fontWeight: 600 }}>{s.label}</div>
-            </div>
-          ))}
-        </div>
-      )}
-
     </AbsoluteFill>
   );
 };

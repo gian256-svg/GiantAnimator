@@ -22,6 +22,7 @@ export interface StackedBarChartProps {
   backgroundColor?: string;
   theme?: string;
   colors?: string[];
+  seriesColors?: string[];
   textColor?: string;
   bgStyle?: 'none' | 'mesh' | 'grid';
 }
@@ -34,15 +35,20 @@ export const StackedBarChart: React.FC<StackedBarChartProps> = ({
   backgroundColor,
   textColor,
   theme = 'dark',
+  colors,
+  seriesColors,
   bgStyle = 'none',
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
-  
+
   const initialT = resolveTheme(theme ?? 'dark');
   const resolvedBg = backgroundColor ?? initialT.background;
   const T = resolveTheme(theme ?? 'dark', resolvedBg);
   const instanceId = useId().replace(/:/g, "");
+
+  const paletteFromProps = (colors ?? seriesColors)?.filter(Boolean) ?? [];
+  const resolvedColors = paletteFromProps.length > 0 ? paletteFromProps : [...T.colors];
 
   // Safe Zone 4K
   const margin = 128;
@@ -64,8 +70,8 @@ export const StackedBarChart: React.FC<StackedBarChartProps> = ({
     <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
       <DynamicBackground 
         style={bgStyle} 
-        baseColor={resolvedBg} 
-        accentColor={T.colors[0]} 
+        baseColor={resolvedBg}
+        accentColor={resolvedColors[0]}
       />
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',
@@ -79,8 +85,8 @@ export const StackedBarChart: React.FC<StackedBarChartProps> = ({
         <defs>
           {seriesLabels.map((_, i) => (
             <linearGradient key={i} id={`stackedGrad-${i}-${instanceId}`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={T.colors[i % T.colors.length]} />
-              <stop offset="100%" stopColor={T.colors[i % T.colors.length]} stopOpacity={0.8} />
+              <stop offset="0%" stopColor={resolvedColors[i % resolvedColors.length]} />
+              <stop offset="100%" stopColor={resolvedColors[i % resolvedColors.length]} stopOpacity={0.8} />
             </linearGradient>
           ))}
         </defs>
@@ -89,7 +95,7 @@ export const StackedBarChart: React.FC<StackedBarChartProps> = ({
         <g transform={`translate(${width - margin}, ${margin + 80})`}>
            {seriesLabels.map((sl, i) => (
             <g key={i} transform={`translate(0, ${i * 40})`}>
-              <rect width={30} height={20} fill={T.colors[i % T.colors.length]} rx={4} />
+              <rect width={30} height={20} fill={resolvedColors[i % resolvedColors.length]} rx={4} />
               <text x={45} y={22} style={{ fontSize: Theme.typography.axis.size, fill: T.textMuted, fontWeight: 500, fontFamily: Theme.typography.fontFamily }}>{sl}</text>
             </g>
           ))}
@@ -128,7 +134,7 @@ export const StackedBarChart: React.FC<StackedBarChartProps> = ({
                 const currentY = chartTop + plotHeight - ((currentAcc + v) / maxTotal) * plotHeight - (currentH - (v / maxTotal) * plotHeight * progress);
                 currentAcc += v;
                 return (
-                  <rect key={vi} x={x} y={currentY} width={barWidth} height={Math.max(currentH, 2)} fill={T.colors[vi % T.colors.length]} rx={4} />
+                  <rect key={vi} x={x} y={currentY} width={barWidth} height={Math.max(currentH, 2)} fill={resolvedColors[vi % resolvedColors.length]} rx={4} />
                 );
               })}
                <text x={x + barWidth/2} y={chartTop + plotHeight + 60} textAnchor="middle" style={{ fontSize: Theme.typography.axis.size, fill: T.textMuted, fontWeight: 600, fontFamily: Theme.typography.fontFamily }}>{cat.label}</text>

@@ -5,8 +5,7 @@ import fs from 'fs';
 import { PATHS } from './paths.js';
 
 // ✅ Caminhos Base
-const PROJECT_ROOT = path.resolve(process.cwd(), '..');
-const REMOTION_ROOT = path.join(PROJECT_ROOT, 'remotion-project');
+const REMOTION_ROOT = PATHS.remotion;
 const ENTRY_POINT = path.join(REMOTION_ROOT, 'src/index.ts');
 const OUTPUT_DIR = PATHS.output;
 

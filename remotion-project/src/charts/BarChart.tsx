@@ -6,7 +6,7 @@ import {
   interpolate,
   AbsoluteFill,
 } from "remotion";
-import { Theme, resolveTheme, formatValue, getNiceScale, parseSafeNumber } from "../theme";
+import { Theme, resolveTheme, formatValue, getNiceScale, parseSafeNumber, wrapText } from "../theme";
 import { DynamicBackground } from "../layout/DynamicBackground";
 import { SmartCallout } from "../components/SmartCallout";
 
@@ -17,6 +17,7 @@ interface BarChartProps {
   title?: string;
   subtitle?: string;
   colors?: string[];
+  seriesColors?: string[];
   theme?: string;
   backgroundColor?: string;
   textColor?: string;
@@ -36,6 +37,7 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
     title = "",
     subtitle = "",
     colors,
+    seriesColors,
     theme = "dark",
     backgroundColor,
     textColor,
@@ -43,7 +45,7 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
     showValueLabels = false,
     annotations = [],
     backgroundType,
-    showLegend,
+    showLegend = true,
   } = props;
 
   const frame = useCurrentFrame();
@@ -51,12 +53,12 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
   const instanceId = useId().replace(/:/g, "");
 
   // Resolve tema
-  const T = resolveTheme(theme, backgroundColor, backgroundType);
-  const resolvedBg = backgroundType ? T.background : (backgroundColor ?? T.background);
-  const resolvedText = backgroundType ? T.text : (textColor ?? T.text);
-  const resolvedColors = colors && colors.length > 0 ? colors : [...T.colors];
+  const T = resolveTheme(theme, backgroundColor, backgroundType, colors || seriesColors, textColor);
+  const resolvedBg = T.background;
+  const resolvedText = T.text;
+  const resolvedColors = (colors || seriesColors || T.colors).filter(Boolean);
 
-  // Normalização de dados com Safe-Guards
+  // Normalização de dados
   let normalizedSeries: { label: string; data: number[]; color?: string }[] = [];
   let xAxisLabels: string[] = [];
 
@@ -68,7 +70,7 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
       normalizedSeries = rawData.datasets;
       xAxisLabels = rawData.labels;
     } else if (Array.isArray(rawData)) {
-      normalizedSeries = [{ label: title, data: rawData.map((d: any) => d.value) }];
+      normalizedSeries = [{ label: title || "Série 1", data: rawData.map((d: any) => d.value) }];
       xAxisLabels = rawData.map((d: any) => d.label);
     }
   } catch (e) {
@@ -83,42 +85,52 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
   const safeDataCount = xAxisLabels.length || 1;
   const seriesCount = normalizedSeries.length;
 
-  // ─── SMART UNIT HANDLING ───
-  const isLongUnit = unit.length > 6;
-  const displayUnit = isLongUnit ? "" : unit;
-  const unitNote = isLongUnit ? `Unidade: ${unit}` : "";
-
-  // ─── Layout responsivo ───
+  // ── Layout Responsivo 4K ─────────────────────────────────────
   const fs = (base: number) => Math.round(base * (width / 1920));
-  const pad = width * 0.04;
-  const padTop = height * 0.22; // Aumentado de 0.20 para 0.22 para Equilíbrio Vertical
-  const padBot = height * 0.12;
+  
+  const hasHeader = (title && title.trim().length > 0) || (subtitle && subtitle.trim().length > 0);
+  const margin = hasHeader ? fs(128) : fs(60); 
+  const titleH = hasHeader ? fs(160) : 0;
+  const legendGapTop = hasHeader ? fs(24) : fs(10);
 
-  const plotLeft = pad + width * (isLongUnit ? 0.12 : 0.08);
-  const plotTop = padTop;
-  const plotWidth = width - plotLeft - (pad * 1.5);
-  const plotHeight = height - padTop - padBot;
+  // ── Legenda: acima do gráfico, centralizada ──────────────────
+  const LEGEND_FONT_SIZE = fs(28);
+  const LEGEND_LINE_H = LEGEND_FONT_SIZE * 1.35;
+  const MAX_CHARS_PER_LINE = 28;
+  const ICON_SIZE = fs(32);
+  const ICON_TEXT_GAP = fs(12);
+
+  const legendLinesPerItem = normalizedSeries.map(s => wrapText(s.label, MAX_CHARS_PER_LINE));
+  const maxLegendLines = Math.max(...legendLinesPerItem.map(l => l.length), 1);
+  const legendBlockH = (showLegend && seriesCount > 1) ? (ICON_SIZE + (maxLegendLines - 1) * LEGEND_LINE_H + fs(20)) : 0;
+
+  const legendTop = margin + titleH + legendGapTop;
+  const chartTop = legendTop + (legendBlockH > 0 ? legendBlockH + fs(32) : 0);
+  const padBot = fs(120);
+
+  const plotLeft = margin + width * (unit.length > 6 ? 0.12 : 0.08);
+  const plotWidth = width - plotLeft - margin;
+  const plotHeight = height - chartTop - padBot;
 
   const dataMinRaw = Math.min(...allValues, 0);
-  const dataMaxRaw = Math.max(...allValues, 0.0001); // Prevent zero axis
-  
-  // REGRA: Aumentar escala em 15% para caber labels no topo (Surgical-Grade)
+  const dataMaxRaw = Math.max(...allValues, 0.0001);
   const niceScale = getNiceScale(dataMaxRaw * 1.15, dataMinRaw, 5);
   const dataMax = niceScale[niceScale.length - 1];
   const dataMin = niceScale[0];
-  const range   = dataMax - dataMin || 0.0001;
-  const maxVal  = dataMax;
+  const range = dataMax - dataMin || 0.0001;
+
   const categoryWidth = plotWidth / safeDataCount;
   const groupGap = 0.3;
   const innerGap = 0.05;
   const availableW = categoryWidth * (1 - groupGap);
   const barWidth = (availableW / seriesCount) * (1 - innerGap);
 
-  const shouldRotateLabels = safeDataCount > 8;
   const getY = (v: number) => {
     const val = parseSafeNumber(v, dataMin);
-    return plotTop + plotHeight - ((val - dataMin) / (range || 1)) * plotHeight;
+    return chartTop + plotHeight - ((val - dataMin) / (range || 1)) * plotHeight;
   };
+
+  const shouldRotateLabels = safeDataCount > 12;
 
   return (
     <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
@@ -127,7 +139,16 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
         accentColor={resolvedColors[0]}
         backgroundType={backgroundType}
       />
-      <svg width={width} height={height} style={{ position: "absolute", top: 0, left: 0 }}>
+      
+      {/* Cabeçalho */}
+      {hasHeader && (
+        <div style={{ position: "absolute", top: margin, width: "100%", textAlign: "center", opacity: interpolate(frame, [0, 20], [0, 1]), zIndex: 5 }}>
+          {title && <div style={{ fontSize: fs(Theme.typography.title.size), fontWeight: 800, color: resolvedText }}>{title}</div>}
+          {subtitle && <div style={{ fontSize: fs(Theme.typography.subtitle.size), color: T.textMuted, marginTop: fs(10) }}>{subtitle}</div>}
+        </div>
+      )}
+
+      <svg width={width} height={height} style={{ position: "absolute", top: 0, left: 0, overflow: 'visible', zIndex: 1 }}>
         <defs>
           {normalizedSeries.map((s, i) => {
             const baseColor = s.color || resolvedColors[i % resolvedColors.length];
@@ -138,30 +159,54 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
               </linearGradient>
             );
           })}
-          <filter id={`glow-${instanceId}`} x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation={fs(3)} result="blur" />
-            <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-          </filter>
         </defs>
 
-        {/* GRID Y */}
+        {/* Legenda Dinâmica no Topo */}
+        {showLegend && seriesCount > 1 && (
+          <g opacity={interpolate(frame, [15, 35], [0, 1])}>
+            {normalizedSeries.map((s, i) => {
+              const itemW = plotWidth / seriesCount;
+              const centerX = plotLeft + i * itemW + itemW / 2;
+              const lines = legendLinesPerItem[i];
+              const blockW = ICON_SIZE + ICON_TEXT_GAP + (Math.min(s.label.length, MAX_CHARS_PER_LINE) * fs(15));
+              const startX = centerX - blockW / 2;
+              
+              return (
+                <g key={i} transform={`translate(${startX}, ${legendTop})`}>
+                  <rect 
+                    width={ICON_SIZE} height={ICON_SIZE} 
+                    fill={`url(#barGrad-${i}-${instanceId})`} rx={fs(6)}
+                    y={(maxLegendLines * LEGEND_LINE_H - ICON_SIZE) / 2}
+                  />
+                  <text x={ICON_SIZE + ICON_TEXT_GAP} style={{ fontSize: LEGEND_FONT_SIZE, fill: T.textMuted, fontWeight: 600 }}>
+                    {lines.map((line, li) => (
+                      <tspan key={li} x={ICON_SIZE + ICON_TEXT_GAP} dy={li === 0 ? LEGEND_FONT_SIZE * 0.8 : LEGEND_LINE_H}>{line}</tspan>
+                    ))}
+                  </text>
+                </g>
+              );
+            })}
+          </g>
+        )}
+
+        {/* Grid Y */}
         {niceScale.map((val) => {
           const y = getY(val);
-          const op = interpolate(frame, [5, 25], [0, 0.85], { extrapolateRight: "clamp" });
+          const op = interpolate(frame, [5, 25], [0, 0.85]);
           return (
-            <React.Fragment key={v}>
+            <React.Fragment key={val}>
               <line x1={plotLeft} y1={y} x2={plotLeft + plotWidth} y2={y} stroke={T.grid} strokeWidth={fs(1.8)} opacity={op} />
-              <text x={plotLeft - fs(15)} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: fs(14), fill: T.textMuted, opacity: op, ...Theme.typography.tabularNums }}>
-                {formatValue(val, displayUnit)}
+              <text x={plotLeft - fs(15)} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: fs(22), fill: T.textMuted, opacity: op, ...Theme.typography.tabularNums }}>
+                {formatValue(val, unit)}
               </text>
             </React.Fragment>
           );
         })}
 
-        {/* AXIS LINE */}
-        <line x1={plotLeft} y1={plotTop + plotHeight} x2={plotLeft + plotWidth} y2={plotTop + plotHeight} stroke={T.axis} strokeWidth={Math.max(1, fs(2))} opacity={0.6} />
+        {/* Eixo X */}
+        <line x1={plotLeft} y1={chartTop + plotHeight} x2={plotLeft + plotWidth} y2={chartTop + plotHeight} stroke={T.axis} strokeWidth={fs(2)} opacity={0.6} />
 
-        {/* BARS */}
+        {/* Barras */}
         {xAxisLabels.map((label, groupIdx) => (
           normalizedSeries.map((s, seriesIdx) => {
             const val = s.data[groupIdx] || 0;
@@ -175,27 +220,30 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
             const currentH = Math.max(0, ((val - dataMin) / range) * plotHeight * progress);
             const groupX = plotLeft + groupIdx * categoryWidth + (categoryWidth * groupGap) / 2;
             const bX = groupX + seriesIdx * (barWidth * (1 + innerGap));
-            const bY = plotTop + plotHeight - currentH;
+            const bY = chartTop + plotHeight - currentH;
 
-            const op = interpolate(frame, [delay + 10, delay + 20], [0, 1], { extrapolateRight: "clamp" });
+            const op = interpolate(frame, [delay + 10, delay + 20], [0, 1]);
 
             return (
               <g key={`${groupIdx}-${seriesIdx}`}>
                 <rect
-                  x={bX}
-                  y={bY}
-                  width={barWidth}
-                  height={currentH}
-                  fill={seriesCount > 1 ? `url(#barGrad-${seriesIdx}-${instanceId})` : (s.color || resolvedColors[groupIdx % resolvedColors.length])}
-                  rx={fs(4)}
+                  x={bX} y={bY} width={barWidth} height={currentH}
+                  fill={`url(#barGrad-${seriesIdx}-${instanceId})`}
+                  rx={fs(6)}
                 />
-                {progress > 0.8 && (
-                  <text x={bX + barWidth / 2} y={bY - fs(8)} textAnchor="middle" style={{ fontSize: fs(shouldRotateLabels ? 11 : 16), fill: resolvedText, fontWeight: 700, opacity: op, ...Theme.typography.tabularNums }}>
-                    {formatValue(val, displayUnit)}
+                {showValueLabels && progress > 0.8 && (
+                  <text x={bX + barWidth / 2} y={bY - fs(10)} textAnchor="middle" style={{ fontSize: fs(18), fill: resolvedText, fontWeight: 700, opacity: op }}>
+                    {formatValue(val, unit)}
                   </text>
                 )}
                 {seriesIdx === 0 && (
-                  <text x={groupX + availableW / 2} y={plotTop + plotHeight + fs(shouldRotateLabels ? 12 : 28)} textAnchor={shouldRotateLabels ? "end" : "middle"} transform={shouldRotateLabels ? `rotate(-35, ${groupX + availableW / 2}, ${plotTop + plotHeight + fs(15)})` : ""} opacity={interpolate(frame, [20, 40], [0, 1])} style={{ fontSize: fs(shouldRotateLabels ? 12 : 14), fill: T.textMuted }}>
+                  <text 
+                    x={groupX + availableW / 2} 
+                    y={chartTop + plotHeight + fs(shouldRotateLabels ? 15 : 45)} 
+                    textAnchor={shouldRotateLabels ? "end" : "middle"} 
+                    transform={shouldRotateLabels ? `rotate(-45, ${groupX + availableW / 2}, ${chartTop + plotHeight + fs(15)})` : ""}
+                    style={{ fontSize: fs(22), fill: T.textMuted, fontWeight: 600, opacity: interpolate(frame, [20, 40], [0, 1]) }}
+                  >
                     {label}
                   </text>
                 )}
@@ -205,53 +253,33 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
         ))}
       </svg>
 
-      {/* ANOTAÇÕES INTELIGENTES (SMART CALLOUTS) */}
-      {annotations.map((ann, i) => {
-        if (!ann || ann.index === undefined || !normalizedSeries[ann.seriesIndex || 0]) return null;
+      {/* Callouts Container Z-Index Superior */}
+      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 100, pointerEvents: 'none' }}>
+        {annotations.map((ann, i) => {
+          if (!ann || ann.index === undefined || !normalizedSeries[ann.seriesIndex || 0]) return null;
+          const sIdx = ann.seriesIndex || 0;
+          const gIdx = Math.min(Math.max(0, ann.index), xAxisLabels.length - 1);
+          const val = normalizedSeries[sIdx].data[gIdx] || 0;
+          const groupX = plotLeft + gIdx * categoryWidth + (categoryWidth * groupGap) / 2;
+          const bX = groupX + sIdx * (barWidth * (1 + innerGap));
+          const calloutX = bX + barWidth / 2;
+          const calloutY = getY(val);
 
-        const sIdx = ann.seriesIndex || 0;
-        const gIdx = Math.min(Math.max(0, ann.index), xAxisLabels.length - 1);
-
-        const val = normalizedSeries[sIdx].data[gIdx] || 0;
-
-        const groupX = plotLeft + gIdx * categoryWidth + (categoryWidth * groupGap) / 2;
-        const bX = groupX + sIdx * (barWidth * (1 + innerGap));
-        const calloutX = bX + barWidth / 2;
-        const calloutY = plotTop + plotHeight - ((val - dataMin) / range) * plotHeight;
-
-        return (
-          <SmartCallout
-            key={`ann-${i}`}
-            x={calloutX}
-            y={calloutY}
-            label={ann.label}
-            value={ann.value !== undefined ? formatValue(ann.value, displayUnit) : undefined}
-            theme={theme}
-            delay={140 + i * 15}
-            color={T.colors[0]}
-            index={i}
-            backgroundType={backgroundType}
-          />
-        );
-      })}
-
-      {/* LEGEND */}
-      {seriesCount > 1 && showLegend !== false && (
-        <div style={{ position: 'absolute', bottom: height * 0.08, width: '100%', display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: fs(40), opacity: interpolate(frame, [40, 60], [0, 1]), pointerEvents: 'none' }}>
-          {normalizedSeries.map((s, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: fs(10) }}>
-              <div style={{ width: fs(16), height: fs(16), borderRadius: '4px', backgroundColor: s.color || resolvedColors[i % resolvedColors.length], boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }} />
-              <div style={{ fontSize: fs(20), color: resolvedText, fontWeight: 600 }}>{s.label}</div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* HEADER - Processado APÓS para garantir Z-Index */}
-      <div style={{ position: "absolute", top: height * 0.04, width: "100%", textAlign: "center", opacity: interpolate(frame, [0, 20], [0, 1]), pointerEvents: 'none', padding: `0 ${fs(100)}px` }}>
-        {title && <div style={{ fontSize: fs(40), fontWeight: 800, color: resolvedText, letterSpacing: "-0.5px", lineHeight: 1.1 }}>{title}</div>}
-        {subtitle && <div style={{ fontSize: fs(22), color: T.textMuted, marginTop: fs(8), fontWeight: 500 }}>{subtitle}</div>}
-        {unitNote && <div style={{ fontSize: fs(16), color: T.textMuted, marginTop: fs(10), fontStyle: 'italic', opacity: 0.8 }}>*{unitNote}</div>}
+          return (
+            <SmartCallout
+              key={`ann-${i}`}
+              x={calloutX}
+              y={calloutY}
+              label={ann.label}
+              value={formatValue(val, unit)}
+              theme={theme}
+              delay={140 + i * 15}
+              color={normalizedSeries[sIdx].color || T.colors[sIdx % T.colors.length]}
+              index={i}
+              backgroundType={backgroundType}
+            />
+          );
+        })}
       </div>
     </AbsoluteFill>
   );

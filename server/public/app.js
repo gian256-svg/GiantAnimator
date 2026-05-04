@@ -1,5 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════
-   APP LOGIC — GiantAnimator
+   APP LOGIC — GiantAnimator v2.0
+   Equipe Apostólica: Pedro · João · Mateus · Tomé · André · Felipe
 ═══════════════════════════════════════════════════════════════ */
 
 const state = {
@@ -11,8 +12,30 @@ const state = {
   currentJobId: null,
   uploadMode: 'vision', // 'vision' ou 'data'
   currentAnalysis: null,
-  originalFilename: null
+  originalFilename: null,
+  selectedPalette: 'original',
+  customPalette: {
+    bg: '#0f1117',
+    text: '#ffffff',
+    bgType: 'dark',
+    colors: ['#7c3aed', '#06b6d4', '#a855f7', '#22c55e', '#f59e0b', '#ef4444']
+  }
 };
+
+const PALETTES = [
+  { id: 'original', name: 'Referência', type: 'original', colors: ['#7c3aed', '#06b6d4', '#a855f7'], bg: '#070B12', bgType: 'dark' },
+  { id: 'midnight', name: 'Midnight Orchid', colors: ['#8B5CF6', '#D946EF', '#6366F1', '#3B82F6'], bg: '#0f1117', bgType: 'dark' },
+  { id: 'sunset', name: 'Sunset Warm', colors: ['#F59E0B', '#EF4444', '#F43F5E', '#8B5CF6'], bg: '#0f1117', bgType: 'dark' },
+  { id: 'ocean', name: 'Ocean Deep', colors: ['#06B6D4', '#3B82F6', '#10B981', '#6366F1'], bg: '#FAF9F6', bgType: 'light' },
+  { id: 'minimal', name: 'Minimal White', colors: ['#475569', '#64748B', '#94A3B8', '#CBD5E1'], bg: '#FAF9F6', bgType: 'light' },
+  { id: 'corporate', name: 'Corporate Blue', colors: ['#1E40AF', '#3B82F6', '#60A5FA', '#93C5FD'], bg: '#FAF9F6', bgType: 'light' },
+  { id: 'cyber', name: 'Cyber Obsidian', colors: ['#F472B6', '#2DD4BF', '#818CF8', '#FB923C'], bg: '#050505', bgType: 'dark' },
+  { id: 'neon', name: 'Neon Glow', colors: ['#FF00FF', '#00FFFF', '#FFFF00', '#00FF00'], bg: '#000000', bgType: 'dark' },
+  { id: 'emerald', name: 'Emerald ESG', colors: ['#059669', '#10B981', '#34D399', '#6EE7B7'], bg: '#F0FDFA', bgType: 'light' },
+  { id: 'volcano', name: 'Volcano Impact', colors: ['#DC2626', '#EA580C', '#F59E0B', '#B91C1C'], bg: '#0C0A09', bgType: 'dark' },
+  { id: 'frost', name: 'Frost Clean', colors: ['#0EA5E9', '#38BDF8', '#7DD3FC', '#BAE6FD'], bg: '#F8FAFC', bgType: 'light' },
+  { id: 'custom', name: 'Customizar', type: 'custom' }
+];
 
 function updateUploadUI() {
   const dz = document.getElementById('drop-zone');
@@ -31,12 +54,12 @@ function updateUploadUI() {
     if (text) text.textContent = 'Arraste uma referência visual ou clique';
     if (hint) hint.textContent = 'Formatos: PNG · JPG · JPEG · WEBP';
     if (fileInput) fileInput.accept = '.png,.jpg,.jpeg,.webp';
-    log("🎨 Modo: Referência Visual ativado.");
+    log("Pedro: Modo Referência Visual ativado.");
   } else {
     if (text) text.textContent = 'Arraste sua planilha ou clique';
     if (hint) hint.textContent = 'Formatos: XLSX · CSV · XLS · JSON';
     if (fileInput) fileInput.accept = '.xlsx,.xls,.csv,.json';
-    log("📊 Modo: Dados Diretos ativado.");
+    log("Mateus: Modo Dados Diretos ativado.");
   }
 }
 
@@ -97,6 +120,117 @@ function setProgress(pct, stage) {
   if (bar) bar.style.width = pct + '%';
   if (pctEl) pctEl.textContent = pct + '%';
   if (stage && stageEl) stageEl.textContent = stage;
+}
+
+function renderPalettes() {
+  const list = document.getElementById('palette-list');
+  if (!list) return;
+
+  list.innerHTML = PALETTES.map(p => {
+    if (p.type === 'custom') {
+      const isActive = state.selectedPalette === 'custom';
+      const swatches = state.customPalette.colors.slice(0, 3).map(c => `<div class="swatch" style="background-color: ${c}"></div>`).join('');
+      return `
+        <div class="palette-item custom ${isActive ? 'active' : ''}" onclick="selectPalette('custom')">
+          <div class="palette-bg-preview" style="background: ${state.customPalette.bg}">
+            ${swatches}
+          </div>
+          <div class="palette-info">
+            <span class="palette-name">Custom</span>
+            <button class="palette-meta" onclick="event.stopPropagation(); openCustomPalette()" style="background:none;border:none;padding:0;color:var(--accent);cursor:pointer;text-align:left;">EDITAR CORES</button>
+          </div>
+        </div>
+      `;
+    }
+
+    const isActive = state.selectedPalette === p.id;
+    const swatches = p.colors.map(c => `<div class="swatch" style="background-color: ${c}"></div>`).join('');
+    
+    return `
+      <div class="palette-item ${isActive ? 'active' : ''}" onclick="selectPalette('${p.id}')">
+        <div class="palette-bg-preview" style="background: ${p.bg}">
+          ${swatches}
+        </div>
+        <div class="palette-info">
+          <span class="palette-name">${p.name}</span>
+          <span class="palette-meta">${p.bgType === 'dark' ? 'Dark Mode' : 'Light Mode'}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+window.selectPalette = function(id) {
+  state.selectedPalette = id;
+  const input = document.getElementById('chart-theme');
+  if (input) input.value = id;
+  renderPalettes();
+  log(`André: Estilo "${id}" selecionado.`);
+};
+
+window.openCustomPalette = function() {
+  const modal = document.getElementById('custom-palette-overlay');
+  if (modal) {
+    // Fill with current state
+    document.getElementById('cp-bg').value = state.customPalette.bg;
+    document.getElementById('cp-text').value = state.customPalette.text;
+    document.getElementById('cp-bg-type').value = state.customPalette.bgType;
+    
+    const colorInputs = document.querySelectorAll('.cp-color-input');
+    state.customPalette.colors.forEach((c, i) => {
+      if (colorInputs[i]) colorInputs[i].value = c;
+    });
+
+    modal.style.display = 'flex';
+  }
+};
+
+window.saveCustomPalette = function() {
+  const bg = document.getElementById('cp-bg').value;
+  const text = document.getElementById('cp-text').value;
+  const bgType = document.getElementById('cp-bg-type').value;
+  const colors = Array.from(document.querySelectorAll('.cp-color-input')).map(inp => inp.value);
+
+  state.customPalette = { bg, text, bgType, colors };
+  state.selectedPalette = 'custom';
+  
+  const input = document.getElementById('chart-theme');
+  if (input) input.value = 'custom';
+
+  document.getElementById('custom-palette-overlay').style.display = 'none';
+  renderPalettes();
+  toast("Paleta customizada aplicada!", "success");
+  log("André: Nova paleta customizada salva e ativa.");
+};
+
+// ─── DRAG TO SCROLL LOGIC ──────────────────────────────────────────
+function initPaletteScroll() {
+  const slider = document.getElementById('palette-selector-wrap');
+  if (!slider) return;
+  
+  let isDown = false;
+  let startX;
+  let scrollLeft;
+
+  slider.addEventListener('mousedown', (e) => {
+    isDown = true;
+    slider.style.cursor = 'grabbing';
+    startX = e.pageX - slider.offsetLeft;
+    scrollLeft = slider.scrollLeft;
+  });
+
+  window.addEventListener('mouseup', () => {
+    isDown = false;
+    if (slider) slider.style.cursor = 'grab';
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    if (!isDown || !slider) return;
+    e.preventDefault();
+    const x = e.pageX - slider.offsetLeft;
+    const walk = (x - startX) * 2.5; 
+    slider.scrollLeft = scrollLeft - walk;
+  });
 }
 
 function fileIcon(name) {
@@ -387,13 +521,6 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
 
                   <div class="setting-item">
-                    <span>Background Escuro</span>
-                    <label class="switch">
-                      <input type="checkbox" id="edit-dark-mode" checked>
-                      <span class="slider round"></span>
-                    </label>
-                  </div>
-                  <div class="setting-item">
                     <span>Motor de Render</span>
                     <select id="edit-engine" class="engine-select">
                       <option value="remotion">Remotion (4K UHD)</option>
@@ -678,26 +805,34 @@ document.addEventListener('DOMContentLoaded', () => {
                   }
               }
 
-              modal.style.display = 'none';
-              log("⚙️ Enviando dados revisados para renderização final...");
-              setProgress(55, "Gerando Vídeo...");
-              
-              const res = await fetch(`/jobs/${state.currentJobId}/start-render`, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                      analysis: editedAnalysis,
-                      originalName: state.originalFilename,
-                      chartTheme: document.getElementById('chart-theme')?.value || 'dark',
-                      options: {
-                        engine: engine
-                      },
-                      includeCallouts: document.getElementById('toggle-callouts')?.checked || false
-                  })
-              });
-              
+              const selectedPaletteObj = state.selectedPalette === 'custom' 
+                                          ? state.customPalette 
+                                          : PALETTES.find(p => p.id === state.selectedPalette);
+               const isDarkBg = selectedPaletteObj ? selectedPaletteObj.bgType === 'dark' : true;
+
+               log("André: Iniciando renderização com dados revisados...");
+               setProgress(55, "Gerando Vídeo...");
+
+               const res = await fetch(`/jobs/${state.currentJobId}/start-render`, {
+                   method: 'POST',
+                   headers: { 'Content-Type': 'application/json' },
+                   body: JSON.stringify({
+                       analysis: editedAnalysis,
+                       originalName: state.originalFilename,
+                       chartTheme: state.selectedPalette,
+                       customPalette: state.selectedPalette === 'custom' ? state.customPalette : null,
+                       isDarkBg: isDarkBg,
+                       options: {
+                         engine: engine,
+                         backgroundType: isDarkBg ? 'dark' : 'light'
+                       },
+                       includeCallouts: document.getElementById('toggle-callouts')?.checked || false
+                   })
+               });
+
               if (!res.ok) throw new Error("Falha ao iniciar renderização");
               
+              modal.style.display = 'none';
               toast("Renderização iniciada!", "success");
               startPolling(state.currentJobId, state.originalFilename, state.currentFileId);
           } catch (err) {
@@ -724,12 +859,15 @@ document.addEventListener('DOMContentLoaded', () => {
           fd.append('file', f.file);
 
           fd.append('chartTheme', document.getElementById('chart-theme').value);
+          if (state.selectedPalette === 'custom') {
+            fd.append('customPalette', JSON.stringify(state.customPalette));
+          }
           
           fd.append('includeCallouts', document.getElementById('toggle-callouts').checked);
           fd.append('enableAuditor', document.getElementById('toggle-auditor').checked);
           fd.append('reviewRequired', true);
 
-          log(`🚀 Enviando: ${f.name}`);
+          log(`Pedro: Enviando ${f.name}...`);
           const res = await fetch('/upload', { method: 'POST', body: fd });
           if (!res.ok) throw new Error(`Erro no upload: ${res.status}`);
           
@@ -778,6 +916,18 @@ document.addEventListener('DOMContentLoaded', () => {
   // Status check
   setInterval(checkStatus, 10000);
   checkStatus();
+   // Render Palettes
+   renderPalettes();
+   initPaletteScroll();
+
+   // Eventos do Modal de Paleta
+   document.getElementById('btn-close-palette')?.addEventListener('click', () => {
+     document.getElementById('custom-palette-overlay').style.display = 'none';
+   });
+   document.getElementById('btn-cancel-palette')?.addEventListener('click', () => {
+     document.getElementById('custom-palette-overlay').style.display = 'none';
+   });
+   document.getElementById('btn-save-palette')?.addEventListener('click', saveCustomPalette);
 
   // ─── CLEAR HISTORY ─────────────────────────────────────────
   const btnClearHistory = document.getElementById('btn-clear-history');
@@ -798,11 +948,15 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* ═══════════════════════════════════════════════════════════════
-   SSE 720p
-═══════════════════════════════════════════════════════════════ */
-/* ═══════════════════════════════════════════════════════════════
    POLLING — Resiliência Total
 ═══════════════════════════════════════════════════════════════ */
+function stopPolling() {
+  if (state.pollInterval) {
+    clearInterval(state.pollInterval);
+    state.pollInterval = null;
+  }
+}
+
 function startPolling(jobId, fileName, fileId) {
   if (state.pollInterval) clearInterval(state.pollInterval);
   state.currentJobId = jobId;
@@ -831,7 +985,7 @@ function startPolling(jobId, fileName, fileId) {
               if (window.renderVisualEditor) window.renderVisualEditor(msg.analysis);
               modal.style.display = 'flex';
           }
-          log("💉 Análise Surgery-Grade concluída. Aguardando revisão dos dados...");
+          log("João: Análise concluída. Aguardando revisão dos dados...", "accent");
           toast("Revisão de dados necessária", "info");
           return;
       }
@@ -845,7 +999,7 @@ function startPolling(jobId, fileName, fileId) {
         if (file) file.status = 'done';
         
         setProgress(100, 'Vídeo 4K pronto ✓');
-        log(`🎬 Vídeo UHD pronto: ${msg.videoUrl}`, 'success');
+        log(`André: Vídeo 4K UHD concluído.`, 'success');
         toast('Renderização 4K concluída!', 'success');
         
         loadVideo(msg.videoUrl, fileName, msg.duration || '', jobId);
@@ -876,11 +1030,6 @@ function startPolling(jobId, fileName, fileId) {
 
   state.pollInterval = interval;
 }
-
-/* ═══════════════════════════════════════════════════════════════
-   SSE 4K
-═══════════════════════════════════════════════════════════════ */
-// SSE 4K removido — agora unificado no SSE principal em 4K
 
 /* ═══════════════════════════════════════════════════════════════
    VIDEO PLAYER

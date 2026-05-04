@@ -591,6 +591,95 @@ export const THEMES: Record<string, ThemeConfig> = {
     positive: '#34D399',
     negative: '#FB7185',
   },
+  // ── NEW PREMIUM PALETTES ────────────────────────────────────────────────
+  midnight: {
+    background: '#0f1117',
+    surface:    '#1a1c23',
+    text:       '#e8eaf6',
+    textMuted:  '#8892b0',
+    grid:       'rgba(232,234,246,0.06)',
+    axis:       'rgba(232,234,246,0.15)',
+    colors: ['#8B5CF6', '#D946EF', '#6366F1', '#3B82F6', '#EC4899', '#818CF8'],
+    positive: '#10B981',
+    negative: '#F43F5E',
+  },
+  sunset: {
+    background: '#0f1117',
+    surface:    '#1a1c23',
+    text:       '#fff7ed',
+    textMuted:  '#fdba74',
+    grid:       'rgba(255,247,237,0.06)',
+    axis:       'rgba(255,247,237,0.15)',
+    colors: ['#F59E0B', '#EF4444', '#F43F5E', '#8B5CF6', '#FB923C', '#DC2626'],
+    positive: '#F59E0B',
+    negative: '#EF4444',
+  },
+  ocean: {
+    background: '#FAF9F6',
+    surface:    '#FFFFFF',
+    text:       '#0f172a',
+    textMuted:  '#475569',
+    grid:       'rgba(15,23,42,0.06)',
+    axis:       'rgba(15,23,42,0.18)',
+    colors: ['#06B6D4', '#3B82F6', '#10B981', '#6366F1', '#0EA5E9', '#2DD4BF'],
+    positive: '#10B981',
+    negative: '#F43F5E',
+  },
+  cyber: {
+    background: '#050505',
+    surface:    '#0f0f0f',
+    text:       '#ccff00',
+    textMuted:  '#88aa00',
+    grid:       'rgba(204,255,0,0.05)',
+    axis:       'rgba(204,255,0,0.2)',
+    colors: ['#F472B6', '#2DD4BF', '#818CF8', '#FB923C', '#ccff00', '#FF00FF'],
+    positive: '#2DD4BF',
+    negative: '#F472B6',
+  },
+  neon: {
+    background: '#000000',
+    surface:    '#050505',
+    text:       '#FFFFFF',
+    textMuted:  '#AAAAAA',
+    grid:       'rgba(255,255,255,0.05)',
+    axis:       'rgba(255,255,255,0.2)',
+    colors: ['#FF00FF', '#00FFFF', '#FFFF00', '#00FF00', '#FF0000', '#0000FF'],
+    positive: '#00FF00',
+    negative: '#FF0000',
+  },
+  emerald: {
+    background: '#F0FDFA',
+    surface:    '#FFFFFF',
+    text:       '#064E3B',
+    textMuted:  '#059669',
+    grid:       'rgba(6,78,59,0.05)',
+    axis:       'rgba(6,78,59,0.15)',
+    colors: ['#059669', '#10B981', '#34D399', '#6EE7B7', '#065F46', '#A7F3D0'],
+    positive: '#059669',
+    negative: '#EF4444',
+  },
+  volcano: {
+    background: '#0C0A09',
+    surface:    '#1C1917',
+    text:       '#FAFAF9',
+    textMuted:  '#A8A29E',
+    grid:       'rgba(250,250,249,0.05)',
+    axis:       'rgba(250,250,249,0.15)',
+    colors: ['#DC2626', '#EA580C', '#F59E0B', '#B91C1C', '#7F1D1D', '#F97316'],
+    positive: '#F59E0B',
+    negative: '#DC2626',
+  },
+  frost: {
+    background: '#F8FAFC',
+    surface:    '#FFFFFF',
+    text:       '#0F172A',
+    textMuted:  '#64748B',
+    grid:       'rgba(15,23,42,0.05)',
+    axis:       'rgba(15,23,42,0.15)',
+    colors: ['#0EA5E9', '#38BDF8', '#7DD3FC', '#BAE6FD', '#0369A1', '#E0F2FE'],
+    positive: '#0EA5E9',
+    negative: '#F43F5E',
+  },
 };
 
 /**
@@ -623,12 +712,36 @@ export function isColorDark(hex: string): boolean {
  * @param theme - string do tema
  * @param baseColor - cor de fundo para detecção de contraste (opcional)
  */
-export function resolveTheme(theme?: string, baseColor?: string, backgroundType?: 'dark' | 'light'): ThemeConfig {
+/**
+ * resolveTheme — Retorna a configuração de tema correta.
+ * Agora suporta detecção automática para o tema "original" baseada no background
+ * e também o tema "custom" para paletas definidas pelo usuário.
+ */
+export function resolveTheme(
+  theme?: string, 
+  baseColor?: string, 
+  backgroundType?: 'dark' | 'light',
+  customColors?: string[],
+  customText?: string
+): ThemeConfig {
   const name = (theme || 'dark').toLowerCase();
-  let config = { ...(THEMES[name] ?? THEMES['dark']) };
+  
+  // Se for 'custom', usamos um objeto base limpo que será preenchido
+  let config: ThemeConfig;
+  
+  if (name === 'custom') {
+    config = { ...THEMES['dark'] }; // base dark por padrão para custom
+    if (baseColor) config.background = baseColor;
+    if (customText) config.text = customText;
+    if (customColors && customColors.length > 0) config.colors = customColors;
+  } else {
+    config = { ...(THEMES[name] ?? THEMES['dark']) };
+  }
 
   // Prioridade: baseColor (fluxo original/referência)
-  if (baseColor) {
+  // REGRA DE OURO: Só usamos a cor base detectada se o tema for 'original'.
+  // Se o usuário escolheu um tema específico (Dark, Neon, etc), respeitamos o background do tema.
+  if (baseColor && name === 'original') {
     const isDark = isColorDark(baseColor);
     config.background = baseColor;
     
@@ -663,27 +776,30 @@ export function resolveTheme(theme?: string, baseColor?: string, backgroundType?
   }
 
   // 🛡️ AUTO-CONTRAST GUARD (Regra de Resiliência Visual)
-  // Verifica se as cores das linhas/barras conflitam com o fundo atual.
-  const primaryColorDark = isColorDark(config.colors[0]);
-  const bgDark = isColorDark(config.background);
+  // Só aplica o guard se o backgroundType NÃO foi definido explicitamente pelo usuário
+  // ou se não houver detecção baseada em imagem (baseColor).
+  if (!backgroundType) {
+    const primaryColorDark = isColorDark(config.colors[0]);
+    const bgDark = isColorDark(config.background);
 
-  // Se ambos são escuros, o gráfico sumiria. Forçamos o fundo para claro.
-  if (primaryColorDark && bgDark) {
-      config.background = '#FAF9F6'; 
-      config.surface = '#ffffff';
-      config.text = '#0f172a';
-      config.textMuted = '#475569';
-      config.axis = 'rgba(15,23,42,0.45)';
-      config.grid = 'rgba(15,23,42,0.18)';
-  } 
-  // Se ambos são claros (ex: linhas brancas no fundo branco), forçamos para escuro.
-  else if (!primaryColorDark && !bgDark) {
-      config.background = '#0f1117';
-      config.surface = '#1a1d27';
-      config.text = '#e8eaf6';
-      config.textMuted = '#8892b0';
-      config.axis = 'rgba(232,234,246,0.25)';
-      config.grid = 'rgba(232,234,246,0.12)';
+    // Se ambos são escuros, o gráfico sumiria. Forçamos o fundo para claro.
+    if (primaryColorDark && bgDark) {
+        config.background = '#FAF9F6'; 
+        config.surface = '#ffffff';
+        config.text = '#0f172a';
+        config.textMuted = '#475569';
+        config.axis = 'rgba(15,23,42,0.45)';
+        config.grid = 'rgba(15,23,42,0.18)';
+    } 
+    // Se ambos são claros (ex: linhas brancas no fundo branco), forçamos para escuro.
+    else if (!primaryColorDark && !bgDark) {
+        config.background = '#0f1117';
+        config.surface = '#1a1d27';
+        config.text = '#e8eaf6';
+        config.textMuted = '#8892b0';
+        config.axis = 'rgba(232,234,246,0.25)';
+        config.grid = 'rgba(232,234,246,0.12)';
+    }
   }
 
   return config;
@@ -750,6 +866,28 @@ export function getNiceScale(max: number, min: number = 0, ticks: number = 5): n
     result.push(val);
   }
   return result;
+}
+
+/**
+ * wrapText — Quebra texto longo em múltiplas linhas respeitando maxChars.
+ * Essencial para evitar sobreposição em resoluções 4K UHD.
+ */
+export function wrapText(text: string, maxChars: number): string[] {
+  if (!text) return [];
+  const words = text.split(' ');
+  const lines: string[] = [];
+  let current = '';
+  for (const word of words) {
+    const candidate = current ? `${current} ${word}` : word;
+    if (candidate.length > maxChars && current) {
+      lines.push(current);
+      current = word;
+    } else {
+      current = candidate;
+    }
+  }
+  if (current) lines.push(current);
+  return lines;
 }
 
 function tickToValue(i: number, total: number) { return i / total; }

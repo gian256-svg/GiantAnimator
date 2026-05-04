@@ -1,0 +1,145 @@
+{
+  "componentId": "LineChart",
+  "suggestedName": "CountryTrends",
+  "reasoning": "The image displays multiple lines showing data evolution over time, which perfectly matches the LineChart component. There is no explicit title or subtitle. The x-axis represents dates, and the y-axis represents numerical values. Each line represents a different country, clearly labeled at the end of its respective line. Values were extracted by carefully estimating their position on the y-axis for each date point.",
+  "props": {
+    "title": "",
+    "subtitle": "",
+    "labels": [
+      "01 Aug",
+      "21 Aug",
+      "10 Sep",
+      "30 Sep",
+      "20 Oct",
+      "09 Nov"
+    ],
+    "series": [
+      {
+        "label": "Austria",
+        "data": [
+          20,
+          30,
+          40,
+          100,
+          400,
+          1280
+        ],
+        "color": "#008080"
+      },
+      {
+        "label": "Belgium",
+        "data": [
+          120,
+          150,
+          100,
+          150,
+          600,
+          790
+        ],
+        "color": "#8B0000"
+      },
+      {
+        "label": "Netherlands",
+        "data": [
+          150,
+          180,
+          120,
+          180,
+          580,
+          800
+        ],
+        "color": "#000000"
+      },
+      {
+        "label": "UK",
+        "data": [
+          380,
+          420,
+          550,
+          400,
+          680,
+          520
+        ],
+        "color": "#000000"
+      },
+      {
+        "label": "Germany",
+        "data": [
+          180,
+          150,
+          120,
+          100,
+          280,
+          450
+        ],
+        "color": "#000000"
+      },
+      {
+        "label": "France",
+        "data": [
+          320,
+          380,
+          220,
+          120,
+          150,
+          180
+        ],
+        "color": "#800080"
+      },
+      {
+        "label": "Italy",
+        "data": [
+          40,
+          50,
+          60,
+          80,
+          120,
+          150
+        ],
+        "color": "#006400"
+      },
+      {
+        "label": "Spain",
+        "data": [
+          500,
+          380,
+          180,
+          60,
+          40,
+          80
+        ],
+        "color": "#DAA520"
+      }
+    ],
+    "unit": "",
+    "showValueLabels": false,
+    "showLegend": true,
+    "annotations": [],
+    "data": [
+      {
+        "label": "01 Aug",
+        "value": 20
+      },
+      {
+        "label": "21 Aug",
+        "value": 30
+      },
+      {
+        "label": "10 Sep",
+        "value": 40
+      },
+      {
+        "label": "30 Sep",
+        "value": 100
+      },
+      {
+        "label": "20 Oct",
+        "value": 400
+      },
+      {
+        "label": "09 Nov",
+        "value": 1280
+      }
+    ]
+  }
+}

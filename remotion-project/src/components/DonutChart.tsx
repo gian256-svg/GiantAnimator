@@ -19,10 +19,11 @@ export interface DonutChartProps {
   data: ChartData[];
   title: string;
   subtitle?: string;
-  innerRadiusRatio?: number; 
+  innerRadiusRatio?: number;
   theme?: string;
   backgroundColor?: string;
   colors?: string[];
+  seriesColors?: string[]; // alias retornado pela IA vision
   textColor?: string;
   bgStyle?: 'none' | 'mesh' | 'grid';
 }
@@ -48,6 +49,7 @@ export const DonutChart: React.FC<DonutChartProps> = ({
   theme = 'dark',
   backgroundColor,
   colors,
+  seriesColors,
   textColor,
   bgStyle = 'none',
 }) => {
@@ -56,9 +58,11 @@ export const DonutChart: React.FC<DonutChartProps> = ({
   const T = resolveTheme(theme);
   const instanceId = useId().replace(/:/g, "");
 
-  const resolvedBg     = backgroundColor ?? T.background;
-  const resolvedText   = textColor       ?? T.text;
-  const resolvedColors = colors && colors.length > 0 ? colors : [...T.colors];
+  const resolvedBg = backgroundColor ?? T.background;
+  const resolvedText = textColor ?? T.text;
+  // Aceita tanto `colors` quanto `seriesColors` (retornado pela IA vision)
+  const paletteFromProps = (colors ?? seriesColors)?.filter(Boolean) ?? [];
+  const resolvedColors = paletteFromProps.length > 0 ? paletteFromProps : [...T.colors];
 
   // Helper: lighten a color for gradient highlight
   const lighten = (hex: string, amount: number): string => {

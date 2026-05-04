@@ -617,3 +617,17 @@ Caso a imagem mande um tÃƒÂ­tulo muito longo, ele nÃƒÂ£o pode flanquear 
 ### 🧠 [2026-04-28] IA — SMART CALL-OUTS DINÂMICOS (V12)
 **Problema**: O botão de "Ativar Smart Call-outs" instruía o LLM a acender apenas a *prop* simples de rótulos (`showValueLabels: true`), jogando números crus na tela sem estética, esquecendo-se de gerar o array visual de anotações necessário pelo componente de UI premium.
 **Solução**: O protocolo de visão foi reescrito. Quando a feature de Call-Outs é ativada pelo painel, a IA agora entende que precisa montar OBRIGATORIAMENTE um array de objetos `annotations` com coordenadas exatas (`seriesIndex`, `index`) para pontuar picos ou quedas matemáticas cruciais, criando interatividade inteligente com balões visuais elegantes.
+
+---
+
+### 🛡️ [2026-05-04] VISION & FIDELIDADE — PROTOCOLO DE PRECISÃO CIRÚRGICA (FALHA 34%)
+**Problema**: Ocorrência de falha crítica de fidelidade (Score 34%) em gráfico de barras complexo. 
+1. **Misclassification**: IA converteu BarChart em LineChart indevidamente.
+2. **Truncamento de Título**: Omissão de sufixos explicativos no título principal.
+3. **Hallucination**: Injeção de anotações (Smart Callouts) não existentes na referência que sobrepuseram o título.
+4. **Imprecisão Numérica**: Erro de 1% (65% vs 66%) em dados sensíveis.
+**Solução**:
+1. **Soberania do Tipo (Prompt)**: Injetada regra de ferro no `imageAnalyzer.ts`: "NUNCA converta barras em linhas". Dados discretos agora têm proteção mandatória de componente.
+2. **Fidelidade Textual Absoluta**: Proibição estrita de truncamento de títulos. O prompt agora exige a captura da frase COMPLETA, incluindo unidades e notas.
+3. **Safety Zone UHD (Layout)**: Aumentado o `padTop` de 0.22 para 0.25 em `BarChart.tsx` para garantir que títulos longos e anotações nunca colidam.
+4. **Anti-Hallucination Guard**: Anotações agora são restritas a pontos extremos REAIS e proibidas de sobrepor textos, com foco em minimalismo se o gráfico estiver denso.
