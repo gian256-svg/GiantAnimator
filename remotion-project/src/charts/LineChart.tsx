@@ -29,6 +29,10 @@ interface LineChartProps {
   unit?: string;
   showValueLabels?: boolean;
   showLegend?: boolean;
+  yMin?: number;
+  yMax?: number;
+  xAxisTitle?: string;
+  yAxisTitle?: string;
 }
 
 export const LineChart: React.FC<LineChartProps> = (props) => {
@@ -47,8 +51,12 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
     unit = '',
     annotations = [],
     backgroundType,
-    showValueLabels = false,
+    showValueLabels = true,
     showLegend = true,
+    yMin: propYMin,
+    yMax: propYMax,
+    xAxisTitle = '',
+    yAxisTitle = '',
   } = props;
 
   const frame = useCurrentFrame();
@@ -100,9 +108,9 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
   
   // REGRA DE OURO: Espaçamento dinâmico baseado na existência de Header
   const hasHeader = (title && title.trim().length > 0) || (subtitle && subtitle.trim().length > 0);
-  const margin = hasHeader ? fs(128) : fs(60); 
-  const titleH = hasHeader ? fs(160) : 0;
-  const legendGapTop = hasHeader ? fs(24) : fs(10);
+  const margin = hasHeader ? fs(100) : fs(60); 
+  const titleH = hasHeader ? fs(160) : 0; 
+  const legendGapTop = hasHeader ? fs(20) : fs(10);
 
   // ── Legenda: acima do gráfico, centralizada ──────────────────
   const LEGEND_FONT_SIZE = fs(28);
@@ -112,21 +120,19 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
   const ICON_TEXT_GAP = fs(12);
 
   const seriesCount = normalizedSeries.length;
-  const legendLinesPerItem = normalizedSeries.map(s => wrapText(s.label, MAX_CHARS_PER_LINE));
-  const maxLegendLines = Math.max(...legendLinesPerItem.map(l => l.length), 1);
-  const legendBlockH = (showLegend && seriesCount > 1) ? (ICON_SIZE + (maxLegendLines - 1) * LEGEND_LINE_H + fs(20)) : 0;
-
   const legendTop = margin + titleH + legendGapTop;
-  const chartTop = legendTop + (legendBlockH > 0 ? legendBlockH + fs(32) : 0);
-  const padBot = fs(120);
+  const chartTop = legendTop + (showLegend && seriesCount > 1 ? fs(100) : 0);
+  const padBot = fs(140);
 
-  const plotLeft = margin + fs(100);
-  const rightBuffer = fs(160);
+  const plotLeft = margin + fs(120);
+  const rightBuffer = fs(400); 
   const plotWidth = width - plotLeft - margin - rightBuffer;
   const plotHeight = height - chartTop - padBot;
 
   const allValues = normalizedSeries.flatMap(s => s.data);
-  const niceScale = getNiceScale(Math.max(...allValues, 1) * 1.1, Math.min(...allValues, 0), 5);
+  const rawMin = propYMin !== undefined ? propYMin : Math.min(...allValues);
+  const rawMax = propYMax !== undefined ? propYMax : Math.max(...allValues);
+  const niceScale = getNiceScale(rawMax, rawMin, 5);
   const dataMax = niceScale[niceScale.length - 1];
   const dataMin = niceScale[0];
   const range = (dataMax - dataMin) || 0.0001;
@@ -168,11 +174,68 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
         backgroundType={backgroundType}
       />
       
-      {/* Cabeçalho - Só renderiza se houver conteúdo para evitar espaço morto */}
+      {/* Cabeçalho */}
       {hasHeader && (
-        <div style={{ position: "absolute", top: margin, width: "100%", textAlign: "center", opacity: interpolate(frame, [0, 20], [0, 1]), zIndex: 5 }}>
-          {title && <div style={{ fontSize: fs(Theme.typography.title.size), fontWeight: 800, color: resolvedText }}>{title}</div>}
-          {subtitle && <div style={{ fontSize: fs(Theme.typography.subtitle.size), color: T.textMuted, marginTop: fs(10) }}>{subtitle}</div>}
+        <div style={{ 
+          position: "absolute", 
+          top: margin, 
+          width: "100%", 
+          display: "flex", 
+          flexDirection: "column", 
+          alignItems: "center",
+          padding: `0 ${fs(100)}px`,
+          boxSizing: 'border-box',
+          opacity: interpolate(frame, [0, 20], [0, 1]), 
+          zIndex: 5 
+        }}>
+          {title && (
+            <div style={{ 
+              fontSize: fs(Theme.typography.title.size), 
+              lineHeight: 1.1,
+              fontWeight: 800, 
+              color: resolvedText, 
+              textAlign: "center",
+              maxWidth: fs(3200), 
+              wordBreak: 'break-word'
+            }}>
+              {title}
+            </div>
+          )}
+          {subtitle && (
+            <div style={{ 
+              fontSize: fs(Theme.typography.subtitle.size), 
+              color: T.textMuted, 
+              marginTop: fs(15),
+              textAlign: "center",
+              maxWidth: fs(2400)
+            }}>
+              {subtitle}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Legenda em HTML (Flexbox para evitar sobreposição) */}
+      {showLegend && seriesCount > 1 && (
+        <div style={{
+          position: 'absolute',
+          top: legendTop,
+          width: '100%',
+          display: 'flex',
+          flexWrap: 'wrap',
+          justifyContent: 'center',
+          gap: fs(40),
+          padding: `0 ${fs(100)}px`,
+          boxSizing: 'border-box',
+          opacity: interpolate(frame, [15, 35], [0, 1]),
+          zIndex: 10
+        }}>
+          {normalizedSeries.map((s, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: fs(12) }}>
+              <div style={{ width: fs(30), height: fs(6), borderRadius: fs(3), backgroundColor: s.color || resolvedColors[i % resolvedColors.length] }} />
+              <div style={{ fontSize: fs(26), color: T.textMuted, fontWeight: 600 }}>{s.label}</div>
+            </div>
+          ))}
         </div>
       )}
 
@@ -192,31 +255,8 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
           })}
         </defs>
 
-        {/* Legenda Dinâmica no Topo */}
-        {showLegend && seriesCount > 1 && (
-          <g opacity={interpolate(frame, [15, 35], [0, 1])}>
-            {normalizedSeries.map((s, i) => {
-              const itemW = plotWidth / seriesCount;
-              const centerX = plotLeft + i * itemW + itemW / 2;
-              const lines = legendLinesPerItem[i];
-              const blockW = ICON_SIZE + ICON_TEXT_GAP + (Math.min(s.label.length, MAX_CHARS_PER_LINE) * fs(15));
-              const startX = centerX - blockW / 2;
-              
-              return (
-                <g key={i} transform={`translate(${startX}, ${legendTop})`}>
-                  <line x1={0} y1={LEGEND_LINE_H/2} x2={ICON_SIZE} y2={LEGEND_LINE_H/2} stroke={s.color || resolvedColors[i % resolvedColors.length]} strokeWidth={fs(6)} strokeLinecap="round" y={(maxLegendLines * LEGEND_LINE_H - fs(6)) / 2} />
-                  <text x={ICON_SIZE + ICON_TEXT_GAP} style={{ fontSize: LEGEND_FONT_SIZE, fill: T.textMuted, fontWeight: 600 }}>
-                    {lines.map((line, li) => (
-                      <tspan key={li} x={ICON_SIZE + ICON_TEXT_GAP} dy={li === 0 ? LEGEND_FONT_SIZE * 0.8 : LEGEND_LINE_H}>{line}</tspan>
-                    ))}
-                  </text>
-                </g>
-              );
-            })}
-          </g>
-        )}
 
-        {/* Grid Y */}
+        {/* Grid Y (Horizontal) */}
         {niceScale.map((val) => {
           const y = getY(val);
           return (
@@ -226,6 +266,14 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
                 {formatValue(val, unit)}
               </text>
             </React.Fragment>
+          );
+        })}
+
+        {/* Grid X (Vertical) */}
+        {xAxisLabels.map((l, i) => {
+          const x = plotLeft + (i / (xAxisLabels.length - 1 || 1)) * plotWidth;
+          return (
+            <line key={`vgrid-${i}`} x1={x} y1={chartTop} x2={x} y2={chartTop + plotHeight} stroke={T.grid} strokeWidth={fs(1)} strokeDasharray={fs(5)} opacity={0.6} />
           );
         })}
 
@@ -241,18 +289,43 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
                 {showArea && <path d={areaPath} fill={`url(#lineGrad-${clipId}-${sIndex})`} />}
                 <polyline points={linePoints} fill="none" stroke={color} strokeWidth={fs(isHighDensity ? 2 : 5)} strokeLinecap="round" strokeLinejoin="round" />
                 {!isHighDensity && s.data.map((v: number, i: number) => (
-                  <circle key={i} cx={getX(sIndex, i)} cy={getY(v)} r={fs(6)} fill={resolvedBg} stroke={color} strokeWidth={fs(3)} />
+                  <React.Fragment key={i}>
+                    <circle cx={getX(sIndex, i)} cy={getY(v)} r={fs(6)} fill={resolvedBg} stroke={color} strokeWidth={fs(3)} />
+                    {showValueLabels && progress > 0.8 && (
+                      <text
+                        x={getX(sIndex, i)}
+                        y={getY(v) + (sIndex % 2 === 0 ? -fs(25) : fs(38))}
+                        textAnchor="middle"
+                        style={{
+                          fontSize: fs(22),
+                          fill: color,
+                          fontWeight: 800,
+                          opacity: interpolate(progress, [0.8, 1], [0, 1]),
+                          textShadow: `0 0 ${fs(10)}px ${resolvedBg}`
+                        }}
+                      >
+                        {formatValue(v, unit)}
+                      </text>
+                    )}
+                  </React.Fragment>
                 ))}
               </g>
-              {/* Direct Labeling */}
-              <text
-                x={getX(sIndex, s.data.length - 1) + fs(20)}
-                y={labelYPositions[sIndex]}
-                dominantBaseline="middle"
-                style={{ fontSize: fs(24), fill: color, fontWeight: 800, opacity: interpolate(progress, [0.95, 1], [0, 1]) }}
-              >
-                {s.label}
-              </text>
+              {/* Direct Labeling (Final da linha) — só quando sem legenda no topo */}
+              {(!showLegend || seriesCount <= 1) && (
+                <text
+                  x={getX(sIndex, s.data.length - 1) + fs(30)}
+                  y={labelYPositions[sIndex]}
+                  dominantBaseline="middle"
+                  style={{
+                    fontSize: fs(24),
+                    fill: color,
+                    fontWeight: 800,
+                    opacity: interpolate(progress, [0.95, 1], [0, 1]),
+                  }}
+                >
+                  {s.label.length > 20 ? s.label.slice(0, 20) + '…' : s.label}
+                </text>
+              )}
             </g>
           );
         })}
@@ -272,6 +345,31 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
             </text>
           );
         })}
+
+        {/* Título do Eixo X */}
+        {xAxisTitle && (
+          <text
+            x={plotLeft + plotWidth / 2}
+            y={height - fs(40)}
+            textAnchor="middle"
+            style={{ fontSize: fs(24), fill: T.textMuted, fontWeight: 700, opacity: 0.8 }}
+          >
+            {xAxisTitle}
+          </text>
+        )}
+
+        {/* Título do Eixo Y */}
+        {yAxisTitle && (
+          <text
+            x={fs(40)}
+            y={chartTop + plotHeight / 2}
+            textAnchor="middle"
+            transform={`rotate(-90, ${fs(40)}, ${chartTop + plotHeight / 2})`}
+            style={{ fontSize: fs(24), fill: T.textMuted, fontWeight: 700, opacity: 0.8 }}
+          >
+            {yAxisTitle}
+          </text>
+        )}
       </svg>
 
       {/* Container de Callouts com Z-Index Superior Garantido */}

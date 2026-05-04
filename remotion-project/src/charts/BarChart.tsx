@@ -22,11 +22,9 @@ interface BarChartProps {
   backgroundColor?: string;
   textColor?: string;
   unit?: string;
-  showValueLabels?: boolean;
-  bgStyle?: any;
-  backgroundType?: 'dark' | 'light';
-  annotations?: any[];
   showLegend?: boolean;
+  xAxisTitle?: string;
+  yAxisTitle?: string;
 }
 
 export const BarChart: React.FC<BarChartProps> = (props) => {
@@ -42,10 +40,12 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
     backgroundColor,
     textColor,
     unit = '',
-    showValueLabels = false,
+    showValueLabels = true,
     annotations = [],
     backgroundType,
     showLegend = true,
+    xAxisTitle = '',
+    yAxisTitle = '',
   } = props;
 
   const frame = useCurrentFrame();
@@ -53,10 +53,10 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
   const instanceId = useId().replace(/:/g, "");
 
   // Resolve tema
-  const T = resolveTheme(theme, backgroundColor, backgroundType, colors || seriesColors, textColor);
+  const T = resolveTheme(theme, backgroundColor, backgroundType, seriesColors || colors, textColor);
   const resolvedBg = T.background;
   const resolvedText = T.text;
-  const resolvedColors = (colors || seriesColors || T.colors).filter(Boolean);
+  const resolvedColors = ((seriesColors ?? colors) || T.colors).filter(Boolean);
 
   // Normalização de dados
   let normalizedSeries: { label: string; data: number[]; color?: string }[] = [];
@@ -89,9 +89,9 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
   const fs = (base: number) => Math.round(base * (width / 1920));
   
   const hasHeader = (title && title.trim().length > 0) || (subtitle && subtitle.trim().length > 0);
-  const margin = hasHeader ? fs(128) : fs(60); 
+  const margin = hasHeader ? fs(100) : fs(60); 
   const titleH = hasHeader ? fs(160) : 0;
-  const legendGapTop = hasHeader ? fs(24) : fs(10);
+  const legendGapTop = hasHeader ? fs(20) : fs(10);
 
   // ── Legenda: acima do gráfico, centralizada ──────────────────
   const LEGEND_FONT_SIZE = fs(28);
@@ -100,13 +100,9 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
   const ICON_SIZE = fs(32);
   const ICON_TEXT_GAP = fs(12);
 
-  const legendLinesPerItem = normalizedSeries.map(s => wrapText(s.label, MAX_CHARS_PER_LINE));
-  const maxLegendLines = Math.max(...legendLinesPerItem.map(l => l.length), 1);
-  const legendBlockH = (showLegend && seriesCount > 1) ? (ICON_SIZE + (maxLegendLines - 1) * LEGEND_LINE_H + fs(20)) : 0;
-
   const legendTop = margin + titleH + legendGapTop;
-  const chartTop = legendTop + (legendBlockH > 0 ? legendBlockH + fs(32) : 0);
-  const padBot = fs(120);
+  const chartTop = legendTop + (showLegend && seriesCount > 1 ? fs(100) : 0);
+  const padBot = fs(140);
 
   const plotLeft = margin + width * (unit.length > 6 ? 0.12 : 0.08);
   const plotWidth = width - plotLeft - margin;
@@ -142,18 +138,88 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
       
       {/* Cabeçalho */}
       {hasHeader && (
-        <div style={{ position: "absolute", top: margin, width: "100%", textAlign: "center", opacity: interpolate(frame, [0, 20], [0, 1]), zIndex: 5 }}>
-          {title && <div style={{ fontSize: fs(Theme.typography.title.size), fontWeight: 800, color: resolvedText }}>{title}</div>}
-          {subtitle && <div style={{ fontSize: fs(Theme.typography.subtitle.size), color: T.textMuted, marginTop: fs(10) }}>{subtitle}</div>}
+        <div style={{ 
+          position: "absolute", 
+          top: margin, 
+          width: "100%", 
+          display: "flex", 
+          flexDirection: "column", 
+          alignItems: "center",
+          padding: `0 ${fs(100)}px`,
+          boxSizing: 'border-box',
+          opacity: interpolate(frame, [0, 20], [0, 1]), 
+          zIndex: 5 
+        }}>
+          {title && (
+            <div style={{ 
+              fontSize: fs(Theme.typography.title.size), 
+              lineHeight: 1.1,
+              fontWeight: 800, 
+              color: resolvedText, 
+              textAlign: "center",
+              maxWidth: fs(3000), 
+              wordBreak: 'break-word'
+            }}>
+              {title}
+            </div>
+          )}
+          {subtitle && (
+            <div style={{ 
+              fontSize: fs(Theme.typography.subtitle.size), 
+              color: T.textMuted, 
+              marginTop: fs(15),
+              textAlign: "center",
+              maxWidth: fs(2400)
+            }}>
+              {subtitle}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Legenda em HTML (Flexbox para evitar sobreposição) */}
+      {showLegend && seriesCount > 1 && (
+        <div style={{
+          position: 'absolute',
+          top: legendTop,
+          width: '100%',
+          display: 'flex',
+          flexWrap: 'wrap',
+          justifyContent: 'center',
+          gap: fs(40),
+          padding: `0 ${fs(100)}px`,
+          boxSizing: 'border-box',
+          opacity: interpolate(frame, [15, 35], [0, 1]),
+          zIndex: 10
+        }}>
+          {normalizedSeries.map((s, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: fs(12) }}>
+              <div style={{ width: fs(24), height: fs(24), borderRadius: fs(4), backgroundColor: s.color || resolvedColors[i % resolvedColors.length] }} />
+              <div style={{ fontSize: fs(26), color: T.textMuted, fontWeight: 600 }}>{s.label}</div>
+            </div>
+          ))}
         </div>
       )}
 
       <svg width={width} height={height} style={{ position: "absolute", top: 0, left: 0, overflow: 'visible', zIndex: 1 }}>
         <defs>
-          {normalizedSeries.map((s, i) => {
-            const baseColor = s.color || resolvedColors[i % resolvedColors.length];
+          {normalizedSeries.map((s, seriesIdx) => {
+            // Se tiver apenas uma série, criamos um gradiente para cada barra (Efeito Rainbow)
+            if (seriesCount === 1) {
+              return xAxisLabels.map((_, barIdx) => {
+                const baseColor = resolvedColors[barIdx % resolvedColors.length];
+                return (
+                  <linearGradient key={`barGrad-${seriesIdx}-${barIdx}-${instanceId}`} id={`barGrad-${seriesIdx}-${barIdx}-${instanceId}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={baseColor} />
+                    <stop offset="100%" stopColor={baseColor} stopOpacity={0.65} />
+                  </linearGradient>
+                );
+              });
+            }
+            // Caso contrário, um gradiente por série
+            const baseColor = s.color || resolvedColors[seriesIdx % resolvedColors.length];
             return (
-              <linearGradient key={i} id={`barGrad-${i}-${instanceId}`} x1="0" y1="0" x2="0" y2="1">
+              <linearGradient key={seriesIdx} id={`barGrad-${seriesIdx}-${instanceId}`} x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor={baseColor} />
                 <stop offset="100%" stopColor={baseColor} stopOpacity={0.65} />
               </linearGradient>
@@ -161,35 +227,8 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
           })}
         </defs>
 
-        {/* Legenda Dinâmica no Topo */}
-        {showLegend && seriesCount > 1 && (
-          <g opacity={interpolate(frame, [15, 35], [0, 1])}>
-            {normalizedSeries.map((s, i) => {
-              const itemW = plotWidth / seriesCount;
-              const centerX = plotLeft + i * itemW + itemW / 2;
-              const lines = legendLinesPerItem[i];
-              const blockW = ICON_SIZE + ICON_TEXT_GAP + (Math.min(s.label.length, MAX_CHARS_PER_LINE) * fs(15));
-              const startX = centerX - blockW / 2;
-              
-              return (
-                <g key={i} transform={`translate(${startX}, ${legendTop})`}>
-                  <rect 
-                    width={ICON_SIZE} height={ICON_SIZE} 
-                    fill={`url(#barGrad-${i}-${instanceId})`} rx={fs(6)}
-                    y={(maxLegendLines * LEGEND_LINE_H - ICON_SIZE) / 2}
-                  />
-                  <text x={ICON_SIZE + ICON_TEXT_GAP} style={{ fontSize: LEGEND_FONT_SIZE, fill: T.textMuted, fontWeight: 600 }}>
-                    {lines.map((line, li) => (
-                      <tspan key={li} x={ICON_SIZE + ICON_TEXT_GAP} dy={li === 0 ? LEGEND_FONT_SIZE * 0.8 : LEGEND_LINE_H}>{line}</tspan>
-                    ))}
-                  </text>
-                </g>
-              );
-            })}
-          </g>
-        )}
 
-        {/* Grid Y */}
+        {/* Grid Y (Horizontal) */}
         {niceScale.map((val) => {
           const y = getY(val);
           const op = interpolate(frame, [5, 25], [0, 0.85]);
@@ -200,6 +239,14 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
                 {formatValue(val, unit)}
               </text>
             </React.Fragment>
+          );
+        })}
+
+        {/* Grid X (Vertical) */}
+        {xAxisLabels.map((l, i) => {
+          const x = plotLeft + i * categoryWidth + categoryWidth / 2;
+          return (
+            <line key={`vgrid-${i}`} x1={x} y1={chartTop} x2={x} y2={chartTop + plotHeight} stroke={T.grid} strokeWidth={fs(1)} strokeDasharray={fs(5)} opacity={0.4} />
           );
         })}
 
@@ -223,12 +270,15 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
             const bY = chartTop + plotHeight - currentH;
 
             const op = interpolate(frame, [delay + 10, delay + 20], [0, 1]);
+            const fillId = seriesCount === 1 
+              ? `url(#barGrad-${seriesIdx}-${groupIdx}-${instanceId})`
+              : `url(#barGrad-${seriesIdx}-${instanceId})`;
 
             return (
               <g key={`${groupIdx}-${seriesIdx}`}>
                 <rect
                   x={bX} y={bY} width={barWidth} height={currentH}
-                  fill={`url(#barGrad-${seriesIdx}-${instanceId})`}
+                  fill={fillId}
                   rx={fs(6)}
                 />
                 {showValueLabels && progress > 0.8 && (
@@ -251,6 +301,30 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
             );
           })
         ))}
+        {/* Título do Eixo X */}
+        {xAxisTitle && (
+          <text
+            x={plotLeft + plotWidth / 2}
+            y={height - fs(40)}
+            textAnchor="middle"
+            style={{ fontSize: fs(24), fill: T.textMuted, fontWeight: 700, opacity: 0.8 }}
+          >
+            {xAxisTitle}
+          </text>
+        )}
+
+        {/* Título do Eixo Y */}
+        {yAxisTitle && (
+          <text
+            x={fs(40)}
+            y={chartTop + plotHeight / 2}
+            textAnchor="middle"
+            transform={`rotate(-90, ${fs(40)}, ${chartTop + plotHeight / 2})`}
+            style={{ fontSize: fs(24), fill: T.textMuted, fontWeight: 700, opacity: 0.8 }}
+          >
+            {yAxisTitle}
+          </text>
+        )}
       </svg>
 
       {/* Callouts Container Z-Index Superior */}

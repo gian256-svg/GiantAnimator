@@ -1,0 +1,55 @@
+{
+  "componentId": "HorizontalBarChart",
+  "suggestedName": "RankingNumerico",
+  "reasoning": "O gráfico apresenta barras horizontais com rótulos categóricos e valores numéricos explícitos, indicando claramente um HorizontalBarChart. Os dados foram extraídos na ordem apresentada, com os rótulos e seus respectivos valores. A cor predominante das barras foi capturada e os rótulos de valor são visíveis, portanto 'showValueLabels' é true.",
+  "props": {
+    "title": "",
+    "subtitle": "",
+    "labels": [
+      "No. 1",
+      "No. 2",
+      "No. 3",
+      "No. 4",
+      "No. 5"
+    ],
+    "series": [
+      {
+        "label": "",
+        "data": [
+          60,
+          55,
+          50,
+          25,
+          70
+        ],
+        "color": "#102027"
+      }
+    ],
+    "unit": "",
+    "showValueLabels": true,
+    "showLegend": false,
+    "annotations": [],
+    "data": [
+      {
+        "label": "No. 1",
+        "value": 60
+      },
+      {
+        "label": "No. 2",
+        "value": 55
+      },
+      {
+        "label": "No. 3",
+        "value": 50
+      },
+      {
+        "label": "No. 4",
+        "value": 25
+      },
+      {
+        "label": "No. 5",
+        "value": 70
+      }
+    ]
+  }
+}

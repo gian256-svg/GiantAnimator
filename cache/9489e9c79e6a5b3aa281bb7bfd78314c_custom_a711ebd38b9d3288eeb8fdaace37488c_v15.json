@@ -1,0 +1,61 @@
+{
+  "componentId": "HorizontalBarChart",
+  "suggestedName": "EfficiencyDrivers",
+  "reasoning": "O gráfico é claramente um gráfico de barras horizontais, com categorias ('Driver 1' a 'Driver 5') no eixo Y e valores percentuais no eixo X. Os valores e cores foram extraídos diretamente das barras na imagem original, e o título foi capturado na íntegra. A propriedade 'showValueLabels' é definida como true, pois os percentuais são exibidos explicitamente em cada barra. A ordem das labels, dados e cores segue a ordem visual do gráfico (de baixo para cima).",
+  "props": {
+    "title": "Increasing Efficiency Drivers With Horizontal Bar Chart",
+    "subtitle": "",
+    "labels": [
+      "Driver 1",
+      "Driver 2",
+      "Driver 3",
+      "Driver 4",
+      "Driver 5"
+    ],
+    "series": [
+      {
+        "label": "",
+        "data": [
+          25,
+          35,
+          45,
+          55,
+          75
+        ]
+      }
+    ],
+    "unit": "%",
+    "showValueLabels": true,
+    "showLegend": false,
+    "seriesColors": [
+      "#B2D24B",
+      "#FDD835",
+      "#F0627C",
+      "#4FC1C5",
+      "#1F497D"
+    ],
+    "annotations": [],
+    "data": [
+      {
+        "label": "Driver 1",
+        "value": 25
+      },
+      {
+        "label": "Driver 2",
+        "value": 35
+      },
+      {
+        "label": "Driver 3",
+        "value": 45
+      },
+      {
+        "label": "Driver 4",
+        "value": 55
+      },
+      {
+        "label": "Driver 5",
+        "value": 75
+      }
+    ]
+  }
+}

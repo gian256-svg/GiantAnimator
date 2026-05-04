@@ -41,7 +41,7 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
   seriesColors,
   backgroundColor,
   textColor,
-  showValueLabels = false,
+  showValueLabels = true,
   annotations = [],
   bgStyle = 'none',
   backgroundType,
@@ -52,10 +52,10 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
   const fs = (base: number) => Math.round(base * (width / 1920));
 
   // Resolve tema
-  const T = resolveTheme(theme, backgroundColor, backgroundType, colors || seriesColors, textColor);
+  const T = resolveTheme(theme, backgroundColor, backgroundType, seriesColors || colors, textColor);
   const resolvedBg = T.background;
   const resolvedText = T.text;
-  const paletteFromProps = (colors ?? seriesColors)?.filter(Boolean) ?? [];
+  const paletteFromProps = (seriesColors ?? colors)?.filter(Boolean) ?? [];
   const resolvedColors = paletteFromProps.length > 0 ? paletteFromProps : [...T.colors];
 
   const instanceId = useId().replace(/:/g, "");
@@ -81,9 +81,9 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
 
   // ── Layout Responsivo 4K ─────────────────────────────────────
   const hasHeader = (title && title.trim().length > 0) || (subtitle && subtitle.trim().length > 0);
-  const margin = hasHeader ? fs(128) : fs(60); 
-  const titleH = hasHeader ? fs(160) : 0;
-  const legendGapTop = hasHeader ? fs(24) : fs(10);
+  const margin = hasHeader ? fs(100) : fs(60); 
+  const titleH = hasHeader ? fs(240) : 0;
+  const legendGapTop = hasHeader ? fs(32) : fs(10);
 
   // ── Legenda: acima do gráfico, centralizada ──────────────────
   const LEGEND_FONT_SIZE = fs(28);
@@ -121,13 +121,69 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
 
       {/* Cabeçalho */}
       {hasHeader && (
-        <div style={{ position: "absolute", top: margin, width: "100%", textAlign: "center", opacity: interpolate(frame, [0, 20], [0, 1]), zIndex: 5 }}>
-          {title && <div style={{ fontSize: fs(Theme.typography.title.size), fontWeight: 800, color: resolvedText }}>{title}</div>}
-          {subtitle && <div style={{ fontSize: fs(Theme.typography.subtitle.size), color: T.textMuted, marginTop: fs(10) }}>{subtitle}</div>}
+        <div style={{ 
+          position: "absolute", 
+          top: margin, 
+          width: "100%", 
+          display: "flex", 
+          flexDirection: "column", 
+          alignItems: "center",
+          padding: `0 ${fs(100)}px`,
+          boxSizing: 'border-box',
+          opacity: interpolate(frame, [0, 20], [0, 1]), 
+          zIndex: 5 
+        }}>
+          {title && (
+            <div style={{ 
+              fontSize: fs(Theme.typography.title.size), 
+              lineHeight: 1.1,
+              fontWeight: 800, 
+              color: resolvedText, 
+              textAlign: "center",
+              maxWidth: fs(3000), 
+              wordBreak: 'break-word'
+            }}>
+              {title}
+            </div>
+          )}
+          {subtitle && (
+            <div style={{ 
+              fontSize: fs(Theme.typography.subtitle.size), 
+              color: T.textMuted, 
+              marginTop: fs(15),
+              textAlign: "center",
+              maxWidth: fs(2400)
+            }}>
+              {subtitle}
+            </div>
+          )}
         </div>
       )}
 
       <svg width={width} height={height} style={{ overflow: "visible", position: "relative", zIndex: 10 }}>
+        <defs>
+          {normalizedSeries.map((s, sIdx) => {
+            if (seriesCount === 1) {
+              return xAxisLabels.map((_, gIdx) => {
+                const baseColor = resolvedColors[gIdx % resolvedColors.length];
+                return (
+                  <linearGradient key={`hbarGrad-${sIdx}-${gIdx}-${instanceId}`} id={`hbarGrad-${sIdx}-${gIdx}-${instanceId}`} x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor={baseColor} />
+                    <stop offset="100%" stopColor={baseColor} stopOpacity={0.7} />
+                  </linearGradient>
+                );
+              });
+            }
+            const baseColor = s.color || resolvedColors[sIdx % resolvedColors.length];
+            return (
+              <linearGradient key={sIdx} id={`hbarGrad-${sIdx}-${instanceId}`} x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor={baseColor} />
+                <stop offset="100%" stopColor={baseColor} stopOpacity={0.7} />
+              </linearGradient>
+            );
+          })}
+        </defs>
+
         {/* Legenda Dinâmica no Topo */}
         {showLegend && seriesCount > 1 && (
           <g opacity={interpolate(frame, [15, 35], [0, 1])}>
@@ -142,7 +198,7 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
                 <g key={i} transform={`translate(${startX}, ${legendTop})`}>
                   <rect 
                     width={ICON_SIZE} height={ICON_SIZE} 
-                    fill={s.color || resolvedColors[i % resolvedColors.length]} rx={fs(6)}
+                    fill={`url(#hbarGrad-${i}-${instanceId})`} rx={fs(6)}
                     y={(maxLegendLines * LEGEND_LINE_H - ICON_SIZE) / 2}
                   />
                   <text x={ICON_SIZE + ICON_TEXT_GAP} style={{ fontSize: LEGEND_FONT_SIZE, fill: T.textMuted, fontWeight: 600 }}>
@@ -183,12 +239,28 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
                 const progress = spring({ frame: frame - delay, fps, config: { damping: 50, stiffness: 200 } });
                 const bY = gY + sIdx * (groupHeight / (seriesCount || 1));
                 const bW = Math.max(1, ((val - dataMin) / (range || 1)) * plotWidth * progress);
-                const color = s.color || resolvedColors[sIdx % resolvedColors.length];
+                
+                const fillId = seriesCount === 1 
+                  ? `url(#hbarGrad-${sIdx}-${gIdx}-${instanceId})`
+                  : `url(#hbarGrad-${sIdx}-${instanceId})`;
+
                 return (
-                  <rect 
-                    key={sIdx} x={plotLeft} y={bY} width={bW} height={barHeight} fill={color} 
-                    stroke={resolvedBg} strokeWidth={fs(2)} rx={fs(6)}
-                  />
+                  <g key={sIdx}>
+                    <rect 
+                      x={plotLeft} y={bY} width={bW} height={barHeight} fill={fillId} 
+                      stroke={resolvedBg} strokeWidth={fs(2)} rx={fs(6)}
+                    />
+                    {showValueLabels && progress > 0.8 && (
+                      <text 
+                        x={plotLeft + bW + fs(15)} 
+                        y={bY + barHeight / 2} 
+                        dominantBaseline="middle" 
+                        style={{ fontSize: fs(24), fill: resolvedText, fontWeight: 700, opacity: interpolate(frame, [delay + 10, delay + 20], [0, 1]), ...Theme.typography.tabularNums }}
+                      >
+                        {formatValue(val, unit)}
+                      </text>
+                    )}
+                  </g>
                 );
               })}
             </g>

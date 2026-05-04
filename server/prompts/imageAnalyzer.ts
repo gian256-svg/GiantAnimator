@@ -19,9 +19,9 @@ O erro de 1% é considerado FALHA CRÍTICA.
    - Se os dados são barras horizontais -> USE OBRIGATORIAMENTE "HorizontalBarChart".
    - **NUNCA** converta barras em linhas (LineChart). Isso altera a natureza da percepção visual.
 
-2. **Integridade Textual e Idioma (Títulos, Legendas e Callouts)**:
-   - **NUNCA TRUNQUE TÍTULOS**. Se o título contiver unidades ou explicações (ex: "Opinions - % Agreeing"), capture a frase COMPLETA.
-   - **IDIOMA MANDATÓRIO**: Toda e qualquer anotação (array "annotations"), callout (ex: "Maior Valor", "Pico de Vendas") ou rótulo de série deve estar em **PORTUGUÊS (Brasil)**. NUNCA use "Highest", "Lowest".
+2. **Integridade Textual e Idioma (Títulos, Legendas e Rótulos)**:
+   - **NUNCA TRADUZA OU TRUNQUE TÍTULOS E RÓTULOS**. Capture a frase COMPLETA e EXATA no idioma original da imagem. Se a imagem está em Inglês, o JSON deve estar em Inglês.
+   - **IDIOMA DAS ANOTAÇÕES**: Apenas anotações e insights gerados pela IA (array "annotations") devem estar em **PORTUGUÊS (Brasil)**.
 
 3. **Soberania do Fundo (Aesthetic Intent)**:
    - Se o usuário solicitou um fundo específico (Dark/Light), respeite essa escolha visual mesmo que a imagem original seja o oposto.
@@ -58,11 +58,13 @@ ${calloutInstruction}
     "title": "TÍTULO COMPLETO E EXATO",
     "subtitle": "SUBTÍTULO COMPLETO E EXATO",
     "labels": ["Categoria A", "Categoria B"],
+    "xAxisTitle": "TÍTULO DO EIXO X (EX: School Year)",
+    "yAxisTitle": "TÍTULO DO EIXO Y (EX: Expenditure per Student)",
     "series": [
       { "label": "Série 1", "data": [10.5, 20.3], "color": "#HEX" }
     ],
     "unit": "%",
-    "showValueLabels": ${includeCallouts},
+    "showValueLabels": true, 
     "showLegend": true,
     "annotations": []
   }

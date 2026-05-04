@@ -1,0 +1,99 @@
+{
+  "componentId": "HorizontalBarChart",
+  "suggestedName": "EfficiencyDriversHorizontalBarChart",
+  "reasoning": "O gráfico é claramente um gráfico de barras horizontais, com categorias ('Driver 1' a 'Driver 5') no eixo Y e valores percentuais no eixo X. O título completo foi extraído, os rótulos das categorias e seus valores percentuais foram capturados com precisão, e as cores das barras foram identificadas fielmente. A unidade '%' foi aplicada corretamente. Os rótulos de valor são visíveis nas barras, justificando 'showValueLabels: true'.",
+  "props": {
+    "title": "Increasing Efficiency Drivers With Horizontal Bar Chart",
+    "subtitle": "",
+    "labels": [
+      "Driver 1",
+      "Driver 2",
+      "Driver 3",
+      "Driver 4",
+      "Driver 5"
+    ],
+    "series": [
+      {
+        "label": "",
+        "data": [
+          25,
+          35,
+          45,
+          55,
+          75
+        ],
+        "color": "#9acd32"
+      },
+      {
+        "label": "",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "color": "#ffd700"
+      },
+      {
+        "label": "",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "color": "#f08080"
+      },
+      {
+        "label": "",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "color": "#40e0d0"
+      },
+      {
+        "label": "",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "color": "#191970"
+      }
+    ],
+    "unit": "%",
+    "showValueLabels": true,
+    "showLegend": false,
+    "annotations": [],
+    "data": [
+      {
+        "label": "Driver 1",
+        "value": 25
+      },
+      {
+        "label": "Driver 2",
+        "value": 35
+      },
+      {
+        "label": "Driver 3",
+        "value": 45
+      },
+      {
+        "label": "Driver 4",
+        "value": 55
+      },
+      {
+        "label": "Driver 5",
+        "value": 75
+      }
+    ]
+  }
+}

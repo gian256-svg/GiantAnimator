@@ -60,5 +60,7 @@ async function moveToDone(filePath: string) {
   const destPath = path.join(PATHS.done, fileName);
   try {
     fs.renameSync(filePath, destPath);
-  } catch (err) {}
+  } catch (err: any) {
+    console.warn(`⚠️ [Pipeline] Falha ao mover arquivo para 'done': ${err.message}`);
+  }
 }

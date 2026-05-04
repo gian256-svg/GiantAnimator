@@ -10,6 +10,27 @@ import { COMPONENT_REGISTRY } from "./componentRegistry.js";
 import { buildImageAnalysisPrompt } from "./prompts/imageAnalyzer.js";
 import { type ChartAnalysis } from "./types.js";
 
+// ─── Rules carregadas uma vez por processo/cold start ───────────────────────
+let _systemInstruction: string | null = null;
+
+function getSystemInstruction(): string {
+  if (_systemInstruction !== null) return _systemInstruction;
+  const rootDir = process.cwd().endsWith("server")
+    ? path.join(process.cwd(), "..")
+    : process.cwd();
+  const visionRulesPath = path.join(rootDir, ".agent", "knowledge", "active-vision-rules.md");
+  const designRulesPath = path.join(rootDir, ".agent", "knowledge", "active-design-rules.md");
+  let rules = "";
+  if (fs.existsSync(visionRulesPath)) rules += fs.readFileSync(visionRulesPath, "utf-8") + "\n\n";
+  if (fs.existsSync(designRulesPath)) rules += fs.readFileSync(designRulesPath, "utf-8") + "\n";
+  _systemInstruction = rules || "Você é um especialista em análise forense de gráficos.";
+  console.log(`📋 [João] Regras de ouro carregadas (${_systemInstruction.length} chars).`);
+  return _systemInstruction;
+}
+
+// Registry comprimido (sem indentação) — calculado uma vez no módulo
+const REGISTRY_JSON = JSON.stringify(COMPONENT_REGISTRY);
+
 /**
  * Serviço de Visão Compartilhado para análise de imagens de gráficos.
  */
@@ -23,7 +44,7 @@ export async function analyzeChartImage(
   const rawImageData = fs.readFileSync(imagePath);
 
   // ─── MD5 Cache ───────────────────────────────────────────────
-  const CACHE_VERSION = 'v15';
+  const CACHE_VERSION = 'v16';
   const IS_VERCEL = !!process.env.VERCEL;
   const cacheKey = `${crypto.createHash("md5").update(rawImageData).digest("hex")}_${requestedTheme || 'default'}_${auditorCritique ? crypto.createHash("md5").update(auditorCritique).digest("hex") : 'nocritic'}_${CACHE_VERSION}`;
   const cacheDir = IS_VERCEL ? "/tmp/cache" : path.join(process.cwd(), "cache");
@@ -36,7 +57,9 @@ export async function analyzeChartImage(
       if (cached.props && (cached.props.data?.length > 0 || cached.props.series?.length > 0)) {
         return normalizeAnalysisProps(cached);
       }
-    } catch (e) { }
+    } catch (e: any) {
+      console.warn(`⚠️ [João] Cache corrompido, regenerando: ${e.message}`);
+    }
   }
 
   // ─── Otimizar imagem ───
@@ -49,30 +72,20 @@ export async function analyzeChartImage(
     .toBuffer();
 
   const imageBase64 = optimizedBuffer.toString("base64");
-  const registryJson = JSON.stringify(COMPONENT_REGISTRY, null, 2);
-  let prompt = buildImageAnalysisPrompt(registryJson, settings.includeCallouts);
-
-  const rootDir = process.cwd().endsWith("server") ? path.join(process.cwd(), "..") : process.cwd();
-  const visionRulesPath = path.join(rootDir, ".agent", "knowledge", "active-vision-rules.md");
-  const designRulesPath = path.join(rootDir, ".agent", "knowledge", "active-design-rules.md");
-  
-  let activeRules = "";
-  if (fs.existsSync(visionRulesPath)) activeRules += fs.readFileSync(visionRulesPath, "utf-8") + "\n\n";
-  if (fs.existsSync(designRulesPath)) activeRules += fs.readFileSync(designRulesPath, "utf-8") + "\n";
-
-  if (activeRules) {
-    prompt += `\n\n### DIRETRIZES ATIVAS (REGRAS DE OURO):\n${activeRules}\n`;
-  }
-
+  let prompt = buildImageAnalysisPrompt(REGISTRY_JSON, settings.includeCallouts);
   if (auditorCritique) prompt += `\n### ⚠️ FEEDBACK AUDITORIA:\n${auditorCritique}\n`;
 
   // ─── Gemini Call ───
+  const systemInstruction = getSystemInstruction();
   let response;
   let retries = 0;
   let lastError: any = null;
   while (retries < 10) {
     try {
-      const model = (await import("./agent.js")).getAIInstance().getGenerativeModel({ model: GEMINI_MODEL_VISION });
+      const model = (await import("./agent.js")).getAIInstance().getGenerativeModel({
+        model: GEMINI_MODEL_VISION,
+        systemInstruction,
+      });
       const result = await model.generateContent({
         contents: [{ role: "user", parts: [{ inlineData: { data: imageBase64, mimeType: "image/jpeg" } }, { text: prompt }] }],
         generationConfig: { temperature: 0.1, topP: 0.1, maxOutputTokens: 8192 },
@@ -91,12 +104,12 @@ export async function analyzeChartImage(
       const errMsg = err.message || String(err);
       const isServiceError = errMsg.includes("503") || errMsg.includes("429") || errMsg.includes("UNAVAILABLE") || errMsg.includes("high demand");
       
-      console.error(`❌ [VISION] Tentativa ${retries}/10 falhou: ${errMsg}`);
+      console.error(`❌ [João] Tentativa ${retries}/10 falhou: ${errMsg}`);
       
       if (isServiceError) {
         (await import("./agent.js")).rotateKey();
         const wait = Math.min(Math.pow(2, retries) * 1000, 30000); 
-        console.log(`⏳ [VISION] Aguardando ${wait/1000}s antes da próxima tentativa (503/Demand)...`);
+        console.log(`⏳ [João] Aguardando ${wait/1000}s antes da próxima tentativa (503/Demand)...`);
         await new Promise(r => setTimeout(r, wait));
       } else {
         // Se for erro de autenticação ou parâmetro, não adianta tentar 10 vezes
@@ -145,7 +158,7 @@ export async function analyzeChartImage(
       fs.writeFileSync(cacheFile, JSON.stringify(normalized, null, 2));
       return normalized;
     } catch (ollamaErr: any) {
-      console.warn("⚠️ [OLLAMA] Fallback local falhou ou Ollama offline.");
+      console.warn("⚠️ [Simão] Fallback local falhou ou Ollama offline.");
     }
 
     const detail = lastError?.message || "Erro desconhecido";
@@ -156,7 +169,7 @@ export async function analyzeChartImage(
   const finishReason = candidate?.finishReason;
 
   if (finishReason && finishReason !== "STOP") {
-    console.warn(`⚠️ [Vision] Gemini finalizou com status: ${finishReason}. Possível truncamento ou restrição.`);
+    console.warn(`⚠️ [João] Gemini finalizou com status: ${finishReason}. Possível truncamento ou restrição.`);
   }
 
   // ─── EXTRAÇÃO CIRÚRGICA DE JSON (Brace-Stacking + String-Aware) ───
@@ -187,7 +200,7 @@ export async function analyzeChartImage(
 
   // 🔥 RESGATE DE TRUNCAMENTO (Manual Repair)
   if (!jsonStr && first !== -1) {
-    console.warn("⚠️ [Vision] JSON truncado detectado. Tentando reparo automático de chaves...");
+    console.warn("⚠️ [João] JSON truncado detectado. Tentando reparo automático de chaves...");
     let partial = responseText.slice(first);
 
     // Se terminou no meio de uma string, fecha a aspa
@@ -208,9 +221,9 @@ export async function analyzeChartImage(
       const fixed = partial.replace(/,\s*([\]\}])/g, "$1");
       JSON.parse(fixed);
       jsonStr = fixed;
-      console.log("✅ [Vision] Reparo automático bem-sucedido.");
+      console.log("✅ [João] Reparo automático bem-sucedido.");
     } catch (e) {
-      console.error("❌ [Vision] Falha no reparo automático. JSON ainda inválido.");
+      console.error("❌ [João] Falha no reparo automático. JSON ainda inválido.");
     }
   }
 

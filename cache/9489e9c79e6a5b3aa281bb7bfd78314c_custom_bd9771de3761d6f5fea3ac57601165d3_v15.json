@@ -1,0 +1,65 @@
+{
+  "componentId": "HorizontalBarChart",
+  "suggestedName": "EfficiencyDrivers",
+  "reasoning": "O gráfico é um HorizontalBarChart, conforme a representação visual das barras. O título foi extraído integralmente. Os rótulos das categorias ('Driver 1' a 'Driver 5') e seus respectivos valores percentuais (25%, 35%, 45%, 55%, 75%) foram capturados com precisão cirúrgica, mantendo a ordem original (de baixo para cima). As cores de cada barra foram extraídas diretamente da imagem original. A unidade '%' foi definida globalmente. Os rótulos de valor são visíveis nas barras, então 'showValueLabels' é 'true'. Não há legenda explícita para as séries, pois os rótulos das categorias já identificam as barras. O texto informativo na parte inferior da imagem foi incluído como uma anotação e traduzido para o português, conforme as diretrizes de idioma obrigatório para anotações.",
+  "props": {
+    "title": "Increasing Efficiency Drivers With Horizontal Bar Chart",
+    "subtitle": "",
+    "labels": [
+      "Driver 1",
+      "Driver 2",
+      "Driver 3",
+      "Driver 4",
+      "Driver 5"
+    ],
+    "series": [
+      {
+        "label": "",
+        "data": [
+          25,
+          35,
+          45,
+          55,
+          75
+        ]
+      }
+    ],
+    "unit": "%",
+    "showValueLabels": true,
+    "showLegend": false,
+    "seriesColors": [
+      "#a3d93a",
+      "#fdd835",
+      "#f46a7e",
+      "#42c7b9",
+      "#213a6e"
+    ],
+    "annotations": [
+      {
+        "text": "Este gráfico/diagrama está vinculado ao Excel e muda automaticamente com base nos dados. Basta clicar com o botão esquerdo e selecionar “Editar Dados”."
+      }
+    ],
+    "data": [
+      {
+        "label": "Driver 1",
+        "value": 25
+      },
+      {
+        "label": "Driver 2",
+        "value": 35
+      },
+      {
+        "label": "Driver 3",
+        "value": 45
+      },
+      {
+        "label": "Driver 4",
+        "value": 55
+      },
+      {
+        "label": "Driver 5",
+        "value": 75
+      }
+    ]
+  }
+}

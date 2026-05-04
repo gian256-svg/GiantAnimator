@@ -65,7 +65,7 @@ export async function analyzeChartImageWithGroq(
   if (auditorCritique)
     prompt += `\n### ⚠️ FEEDBACK AUDITORIA:\n${auditorCritique}`;
 
-  console.log("🦙 [GROQ VISION] Analisando imagem com Llama 3.2 Vision 90B...");
+  console.log("🦙 [Tiago] Analisando imagem com Llama 3.2 Vision 90B...");
 
   const completion = await groq.chat.completions.create({
     model: VISION_MODEL,
@@ -102,7 +102,7 @@ export async function auditRenderFidelityWithGroq(
   const renderedB64 = fs.readFileSync(renderedStillPath).toString("base64");
   const prompt = buildAuditorPrompt();
 
-  console.log("⚖️ [GROQ AUDITOR] Auditoria de fidelidade com Llama 3.2 Vision 90B...");
+  console.log("⚖️ [Tiago] Auditoria de fidelidade com Llama 3.2 Vision 90B...");
 
   // Groq Vision aceita múltiplas imagens na mesma mensagem
   const completion = await groq.chat.completions.create({

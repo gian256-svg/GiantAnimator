@@ -734,6 +734,18 @@ export function resolveTheme(
     if (baseColor) config.background = baseColor;
     if (customText) config.text = customText;
     if (customColors && customColors.length > 0) config.colors = customColors;
+    
+    // Para temas custom, garantimos que as cores auxiliares sigam o brilho escolhido
+    if (backgroundType === 'light' || (baseColor && !isColorDark(baseColor))) {
+       config.textMuted = '#475569';
+       config.axis = 'rgba(15,23,42,0.45)';
+       config.grid = 'rgba(15,23,42,0.18)';
+    } else {
+       config.textMuted = '#8892b0';
+       config.axis = 'rgba(232,234,246,0.25)';
+       config.grid = 'rgba(232,234,246,0.12)';
+    }
+    return config; // 🚀 Blindagem: Retorna imediatamente ignorando overrides automáticos
   } else {
     config = { ...(THEMES[name] ?? THEMES['dark']) };
   }
@@ -758,17 +770,17 @@ export function resolveTheme(
     }
   }
 
-  // APLICAÇÃO FINAL DO backgroundType explícito (Sobrescreve tudo se presente)
+  // APLICAÇÃO FINAL DO backgroundType explícito (Sobrescreve se presente, mas RESPEITA custom)
   if (backgroundType) {
     if (backgroundType === 'light') {
-      config.background = '#FAF9F6'; // Off-white padrão premium
-      config.text = '#0f172a';
+      if (!baseColor || name !== 'custom') config.background = '#FAF9F6';
+      if (!customText || name !== 'custom') config.text = '#0f172a';
       config.textMuted = '#475569';
       config.axis = 'rgba(15,23,42,0.45)';
       config.grid = 'rgba(15,23,42,0.18)';
     } else {
-      config.background = '#0f1117'; // Dark padrão premium
-      config.text = '#e8eaf6';
+      if (!baseColor || name !== 'custom') config.background = '#0f1117';
+      if (!customText || name !== 'custom') config.text = '#e8eaf6';
       config.textMuted = '#8892b0';
       config.axis = 'rgba(232,234,246,0.25)';
       config.grid = 'rgba(232,234,246,0.12)';
@@ -823,6 +835,8 @@ export const formatValue = (n: number, unit = '') => {
   }
 
   if (unit === 'M' || unit === 'k') return valueStr;
+  
+  if (unit === '%') return `${valueStr}%`;
   
   const isPrefix = unit.includes('$') || unit.includes('£') || unit.includes('€') || unit.trim().toLowerCase() === 'r$';
   return isPrefix ? `${unit.trim()}${valueStr}` : (unit ? `${valueStr} ${unit}`.trim() : valueStr);

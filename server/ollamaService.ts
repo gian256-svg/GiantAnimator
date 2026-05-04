@@ -19,7 +19,7 @@ interface OllamaResponse {
  * Gera insights usando Ollama (Local/Grátis)
  */
 export async function generateInsightsWithOllama(data: any): Promise<string> {
-  console.log(`🤖 [OLLAMA] Gerando insights locais (Model: ${OLLAMA_MODEL})...`);
+  console.log(`🤖 [Simão] Gerando insights locais (Model: ${OLLAMA_MODEL})...`);
   
   const prompt = `Analise os seguintes dados de um gráfico e gere um insight executivo curto e impactante (máximo 2 frases). 
 Dados: ${JSON.stringify(data)}
@@ -34,7 +34,7 @@ Responda APENAS o texto do insight em Português.`;
 
     return response.data.response.trim();
   } catch (error: any) {
-    console.error('❌ [OLLAMA] Erro ao gerar insight:', error.message);
+    console.error('❌ [Simão] Erro ao gerar insight:', error.message);
     throw error;
   }
 }

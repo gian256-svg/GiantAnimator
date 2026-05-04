@@ -14,6 +14,7 @@ const state = {
   currentAnalysis: null,
   originalFilename: null,
   selectedPalette: 'original',
+  lastLogLength: 0, // rastreia quantos chars do log já foram exibidos
   customPalette: {
     bg: '#0f1117',
     text: '#ffffff',
@@ -176,20 +177,95 @@ window.openCustomPalette = function() {
     document.getElementById('cp-text').value = state.customPalette.text;
     document.getElementById('cp-bg-type').value = state.customPalette.bgType;
     
-    const colorInputs = document.querySelectorAll('.cp-color-input');
+    const colorInputs = document.querySelectorAll('#cp-tab-manual .cp-color-input');
     state.customPalette.colors.forEach((c, i) => {
       if (colorInputs[i]) colorInputs[i].value = c;
     });
+
+    // Reset tabs
+    document.querySelectorAll('.cp-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector('.cp-tab[data-tab="manual"]').classList.add('active');
+    document.querySelectorAll('.cp-tab-content').forEach(c => c.classList.remove('active'));
+    document.getElementById('cp-tab-manual').classList.add('active');
 
     modal.style.display = 'flex';
   }
 };
 
+// ─── PALETTE TABS & REFERENCE LOGIC ────────────────────────────────
+document.addEventListener('click', e => {
+  if (e.target.classList.contains('cp-tab')) {
+    const tabId = e.target.dataset.tab;
+    document.querySelectorAll('.cp-tab').forEach(t => t.classList.remove('active'));
+    e.target.classList.add('active');
+    document.querySelectorAll('.cp-tab-content').forEach(c => c.classList.remove('active'));
+    document.getElementById(`cp-tab-${tabId}`).classList.add('active');
+  }
+});
+
+// Handle Reference Image
+document.addEventListener('DOMContentLoaded', () => {
+    const cpDrop = document.getElementById('cp-ref-drop');
+    const cpInput = document.getElementById('cp-ref-input');
+    const canvas = document.getElementById('cp-ref-canvas');
+
+    if (cpDrop && cpInput) {
+        cpDrop.addEventListener('click', () => cpInput.click());
+        cpInput.addEventListener('change', e => handlePaletteRefImage(e.target.files[0]));
+    }
+
+    if (canvas) {
+        canvas.addEventListener('click', e => {
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+            const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+            const ctx = canvas.getContext('2d');
+            const imageData = ctx.getImageData(x, y, 1, 1).data;
+            const r = imageData[0], g = imageData[1], b = imageData[2];
+            const hex = "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+            
+            // Add to manual list (sequential)
+            const inputs = document.querySelectorAll('#cp-tab-manual .cp-color-input');
+            const emptyInput = Array.from(inputs).find(inp => inp.value === '#000000' || inp.dataset.new === 'true');
+            
+            if (emptyInput) {
+                emptyInput.value = hex;
+                emptyInput.dataset.new = 'false';
+            } else {
+                // Shift colors if all full
+                for(let i = 0; i < inputs.length - 1; i++) inputs[i].value = inputs[i+1].value;
+                inputs[inputs.length - 1].value = hex;
+            }
+            toast(`Cor ${hex} capturada!`, 'success');
+        });
+    }
+});
+
+function handlePaletteRefImage(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+            const canvas = document.getElementById('cp-ref-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+            document.getElementById('cp-ref-preview-container').style.display = 'block';
+            document.getElementById('cp-ref-drop').style.display = 'none';
+            toast("Clique na imagem para extrair cores!", "info");
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
 window.saveCustomPalette = function() {
   const bg = document.getElementById('cp-bg').value;
   const text = document.getElementById('cp-text').value;
   const bgType = document.getElementById('cp-bg-type').value;
-  const colors = Array.from(document.querySelectorAll('.cp-color-input')).map(inp => inp.value);
+  const colors = Array.from(document.querySelectorAll('#cp-tab-manual .cp-color-input')).map(inp => inp.value);
 
   state.customPalette = { bg, text, bgType, colors };
   state.selectedPalette = 'custom';
@@ -320,8 +396,6 @@ async function loadCSVPreview(file) {
     const fd = new FormData();
     fd.append('file', file);
     
-    // Chamada unificada para o novo endpoint /preview-data
-    console.log('📡 [Fetch] Enviando para /preview-data...');
     const res = await fetch('/preview-data', { method: 'POST', body: fd });
     
     if (!res.ok) {
@@ -331,7 +405,6 @@ async function loadCSVPreview(file) {
     }
     
     const data = await res.json();
-    console.log('✅ [Fetch] Dados recebidos:', data);
     const summary = data.summary;
 
     // Meta Info
@@ -563,15 +636,32 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderGrid() {
       const tbody = document.getElementById('ve-grid-body');
       if (!tbody) return;
-      tbody.innerHTML = editorData.map((dp, i) => `
-        <tr class="ve-row" data-idx="${i}">
-          <td><input type="text" class="ve-cell ve-cell-label" data-idx="${i}" value="${dp.label.replace(/"/g,'&quot;')}" placeholder="Label..."></td>
-          <td><input type="number" step="any" class="ve-cell ve-cell-value" data-idx="${i}" value="${dp.value}"></td>
-          <td><button class="ve-del-row" data-idx="${i}" title="Remover">×</button></td>
-        </tr>
-      `).join('');
+      
+      const COLORS = ['#7c3aed','#06b6d4','#a855f7','#22c55e','#f59e0b','#ef4444','#3b82f6','#f97316'];
+
+      tbody.innerHTML = editorData.map((dp, i) => {
+        const rowColor = dp.color || COLORS[i % COLORS.length];
+        return `
+          <tr class="ve-row" data-idx="${i}">
+            <td>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <input type="color" class="ve-cell-color" data-idx="${i}" value="${rowColor}" title="Cor do elemento">
+                <input type="text" class="ve-cell ve-cell-label" data-idx="${i}" value="${dp.label.replace(/"/g,'&quot;')}" placeholder="Label...">
+              </div>
+            </td>
+            <td><input type="number" step="any" class="ve-cell ve-cell-value" data-idx="${i}" value="${dp.value}"></td>
+            <td><button class="ve-del-row" data-idx="${i}" title="Remover">×</button></td>
+          </tr>
+        `;
+      }).join('');
 
       // Eventos das células
+      tbody.querySelectorAll('.ve-cell-color').forEach(inp => {
+        inp.addEventListener('input', e => {
+          editorData[e.target.dataset.idx].color = e.target.value;
+          updatePreview();
+        });
+      });
       tbody.querySelectorAll('.ve-cell-label').forEach(inp => {
         inp.addEventListener('input', e => {
           editorData[e.target.dataset.idx].label = e.target.value;
@@ -615,10 +705,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const values = editorData.map(d => d.value);
       const maxVal = Math.max(...values, 0.001);
       const minVal = Math.min(...values, 0);
-      const COLORS = ['#7c3aed','#06b6d4','#a855f7','#22c55e','#f59e0b','#ef4444','#3b82f6','#f97316'];
+      const DEFAULT_COLORS = ['#7c3aed','#06b6d4','#a855f7','#22c55e','#f59e0b','#ef4444','#3b82f6','#f97316'];
 
       let paths = '';
       const n = editorData.length;
+
+      const getElementColor = (i) => editorData[i].color || DEFAULT_COLORS[i % DEFAULT_COLORS.length];
 
       if (editorType === 'PieChart') {
         // ── Pie ──
@@ -633,7 +725,7 @@ document.addEventListener('DOMContentLoaded', () => {
           const x2 = cx + r * Math.cos(endAngle);
           const y2 = cy + r * Math.sin(endAngle);
           const lf = slice > Math.PI ? 1 : 0;
-          const color = COLORS[i % COLORS.length];
+          const color = getElementColor(i);
           if (slice > 0) {
             paths += `<path d="M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${lf} 1 ${x2},${y2} Z" fill="${color}" stroke="#0f1117" stroke-width="1.5" opacity="0.92"/>`;
             // Label
@@ -679,7 +771,7 @@ document.addEventListener('DOMContentLoaded', () => {
         editorData.forEach((d, i) => {
           const y = PAD_T + i * (plotH / n) + (plotH / n - barH) / 2;
           const bW = (d.value / maxVal) * bPlotW;
-          const color = COLORS[i % COLORS.length];
+          const color = getElementColor(i);
           paths += `<text x="${PAD_L + LABEL_W - 6}" y="${y + barH/2}" text-anchor="end" dominant-baseline="middle" fill="#94a3b8" font-size="9">${d.label.slice(0,10)}</text>`;
           paths += `<rect x="${PAD_L+LABEL_W}" y="${y}" width="${Math.max(bW,0)}" height="${barH}" fill="${color}" rx="2" opacity="0.85"/>`;
           if (bW > 25) paths += `<text x="${PAD_L+LABEL_W+bW-5}" y="${y+barH/2}" text-anchor="end" dominant-baseline="middle" fill="#fff" font-size="8" font-weight="700">${d.value >= 1000 ? (d.value/1000).toFixed(1)+'k' : d.value}</text>`;
@@ -703,7 +795,7 @@ document.addEventListener('DOMContentLoaded', () => {
           const x = PAD_L + i * (barW + gap);
           const bH = (d.value / maxVal) * plotH;
           const y = PAD_T + plotH - bH;
-          const color = COLORS[i % COLORS.length];
+          const color = getElementColor(i);
           paths += `<rect x="${x}" y="${y}" width="${barW}" height="${Math.max(bH,0)}" fill="${color}" rx="2" opacity="0.85"/>`;
           // Value on top
           if (bH > 12) paths += `<text x="${x+barW/2}" y="${y-3}" text-anchor="middle" fill="${color}" font-size="8" font-weight="700">${d.value >= 1000?(d.value/1000).toFixed(1)+'k':d.value}</text>`;
@@ -743,6 +835,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Expõe dados para o botão Confirmar (retrocompatibilidade total)
     container._getEditorData = () => editorData;
+    container._getEditorType = () => editorType;
   }
 
   if (btnConfirmJson) {
@@ -754,16 +847,19 @@ document.addEventListener('DOMContentLoaded', () => {
               const engine   = document.getElementById('edit-engine')?.value || 'remotion';
 
               // ── Novo Editor Premium ───────────────────────────────────────
-              let newLabels = [], newData = [];
+              let newLabels = [], newData = [], editorData = [];
               if (container && typeof container._getEditorData === 'function') {
-                  const editorData = container._getEditorData();
+                  editorData = container._getEditorData();
                   newLabels = editorData.map(d => d.label);
                   newData   = editorData.map(d => d.value);
               } else {
                   // Fallback para o editor antigo (caso alguma versão antiga ainda esteja no DOM)
                   document.querySelectorAll('.edit-label').forEach((input, i) => {
-                      newLabels.push(input.value);
-                      newData.push(parseFloat(document.querySelectorAll('.edit-value')[i]?.value) || 0);
+                      const label = input.value;
+                      const value = parseFloat(document.querySelectorAll('.edit-value')[i]?.value) || 0;
+                      newLabels.push(label);
+                      newData.push(value);
+                      editorData.push({ label, value });
                   });
               }
 
@@ -785,11 +881,17 @@ document.addEventListener('DOMContentLoaded', () => {
                   // Atualizar séries de dados single-column
                   if (editedAnalysis.props.series) {
                       editedAnalysis.props.series[0].data = newData;
+                      // NOVO: Preservar cores se editadas individualmente
+                      editedAnalysis.props.seriesColors = editorData.map((d, i) => d.color || null).filter(Boolean);
                   } else {
                       editedAnalysis.props.series = [{ label: title || 'Série 1', data: newData }];
                   }
                   if (editedAnalysis.props.data) {
-                      editedAnalysis.props.data = newLabels.map((l, i) => ({ label: l, value: newData[i] }));
+                      editedAnalysis.props.data = newLabels.map((l, i) => ({ 
+                        label: l, 
+                        value: newData[i],
+                        color: editorData[i].color // NOVO: Mapeia cor para o objeto de dados
+                      }));
                   }
                   if (editedAnalysis.props.datasets) {
                       editedAnalysis.props.datasets[0].data = newData;
@@ -960,6 +1062,7 @@ function stopPolling() {
 function startPolling(jobId, fileName, fileId) {
   if (state.pollInterval) clearInterval(state.pollInterval);
   state.currentJobId = jobId;
+  state.lastLogLength = 0;
 
   const interval = setInterval(async () => {
     try {
@@ -967,11 +1070,14 @@ function startPolling(jobId, fileName, fileId) {
       if (!res.ok) return;
 
       const msg = await res.json();
-      console.log('Polling Update:', msg);
 
       if (msg.progress !== undefined) {
         setProgress(msg.progress, msg.stage || '');
-        if (msg.log) log(msg.log, msg.logType || 'info');
+        if (msg.log && msg.log.length > state.lastLogLength) {
+          const newContent = msg.log.slice(state.lastLogLength);
+          state.lastLogLength = msg.log.length;
+          newContent.split('\n').filter(Boolean).forEach(line => log(line, msg.logType || 'info'));
+        }
       }
 
       if (msg.status === 'awaiting_review') {

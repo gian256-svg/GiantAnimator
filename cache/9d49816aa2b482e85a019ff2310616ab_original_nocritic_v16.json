@@ -1,0 +1,235 @@
+{
+  "componentId": "LineChart",
+  "suggestedName": "EighthGradeScoresOverTime",
+  "reasoning": "O gráfico exibe a evolução de duas séries de dados (Reading e Math NAEP Scores) ao longo do tempo, com pontos conectados por linhas, o que o caracteriza como um LineChart. Foram extraídos o título completo, os rótulos do eixo X (anos), os nomes das séries e seus respectivos pontos de dados, incluindo a representação de dados ausentes com 'null'. As cores das séries, os limites do eixo Y (yMin e yMax) e as anotações de valor (call-outs) foram extraídos com precisão cirúrgica, conforme as diretrizes.",
+  "props": {
+    "title": "Figure 1. Eighth-Grade Reading and Math NAEP Scores over Time",
+    "subtitle": "",
+    "labels": [
+      "2002",
+      "2004",
+      "2006",
+      "2008",
+      "2010",
+      "2012",
+      "2014",
+      "2016",
+      "2018",
+      "2020",
+      "2022",
+      "2024"
+    ],
+    "series": [
+      {
+        "label": "Average Scale Score, Eighth-Grade Reading",
+        "data": [
+          263,
+          262,
+          263,
+          264,
+          265,
+          268,
+          265,
+          267,
+          263,
+          260,
+          258,
+          null
+        ]
+      },
+      {
+        "label": "Average Scale Score, Eighth-Grade Math",
+        "data": [
+          278,
+          279,
+          281,
+          283,
+          284,
+          285,
+          282,
+          283,
+          282,
+          274,
+          274,
+          274
+        ]
+      }
+    ],
+    "unit": "",
+    "showValueLabels": true,
+    "showLegend": true,
+    "seriesColors": [
+      "#21466B",
+      "#A86B3F"
+    ],
+    "yMin": 255,
+    "yMax": 290,
+    "annotations": [
+      {
+        "seriesIndex": 0,
+        "index": 0,
+        "valueStr": "263"
+      },
+      {
+        "seriesIndex": 0,
+        "index": 1,
+        "valueStr": "262"
+      },
+      {
+        "seriesIndex": 0,
+        "index": 2,
+        "valueStr": "263"
+      },
+      {
+        "seriesIndex": 0,
+        "index": 3,
+        "valueStr": "264"
+      },
+      {
+        "seriesIndex": 0,
+        "index": 4,
+        "valueStr": "265"
+      },
+      {
+        "seriesIndex": 0,
+        "index": 5,
+        "valueStr": "268"
+      },
+      {
+        "seriesIndex": 0,
+        "index": 6,
+        "valueStr": "265"
+      },
+      {
+        "seriesIndex": 0,
+        "index": 7,
+        "valueStr": "267"
+      },
+      {
+        "seriesIndex": 0,
+        "index": 8,
+        "valueStr": "263"
+      },
+      {
+        "seriesIndex": 0,
+        "index": 9,
+        "valueStr": "260"
+      },
+      {
+        "seriesIndex": 0,
+        "index": 10,
+        "valueStr": "258"
+      },
+      {
+        "seriesIndex": 1,
+        "index": 0,
+        "valueStr": "278"
+      },
+      {
+        "seriesIndex": 1,
+        "index": 1,
+        "valueStr": "279"
+      },
+      {
+        "seriesIndex": 1,
+        "index": 2,
+        "valueStr": "281"
+      },
+      {
+        "seriesIndex": 1,
+        "index": 3,
+        "valueStr": "283"
+      },
+      {
+        "seriesIndex": 1,
+        "index": 4,
+        "valueStr": "284"
+      },
+      {
+        "seriesIndex": 1,
+        "index": 5,
+        "valueStr": "285"
+      },
+      {
+        "seriesIndex": 1,
+        "index": 6,
+        "valueStr": "282"
+      },
+      {
+        "seriesIndex": 1,
+        "index": 7,
+        "valueStr": "283"
+      },
+      {
+        "seriesIndex": 1,
+        "index": 8,
+        "valueStr": "282"
+      },
+      {
+        "seriesIndex": 1,
+        "index": 9,
+        "valueStr": "274"
+      },
+      {
+        "seriesIndex": 1,
+        "index": 10,
+        "valueStr": "274"
+      },
+      {
+        "seriesIndex": 1,
+        "index": 11,
+        "valueStr": "274"
+      }
+    ],
+    "data": [
+      {
+        "label": "2002",
+        "value": 263
+      },
+      {
+        "label": "2004",
+        "value": 262
+      },
+      {
+        "label": "2006",
+        "value": 263
+      },
+      {
+        "label": "2008",
+        "value": 264
+      },
+      {
+        "label": "2010",
+        "value": 265
+      },
+      {
+        "label": "2012",
+        "value": 268
+      },
+      {
+        "label": "2014",
+        "value": 265
+      },
+      {
+        "label": "2016",
+        "value": 267
+      },
+      {
+        "label": "2018",
+        "value": 263
+      },
+      {
+        "label": "2020",
+        "value": 260
+      },
+      {
+        "label": "2022",
+        "value": 258
+      },
+      {
+        "label": "2024",
+        "value": 0
+      }
+    ]
+  }
+}

@@ -12,16 +12,17 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({ baseColor,
     const isDark = backgroundType === 'dark' || (!backgroundType && baseColor === '#0f1117');
     const isLight = backgroundType === 'light' || (!backgroundType && baseColor !== '#0f1117');
 
+    const isCustomBg = baseColor !== '#0f1117' && baseColor !== '#FAF9F6' && baseColor !== '#ffffff' && baseColor !== '#000000';
     let gradientBackground = '';
 
-    if (backgroundType === 'dark') {
+    if (backgroundType === 'dark' && !isCustomBg) {
         // Gradiente Premium Escuro (Referência Imagem 3)
         gradientBackground = `radial-gradient(circle at 50% 50%, #1a1c23 0%, #090a0f 100%)`;
-    } else if (backgroundType === 'light') {
+    } else if (backgroundType === 'light' && !isCustomBg) {
         // Gradiente Premium Claro (Referência Imagem 4)
         gradientBackground = `radial-gradient(circle at 50% 50%, #ffffff 0%, #f0f2f5 100%)`;
     } else {
-        // Modo adaptativo baseado na cor base (mantém flexibilidade)
+        // Modo adaptativo baseado na cor base (mantém flexibilidade para paletas CUSTOM)
         const shadowOpacity = isDark ? 0.4 : 0.05;
         gradientBackground = `radial-gradient(circle at 50% 50%, ${baseColor} 0%, rgba(0,0,0,${shadowOpacity}) 100%)`;
     }

@@ -90,7 +90,7 @@ export async function analyzeChartImageWithClaude(
 
   if (auditorCritique) prompt += `\n### ⚠️ FEEDBACK AUDITORIA:\n${auditorCritique}\n`;
 
-  console.log("🤖 [CLAUDE VISION] Iniciando análise de imagem (Fallback)...");
+  console.log("🤖 [Filipe] Iniciando análise de imagem (Fallback)...");
 
   const response = await claude.messages.create({
     model: "claude-3-5-sonnet-20241022",
@@ -154,7 +154,7 @@ export async function auditRenderFidelityWithClaude(
   const { buildAuditorPrompt } = await import("./prompts/auditor.js");
   const prompt = buildAuditorPrompt();
 
-  console.log("⚖️ [CLAUDE AUDITOR] Iniciando auditoria de fidelidade (Fallback)...");
+  console.log("⚖️ [Filipe] Iniciando auditoria de fidelidade (Fallback)...");
 
   const response = await claude.messages.create({
     model: "claude-3-5-sonnet-20241022",

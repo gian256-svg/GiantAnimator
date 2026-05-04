@@ -280,37 +280,63 @@
     </div>
     
     <div class="modal-body">
-      <div class="cp-grid">
-        <div class="cp-section">
-          <label class="ve-label">Configurações Base</label>
-          <div class="cp-field">
-            <span>Cor de Fundo</span>
-            <input type="color" id="cp-bg" value="#0f1117">
+      <div class="cp-tabs">
+        <button class="cp-tab active" data-tab="manual">Ajuste Manual</button>
+        <button class="cp-tab" data-tab="reference">Referência Visual</button>
+      </div>
+
+      <div id="cp-tab-manual" class="cp-tab-content active">
+        <div class="cp-grid">
+          <div class="cp-section">
+            <label class="ve-label">Ambiente</label>
+            <div class="cp-field">
+              <span>Fundo</span>
+              <input type="color" id="cp-bg" value="#0f1117">
+            </div>
+            <div class="cp-field">
+              <span>Texto</span>
+              <input type="color" id="cp-text" value="#ffffff">
+            </div>
+            <div class="cp-field">
+              <span>Brilho</span>
+              <select id="cp-bg-type">
+                <option value="dark">Dark Mode</option>
+                <option value="light">Light Mode</option>
+              </select>
+            </div>
           </div>
-          <div class="cp-field">
-            <span>Cor do Texto</span>
-            <input type="color" id="cp-text" value="#ffffff">
-          </div>
-          <div class="cp-field">
-            <span>Tipo de Tema</span>
-            <select id="cp-bg-type">
-              <option value="dark">Dark Mode</option>
-              <option value="light">Light Mode</option>
-            </select>
+
+          <div class="cp-section">
+            <label class="ve-label">Paleta de Dados (Cores Sequenciais)</label>
+            <div id="cp-colors-list" class="cp-colors-grid">
+              <input type="color" class="cp-color-input" value="#7c3aed">
+              <input type="color" class="cp-color-input" value="#06b6d4">
+              <input type="color" class="cp-color-input" value="#a855f7">
+              <input type="color" class="cp-color-input" value="#22c55e">
+              <input type="color" class="cp-color-input" value="#f59e0b">
+              <input type="color" class="cp-color-input" value="#ef4444">
+            </div>
+            <p class="control-label-hint" style="margin-top:10px;">A ordem das cores será seguida pelas barras/séries.</p>
           </div>
         </div>
+      </div>
 
-        <div class="cp-section">
-          <label class="ve-label">Cores das Séries (Gráfico)</label>
-          <div id="cp-colors-list" class="cp-colors-grid">
-            <input type="color" class="cp-color-input" value="#7c3aed">
-            <input type="color" class="cp-color-input" value="#06b6d4">
-            <input type="color" class="cp-color-input" value="#a855f7">
-            <input type="color" class="cp-color-input" value="#22c55e">
-            <input type="color" class="cp-color-input" value="#f59e0b">
-            <input type="color" class="cp-color-input" value="#ef4444">
-          </div>
-          <p class="control-label-hint" style="margin-top:10px;">Clique nas cores para alterar</p>
+      <div id="cp-tab-reference" class="cp-tab-content">
+        <div class="cp-reference-drop" id="cp-ref-drop">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+          <span>Arraste uma imagem ou clique para extrair paleta</span>
+          <input type="file" id="cp-ref-input" accept="image/*" style="display:none">
+        </div>
+        <div id="cp-ref-preview-container" style="display:none; margin-top:15px;">
+           <div class="cp-ref-preview-wrap">
+             <canvas id="cp-ref-canvas" style="max-width:100%; height:auto; border-radius:8px; cursor:crosshair;"></canvas>
+             <div class="cp-ref-hint">Clique na imagem para capturar cores personalizadas</div>
+           </div>
+           <div id="cp-extracted-colors" class="cp-colors-grid" style="margin-top:10px;"></div>
         </div>
       </div>
     </div>

@@ -1,0 +1,78 @@
+{
+  "componentId": "LineChart",
+  "suggestedName": "ExpenditurePerPupil",
+  "reasoning": "O gráfico é claramente um LineChart, mostrando a evolução de duas séries de dados ao longo do tempo (anos escolares). Os rótulos do eixo X são categóricos temporais, e há duas séries distintas com seus próprios rótulos e cores. Os valores numéricos são explícitos nos pontos de dados, justificando 'showValueLabels: true'. A legenda é visível e os eixos Y min/max foram extraídos com precisão.",
+  "props": {
+    "title": "Expenditure per Pupil in Average Daily Attendance: Selected years, 1977-78 through 2002-03",
+    "subtitle": "The NCES Common Core of Data (CCD) 2004-2005",
+    "labels": [
+      "1977-78",
+      "1982-83",
+      "1987-88",
+      "1992-93",
+      "1997-98",
+      "2002-03"
+    ],
+    "series": [
+      {
+        "label": "Total Expenditure in Unadjusted Dollars",
+        "data": [
+          2,
+          3.2,
+          4.6,
+          6.2,
+          7.7,
+          9.9
+        ]
+      },
+      {
+        "label": "Total Expenditure in Constant 2004-05 Dollars",
+        "data": [
+          6.1,
+          6.2,
+          7.7,
+          8.4,
+          9.1,
+          9.9
+        ]
+      }
+    ],
+    "unit": "thousands",
+    "showValueLabels": true,
+    "showLegend": true,
+    "seriesColors": [
+      "#4FCCE2",
+      "#F7A844"
+    ],
+    "yMin": 0,
+    "yMax": 10,
+    "yAxisLabel": "Expenditure per Student (in thousands)",
+    "xAxisLabel": "School Year",
+    "data": [
+      {
+        "label": "1977-78",
+        "value": 2
+      },
+      {
+        "label": "1982-83",
+        "value": 3.2
+      },
+      {
+        "label": "1987-88",
+        "value": 4.6
+      },
+      {
+        "label": "1992-93",
+        "value": 6.2
+      },
+      {
+        "label": "1997-98",
+        "value": 7.7
+      },
+      {
+        "label": "2002-03",
+        "value": 9.9
+      }
+    ]
+  }
+}

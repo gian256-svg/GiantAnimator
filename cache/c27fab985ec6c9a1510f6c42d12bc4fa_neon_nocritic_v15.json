@@ -1,0 +1,75 @@
+{
+  "componentId": "HorizontalBarChart",
+  "suggestedName": "StaffAcquisitionSource",
+  "reasoning": "O gráfico original é um gráfico de barras horizontais, o que corresponde diretamente ao componente 'HorizontalBarChart'. Os rótulos das categorias (fontes de aquisição) e os valores numéricos foram extraídos com precisão. As cores das barras foram identificadas e mapeadas para a propriedade 'seriesColors'. Não há legenda explícita com rótulos para as séries, nem unidade global, e os valores são exibidos diretamente nas barras, justificando 'showValueLabels: true' e 'showLegend: false'.",
+  "props": {
+    "title": "Staff Acquisition Source- Horizontal Bar Chart",
+    "subtitle": "",
+    "labels": [
+      "Campus Interview",
+      "Career Fair",
+      "Recruitment Vendor",
+      "Employee Referral",
+      "Web Groups",
+      "Job Portals",
+      "Print Media"
+    ],
+    "series": [
+      {
+        "label": "",
+        "data": [
+          1500,
+          4000,
+          3050,
+          2050,
+          1100,
+          2500,
+          4000
+        ]
+      }
+    ],
+    "unit": "",
+    "showValueLabels": true,
+    "showLegend": false,
+    "seriesColors": [
+      "#26A69A",
+      "#000000",
+      "#26A69A",
+      "#26A69A",
+      "#000000",
+      "#26A69A",
+      "#26A69A"
+    ],
+    "annotations": [],
+    "data": [
+      {
+        "label": "Campus Interview",
+        "value": 1500
+      },
+      {
+        "label": "Career Fair",
+        "value": 4000
+      },
+      {
+        "label": "Recruitment Vendor",
+        "value": 3050
+      },
+      {
+        "label": "Employee Referral",
+        "value": 2050
+      },
+      {
+        "label": "Web Groups",
+        "value": 1100
+      },
+      {
+        "label": "Job Portals",
+        "value": 2500
+      },
+      {
+        "label": "Print Media",
+        "value": 4000
+      }
+    ]
+  }
+}

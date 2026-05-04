@@ -40,17 +40,25 @@ export async function auditRenderFidelity(
   const prompt = buildAuditorPrompt();
 
   let retries = 0;
-  const MAX_RETRIES = 3; // Reduzido para não travar o pipeline se o Google estiver instável
+  const MAX_RETRIES = 2;
   while (retries <= MAX_RETRIES) {
     try {
       const model = ai.getGenerativeModel({ model: GEMINI_MODEL });
-      const result = await model.generateContent([
+
+      // ⏱️ TIMEOUT GATE (20s): Auditor é tarefa simples, não precisa de 45s
+      const auditPromise = model.generateContent([
         { text: "ESTA É A IMAGEM ORIGINAL DE REFERÊNCIA:" },
         { inlineData: { data: originalB64, mimeType: originalMime } },
         { text: "ESTE É O RENDER GERADO PELO SISTEMA (FRAME 480 — ANIMAÇÃO COMPLETA):" },
         { inlineData: { data: renderedB64, mimeType: renderedMime } },
         { text: prompt }
       ]);
+
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("GATEWAY_TIMEOUT: Auditor demorou mais de 20s")), 20000)
+      );
+
+      const result: any = await Promise.race([auditPromise, timeoutPromise]);
       
       const responseText = result.response.text() || "";
       const jsonMatch = responseText.match(/\{[\s\S]*\}/);
@@ -64,8 +72,7 @@ export async function auditRenderFidelity(
       const is503 = err.message?.includes("503") || err.message?.includes("UNAVAILABLE");
       if (is503 && retries < MAX_RETRIES) {
         retries++;
-        // Backoff capado em 15 segundos
-        const delay = Math.min(Math.pow(2, retries) * 2000, 15000);
+        const delay = Math.min(retries * 3000, 8000);
         console.warn(`⚠️ [AUDITOR] Gemini 503 (Demanda Alta). Retry ${retries}/${MAX_RETRIES} em ${delay}ms...`);
         await new Promise(r => setTimeout(r, delay));
         continue;
@@ -77,6 +84,7 @@ export async function auditRenderFidelity(
       const isGoogleError = err.message?.includes("503") || 
                            err.message?.includes("UNAVAILABLE") || 
                            err.message?.includes("fetching") ||
+                           err.message?.includes("GATEWAY_TIMEOUT") ||
                            err.message?.includes("API");
 
       if (isGoogleError) {

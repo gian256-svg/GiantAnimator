@@ -1,0 +1,135 @@
+{
+  "componentId": "LineChart",
+  "suggestedName": "ExpenditurePerPupil",
+  "reasoning": "O gráfico exibe a evolução de duas séries de dados ao longo do tempo (anos escolares), conectadas por linhas, o que o caracteriza como um LineChart. Todos os rótulos de eixo, título, subtítulo, legendas das séries e valores dos pontos de dados foram extraídos com precisão cirúrgica, seguindo as diretrizes de fidelidade textual e numérica. As cores das séries foram capturadas diretamente da imagem original. A presença de rótulos explícitos nos pontos de dados justifica 'showValueLabels: true' e a criação do array 'annotations' para os valores visíveis. Os limites do eixo Y (yMin, yMax) e a unidade foram definidos conforme a imagem. Os rótulos dos eixos X e Y foram incluídos conforme feedback de auditoria anterior.",
+  "props": {
+    "title": "Expenditure per Pupil in Average Daily Attendance: Selected years, 1977-78 through 2002-03",
+    "subtitle": "The NCES Common Core of Data (CCD) 2004-2005",
+    "labels": [
+      "1977-78",
+      "1982-83",
+      "1987-88",
+      "1992-93",
+      "1997-98",
+      "2002-03"
+    ],
+    "series": [
+      {
+        "label": "Total Expenditure in Unadjusted Dollars",
+        "data": [
+          2,
+          3.2,
+          4.6,
+          6.2,
+          7.7,
+          9.9
+        ]
+      },
+      {
+        "label": "Total Expenditure in Constant 2004-05 Dollars",
+        "data": [
+          6.1,
+          6.2,
+          7.7,
+          8.4,
+          9.1,
+          10
+        ]
+      }
+    ],
+    "unit": "thousands",
+    "showValueLabels": true,
+    "showLegend": true,
+    "seriesColors": [
+      "#64B5F6",
+      "#FFA726"
+    ],
+    "yMin": 0,
+    "yMax": 10,
+    "xLabel": "School Year",
+    "yLabel": "Expenditure per Student (in thousands)",
+    "annotations": [
+      {
+        "seriesIndex": 0,
+        "index": 0,
+        "valueStr": "2"
+      },
+      {
+        "seriesIndex": 0,
+        "index": 1,
+        "valueStr": "3.2"
+      },
+      {
+        "seriesIndex": 0,
+        "index": 2,
+        "valueStr": "4.6"
+      },
+      {
+        "seriesIndex": 0,
+        "index": 3,
+        "valueStr": "6.2"
+      },
+      {
+        "seriesIndex": 0,
+        "index": 4,
+        "valueStr": "7.7"
+      },
+      {
+        "seriesIndex": 0,
+        "index": 5,
+        "valueStr": "9.9"
+      },
+      {
+        "seriesIndex": 1,
+        "index": 0,
+        "valueStr": "6.1"
+      },
+      {
+        "seriesIndex": 1,
+        "index": 1,
+        "valueStr": "6.2"
+      },
+      {
+        "seriesIndex": 1,
+        "index": 2,
+        "valueStr": "7.7"
+      },
+      {
+        "seriesIndex": 1,
+        "index": 3,
+        "valueStr": "8.4"
+      },
+      {
+        "seriesIndex": 1,
+        "index": 4,
+        "valueStr": "9.1"
+      }
+    ],
+    "data": [
+      {
+        "label": "1977-78",
+        "value": 2
+      },
+      {
+        "label": "1982-83",
+        "value": 3.2
+      },
+      {
+        "label": "1987-88",
+        "value": 4.6
+      },
+      {
+        "label": "1992-93",
+        "value": 6.2
+      },
+      {
+        "label": "1997-98",
+        "value": 7.7
+      },
+      {
+        "label": "2002-03",
+        "value": 9.9
+      }
+    ]
+  }
+}

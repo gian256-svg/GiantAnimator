@@ -1,0 +1,119 @@
+{
+  "componentId": "LineChart",
+  "suggestedName": "EighthGradeScores",
+  "reasoning": "O gráfico é claramente um LineChart, mostrando a evolução de duas séries de dados (Reading e Math NAEP Scores) ao longo do tempo. Os rótulos do eixo X são anos, e os valores de cada ponto são explicitamente exibidos, justificando 'showValueLabels: true'. A legenda é presente e os nomes das séries foram extraídos fielmente. As cores das séries e os limites do eixo Y (yMin, yMax) foram capturados com precisão cirúrgica da imagem original.",
+  "props": {
+    "title": "Figure 1. Eighth-Grade Reading and Math NAEP Scores over Time",
+    "subtitle": "",
+    "labels": [
+      "2002",
+      "2004",
+      "2006",
+      "2008",
+      "2010",
+      "2012",
+      "2014",
+      "2016",
+      "2018",
+      "2020",
+      "2022",
+      "2024"
+    ],
+    "series": [
+      {
+        "label": "Average Scale Score, Eighth-Grade Reading",
+        "data": [
+          263,
+          262,
+          263,
+          264,
+          265,
+          268,
+          265,
+          267,
+          263,
+          260,
+          260,
+          258
+        ]
+      },
+      {
+        "label": "Average Scale Score, Eighth-Grade Math",
+        "data": [
+          278,
+          279,
+          281,
+          283,
+          284,
+          285,
+          282,
+          283,
+          282,
+          274,
+          274,
+          274
+        ]
+      }
+    ],
+    "unit": "",
+    "showValueLabels": true,
+    "showLegend": true,
+    "seriesColors": [
+      "#21466B",
+      "#B87333"
+    ],
+    "yMin": 255,
+    "yMax": 290,
+    "annotations": [],
+    "data": [
+      {
+        "label": "2002",
+        "value": 263
+      },
+      {
+        "label": "2004",
+        "value": 262
+      },
+      {
+        "label": "2006",
+        "value": 263
+      },
+      {
+        "label": "2008",
+        "value": 264
+      },
+      {
+        "label": "2010",
+        "value": 265
+      },
+      {
+        "label": "2012",
+        "value": 268
+      },
+      {
+        "label": "2014",
+        "value": 265
+      },
+      {
+        "label": "2016",
+        "value": 267
+      },
+      {
+        "label": "2018",
+        "value": 263
+      },
+      {
+        "label": "2020",
+        "value": 260
+      },
+      {
+        "label": "2022",
+        "value": 260
+      },
+      {
+        "label": "2024",
+        "value": 258
+      }
+    ]
+  }
+}
