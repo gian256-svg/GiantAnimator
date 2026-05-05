@@ -1,0 +1,150 @@
+{
+  "componentId": "BarChart",
+  "suggestedName": "TopTrendingMusic2024",
+  "reasoning": "O gráfico é um BarChart (barras verticais agrupadas). Os dados foram extraídos com precisão dos eixos e da legenda, mantendo os nomes originais das séries e categorias. As cores foram capturadas diretamente da imagem. Não há yMin/yMax explícitos pois o eixo Y começa em zero. Anotações foram adicionadas para o valor mais alto e mais baixo, conforme as diretrizes.",
+  "props": {
+    "title": "TOP TRENDING MUSIC 2024",
+    "subtitle": "",
+    "labels": [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "Mei",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec"
+    ],
+    "xAxisTitle": "",
+    "yAxisTitle": "",
+    "series": [
+      {
+        "label": "Jazz Music",
+        "data": [
+          5,
+          8,
+          15,
+          18,
+          21.5,
+          19,
+          15,
+          19,
+          19.5,
+          19,
+          16,
+          18
+        ]
+      },
+      {
+        "label": "Pop Music",
+        "data": [
+          5,
+          8,
+          10,
+          14,
+          20,
+          22,
+          13,
+          16,
+          19,
+          20,
+          25,
+          21.5
+        ]
+      },
+      {
+        "label": "Rock Music",
+        "data": [
+          5,
+          4,
+          5,
+          8,
+          8,
+          9,
+          6,
+          5,
+          8,
+          4,
+          9,
+          4
+        ]
+      }
+    ],
+    "seriesColors": [
+      "#995522",
+      "#00A0A0",
+      "#191970"
+    ],
+    "unit": "",
+    "showValueLabels": false,
+    "showLegend": true,
+    "annotations": [
+      {
+        "seriesIndex": 1,
+        "index": 10,
+        "value": 25,
+        "text": "Pico de Pop Music em Novembro"
+      },
+      {
+        "seriesIndex": 2,
+        "index": 1,
+        "value": 4,
+        "text": "Mínimo de Rock Music em Fevereiro"
+      }
+    ],
+    "data": [
+      {
+        "label": "Jan",
+        "value": 5
+      },
+      {
+        "label": "Feb",
+        "value": 8
+      },
+      {
+        "label": "Mar",
+        "value": 15
+      },
+      {
+        "label": "Apr",
+        "value": 18
+      },
+      {
+        "label": "Mei",
+        "value": 21.5
+      },
+      {
+        "label": "Jun",
+        "value": 19
+      },
+      {
+        "label": "Jul",
+        "value": 15
+      },
+      {
+        "label": "Aug",
+        "value": 19
+      },
+      {
+        "label": "Sep",
+        "value": 19.5
+      },
+      {
+        "label": "Oct",
+        "value": 19
+      },
+      {
+        "label": "Nov",
+        "value": 16
+      },
+      {
+        "label": "Dec",
+        "value": 18
+      }
+    ]
+  }
+}

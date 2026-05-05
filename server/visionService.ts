@@ -44,7 +44,7 @@ export async function analyzeChartImage(
   if (auditorCritique) prompt += `\n### ⚠️ FEEDBACK AUDITORIA:\n${auditorCritique}\n`;
 
   // ─── MD5 Cache ───────────────────────────────────────────────
-  const CACHE_VERSION = 'v17';
+  const CACHE_VERSION = 'v19';
   const IS_VERCEL = !!process.env.VERCEL;
   const cacheKey = `${crypto.createHash("md5").update(rawImageData).digest("hex")}_${requestedTheme || 'default'}_${auditorCritique ? crypto.createHash("md5").update(auditorCritique).digest("hex") : 'nocritic'}_${CACHE_VERSION}`;
   const cacheDir = IS_VERCEL ? "/tmp/cache" : path.join(process.cwd(), "cache");
@@ -62,13 +62,15 @@ export async function analyzeChartImage(
     }
   }
 
-  // ─── Otimizar imagem ───
+  // ─── Otimizar imagem (única) — cores e OCR no mesmo passe ───
+  // CLAHE removido: destrói informação de cor, causando extração de seriesColors como preto.
+  // normalize() + sharpen() são suficientes para OCR sem quebrar a paleta.
   const optimizedBuffer = await sharp(rawImageData)
     .resize(2560, 1440, { fit: "inside", withoutEnlargement: true })
     .normalize()
-    .modulate({ brightness: 1.1 })
-    .sharpen({ sigma: 1.2 })
-    .jpeg({ quality: 98 })
+    .modulate({ brightness: 1.05 })
+    .sharpen({ sigma: 1.0 })
+    .jpeg({ quality: 97 })
     .toBuffer();
 
   const imageBase64 = optimizedBuffer.toString("base64");
@@ -85,8 +87,14 @@ export async function analyzeChartImage(
         systemInstruction,
       });
       const result = await model.generateContent({
-        contents: [{ role: "user", parts: [{ inlineData: { data: imageBase64, mimeType: "image/jpeg" } }, { text: prompt }] }],
-        generationConfig: { temperature: 0.1, topP: 0.1, maxOutputTokens: 16384 },
+        contents: [{ 
+          role: "user", 
+          parts: [
+            { inlineData: { data: imageBase64, mimeType: "image/jpeg" } },
+            { text: prompt }
+          ]
+        }],
+        generationConfig: { temperature: 0, topP: 0.1, maxOutputTokens: 16384 },
         safetySettings: [
           { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
           { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
@@ -124,6 +132,9 @@ export async function analyzeChartImage(
         const { analyzeChartImageWithGroq } = await import("./groqService.js");
         const groqAnalysis = await analyzeChartImageWithGroq(imagePath, auditorCritique, settings);
         const normalized = normalizeAnalysisProps(groqAnalysis);
+        const hasData = (normalized.props.data?.length > 0) || (normalized.props.series?.some((s: any) => s.data?.length > 0));
+        if (!hasData) throw new Error("Groq retornou JSON sem dados numéricos");
+        
         fs.writeFileSync(cacheFile, JSON.stringify(normalized, null, 2));
         return normalized;
       } catch (groqErr: any) {
@@ -138,16 +149,18 @@ export async function analyzeChartImage(
       if (onProgress) onProgress("⚠️ APIs cloud indisponíveis. Chaveando para OLLAMA local...");
       console.warn("⚠️ [Simão] Usando Ollama como fallback final...");
       const { analyzeChartImageWithOllama } = await import("./ollamaService.js");
-      const ollamaAnalysis = await analyzeChartImageWithOllama(imagePath, prompt);
+      const ollamaAnalysis = await analyzeChartImageWithOllama(imageBase64);
       const normalized = normalizeAnalysisProps(ollamaAnalysis);
+      const hasData = (normalized.props.data?.length > 0) || (normalized.props.series?.some((s: any) => s.data?.length > 0));
+      if (!hasData) throw new Error("Ollama retornou JSON sem dados numéricos");
+
       fs.writeFileSync(cacheFile, JSON.stringify(normalized, null, 2));
       return normalized;
     } catch (ollamaErr: any) {
       console.warn("⚠️ [Simão] Fallback local falhou ou Ollama offline.");
     }
 
-    const detail = lastError?.message || "Erro desconhecido";
-    throw new Error(`Todos os provedores falharam (Gemini → Groq → Ollama). Detalhe: ${detail}`);
+    throw new Error(`A detecção de dados falhou (Código: BLANK). IA não encontrou números na imagem. Verifique se suas chaves de API (Gemini/Groq) no .env são válidas ou se o seu modelo local do Ollama é capaz de analisar imagens.`);
   }
   const candidate = response.candidates?.[0];
   const responseText = candidate?.content?.parts?.[0]?.text ?? "";
@@ -242,33 +255,66 @@ export async function analyzeChartImage(
   }
 
   analysis = normalizeAnalysisProps(analysis);
+  
+  // Sanity Check: Se não extraiu NADA de numérico, tratamos como falha de percepção
+  const hasData = (analysis.props.data?.length > 0) || (analysis.props.series?.some((s: any) => s.data?.length > 0));
+  if (!hasData) {
+    console.error("❌ [João] Extração retornou JSON válido, mas sem dados numéricos (BLANK).");
+    if (!lastError) lastError = new Error("JSON sem dados numéricos");
+    // Se ainda estamos no loop principal, isso vai forçar o retry ou fallback
+    throw lastError; 
+  }
+
   fs.writeFileSync(cacheFile, JSON.stringify(analysis, null, 2));
   return analysis;
 }
 
 const VALID_HEX_RE = /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/;
 
+function isVeryDark(hex: string): boolean {
+  try {
+    const c = hex.replace('#', '');
+    const r = parseInt(c.substring(0, 2), 16);
+    const g = parseInt(c.substring(2, 4), 16);
+    const b = parseInt(c.substring(4, 6), 16);
+    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+    return brightness < 15; // Apenas preto/quase-preto — navys, verdes-escuros e similares são legítimos
+  } catch {
+    return false;
+  }
+}
+
 export function normalizeAnalysisProps(analysis: ChartAnalysis): ChartAnalysis {
   if (!analysis.props) analysis.props = {};
   const p = analysis.props;
-  if (!p.labels) p.labels = [];
 
-  // Strip invalid/truncated hex colors so the theme applies defaults instead of blocking
+  // 🛡️ ANTI-HIGH-CONTRAST: Remove fundo preto puro detectado pela IA de OCR
+  // Se for #000000 ou muito escuro, permitimos que o tema (Dark/Light) decida o background real
+  if (p.backgroundColor && (p.backgroundColor === '#000000' || p.backgroundColor === '#000' || isVeryDark(p.backgroundColor))) {
+    console.log(`🛡️ [Normalize] Removendo backgroundColor detectado (${p.backgroundColor}) por ser muito escuro/contraste.`);
+    delete p.backgroundColor;
+  }
+
+  // 🛡️ ANTI-HIGH-CONTRAST (SÉRIES): Remove cores pretas das séries para evitar invisibilidade no fundo Dark
   if (p.seriesColors && Array.isArray(p.seriesColors)) {
-    const cleaned = p.seriesColors.filter((c: any) => typeof c === 'string' && VALID_HEX_RE.test(c) && c !== '#000000');
+    const cleaned = p.seriesColors.filter((c: any) => typeof c === 'string' && VALID_HEX_RE.test(c) && !isVeryDark(c));
     if (cleaned.length < p.seriesColors.length) {
-      console.warn(`⚠️ [Normalize] ${p.seriesColors.length - cleaned.length} seriesColor(s) removidas (inválidas ou preto puro).`);
+      console.warn(`⚠️ [Normalize] ${p.seriesColors.length - cleaned.length} seriesColor(s) removidas por serem muito escuras.`);
       p.seriesColors = cleaned.length > 0 ? cleaned : undefined;
     }
   }
-  // Same for per-series color
+
+  // Limpeza profunda em cada série individual
   if (p.series && Array.isArray(p.series)) {
     p.series.forEach((s: any) => {
-      if (s.color && (typeof s.color !== 'string' || !VALID_HEX_RE.test(s.color) || s.color === '#000000')) {
+      if (s.color && (typeof s.color !== 'string' || !VALID_HEX_RE.test(s.color) || isVeryDark(s.color))) {
+        console.log(`🛡️ [Normalize] Removendo cor da série "${s.label}" por ser muito escura/inválida.`);
         delete s.color;
       }
     });
   }
+
+  if (!p.labels) p.labels = [];
 
   if (p.series?.length > 0 && Array.isArray(p.series[0].data)) {
     // Formato series[] → garante p.data espelhado (sem inventar labels)

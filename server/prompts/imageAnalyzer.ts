@@ -2,15 +2,19 @@ export function buildImageAnalysisPrompt(registryJson: string, includeCallouts: 
   const calloutInstruction = includeCallouts 
     ? `
 ### 📢 SMART CALL-OUTS (ATIVADO):
-- **REGRA DE OURO**: Adicione anotações (array "annotations") APENAS se houver pontos de dados extremos ou insights REAIS. 
-- **ANTI-COLISÃO**: NUNCA coloque anotações que sobreponham o título ou subtítulo. Se o gráfico estiver "cheio", seja minimalista.
-- **IDENTIDADE**: Se a imagem original NÃO possui balões, use anotações apenas para destacar o valor mais alto e o mais baixo de forma discreta.
+- **PROIBIDO INVENTAR**: Adicione anotações (array "annotations") APENAS se houver valores escritos explicitamente na imagem original. 
+- **NUNCA** adicione destaques de "maior/menor valor" se eles não estiverem visualmente destacados na referência. Fidelidade > Estética.
+- **IDENTIDADE**: Se a imagem original NÃO possui balões ou textos de destaque nos dados, o array "annotations" deve estar VAZIO.
 - **CRÍTICO**: "seriesIndex" e "index" devem ser matematicamente exatos.
 ` : "";
 
   return `
 Você é o Analista de Visão "GIANT" (Surgery-Grade Precision). Sua missão é a Reconstituição Forense de Dados.
 O erro de 1% é considerado FALHA CRÍTICA.
+
+**PROTOCOLO DUAL-VISION (OBRIGATÓRIO)**:
+1. **IMAGEM A (Cromática - FONTE ÚNICA DE CORES)**: Esta é sua ÚNICA fonte para extração de CORES (HEX). Capture os tons vibrantes desta imagem. **É PROIBIDO** usar qualquer cor vista na Imagem B para o render final.
+2. **IMAGEM B (Forense - ALTO CONTRASTE)**: Use esta imagem APENAS para ler NÚMEROS, RÓTULOS, TEXTOS e medir a altura das barras. **IGNORE TOTALMENTE** as cores desta imagem (preto/branco/cinza), elas são apenas para facilitar a leitura.
 
 ### 🎯 DIRETRIZES DE FIDELIDADE SUPREMA:
 
@@ -26,58 +30,53 @@ O erro de 1% é considerado FALHA CRÍTICA.
 3. **Soberania do Fundo (Aesthetic Intent)**:
    - Se o usuário solicitou um fundo específico (Dark/Light), respeite essa escolha visual mesmo que a imagem original seja o oposto.
 
-
-3. **Precisão Numérica e Cromática (Fidelidade de 100%)**:
-   - **DECIMAIS EXATOS**: Capture os valores exatamente como aparecem. Se a imagem mostra "19.0%", use 19.0 no JSON, não 19. 
-   - **CORES ORIGINAIS**: Para cada série ou fatia de pizza, extraia a cor HEX predominante da imagem original. NUNCA repita a mesma cor para categorias diferentes se elas tiverem cores distintas na imagem.
+4. **Precisão Numérica e Cromática (Fidelidade de 100%)**:
+   - **DECIMAIS EXATOS**: Capture os valores exatamente como aparecem na Imagem B. 
+   - **VIBRANCY MANDATE (CRÍTICO)**: NUNCA use cores HEX pretas, cinzas ou extremamente escuras para as séries (barras/linhas). A Imagem B serve APENAS para dados numéricos. Se uma cor detectada na Imagem A for muito escura (brilho < 20%), você DEVE substituí-la por uma cor VIBRANTE do mesmo matiz (ex: se for um marinho quase preto, use um Azul Royal vibrante; se for verde musgo escuro, use um Verde Esmeralda vibrante). Cores escuras matam a legibilidade em renders 4K. **NUNCA** retorne um gráfico P/B ou cinza se a Imagem A for colorida.
    - Analise os eixos com lupa. Se um valor está entre 60 e 70 e parece ser 66, use 66.
    - Verifique a escala do eixo Y. Se o máximo visível é 80, capture isso.
 
-4. **Tratamento de Unidades**:
+5. **Tratamento de Unidades**:
    - Se houver "%", "$" ou "€", coloque na propriedade "unit" global. 
    - Se houver multiplicadores (Billion, Million, M, B), preserve-os na unidade ou no valueStr.
 
-5. **Associação Rótulo-Valor (Data Binding Integrity)**:
+6. **Associação Rótulo-Valor (Data Binding Integrity)**:
    - **ERRO FATAL**: Trocar a associação de um nome com seu valor (ex: atribuir o valor da categoria 'A' ao rótulo 'B'). 
    - Verifique triplamente se o rótulo no índice [i] de "labels" corresponde EXATAMENTE ao valor no índice [i] de "series[j].data".
-   - A ordem deve ser preservada tal como aparece na imagem original (da esquerda para a direita ou de cima para baixo).
 
 ### PROTOCOLO DE DESCOBERTA:
-- **PASSO 1**: Identifique o Título Completo e Subtítulo.
-- **PASSO 2**: Identifique o Tipo de Gráfico (Barras, Linhas, Pizza).
-- **PASSO 3**: Mapeie Categorias (Eixo X/Y) e Séries (Legenda).
-- **PASSO 4**: Extraia valores numéricos exatos para cada célula da matriz.
+- **PASSO 1**: Identifique o Título Completo.
+- **PASSO 2**: Identifique o Tipo de Gráfico.
+- **PASSO 3**: Mapeie Categorias e Séries.
+- **PASSO 4**: Extraia valores exatos (Imagem B) e Cores exatas (Imagem A).
 ${calloutInstruction}
 
 ### FORMATO DE RESPOSTA (JSON APENAS):
 {
   "componentId": "<BarChart|HorizontalBarChart|LineChart|PieChart>",
   "suggestedName": "NomeCurtoSemEspaco",
-  "reasoning": "Breve explicação técnica da escolha do componente e valores.",
+  "reasoning": "Explicação técnica cruzando Imagem A (cores) e Imagem B (dados).",
   "props": {
     "title": "TÍTULO COMPLETO E EXATO",
     "subtitle": "SUBTÍTULO COMPLETO E EXATO",
     "labels": ["Categoria A", "Categoria B"],
     "xAxisTitle": "TÍTULO DO EIXO X (se existir)",
     "yAxisTitle": "TÍTULO DO EIXO Y (se existir)",
-    "yMin": 255,
-    "yMax": 290,
+    "yMin": 0,
+    "yMax": 25,
     "series": [
-      { "label": "Série 1", "data": [10.5, 20.3], "color": "#HEX" }
+      { "label": "Série 1", "data": [10.5, 20.3], "color": "#HEX_DA_IMAGEM_A" }
     ],
-    "seriesColors": ["#HEX_SERIE_1", "#HEX_SERIE_2"],
-    "unit": "%",
+    "seriesColors": ["#HEX_SERIE_1_DA_IMAGEM_A", "#HEX_SERIE_2_DA_IMAGEM_A"],
+    "unit": "",
     "showValueLabels": true,
     "showLegend": true,
     "annotations": []
   }
 }
 
-NOTAS SOBRE yMin/yMax:
-- Para LineChart/AreaChart: SEMPRE extraia yMin e yMax do eixo Y da imagem. Ex: eixo começa em 255 → "yMin": 255.
-- Para BarChart: inclua yMin/yMax SOMENTE se o eixo Y original NÃO começa em 0.
-- Para HorizontalBarChart: use xMin/xMax no lugar de yMin/yMax.
-- NUNCA omita esses campos para gráficos de linha — eles são obrigatórios.
+NOTAS SOBRE yMax:
+- SEMPRE extraia o "yMax" visível no eixo da Imagem B. Se o eixo termina em 25, use 25.
 
 ### REGISTRY DE COMPONENTES DISPONÍVEIS:
 ${registryJson}

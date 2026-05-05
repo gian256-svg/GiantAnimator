@@ -25,6 +25,7 @@ export interface HeatmapChartProps {
   seriesColors?: string[]; // Min, Max colors
   theme?: 'dark' | 'light';
   backgroundColor?: string;
+  backgroundType?: 'dark' | 'light' | 'transparent';
   colors?: string[];
   textColor?: string;
   bgStyle?: 'none' | 'mesh' | 'grid';
@@ -38,6 +39,7 @@ export const HeatmapChart: React.FC<HeatmapChartProps> = ({
   title,
   subtitle,
   seriesColors,
+  backgroundType,
   bgStyle = 'none',
 }) => {
   const frame = useCurrentFrame();
@@ -71,9 +73,10 @@ export const HeatmapChart: React.FC<HeatmapChartProps> = ({
 
   return (
     <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
-      <DynamicBackground 
-        baseColor={T.background} 
-        accentColor={resolvedSeriesColors[1]} 
+      <DynamicBackground
+        baseColor={T.background}
+        accentColor={resolvedSeriesColors[1]}
+        backgroundType={backgroundType}
       />
       {/* ZONA 1: CabeÃ§alho (Regra D2) */}
       <div style={{

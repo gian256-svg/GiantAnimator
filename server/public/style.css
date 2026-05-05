@@ -623,6 +623,38 @@ select optgroup { color: var(--text-muted); font-weight: 600; }
 .ph-icon-wrap svg { width: 30px; height: 30px; color: var(--text-subtle); }
 .ph-text { font-size: 13px; font-weight: 500; color: var(--text-subtle); text-align: center; }
 
+/* ─── ALPHA NOTICE ─── */
+.alpha-notice {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    text-align: center;
+    padding: 30px;
+    animation: fadeIn 0.4s ease-out;
+}
+.alpha-notice h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 4px;
+}
+.alpha-notice p {
+    font-size: 13px;
+    color: var(--text-muted);
+    max-width: 320px;
+    line-height: 1.5;
+}
+.alpha-notice strong {
+    color: var(--text);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 #render4k-overlay {
     position: absolute;
     inset: 0;

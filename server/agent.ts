@@ -34,8 +34,8 @@ export function rotateKey() {
   }
 }
 
-// Para manter compatibilidade com módulos que importam 'ai'
-export const ai = getAIInstance();
+// Para manter compatibilidade, exportamos uma função que retorna a instância atual
+export const ai = () => getAIInstance();
 
 // ─────────────────────────────────────────────────────────
 // Carrega o system prompt base + knowledge base completo
@@ -109,7 +109,7 @@ export class GiantAnimatorAgent {
     try {
       this.systemPrompt = buildSystemPrompt();
 
-      const model = ai.getGenerativeModel({
+      const model = ai().getGenerativeModel({
         model: GEMINI_MODEL,
         systemInstruction: this.systemPrompt,
       });
@@ -157,7 +157,12 @@ export class GiantAnimatorAgent {
           // Se for erro de cota ou serviço, rotacionamos a chave imediatamente
           if (err?.status === 429 || err?.status === 503) {
             rotateKey();
-            // Re-instancia o chat com a nova chave se necessário (neste caso simplificado, apenas o próximo send usará a nova via GiantAnimatorAgent re-init ou chamadas avulsas)
+            // 🔄 RE-INICIALIZAÇÃO CRÍTICA: O chat precisa ser refeito com a nova chave
+            const model = ai().getGenerativeModel({
+              model: GEMINI_MODEL,
+              systemInstruction: this.systemPrompt,
+            });
+            this.chat = model.startChat({ history: this.getHistory() });
           }
 
           const wait = (i + 1) * (err?.status === 503 ? 1000 : 5000);
@@ -281,8 +286,14 @@ FORMATO DE SAÍDA OBRIGATÓRIO:
       const text = (response.candidates?.[0]?.content?.parts?.[0]?.text ?? (response as any).text ?? "").trim();
       const clean = (text || "{}").replace(/```json|```/g, '').trim();
       return JSON.parse(clean);
-    } catch (err) {
-      throw new Error(`Falha na análise da tabela pelo Gemini: ${String(err)}`);
+    } catch (err: any) {
+      console.warn(`⚠️ Gemini falhou na análise da tabela: ${err.message}. Chaveando para DeepSeek Local...`);
+      try {
+        const { generatePropsWithDeepSeek } = await import('./ollamaProvider.js');
+        return await generatePropsWithDeepSeek(prompt);
+      } catch (deepSeekErr: any) {
+        throw new Error(`Falha crítica na análise da tabela (Gemini & DeepSeek): ${deepSeekErr.message}`);
+      }
     }
   }
 

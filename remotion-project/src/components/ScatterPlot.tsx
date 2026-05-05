@@ -21,6 +21,7 @@ export interface ScatterPlotProps {
   yLabel?: string;
   theme?: 'dark' | 'light';
   backgroundColor?: string;
+  backgroundType?: 'dark' | 'light' | 'transparent';
   seriesColors?: string[];
   colors?: string[];
   textColor?: string;
@@ -35,6 +36,7 @@ export const ScatterPlot: React.FC<ScatterPlotProps> = ({
   yLabel = "Eixo Y",
   theme = "dark",
   backgroundColor,
+  backgroundType,
   seriesColors,
   colors,
   textColor,
@@ -75,10 +77,11 @@ export const ScatterPlot: React.FC<ScatterPlotProps> = ({
 
   return (
     <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
-      <DynamicBackground 
-        style={bgStyle} 
-        baseColor={resolvedBg} 
-        accentColor={T.colors[0]} 
+      <DynamicBackground
+        style={bgStyle}
+        baseColor={resolvedBg}
+        accentColor={T.colors[0]}
+        backgroundType={backgroundType}
       />
       {/* 1. TÍTULO */}
       <div style={{

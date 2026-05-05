@@ -720,7 +720,7 @@ export function isColorDark(hex: string): boolean {
 export function resolveTheme(
   theme?: string, 
   baseColor?: string, 
-  backgroundType?: 'dark' | 'light',
+  backgroundType?: 'dark' | 'light' | 'transparent',
   customColors?: string[],
   customText?: string
 ): ThemeConfig {
@@ -733,13 +733,24 @@ export function resolveTheme(
     config = { ...THEMES['dark'] }; // base dark por padrão para custom
     if (baseColor) config.background = baseColor;
     if (customText) config.text = customText;
-    if (customColors && customColors.length > 0) config.colors = customColors;
+    
+    // 🛡️ Filtro de Vibrância para cores Custom
+    if (customColors && customColors.length > 0) {
+      const vibrantCustom = customColors.filter(c => !isVeryDark(c));
+      config.colors = vibrantCustom.length > 0 ? vibrantCustom : THEMES['dark'].colors;
+    }
     
     // Para temas custom, garantimos que as cores auxiliares sigam o brilho escolhido
     if (backgroundType === 'light' || (baseColor && !isColorDark(baseColor))) {
        config.textMuted = '#475569';
        config.axis = 'rgba(15,23,42,0.45)';
        config.grid = 'rgba(15,23,42,0.18)';
+    } else if (backgroundType === 'transparent') {
+       config.background = 'transparent';
+       config.text = '#ffffff'; // Default white text for transparent overlays
+       config.textMuted = '#8892b0';
+       config.axis = 'rgba(232,234,246,0.25)';
+       config.grid = 'rgba(232,234,246,0.12)';
     } else {
        config.textMuted = '#8892b0';
        config.axis = 'rgba(232,234,246,0.25)';
@@ -778,6 +789,12 @@ export function resolveTheme(
       config.textMuted = '#475569';
       config.axis = 'rgba(15,23,42,0.45)';
       config.grid = 'rgba(15,23,42,0.18)';
+    } else if (backgroundType === 'transparent') {
+      config.background = 'transparent';
+      config.text = '#ffffff';
+      config.textMuted = '#8892b0';
+      config.axis = 'rgba(232,234,246,0.25)';
+      config.grid = 'rgba(232,234,246,0.12)';
     } else {
       if (!baseColor || name !== 'custom') config.background = '#0f1117';
       if (!customText || name !== 'custom') config.text = '#e8eaf6';
@@ -867,8 +884,9 @@ export function getNiceScale(max: number, min: number = 0, ticks: number = 5): n
   
   let niceFraction;
   if (fraction < 1.5) niceFraction = 1;
-  else if (fraction < 3) niceFraction = 2;
-  else if (fraction < 7) niceFraction = 5;
+  else if (fraction < 2.5) niceFraction = 2;
+  else if (fraction < 4) niceFraction = 2.5; 
+  else if (fraction < 7.5) niceFraction = 5;
   else niceFraction = 10;
 
   const step = niceFraction * Math.pow(10, exponent);

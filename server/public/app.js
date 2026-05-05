@@ -948,7 +948,8 @@ document.addEventListener('DOMContentLoaded', () => {
                        isDarkBg: isDarkBg,
                        options: {
                          engine: engine,
-                         backgroundType: isDarkBg ? 'dark' : 'light'
+                         backgroundType: isDarkBg ? 'dark' : 'light',
+                         exportAlpha: String(document.getElementById('toggle-alpha')?.checked || false)
                        },
                        includeCallouts: document.getElementById('toggle-callouts')?.checked || false
                    })
@@ -989,6 +990,7 @@ document.addEventListener('DOMContentLoaded', () => {
           
           fd.append('includeCallouts', document.getElementById('toggle-callouts').checked);
           fd.append('enableAuditor', document.getElementById('toggle-auditor').checked);
+          fd.append('exportAlpha', document.getElementById('toggle-alpha').checked);
           fd.append('reviewRequired', true);
 
           log(`Pedro: Enviando ${f.name}...`);
@@ -1166,23 +1168,38 @@ function loadVideo(url, name, duration, jobId = null) {
   const video       = document.getElementById('preview-video');
   const placeholder = document.getElementById('player-placeholder');
   const meta        = document.getElementById('video-meta');
+  const alphaWarning = document.getElementById('alpha-warning');
 
   if (!video) return;
 
-  video.src = url;
-  video.style.display = 'block';
-  if (placeholder) placeholder.style.display = 'none';
-  state.currentVideo = { url, name };
+  const isAlpha = url.toLowerCase().endsWith('.mov');
 
+  if (isAlpha) {
+    video.style.display = 'none';
+    if (placeholder) {
+      placeholder.style.display = 'flex';
+      placeholder.innerHTML = `
+        <div class="alpha-notice">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <h3>Vídeo Alpha Gerado</h3>
+          <p>Arquivos ProRes 4444 (.mov) não são suportados para visualização direta no navegador.</p>
+          <p><strong>Faça o download para usar com transparência no Premiere ou After Effects.</strong></p>
+        </div>
+      `;
+    }
+  } else {
+    video.src = url;
+    video.style.display = 'block';
+    if (placeholder) placeholder.style.display = 'none';
+  }
+
+  state.currentVideo = { url, name };
   if (duration && meta) meta.textContent = `⏱ ${duration}  ·  UHD 4K Video`;
   
-  // Ativa botão de download manual
   const btnDownload = document.getElementById('btn-download-video');
   if (btnDownload) {
     btnDownload.style.display = 'inline-flex';
-    btnDownload.onclick = () => {
-      triggerDownload(url, name, jobId || state.currentJobId);
-    };
+    btnDownload.onclick = () => { triggerDownload(url, name, jobId || state.currentJobId); };
   }
 }
 
@@ -1218,9 +1235,12 @@ function triggerDownload(url, filename, jobId) {
 
 function standardDownload(url, filename) {
   const cleanName = filename.replace(/\.[^.]+$/, '');
+  const extMatch = url.match(/\.([a-z0-9]+)(\?|$)/i);
+  const extension = extMatch ? extMatch[1] : 'mp4';
+  
   const a    = document.createElement('a');
   a.href     = url;
-  a.download = `${cleanName}_GiantAnimator_4K.mp4`;
+  a.download = `${cleanName}_GiantAnimator_4K.${extension}`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

@@ -23,6 +23,7 @@ export interface CandlestickChartProps {
   subtitle?: string;
   theme?: 'dark' | 'light';
   backgroundColor?: string;
+  backgroundType?: 'dark' | 'light' | 'transparent';
   colors?: string[];
   textColor?: string;
   bgStyle?: 'none' | 'mesh' | 'grid';
@@ -33,6 +34,7 @@ export const CandlestickChart: React.FC<CandlestickChartProps> = ({
   title,
   subtitle,
   theme = 'dark',
+  backgroundType,
   bgStyle = 'none',
 }) => {
   const frame = useCurrentFrame();
@@ -44,7 +46,7 @@ export const CandlestickChart: React.FC<CandlestickChartProps> = ({
 
   if (data.length === 0) {
     return (
-      <AbsoluteFill style={{ backgroundColor: T.background, justifyContent: 'center', alignItems: 'center' }}>
+      <AbsoluteFill style={{ backgroundColor: backgroundType === 'transparent' ? 'transparent' : T.background, justifyContent: 'center', alignItems: 'center' }}>
         <p style={{ color: T.text, fontSize: Theme.typography.category.size }}>Aguardando dados...</p>
       </AbsoluteFill>
     );
@@ -83,10 +85,11 @@ export const CandlestickChart: React.FC<CandlestickChartProps> = ({
 
   return (
     <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
-      <DynamicBackground 
-        style={bgStyle} 
-        baseColor={T.background} 
-        accentColor={Theme.colors.semantic.positive} 
+      <DynamicBackground
+        style={bgStyle}
+        baseColor={T.background}
+        accentColor={Theme.colors.semantic.positive}
+        backgroundType={backgroundType}
       />
       {/* ZONA 1: CabeÃ§alho (Regra D2) */}
       <div style={{

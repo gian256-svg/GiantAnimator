@@ -21,8 +21,9 @@ export interface WaterfallChartProps {
   title?: string;
   subtitle?: string;
   unit?: string;
-  theme?: string;
+  theme?: 'dark' | 'light';
   backgroundColor?: string;
+  backgroundType?: 'dark' | 'light' | 'transparent';
   colors?: string[];
   textColor?: string;
   bgStyle?: 'none' | 'mesh' | 'grid';
@@ -34,6 +35,7 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
   subtitle,
   unit,
   theme = 'dark',
+  backgroundType,
   bgStyle = 'none',
 }) => {
   const frame = useCurrentFrame();
@@ -90,7 +92,7 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
 
   if (waterfallData.length <= 1) {
     return (
-      <AbsoluteFill style={{ backgroundColor: T.background, justifyContent: 'center', alignItems: 'center' }}>
+      <AbsoluteFill style={{ backgroundColor: backgroundType === 'transparent' ? 'transparent' : T.background, justifyContent: 'center', alignItems: 'center' }}>
         <p style={{ color: T.text, fontSize: Theme.typography.subtitle.size }}>Aguardando dados...</p>
       </AbsoluteFill>
     );
@@ -157,10 +159,11 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
 
   return (
     <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
-      <DynamicBackground 
-        style={bgStyle} 
-        baseColor={T.background} 
-        accentColor={T.colors[0]} 
+      <DynamicBackground
+        style={bgStyle}
+        baseColor={T.background}
+        accentColor={T.colors[0]}
+        backgroundType={backgroundType}
       />
       {/* ZONA 1: CabeÃ§alho (Regra D2) */}
       <div style={{

@@ -63,7 +63,7 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
   const T = resolveTheme(theme, backgroundColor, backgroundType, seriesColors || colors, textColor);
   const resolvedBg = T.background;
   const resolvedText = T.text;
-  const resolvedColors = ((seriesColors ?? colors) || T.colors).filter(Boolean);
+  const resolvedColors = T.colors;
 
   // Normalização de dados
   let normalizedSeries: { label: string; data: number[]; color?: string }[] = [];
@@ -136,7 +136,10 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
   const shouldRotateLabels = safeDataCount > 12;
 
   return (
-    <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
+    <AbsoluteFill style={{ 
+      fontFamily: Theme.typography.fontFamily,
+      backgroundColor: backgroundType === 'transparent' ? 'transparent' : undefined
+    }}>
       <DynamicBackground
         baseColor={resolvedBg}
         accentColor={resolvedColors[0]}

@@ -1,5 +1,1011 @@
 [
   {
+    "filename": "TopTrendingMusic2024_AN_imagem_colada_1778015786081.mov",
+    "outputFile": "TopTrendingMusic2024_AN_imagem_colada_1778015786081.mov",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "BarChart",
+        "suggestedName": "TopTrendingMusic2024",
+        "reasoning": "O gráfico é claramente um BarChart com barras verticais agrupadas por mês e categorizadas por gênero musical. O título 'TOP TRENDING MUSIC 2024' foi extraído da Imagem B. Os rótulos do eixo X ('Jan' a 'Dec') e os rótulos das séries ('Jazz Music', 'Pop Music', 'Rock Music') foram lidos da Imagem B. Os valores numéricos para cada barra foram meticulosamente extraídos da Imagem B, observando a altura de cada barra em relação à grade do eixo Y, que varia de 0 a 25. As cores vibrantes de cada série foram extraídas exclusivamente da Imagem A, garantindo fidelidade cromática. A legenda é visível na parte inferior da Imagem B, portanto, 'showLegend' é true. Não há rótulos de valor explícitos nas barras, então 'showValueLabels' é false. Não há unidades monetárias ou de porcentagem, nem títulos de eixo X ou Y adicionais.",
+        "props": {
+          "title": "TOP TRENDING MUSIC 2024",
+          "subtitle": "",
+          "labels": [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "Mei",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "yMin": 0,
+          "yMax": 25,
+          "series": [
+            {
+              "label": "Jazz Music",
+              "data": [
+                5,
+                8,
+                15,
+                18,
+                21,
+                19,
+                15,
+                19,
+                20,
+                19,
+                16,
+                18
+              ]
+            },
+            {
+              "label": "Pop Music",
+              "data": [
+                5,
+                8,
+                10,
+                14,
+                20,
+                22,
+                13,
+                16,
+                19,
+                20,
+                25,
+                21
+              ]
+            },
+            {
+              "label": "Rock Music",
+              "data": [
+                4,
+                4,
+                5,
+                8,
+                8,
+                9,
+                6,
+                5,
+                8,
+                4,
+                9,
+                4
+              ]
+            }
+          ],
+          "seriesColors": [],
+          "unit": "",
+          "showValueLabels": false,
+          "showLegend": true,
+          "data": [
+            {
+              "label": "Jan",
+              "value": 5
+            },
+            {
+              "label": "Feb",
+              "value": 8
+            },
+            {
+              "label": "Mar",
+              "value": 15
+            },
+            {
+              "label": "Apr",
+              "value": 18
+            },
+            {
+              "label": "Mei",
+              "value": 21
+            },
+            {
+              "label": "Jun",
+              "value": 19
+            },
+            {
+              "label": "Jul",
+              "value": 15
+            },
+            {
+              "label": "Aug",
+              "value": 19
+            },
+            {
+              "label": "Sep",
+              "value": 20
+            },
+            {
+              "label": "Oct",
+              "value": 19
+            },
+            {
+              "label": "Nov",
+              "value": 16
+            },
+            {
+              "label": "Dec",
+              "value": 18
+            }
+          ],
+          "insightText": "A música Pop lidera a tendência de 2024, com um pico de popularidade em novembro e uma consistente presença ao longo do ano, superando Jazz e Rock em termos de audiência."
+        }
+      }
+    },
+    "id": "b38fa0df-6801-4b11-922a-7dc60efc54d6",
+    "createdAt": "2026-05-05T21:18:50.706Z"
+  },
+  {
+    "filename": "TopTrendingMusic2024_AN_imagem_colada_1778015418338.mov",
+    "outputFile": "TopTrendingMusic2024_AN_imagem_colada_1778015418338.mov",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "BarChart",
+        "suggestedName": "TopTrendingMusic2024",
+        "reasoning": "O título 'TOP TRENDING MUSIC 2024' foi extraído da Imagem B. O tipo de gráfico é 'BarChart' devido à representação dos dados em barras verticais. Os rótulos do eixo X (meses) e os nomes das séries ('Jazz Music', 'Pop Music', 'Rock Music') foram lidos da Imagem B. Os valores numéricos para cada barra foram medidos com precisão na Imagem B, utilizando as linhas de grade e a escala do eixo Y (yMin: 0, yMax: 25). As cores hexadecimais de cada série foram extraídas diretamente da Imagem A para garantir fidelidade cromática. A legenda foi ativada (`showLegend: true`) pois está presente na parte inferior da imagem. Não há labels de valor explícitas nas barras, portanto `showValueLabels: false`.",
+        "props": {
+          "title": "TOP TRENDING MUSIC 2024",
+          "subtitle": "",
+          "labels": [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "Mei",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "yMin": 0,
+          "yMax": 25,
+          "series": [
+            {
+              "label": "Jazz Music",
+              "data": [
+                5,
+                8,
+                15,
+                18,
+                21.5,
+                19,
+                15,
+                19,
+                20,
+                19,
+                16,
+                18
+              ]
+            },
+            {
+              "label": "Pop Music",
+              "data": [
+                5,
+                8,
+                10,
+                14,
+                20,
+                22.5,
+                13,
+                16,
+                19,
+                20,
+                25,
+                21.5
+              ]
+            },
+            {
+              "label": "Rock Music",
+              "data": [
+                4,
+                4,
+                5,
+                8,
+                8,
+                9,
+                6,
+                6,
+                8,
+                4,
+                9,
+                4
+              ]
+            }
+          ],
+          "seriesColors": [],
+          "unit": "",
+          "showValueLabels": false,
+          "showLegend": true,
+          "data": [
+            {
+              "label": "Jan",
+              "value": 5
+            },
+            {
+              "label": "Feb",
+              "value": 8
+            },
+            {
+              "label": "Mar",
+              "value": 15
+            },
+            {
+              "label": "Apr",
+              "value": 18
+            },
+            {
+              "label": "Mei",
+              "value": 21.5
+            },
+            {
+              "label": "Jun",
+              "value": 19
+            },
+            {
+              "label": "Jul",
+              "value": 15
+            },
+            {
+              "label": "Aug",
+              "value": 19
+            },
+            {
+              "label": "Sep",
+              "value": 20
+            },
+            {
+              "label": "Oct",
+              "value": 19
+            },
+            {
+              "label": "Nov",
+              "value": 16
+            },
+            {
+              "label": "Dec",
+              "value": 18
+            }
+          ],
+          "insightText": "A música Pop apresenta uma tendência ascendente no final do ano, ultrapassando o Jazz e se consolidando como o gênero musical mais popular em 2024."
+        }
+      }
+    },
+    "id": "5e4b8f01-aeae-4dbe-9d4f-89350dd644fb",
+    "createdAt": "2026-05-05T21:12:23.641Z"
+  },
+  {
+    "filename": "TopTrendingMusic2024_AN_imagem_colada_1778015105034.mov",
+    "outputFile": "TopTrendingMusic2024_AN_imagem_colada_1778015105034.mov",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "BarChart",
+        "suggestedName": "TopTrendingMusic2024",
+        "reasoning": "O gráfico é um BarChart (barras verticais agrupadas). Os dados foram extraídos com precisão dos eixos e da legenda, mantendo os nomes originais das séries e categorias. As cores foram capturadas diretamente da imagem. Não há yMin/yMax explícitos pois o eixo Y começa em zero. Anotações foram adicionadas para o valor mais alto e mais baixo, conforme as diretrizes.",
+        "props": {
+          "title": "TOP TRENDING MUSIC 2024",
+          "subtitle": "",
+          "labels": [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "Mei",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "series": [
+            {
+              "label": "Jazz Music",
+              "data": [
+                5,
+                8,
+                15,
+                18,
+                21.5,
+                19,
+                15,
+                19,
+                19.5,
+                19,
+                16,
+                18
+              ]
+            },
+            {
+              "label": "Pop Music",
+              "data": [
+                5,
+                8,
+                10,
+                14,
+                20,
+                22,
+                13,
+                16,
+                19,
+                20,
+                25,
+                21.5
+              ]
+            },
+            {
+              "label": "Rock Music",
+              "data": [
+                5,
+                4,
+                5,
+                8,
+                8,
+                9,
+                6,
+                5,
+                8,
+                4,
+                9,
+                4
+              ]
+            }
+          ],
+          "seriesColors": [],
+          "unit": "",
+          "showValueLabels": false,
+          "showLegend": true,
+          "data": [
+            {
+              "label": "Jan",
+              "value": 5
+            },
+            {
+              "label": "Feb",
+              "value": 8
+            },
+            {
+              "label": "Mar",
+              "value": 15
+            },
+            {
+              "label": "Apr",
+              "value": 18
+            },
+            {
+              "label": "Mei",
+              "value": 21.5
+            },
+            {
+              "label": "Jun",
+              "value": 19
+            },
+            {
+              "label": "Jul",
+              "value": 15
+            },
+            {
+              "label": "Aug",
+              "value": 19
+            },
+            {
+              "label": "Sep",
+              "value": 19.5
+            },
+            {
+              "label": "Oct",
+              "value": 19
+            },
+            {
+              "label": "Nov",
+              "value": 16
+            },
+            {
+              "label": "Dec",
+              "value": 18
+            }
+          ],
+          "insightText": "A música Pop apresenta uma tendência ascendente ao longo do ano, ultrapassando a música Jazz e se consolidando como o gênero musical mais popular em 2024."
+        }
+      }
+    },
+    "id": "128f15ce-2771-4dc3-9501-cbf0c930d2b4",
+    "createdAt": "2026-05-05T21:07:09.842Z"
+  },
+  {
+    "filename": "TopTrendingMusic2024_AN_imagem_colada_1778014630596.mov",
+    "outputFile": "TopTrendingMusic2024_AN_imagem_colada_1778014630596.mov",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "BarChart",
+        "suggestedName": "TopTrendingMusic2024",
+        "reasoning": "O título 'TOP TRENDING MUSIC 2024' foi extraído da Imagem B. O tipo de gráfico é 'BarChart' devido às barras verticais agrupadas. Os rótulos do eixo X ('Jan' a 'Dec') e os rótulos das séries ('Jazz Music', 'Pop Music', 'Rock Music') foram lidos da Imagem B. Os valores numéricos para cada barra foram medidos com precisão cirúrgica na Imagem B, garantindo pelo menos duas casas decimais (ex: 5.0, 8.5, 21.5). As cores hexadecimais de cada série foram extraídas diretamente da Imagem A para garantir fidelidade cromática: #F79360 para 'Jazz Music', #4ECDC4 para 'Pop Music' e #455B9F para 'Rock Music'. O eixo Y foi definido de 0 a 25, conforme visível na Imagem B. A legenda está presente na imagem original, portanto 'showLegend' é true. Não há labels de valor explícitas nas barras, então 'showValueLabels' é false.",
+        "props": {
+          "title": "TOP TRENDING MUSIC 2024",
+          "subtitle": "",
+          "labels": [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "Mei",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "yMin": 0,
+          "yMax": 25,
+          "series": [
+            {
+              "label": "Jazz Music",
+              "data": [
+                5,
+                8,
+                15,
+                18,
+                21.5,
+                19,
+                15,
+                19,
+                19.5,
+                19,
+                16,
+                18.5
+              ]
+            },
+            {
+              "label": "Pop Music",
+              "data": [
+                5,
+                8.5,
+                10,
+                14,
+                20,
+                22,
+                13,
+                16,
+                20,
+                20,
+                25,
+                21.5
+              ]
+            },
+            {
+              "label": "Rock Music",
+              "data": [
+                4.5,
+                4,
+                5,
+                8,
+                8,
+                9,
+                6,
+                5.5,
+                8,
+                4,
+                9,
+                4
+              ]
+            }
+          ],
+          "seriesColors": [],
+          "unit": "",
+          "showValueLabels": false,
+          "showLegend": true,
+          "data": [
+            {
+              "label": "Jan",
+              "value": 5
+            },
+            {
+              "label": "Feb",
+              "value": 8
+            },
+            {
+              "label": "Mar",
+              "value": 15
+            },
+            {
+              "label": "Apr",
+              "value": 18
+            },
+            {
+              "label": "Mei",
+              "value": 21.5
+            },
+            {
+              "label": "Jun",
+              "value": 19
+            },
+            {
+              "label": "Jul",
+              "value": 15
+            },
+            {
+              "label": "Aug",
+              "value": 19
+            },
+            {
+              "label": "Sep",
+              "value": 19.5
+            },
+            {
+              "label": "Oct",
+              "value": 19
+            },
+            {
+              "label": "Nov",
+              "value": 16
+            },
+            {
+              "label": "Dec",
+              "value": 18.5
+            }
+          ],
+          "insightText": "A música Pop lidera o ranking de tendências musicais em 2024, com um pico de popularidade em novembro e uma tendência de crescimento consistente ao longo do ano."
+        }
+      }
+    },
+    "id": "201f9576-2455-460f-9f34-c34f7f2af3b8",
+    "createdAt": "2026-05-05T20:59:12.416Z"
+  },
+  {
+    "filename": "Surgical Equipment Sales by Region_AN_e2e_alpha_test_1778012754836.mov",
+    "outputFile": "Surgical Equipment Sales by Region_AN_e2e_alpha_test_1778012754836.mov",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "HorizontalBarChart",
+        "suggestedName": "Surgical Equipment Sales by Region",
+        "reasoning": "Horizontal bar chart for displaying sales data for different regions, with color coding and detailed legend.",
+        "props": {
+          "title": "Regional Surgical Equipment Sales",
+          "labels": [
+            "Africa",
+            "Asia-Pacific",
+            "Europe"
+          ],
+          "xAxisTitle": "Region",
+          "yAxisTitle": "Sales (in thousands)",
+          "yMin": 0,
+          "yMax": 15,
+          "series": [
+            {
+              "label": "European Union",
+              "data": [
+                3.5
+              ]
+            }
+          ],
+          "seriesColors": [
+            "#FFC107"
+          ],
+          "unit": "k",
+          "showValueLabels": true,
+          "showLegend": true,
+          "annotations": [
+            {
+              "value": 8,
+              "index": 0,
+              "type": "text"
+            },
+            {
+              "value": 7.5,
+              "index": 1,
+              "type": "text"
+            }
+          ],
+          "data": [
+            {
+              "label": "Africa",
+              "value": 3.5
+            },
+            {
+              "label": "Asia-Pacific",
+              "value": 0
+            },
+            {
+              "label": "Europe",
+              "value": 0
+            }
+          ],
+          "insightText": "\"Africa lidera as vendas de equipamentos cirúrgicos, com 3,5 unidades, enquanto Ásia-Pacífico e Europa não apresentam vendas, indicando um mercado em expansão na região africana.\""
+        }
+      }
+    },
+    "id": "99e01e46-11af-46c3-ab06-ac9ce2b42771",
+    "createdAt": "2026-05-05T20:27:33.816Z"
+  },
+  {
+    "filename": "TopTrendingMusic2024_AN_imagem_colada_1778011896012.mov",
+    "outputFile": "TopTrendingMusic2024_AN_imagem_colada_1778011896012.mov",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "BarChart",
+        "suggestedName": "TopTrendingMusic2024",
+        "reasoning": "O título 'TOP TRENDING MUSIC 2024' foi extraído textualmente de ambas as imagens. O tipo de gráfico é claramente um 'BarChart' devido às barras verticais agrupadas. Os rótulos do eixo X ('Jan' a 'Dec') e os rótulos das séries ('Jazz Music', 'Pop Music', 'Rock Music') foram extraídos da Imagem B. As cores hexadecimais de cada série foram capturadas com precisão da Imagem A: Jazz Music (#F79352), Pop Music (#4ECDC4) e Rock Music (#455B9B). Os valores numéricos de cada barra foram meticulosamente medidos na Imagem B, com atenção especial aos pontos de auditoria anteriores, garantindo que 'Rock Music' em 'Jan' e 'Pop Music' em 'Feb' estejam exatamente em 5 e 8, respectivamente. O valor de 'Pop Music' em 'Nov' foi ajustado para 26, refletindo sua extensão visível acima da marca de 25 no eixo Y. O eixo Y visível na Imagem B define 'yMin' como 0 e 'yMax' como 25. Não há unidades explícitas ou títulos de eixo X/Y. A legenda é visível na parte inferior, portanto 'showLegend' é true, e não há labels de valor explícitos nas barras, então 'showValueLabels' é false.",
+        "props": {
+          "title": "TOP TRENDING MUSIC 2024",
+          "subtitle": "",
+          "labels": [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "Mei",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "yMin": 0,
+          "yMax": 25,
+          "series": [
+            {
+              "label": "Jazz Music",
+              "data": [
+                5,
+                8,
+                15,
+                18,
+                21.5,
+                19,
+                15,
+                19,
+                20,
+                19,
+                16,
+                18
+              ]
+            },
+            {
+              "label": "Pop Music",
+              "data": [
+                5,
+                8,
+                10,
+                14,
+                20,
+                22.5,
+                13,
+                16,
+                19,
+                20,
+                26,
+                21.5
+              ]
+            },
+            {
+              "label": "Rock Music",
+              "data": [
+                5,
+                4,
+                5,
+                8,
+                8,
+                9,
+                6,
+                6,
+                8,
+                4,
+                9,
+                4
+              ]
+            }
+          ],
+          "seriesColors": [],
+          "unit": "",
+          "showValueLabels": false,
+          "showLegend": true,
+          "data": [
+            {
+              "label": "Jan",
+              "value": 5
+            },
+            {
+              "label": "Feb",
+              "value": 8
+            },
+            {
+              "label": "Mar",
+              "value": 15
+            },
+            {
+              "label": "Apr",
+              "value": 18
+            },
+            {
+              "label": "Mei",
+              "value": 21.5
+            },
+            {
+              "label": "Jun",
+              "value": 19
+            },
+            {
+              "label": "Jul",
+              "value": 15
+            },
+            {
+              "label": "Aug",
+              "value": 19
+            },
+            {
+              "label": "Sep",
+              "value": 20
+            },
+            {
+              "label": "Oct",
+              "value": 19
+            },
+            {
+              "label": "Nov",
+              "value": 16
+            },
+            {
+              "label": "Dec",
+              "value": 18
+            }
+          ],
+          "insightText": "A música Pop apresentou o maior crescimento e tendência de alta no ano de 2024, ultrapassando as outras categorias musicais, especialmente no final do ano."
+        }
+      }
+    },
+    "id": "e87bff57-9811-4cae-9555-fb15aeb57f1b",
+    "createdAt": "2026-05-05T20:16:20.876Z"
+  },
+  {
+    "filename": "TopTrendingMusic2024_AN_imagem_colada_1778011062376.mp4",
+    "outputFile": "TopTrendingMusic2024_AN_imagem_colada_1778011062376.mp4",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "BarChart",
+        "suggestedName": "TopTrendingMusic2024",
+        "reasoning": "O gráfico é um BarChart vertical agrupado, exibindo a tendência de três gêneros musicais ao longo dos meses de 2024. Os dados foram extraídos com precisão dos eixos e da legenda, mantendo os nomes originais das séries e categorias. As cores foram capturadas diretamente da imagem. O eixo Y foi definido de 0 a 25, conforme a visualização.",
+        "props": {
+          "title": "TOP TRENDING MUSIC 2024",
+          "subtitle": "",
+          "labels": [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "Mei",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "yMin": 0,
+          "yMax": 25,
+          "series": [
+            {
+              "label": "Jazz Music",
+              "data": [
+                5,
+                8,
+                15,
+                18,
+                21.5,
+                19,
+                15,
+                19,
+                20,
+                19,
+                16,
+                18
+              ]
+            },
+            {
+              "label": "Pop Music",
+              "data": [
+                5,
+                8,
+                10,
+                14,
+                20,
+                22,
+                13,
+                16,
+                19,
+                20,
+                25,
+                21
+              ]
+            },
+            {
+              "label": "Rock Music",
+              "data": [
+                5,
+                4,
+                5,
+                8,
+                8,
+                9,
+                6,
+                5,
+                8,
+                4,
+                9,
+                4
+              ]
+            }
+          ],
+          "seriesColors": [],
+          "unit": "",
+          "showValueLabels": false,
+          "showLegend": true,
+          "annotations": [],
+          "data": [
+            {
+              "label": "Jan",
+              "value": 5
+            },
+            {
+              "label": "Feb",
+              "value": 8
+            },
+            {
+              "label": "Mar",
+              "value": 15
+            },
+            {
+              "label": "Apr",
+              "value": 18
+            },
+            {
+              "label": "Mei",
+              "value": 21.5
+            },
+            {
+              "label": "Jun",
+              "value": 19
+            },
+            {
+              "label": "Jul",
+              "value": 15
+            },
+            {
+              "label": "Aug",
+              "value": 19
+            },
+            {
+              "label": "Sep",
+              "value": 20
+            },
+            {
+              "label": "Oct",
+              "value": 19
+            },
+            {
+              "label": "Nov",
+              "value": 16
+            },
+            {
+              "label": "Dec",
+              "value": 18
+            }
+          ],
+          "insightText": "A música Pop lidera o ranking de tendências musicais em 2024, com um pico de popularidade em novembro e uma consistente presença ao longo do ano, superando Jazz e Rock em termos de audiência."
+        }
+      }
+    },
+    "id": "5e58e6fe-3870-4083-b10d-fdf38fc68cb5",
+    "createdAt": "2026-05-05T19:59:08.078Z"
+  },
+  {
+    "filename": "LineChart_AN_imagem_colada_1778009727937.mp4",
+    "outputFile": "LineChart_AN_imagem_colada_1778009727937.mp4",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "LineChart",
+        "suggestedName": "LineChart",
+        "reasoning": "O gráfico exibe uma única linha conectando pontos de dados ao longo de um eixo categórico temporal (meses), indicando uma evolução. Os valores do eixo Y e os rótulos dos pontos foram extraídos com precisão. A ausência de uma legenda explícita para a série única e a presença de rótulos de valor direto justificam 'showLegend: false' e o rótulo da série vazio, conforme as regras.",
+        "props": {
+          "title": "Line Chart",
+          "subtitle": "",
+          "labels": [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun"
+          ],
+          "xAxisTitle": "Months",
+          "yAxisTitle": "Number of houses sold",
+          "yMin": 10,
+          "yMax": 60,
+          "series": [
+            {
+              "label": "",
+              "data": [
+                50,
+                30,
+                40,
+                30,
+                20,
+                50
+              ]
+            }
+          ],
+          "seriesColors": [
+            "#66B2FF"
+          ],
+          "unit": "",
+          "showValueLabels": true,
+          "showLegend": false,
+          "data": [
+            {
+              "label": "Jan",
+              "value": 50
+            },
+            {
+              "label": "Feb",
+              "value": 30
+            },
+            {
+              "label": "Mar",
+              "value": 40
+            },
+            {
+              "label": "Apr",
+              "value": 30
+            },
+            {
+              "label": "May",
+              "value": 20
+            },
+            {
+              "label": "Jun",
+              "value": 50
+            }
+          ],
+          "insightText": "A tendência apresenta um movimento em forma de \"V\", com uma queda acentuada em maio, seguida de uma recuperação expressiva em junho, indicando uma possível reversão da tendência negativa."
+        }
+      }
+    },
+    "id": "3970fd22-e5fa-4a1c-813c-a81d3ad04152",
+    "createdAt": "2026-05-05T19:36:58.769Z"
+  },
+  {
     "filename": "training_BarChart_7.png",
     "outputFile": "",
     "status": "done",

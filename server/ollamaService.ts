@@ -2,7 +2,7 @@ import axios from 'axios';
 import fs from 'fs';
 import { PATHS } from './paths.js';
 
-const OLLAMA_BASE_URL = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
+const OLLAMA_BASE_URL = (process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434').replace(/\/v1$/, '');
 const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'llava:7b';
 
 /**
@@ -43,12 +43,28 @@ Responda APENAS o texto do insight em Português.`;
  * Analisa imagem usando Ollama Vision (Fallback Local)
  */
 export async function analyzeChartImageWithOllama(
-  imagePath: string,
-  prompt: string
+  imagePathOrBase64: string,
+  prompt?: string
 ): Promise<any> {
   console.log(`👁️ [OLLAMA VISION] Analisando imagem localmente (Model: ${OLLAMA_MODEL})...`);
   
-  const imageBase64 = fs.readFileSync(imagePath).toString('base64');
+  const isVisionModel = OLLAMA_MODEL.includes('vision') || OLLAMA_MODEL.includes('llava') || OLLAMA_MODEL.includes('moondream');
+  if (!isVisionModel) {
+    console.warn(`⚠️ [Simão] ATENÇÃO: O modelo '${OLLAMA_MODEL}' pode não suportar visão. Recomenda-se usar 'llama3.2-vision' ou 'llava' para o fallback local.`);
+  }
+  
+  let imageBase64: string;
+  if (imagePathOrBase64.length > 500) {
+    // Provavelmente já é um base64
+    imageBase64 = imagePathOrBase64;
+  } else {
+    // É um path
+    imageBase64 = fs.readFileSync(imagePathOrBase64).toString('base64');
+  }
+
+  // Use o prompt simplificado se nenhum for passado ou se for o padrão longo do Gemini
+  const { buildOllamaVisionPrompt } = await import("./prompts/ollamaVision.js");
+  const finalPrompt = (prompt && prompt.length < 500) ? prompt : buildOllamaVisionPrompt();
 
   try {
     const response = await axios.post(`${OLLAMA_BASE_URL}/api/generate`, {
@@ -85,7 +101,7 @@ export async function auditRenderFidelityWithOllama(
   const { buildAuditorPrompt } = await import("./prompts/auditor.js");
   const prompt = buildAuditorPrompt();
 
-  console.log(`⚖️ [OLLAMA AUDITOR] Comparando imagens localmente...`);
+  console.log(`⚖️ [OLLAMA AUDITOR] Comparando imagens localmente (timeout: 45s)...`);
 
   try {
     const response = await axios.post(`${OLLAMA_BASE_URL}/api/generate`, {
@@ -93,7 +109,7 @@ export async function auditRenderFidelityWithOllama(
       prompt: `IMAGEM 1: original. IMAGEM 2: renderizado.\n\n${prompt}`,
       images: [originalB64, renderedB64],
       stream: false
-    });
+    }, { timeout: 45000 });
 
     const responseText = response.data.response;
     const jsonMatch = responseText.match(/\{[\s\S]*\}/);

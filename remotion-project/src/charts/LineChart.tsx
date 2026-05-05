@@ -67,8 +67,7 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
   const T = resolveTheme(theme ?? 'dark', backgroundColor, backgroundType, colors || seriesColors, textColor);
   const resolvedBg = T.background;
   const resolvedText = T.text;
-  const paletteFromProps = (colors ?? seriesColors)?.filter(Boolean) ?? [];
-  const resolvedColors = paletteFromProps.length > 0 ? paletteFromProps : [...T.colors];
+  const resolvedColors = T.colors;
 
   const clipId = React.useMemo(() => `lc-clip-${instanceId}`, [instanceId]);
 
@@ -167,7 +166,10 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
   });
 
   return (
-    <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
+    <AbsoluteFill style={{ 
+      fontFamily: Theme.typography.fontFamily,
+      backgroundColor: backgroundType === 'transparent' ? 'transparent' : undefined
+    }}>
       <DynamicBackground
         baseColor={resolvedBg}
         accentColor={resolvedColors[0]}

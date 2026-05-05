@@ -3,8 +3,9 @@ export interface ValidationResult {
   errors: string[];
 }
 
-// Matches "Label 1", "Product 3", etc. (with trailing digit) OR bare "Label" / "Value" / "Data"
-const GENERIC_LABEL_RE = /^(item|series|série|category|label|data|valor|coluna|linha|group|grupo|serie|product|produto|option|opção|opcao|element|elemento|type|tipo|class|classe|value|measure|metric|brand|marca|canal|channel|region|região|segment|segmento|driver|player|team|equipe|company|empresa|country|país|pais|sector|setor|variable|variavel|variável|sample|amostra|entry|entrada|row|linha|col|column|tag)(\s*\d+)?$/i;
+// "Product 1", "Item 3", "Series 2" etc. — requer dígito sequencial (não pega "Product Revenue" ou "Product A")
+// Termos sem número só bloqueados quando são exatamente a palavra isolada (ex: "Label", "Value")
+const GENERIC_LABEL_RE = /^(item|series|série|serie|product|produto)\s+\d+$|^(category|label|data|valor|group|grupo|option|element|type|class|value|measure|metric|variable|sample|entry|row|col|column|tag)(\s*\d+)?$/i;
 const HEX_COLOR_RE = /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/;
 
 // Known synthetic/template company names that indicate non-real data
@@ -15,8 +16,17 @@ const MONTH_RE = /^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|jan|fev|mar|
 const QUARTER_RE = /^q[1-4]/i;
 const YEAR_RE = /^\d{4}$/;
 
-function hasGenericLabels(labels: string[]): string[] {
-  return labels.filter(l => l && GENERIC_LABEL_RE.test(String(l).trim()));
+const KEYWORD_ONLY_RE = /^(label|value|data|type|group|item|product|series|val|var)$/i;
+
+function hasGenericLabels(labels: string[]): { genericCount: number; keywordDensity: number; genericList: string[] } {
+  const genericList = labels.filter(l => l && GENERIC_LABEL_RE.test(String(l).trim()));
+  const keywords = labels.filter(l => l && KEYWORD_ONLY_RE.test(String(l).trim()));
+  
+  return {
+    genericCount: genericList.length,
+    keywordDensity: labels.length > 0 ? keywords.length / labels.length : 0,
+    genericList
+  };
 }
 
 function hasDuplicates(labels: string[]): string[] {
@@ -63,9 +73,9 @@ export function validateChartData(type: string, props: any): ValidationResult {
     ...(props.xLabels ?? []),
     ...(props.yLabels ?? []),
   ];
-  const generic = hasGenericLabels(allLabels);
-  if (generic.length > 0) {
-    errors.push(`Labels genéricos (alucinação): ${generic.slice(0, 4).join(', ')}`);
+  const { genericCount, keywordDensity, genericList } = hasGenericLabels(allLabels);
+  if (genericCount >= 2 || keywordDensity > 0.4) {
+    errors.push(`Labels genéricos (alucinação): ${genericList.slice(0, 4).join(', ')}`);
   }
 
   // ── 3. Labels duplicados ──────────────────────────────────────────────────

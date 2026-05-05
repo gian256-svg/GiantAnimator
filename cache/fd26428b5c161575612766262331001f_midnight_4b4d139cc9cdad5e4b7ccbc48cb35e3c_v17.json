@@ -1,0 +1,152 @@
+{
+  "componentId": "BarChart",
+  "suggestedName": "TopTrendingMusic2024",
+  "reasoning": "Gráfico de barras verticais (BarChart) para exibir a tendência de diferentes gêneros musicais ao longo dos meses de 2024. Os dados foram extraídos com precisão cirúrgica, incluindo valores, cores e rótulos, e a escala do eixo Y foi replicada fielmente (0 a 25). As anotações foram adicionadas seletivamente para os pontos de dados mais altos e mais baixos para fornecer insights, sem ativar rótulos para todas as barras, conforme a imagem original.",
+  "props": {
+    "title": "TOP TRENDING MUSIC 2024",
+    "subtitle": "",
+    "labels": [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "Mei",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec"
+    ],
+    "xAxisTitle": "",
+    "yAxisTitle": "",
+    "yMin": 0,
+    "yMax": 25,
+    "series": [
+      {
+        "label": "Jazz Music",
+        "data": [
+          5,
+          8,
+          15,
+          18,
+          21.5,
+          19,
+          15,
+          19,
+          19.5,
+          19,
+          16,
+          18
+        ]
+      },
+      {
+        "label": "Pop Music",
+        "data": [
+          5,
+          8,
+          10,
+          14,
+          20,
+          22,
+          13,
+          16,
+          19,
+          20,
+          25,
+          21
+        ]
+      },
+      {
+        "label": "Rock Music",
+        "data": [
+          5,
+          4,
+          5,
+          8,
+          8,
+          9,
+          6,
+          5,
+          8,
+          4,
+          9,
+          4
+        ]
+      }
+    ],
+    "seriesColors": [
+      "#964B00",
+      "#20B2AA",
+      "#191970"
+    ],
+    "unit": "",
+    "showValueLabels": false,
+    "showLegend": true,
+    "annotations": [
+      {
+        "seriesIndex": 1,
+        "index": 10,
+        "value": 25,
+        "label": "Pico de Pop Music em Novembro"
+      },
+      {
+        "seriesIndex": 2,
+        "index": 1,
+        "value": 4,
+        "label": "Mínimo de Rock Music em Fevereiro"
+      }
+    ],
+    "data": [
+      {
+        "label": "Jan",
+        "value": 5
+      },
+      {
+        "label": "Feb",
+        "value": 8
+      },
+      {
+        "label": "Mar",
+        "value": 15
+      },
+      {
+        "label": "Apr",
+        "value": 18
+      },
+      {
+        "label": "Mei",
+        "value": 21.5
+      },
+      {
+        "label": "Jun",
+        "value": 19
+      },
+      {
+        "label": "Jul",
+        "value": 15
+      },
+      {
+        "label": "Aug",
+        "value": 19
+      },
+      {
+        "label": "Sep",
+        "value": 19.5
+      },
+      {
+        "label": "Oct",
+        "value": 19
+      },
+      {
+        "label": "Nov",
+        "value": 16
+      },
+      {
+        "label": "Dec",
+        "value": 18
+      }
+    ]
+  }
+}

@@ -10,7 +10,7 @@ import { renderMedia, selectComposition } from '@remotion/renderer';
 import { getHistory, addJob, clearHistory } from './historyService.js';
 import { syncPipelineJob, seedComponentRegistry, syncTrainingLog } from './supabaseService.js';
 import { analyzeChartImage } from './visionService.js';
-import { generateStill } from './renderService.js';
+import { generateStill, getBundle } from './renderService.js';
 import { auditRenderFidelity } from './auditorService.js';
 import { dataTransformationService } from './dataTransformationService.js';
 import { tableParserService } from './tableParserService.js';
@@ -89,17 +89,6 @@ function loadJob(id: string): PipelineJob | null {
   }
 }
 
-// ─── PIPELINE ────────────────────────────────────────────────
-let bundlePromise: Promise<string> | null = null;
-async function getBundle() {
-  if (IS_VERCEL) return "";
-  console.log('📦 [REMOTION] Criando bundle 4K...');
-  bundlePromise = bundle({
-    entryPoint: REMOTION_ENTRY,
-    webpackOverride: (c) => c,
-  });
-  return bundlePromise;
-}
 
 async function processJob(
   jobId: string, 
@@ -115,6 +104,8 @@ async function processJob(
   job.stage = 'Pedro: Recebendo arquivo...';
   job.options = options;
   saveJob(job);
+
+  const includeCallouts = options.includeCallouts === 'true' || options.includeCallouts === true;
 
   try {
     const ext = path.extname(originalName).toLowerCase();
@@ -360,32 +351,50 @@ async function finishJobRendering(jobId: string, analysis: ChartAnalysis, chartT
         job.stage = 'André: Renderizando 4K UHD...';
         await saveJob(job);
 
-        const outputName = `${summary}_AN_${cleanOriginal}.mp4`;
+        const isAlpha = String(options.exportAlpha) === 'true' || options.backgroundType === 'transparent';
+        const outputExt = isAlpha ? 'mov' : 'mp4';
+        const outputName = `${summary}_AN_${cleanOriginal}.${outputExt}`;
         const outputPath = path.join(OUTPUT_DIR, outputName);
 
         const serveUrl = await getBundle();
         const resolvedTheme = (chartTheme === 'dark' || chartTheme === 'light') ? chartTheme : 'dark';
+        
+        const inputProps = {
+          ...analysis.props,
+          theme: resolvedTheme,
+          backgroundType: isAlpha ? 'transparent' : (options.backgroundType || analysis.props.backgroundType),
+          backgroundColor: isAlpha ? 'transparent' : (analysis.props.backgroundColor === '#000000' ? undefined : analysis.props.backgroundColor)
+        };
+
+        console.log("🎨 [Render] Propriedades finais enviadas ao Remotion:");
+        console.dir(inputProps, { depth: null });
+
         const composition = await selectComposition({
           serveUrl,
           id: analysis.componentId,
-          inputProps: {
-            ...analysis.props,
-            theme: resolvedTheme,
-            backgroundType: options.backgroundType
-          }
+          inputProps
         });
 
-        await renderMedia({
+        const renderOptions: any = {
           composition,
           serveUrl,
           outputLocation: outputPath,
-          codec: 'h264',
-          inputProps: {
-            ...analysis.props,
-            theme: resolvedTheme,
-            backgroundType: options.backgroundType
-          }
-        });
+          inputProps
+        };
+
+        if (isAlpha) {
+          console.log("🎬 [Render] Exportando com canal ALPHA (ProRes 4444)...");
+          renderOptions.codec = 'prores';
+          renderOptions.pixelFormat = 'yuva444p10le';
+          renderOptions.imageFormat = 'png';
+          // chromiumOptions.transparentBackground instrui o Chrome a renderizar sem fundo
+          // (REMOTION_TRANSPARENT env var não é uma API real do Remotion)
+          renderOptions.chromiumOptions = { transparentBackground: true };
+        } else {
+          renderOptions.codec = 'h264';
+        }
+
+        await renderMedia(renderOptions);
 
         const videoUrl = `/output/${outputName}`;
         addJob({ filename: outputName, outputFile: outputName, status: 'done', props: { analysis } });
@@ -429,6 +438,7 @@ app.post('/upload', upload.single('file'), async (req: Request, res: Response) =
       bgStyle: req.body.bgStyle || 'none',
       reviewRequired: req.body.reviewRequired !== 'false',
       trainingOnly: req.body.trainingOnly === 'true',
+      exportAlpha: req.body.exportAlpha === 'true'
     };
 
     processJob(jobId, req.file.buffer, req.file.originalname, options.chartTheme, options);
@@ -484,6 +494,7 @@ app.post('/jobs/:jobId/start-render', async (req: Request, res: Response) => {
         }
         if (includeCallouts !== undefined) job.options.includeCallouts = includeCallouts;
         if (req.body.options?.engine) job.options.engine = req.body.options.engine;
+        if (req.body.options?.exportAlpha !== undefined) job.options.exportAlpha = req.body.options.exportAlpha;
         await saveJob(job);
     } else {
         return res.status(404).json({ error: 'Job not found or corrupted' });
@@ -541,7 +552,7 @@ async function runSurgeryGradePipeline(
     filePath,
     chartTheme,
     undefined,
-    { includeCallouts },
+    { includeCallouts: false }, // 🛡️ PHASE 1: Pure Data (No distractions)
     log
   );
 
@@ -587,7 +598,7 @@ async function runSurgeryGradePipeline(
         filePath, 
         chartTheme, 
         audit.critique,
-        { includeCallouts },
+        { includeCallouts: false }, // 🛡️ Mantém foco em fidelidade no re-try
         log
       ); 
     } catch (err: any) {
@@ -606,7 +617,7 @@ async function runSurgeryGradePipeline(
   const hasDataPoints = p.data && p.data.length > 0;
 
   if (!hasSeriesData && !hasDataPoints) {
-      throw new Error(`A detecção de dados falhou (Código: BLANK). IA não encontrou números na imagem.`);
+      throw new Error(`A detecção de dados falhou (Código: BLANK). IA não encontrou números na imagem. Verifique se suas chaves de API (Gemini/Groq) no .env são válidas ou se o seu modelo local do Ollama é capaz de analisar imagens.`);
   }
 
   // Verificação final do auditor (Regra de Resiliência: 85% é o novo "Gold Standard" para bloqueio)
@@ -614,6 +625,21 @@ async function runSurgeryGradePipeline(
       throw new Error(`FIDELIDADE INSUFICIENTE: O render atingiu apenas ${lastAudit.score}% de precisão. Meta mínima: 80% (alvo: 90%). Auditor: ${lastAudit.critique}`);
   }
 
+  // ── PHASE 3: Smart Call-outs (Enrichment AFTER Audit) ────────
+  if (includeCallouts) {
+    try {
+      const { enrichAnalysisWithCallouts } = await import('./calloutService.js');
+      analysis = await enrichAnalysisWithCallouts(analysis);
+    } catch (e) {
+      console.warn("⚠️ [Orchestrator] Falha no enriquecimento de Call-outs:", e);
+    }
+  }
+
+  // Final job result
+  job.analysis = analysis;
+  job.progress = 60;
+  await saveJob(job);
+  
   return analysis;
 }
 

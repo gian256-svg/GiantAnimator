@@ -57,6 +57,14 @@ export const dataTransformationService = {
         p.elementColors = [p.elementColors];
     }
 
+    // 🛡️ Proteção de Transparência (Alpha Channel)
+    if (p.backgroundType === 'transparent') {
+        p.backgroundColor = 'transparent';
+    } else if (p.backgroundColor === '#000000' || p.backgroundColor === '#000') {
+        // Se a IA detectou preto puro, deixamos o tema decidir (evita P/B sem intenção)
+        delete p.backgroundColor;
+    }
+
     return p;
   }
 };

@@ -83,6 +83,7 @@ export async function analyzeChartImageWithGroq(
         ],
       },
     ],
+    response_format: { type: "json_object" },
   });
 
   const text = completion.choices[0]?.message?.content ?? "";
@@ -102,10 +103,10 @@ export async function auditRenderFidelityWithGroq(
   const renderedB64 = fs.readFileSync(renderedStillPath).toString("base64");
   const prompt = buildAuditorPrompt();
 
-  console.log("⚖️ [Tiago] Auditoria de fidelidade com Llama 3.2 Vision 90B...");
+  console.log("⚖️ [Tiago] Auditoria de fidelidade com Llama 3.2 Vision 90B (timeout: 25s)...");
 
   // Groq Vision aceita múltiplas imagens na mesma mensagem
-  const completion = await groq.chat.completions.create({
+  const auditPromise = groq.chat.completions.create({
     model: VISION_MODEL,
     temperature: 0.1,
     max_tokens: 4096,
@@ -121,7 +122,14 @@ export async function auditRenderFidelityWithGroq(
         ],
       },
     ],
+    response_format: { type: "json_object" },
   });
+
+  const timeoutPromise = new Promise((_, reject) => 
+    setTimeout(() => reject(new Error("GROQ_TIMEOUT: Auditoria Groq demorou mais de 25s")), 25000)
+  );
+
+  const completion: any = await Promise.race([auditPromise, timeoutPromise]);
 
   const text = completion.choices[0]?.message?.content ?? "";
   const jsonMatch = text.match(/\{[\s\S]*\}/);

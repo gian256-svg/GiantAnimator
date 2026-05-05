@@ -16,19 +16,22 @@ let isBundling = false;
 /**
  * Cria ou recupera o bundle do Remotion
  */
-async function getBundle(): Promise<string> {
+export async function getBundle(): Promise<string> {
   if (cachedBundleLocation) return cachedBundleLocation;
 
   if (isBundling) {
+    console.log('⏳ [REMOTION] Já existe um processo de bundling em curso. Aguardando...');
     while (isBundling) {
       await new Promise(resolve => setTimeout(resolve, 500));
+      // Se outro processo terminou enquanto esperávamos, retornamos o cache
       if (cachedBundleLocation) return cachedBundleLocation;
     }
+    // Se o outro processo terminou mas não gerou cache (erro), tentamos nós mesmos abaixo
   }
 
   isBundling = true;
   try {
-    console.log('📦 Criando bundle...');
+    console.log('📦 [REMOTION] Criando bundle UHD...');
     const bundleLocation = await bundle({
       entryPoint: ENTRY_POINT,
       webpackOverride: (config) => {
@@ -38,10 +41,10 @@ async function getBundle(): Promise<string> {
     });
     
     cachedBundleLocation = bundleLocation;
-    console.log('✅ Bundle criado');
+    console.log('✅ [REMOTION] Bundle criado e cacheado.');
     return bundleLocation;
   } catch (err: any) {
-    console.error('❌ Erro ao criar bundle:', err.message);
+    console.error('❌ [REMOTION] Erro crítico ao criar bundle:', err.message);
     throw err;
   } finally {
     isBundling = false;
@@ -83,14 +86,21 @@ export async function renderChart(
     composition.height = 2160;
 
     // 3. Renderizar
-    console.log('🎥 Renderizando...');
-    await renderMedia({
+    console.log('🎥 Renderizando media (timeout: 300s)...');
+    
+    const renderPromise = renderMedia({
       composition,
       serveUrl: bundleLocation,
       codec: 'h264',
       outputLocation: outputPath,
       inputProps,
     });
+
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error("RENDER_TIMEOUT: A renderização demorou mais de 300s")), 300000)
+    );
+
+    await Promise.race([renderPromise, timeoutPromise]);
 
     console.log(`✅ Render concluído: ${outputPath}`);
     return outputPath;
@@ -129,14 +139,21 @@ export async function generateStill(
     if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
     const outputPath = path.join(cacheDir, outputFilename);
 
-    console.log(`📸 [STILL] Capturando frame ${auditFrame} de ${composition.durationInFrames} (composição: ${compositionId})`);
-    await renderStill({
+    console.log(`📸 [STILL] Capturando frame ${auditFrame} (timeout: 60s)...`);
+    
+    const stillPromise = renderStill({
       composition,
       serveUrl: bundleLocation,
       output: outputPath,
       frame: auditFrame,
       inputProps,
     });
+
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error("STILL_TIMEOUT: A captura do frame demorou mais de 60s")), 60000)
+    );
+
+    await Promise.race([stillPromise, timeoutPromise]);
 
     return outputPath;
   } catch (err: any) {

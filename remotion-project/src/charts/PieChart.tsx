@@ -56,7 +56,7 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
   const T = resolveTheme(theme, props.backgroundColor, backgroundType, props.colors || props.seriesColors, props.textColor);
   const resolvedBg = T.background;
   const resolvedText = T.text;
-  const sliceColors = props.sliceColors || props.colors || props.seriesColors || [...T.colors];
+  const sliceColors = T.colors;
 
   // Normalização
   let normalizedData: PieSlice[] = [];
@@ -91,7 +91,10 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
   let currentAngle = -Math.PI / 2;
 
   return (
-    <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
+    <AbsoluteFill style={{ 
+      fontFamily: Theme.typography.fontFamily,
+      backgroundColor: backgroundType === 'transparent' ? 'transparent' : undefined
+    }}>
       <DynamicBackground 
         baseColor={resolvedBg} 
         accentColor={sliceColors[0]} 

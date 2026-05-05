@@ -4,10 +4,14 @@ import { AbsoluteFill } from 'remotion';
 interface DynamicBackgroundProps {
     baseColor: string;
     accentColor?: string;
-    backgroundType?: 'dark' | 'light';
+    backgroundType?: 'dark' | 'light' | 'transparent';
 }
 
 export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({ baseColor, accentColor, backgroundType }) => {
+    if (backgroundType === 'transparent') {
+        return null; // 🚀 MODO ALPHA: Remove qualquer fundo para exportação QuickTime
+    }
+
     // Definimos as cores do gradiente principal baseado no tipo ou na cor base
     const isDark = backgroundType === 'dark' || (!backgroundType && baseColor === '#0f1117');
     const isLight = backgroundType === 'light' || (!backgroundType && baseColor !== '#0f1117');

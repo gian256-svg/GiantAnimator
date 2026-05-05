@@ -62,17 +62,17 @@ async function downloadImage(url: string, dest: string) {
 
 async function runTraining() {
   console.log("🚀 [GLOBAL TRAINING] Iniciando Sessão de Treinamento Intensivo (Todos os Tipos)...");
-  
+
   for (const [category, urls] of Object.entries(TRAINING_DATA)) {
     console.log(`\n📂 [LOTE] Iniciando categoria: ${category}`);
-    
+
     for (let i = 0; i < urls.length; i++) {
       const url = urls[i];
       const filename = `training_${category}_${i + 1}.png`;
       const filepath = path.join(INPUT_DIR, filename);
 
       try {
-        console.log(`\n📥 [${category}] [${i+1}/${urls.length}] Baixando: ${url}`);
+        console.log(`\n📥 [${category}] [${i + 1}/${urls.length}] Baixando: ${url}`);
         await downloadImage(url, filepath);
 
         console.log(`📤 Enviando para o pipeline: ${filename}`);
@@ -121,7 +121,7 @@ async function runTraining() {
         if (!done) console.error(`⏰ [${category}] Job ${jobId} atingiu timeout de 3min — descartado.`);
 
       } catch (err: any) {
-        console.error(`❌ Falha no item ${category} #${i+1}:`, err.message);
+        console.error(`❌ Falha no item ${category} #${i + 1}:`, err.message);
       }
     }
   }

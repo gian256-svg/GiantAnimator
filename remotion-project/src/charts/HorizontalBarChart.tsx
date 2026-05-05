@@ -59,8 +59,7 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
   const T = resolveTheme(theme, backgroundColor, backgroundType, seriesColors || colors, textColor);
   const resolvedBg = T.background;
   const resolvedText = T.text;
-  const paletteFromProps = (seriesColors ?? colors)?.filter(Boolean) ?? [];
-  const resolvedColors = paletteFromProps.length > 0 ? paletteFromProps : [...T.colors];
+  const resolvedColors = T.colors;
 
   const instanceId = useId().replace(/:/g, "");
 
@@ -116,7 +115,10 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
   const barHeight      = (groupHeight / seriesCount) * 0.9;
 
   return (
-    <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily, backgroundColor: resolvedBg }}>
+    <AbsoluteFill style={{ 
+      fontFamily: Theme.typography.fontFamily, 
+      backgroundColor: backgroundType === 'transparent' ? 'transparent' : undefined 
+    }}>
       <DynamicBackground 
         baseColor={resolvedBg} 
         accentColor={T.colors[0]} 
