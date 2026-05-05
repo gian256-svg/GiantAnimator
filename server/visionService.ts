@@ -80,7 +80,7 @@ export async function analyzeChartImage(
   let response;
   let retries = 0;
   let lastError: any = null;
-  while (retries < 10) {
+  while (retries < 3) {
     try {
       const model = (await import("./agent.js")).getAIInstance().getGenerativeModel({
         model: GEMINI_MODEL_VISION,
@@ -104,15 +104,14 @@ export async function analyzeChartImage(
       const errMsg = err.message || String(err);
       const isServiceError = errMsg.includes("503") || errMsg.includes("429") || errMsg.includes("UNAVAILABLE") || errMsg.includes("high demand");
       
-      console.error(`❌ [João] Tentativa ${retries}/10 falhou: ${errMsg}`);
+      console.error(`❌ [João] Tentativa ${retries}/3 falhou: ${errMsg}`);
       
       if (isServiceError) {
         (await import("./agent.js")).rotateKey();
-        const wait = Math.min(Math.pow(2, retries) * 1000, 30000); 
+        const wait = Math.min(Math.pow(2, retries) * 1000, 10000); 
         console.log(`⏳ [João] Aguardando ${wait/1000}s antes da próxima tentativa (503/Demand)...`);
         await new Promise(r => setTimeout(r, wait));
       } else {
-        // Se for erro de autenticação ou parâmetro, não adianta tentar 10 vezes
         break;
       }
     }
@@ -122,7 +121,7 @@ export async function analyzeChartImage(
     // ── Fallback 2: Groq (Llama 3.2 Vision 90B — grátis) ────────
     if (process.env.GROQ_API_KEY) {
       if (onProgress) onProgress("⚠️ Gemini fora do ar. Chaveando para GROQ (Llama Vision)...");
-      console.warn("⚠️ Gemini fora do ar. Usando Groq como fallback...");
+      console.warn("⚠️ [Tiago] Gemini fora do ar. Usando Groq como fallback...");
       try {
         const { analyzeChartImageWithGroq } = await import("./groqService.js");
         const groqAnalysis = await analyzeChartImageWithGroq(imagePath, auditorCritique, settings);
@@ -130,28 +129,16 @@ export async function analyzeChartImage(
         fs.writeFileSync(cacheFile, JSON.stringify(normalized, null, 2));
         return normalized;
       } catch (groqErr: any) {
-        console.error("❌ Fallback Groq falhou:", groqErr.message);
+        console.error("❌ [Tiago] Fallback Groq falhou:", groqErr.message);
       }
+    } else {
+      console.warn("⚠️ [Tiago] Pular Groq: GROQ_API_KEY não definida.");
     }
 
-    // ── Fallback 3: Claude ───────────────────────────────────────
-    if (process.env.ANTHROPIC_API_KEY) {
-      if (onProgress) onProgress("⚠️ Groq indisponível. Chaveando para CLAUDE VISION...");
-      console.warn("⚠️ Tentando Claude como fallback...");
-      try {
-        const { analyzeChartImageWithClaude } = await import("./claudeService.js");
-        const claudeAnalysis = await analyzeChartImageWithClaude(imagePath, auditorCritique, settings);
-        const normalized = normalizeAnalysisProps(claudeAnalysis);
-        fs.writeFileSync(cacheFile, JSON.stringify(normalized, null, 2));
-        return normalized;
-      } catch (claudeErr: any) {
-        console.error("❌ Fallback Claude falhou:", claudeErr.message);
-      }
-    }
-
-    // ── Fallback 4: Ollama local ─────────────────────────────────
+    // ── Fallback 3: Ollama local ─────────────────────────────────
     try {
       if (onProgress) onProgress("⚠️ APIs cloud indisponíveis. Chaveando para OLLAMA local...");
+      console.warn("⚠️ [Simão] Usando Ollama como fallback final...");
       const { analyzeChartImageWithOllama } = await import("./ollamaService.js");
       const ollamaAnalysis = await analyzeChartImageWithOllama(imagePath, prompt);
       const normalized = normalizeAnalysisProps(ollamaAnalysis);
@@ -162,7 +149,7 @@ export async function analyzeChartImage(
     }
 
     const detail = lastError?.message || "Erro desconhecido";
-    throw new Error(`Todos os provedores falharam (Gemini → Groq → Claude → Ollama). Detalhe: ${detail}`);
+    throw new Error(`Todos os provedores falharam (Gemini → Groq → Ollama). Detalhe: ${detail}`);
   }
   const candidate = response.candidates?.[0];
   const responseText = candidate?.content?.parts?.[0]?.text ?? "";

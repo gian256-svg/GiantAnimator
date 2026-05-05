@@ -30,12 +30,7 @@ const IS_VERCEL = !!process.env.VERCEL;
 app.use(cors());
 app.use(express.json());
 
-// Middleware de Log para Debug de Rede Local
-app.use((req, res, next) => {
-  const timestamp = new Date().toISOString();
-  // console.log(`[${timestamp}] ${req.method} ${req.url} - IP: ${req.ip}`);
-  next();
-});
+app.use((_req, _res, next) => { next(); });
 
 const JOBS_DIR = path.join(PATHS.input, 'jobs');
 const UPLOADS_DIR = path.join(PATHS.input, 'uploads');
@@ -231,22 +226,26 @@ async function processJob(
     job.log = `Componente: ${analysis.componentId}`;
     await saveJob(job);
 
-    // ─── AGENTE DE INSIGHTS (Ollama Local -> Fallback Claude) ───
+    // ─── AGENTE DE INSIGHTS (Groq -> Fallback Ollama Local) ───
     job.stage = 'Felipe: Gerando insights...';
     try {
-      const { generateInsightsWithOllama } = await import("./ollamaService.js");
-      analysis.props.insightText = await generateInsightsWithOllama(analysis.props);
-      job.log += `\n✨ [Ollama] Insight Local: ${analysis.props.insightText}`;
-    } catch (ollamaErr) {
-      console.warn("⚠️ Ollama offline. Tentando Claude para insights...");
-      if (process.env.ANTHROPIC_API_KEY) {
-        try {
-          const { generateInsightsWithClaude } = await import("./claudeService.js");
-          analysis.props.insightText = await generateInsightsWithClaude(analysis.props);
-          job.log += `\n✨ [Claude] Insight: ${analysis.props.insightText}`;
-        } catch (claudeErr: any) {
-          console.error('❌ [Claude] Erro ao gerar insight:', claudeErr.message);
-        }
+      if (process.env.GROQ_API_KEY) {
+        console.log("✨ [Felipe] Gerando insights executivos com Groq...");
+        const { generateInsightWithGroq } = await import("./groqService.js");
+        analysis.props.insightText = await generateInsightWithGroq(analysis);
+        job.log += `\n✨ [Groq] Insight: ${analysis.props.insightText}`;
+      } else {
+        throw new Error("GROQ_API_KEY não definida");
+      }
+    } catch (groqErr) {
+      console.warn("⚠️ Groq indisponível para insights. Chaveando para OLLAMA local...");
+      try {
+        const { generateInsightsWithOllama } = await import("./ollamaService.js");
+        analysis.props.insightText = await generateInsightsWithOllama(analysis.props);
+        job.log += `\n✨ [Ollama] Insight Local: ${analysis.props.insightText}`;
+      } catch (ollamaErr: any) {
+        console.error('❌ [Simão] Erro ao gerar insight local:', ollamaErr.message);
+        analysis.props.insightText = analysis.props.title || "Insight não disponível.";
       }
     }
 
@@ -428,7 +427,7 @@ app.post('/upload', upload.single('file'), async (req: Request, res: Response) =
   }
 });
 
-app.get('/debug/sync-supabase', async (req: Request, res: Response) => {
+app.get('/debug/sync-supabase', async (_req: Request, res: Response) => {
     try {
         console.log("📡 [DEBUG] Sincronização manual solicitada...");
         await seedComponentRegistry();
@@ -495,7 +494,6 @@ app.get('/progress/:jobId', (req: Request, res: Response) => {
 });
 
 app.post('/preview-data', upload.single('file'), async (req: Request, res: Response) => {
-    const debugLog = path.resolve(PATHS.root, 'debug_preview.log');
     if (!req.file) return res.status(400).json({ error: 'No file' });
     
     const ext = path.extname(req.file.originalname);
@@ -550,7 +548,7 @@ async function runSurgeryGradePipeline(
       const audit = await auditRenderFidelity(filePath, stillPath);
       lastAudit = audit;
 
-      if (audit.isApproved && audit.score >= 90) {
+      if (audit.isApproved && audit.score >= 95) {
         console.log("✅ [Orchestrator] Fidelidade Aprovada (Score:", audit.score, ")!");
         job.progress = 40;
         return analysis;

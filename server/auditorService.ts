@@ -96,24 +96,15 @@ export async function auditRenderFidelity(
             const audit = await auditRenderFidelityWithGroq(originalImagePath, renderedStillPath);
             return audit;
           } catch (groqErr: any) {
-            console.error("❌ Fallback Groq Auditor falhou:", groqErr.message);
+            console.error("❌ [AUDITOR] Fallback Groq Auditor falhou:", groqErr.message);
           }
+        } else {
+          console.warn(`⚠️ [AUDITOR] Pular Groq: GROQ_API_KEY não definida.`);
         }
 
-        // ── Fallback 3: Claude ───────────────────────────────────
-        if (process.env.ANTHROPIC_API_KEY) {
-          console.warn(`⚠️ [AUDITOR] Groq indisponível. Chaveando para CLAUDE AUDITOR...`);
-          try {
-            const { auditRenderFidelityWithClaude } = await import("./claudeService.js");
-            const audit = await auditRenderFidelityWithClaude(originalImagePath, renderedStillPath);
-            return audit;
-          } catch (claudeErr: any) {
-            console.error("❌ Fallback Claude Auditor falhou:", claudeErr.message);
-          }
-        }
-
-        // ── Fallback 4: Ollama local ─────────────────────────────
+        // ── Fallback 3: Ollama local ─────────────────────────────
         try {
+          console.warn(`⚠️ [AUDITOR] Usando Ollama como fallback final...`);
           const { auditRenderFidelityWithOllama } = await import("./ollamaService.js");
           const audit = await auditRenderFidelityWithOllama(originalImagePath, renderedStillPath);
           return audit;

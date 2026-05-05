@@ -58,17 +58,26 @@ ${calloutInstruction}
     "title": "TÍTULO COMPLETO E EXATO",
     "subtitle": "SUBTÍTULO COMPLETO E EXATO",
     "labels": ["Categoria A", "Categoria B"],
-    "xAxisTitle": "TÍTULO DO EIXO X (EX: School Year)",
-    "yAxisTitle": "TÍTULO DO EIXO Y (EX: Expenditure per Student)",
+    "xAxisTitle": "TÍTULO DO EIXO X (se existir)",
+    "yAxisTitle": "TÍTULO DO EIXO Y (se existir)",
+    "yMin": 255,
+    "yMax": 290,
     "series": [
       { "label": "Série 1", "data": [10.5, 20.3], "color": "#HEX" }
     ],
+    "seriesColors": ["#HEX_SERIE_1", "#HEX_SERIE_2"],
     "unit": "%",
-    "showValueLabels": true, 
+    "showValueLabels": true,
     "showLegend": true,
     "annotations": []
   }
 }
+
+NOTAS SOBRE yMin/yMax:
+- Para LineChart/AreaChart: SEMPRE extraia yMin e yMax do eixo Y da imagem. Ex: eixo começa em 255 → "yMin": 255.
+- Para BarChart: inclua yMin/yMax SOMENTE se o eixo Y original NÃO começa em 0.
+- Para HorizontalBarChart: use xMin/xMax no lugar de yMin/yMax.
+- NUNCA omita esses campos para gráficos de linha — eles são obrigatórios.
 
 ### REGISTRY DE COMPONENTES DISPONÍVEIS:
 ${registryJson}
