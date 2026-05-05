@@ -1,0 +1,24 @@
+{
+  "componentId": null,
+  "suggestedName": "ImageProcessingError",
+  "reasoning": "A imagem fornecida é um ícone genérico de placeholder e não contém um gráfico ou dados visuais para análise. Não foi possível extrair nenhum dado, título, rótulos, séries ou cores, conforme as diretrizes de fidelidade suprema.",
+  "props": {
+    "title": "Erro: Imagem Inválida",
+    "subtitle": "Nenhum gráfico detectado para análise de dados.",
+    "labels": [],
+    "xAxisTitle": "",
+    "yAxisTitle": "",
+    "series": [],
+    "unit": "",
+    "showValueLabels": false,
+    "showLegend": false,
+    "annotations": [
+      {
+        "seriesIndex": -1,
+        "index": -1,
+        "value": null,
+        "text": "Não foi possível extrair dados: a imagem não é um gráfico."
+      }
+    ]
+  }
+}

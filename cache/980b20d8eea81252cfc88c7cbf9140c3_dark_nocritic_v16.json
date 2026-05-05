@@ -1,0 +1,106 @@
+{
+  "componentId": "HorizontalBarChart",
+  "suggestedName": "RevenueByStation",
+  "reasoning": "O gráfico é claramente um gráfico de barras horizontais. Os dados foram extraídos com precisão matemática, utilizando a escala do eixo X (intervalos de €0.4B) para determinar os valores exatos de cada barra. O título, subtítulo, rótulos e unidade foram capturados fielmente. As anotações destacam os valores máximo e mínimo.",
+  "props": {
+    "title": "Revenue",
+    "subtitle": "by Station",
+    "labels": [
+      "Nansen Node",
+      "Antwerp Relay",
+      "Mariana Gate",
+      "Midway Array",
+      "Barrow Anchorage",
+      "Titan Port",
+      "Helm's Depths",
+      "Noatun Dock",
+      "Tonga Beacon",
+      "Tyrrhenian Terminal",
+      "Cadiz Yard"
+    ],
+    "series": [
+      {
+        "label": "Revenue",
+        "data": [
+          7.6,
+          5.6,
+          4.4,
+          3.2,
+          2.8,
+          2.4,
+          1.6,
+          1.2,
+          0.8,
+          0.4,
+          0.2
+        ]
+      }
+    ],
+    "unit": "€B",
+    "showValueLabels": false,
+    "showLegend": false,
+    "seriesColors": [
+      "#66D9E6"
+    ],
+    "annotations": [
+      {
+        "seriesIndex": 0,
+        "index": 0,
+        "label": "Maior Receita: Nansen Node",
+        "valueStr": "€7.6B"
+      },
+      {
+        "seriesIndex": 0,
+        "index": 10,
+        "label": "Menor Receita: Cadiz Yard",
+        "valueStr": "€0.2B"
+      }
+    ],
+    "data": [
+      {
+        "label": "Nansen Node",
+        "value": 7.6
+      },
+      {
+        "label": "Antwerp Relay",
+        "value": 5.6
+      },
+      {
+        "label": "Mariana Gate",
+        "value": 4.4
+      },
+      {
+        "label": "Midway Array",
+        "value": 3.2
+      },
+      {
+        "label": "Barrow Anchorage",
+        "value": 2.8
+      },
+      {
+        "label": "Titan Port",
+        "value": 2.4
+      },
+      {
+        "label": "Helm's Depths",
+        "value": 1.6
+      },
+      {
+        "label": "Noatun Dock",
+        "value": 1.2
+      },
+      {
+        "label": "Tonga Beacon",
+        "value": 0.8
+      },
+      {
+        "label": "Tyrrhenian Terminal",
+        "value": 0.4
+      },
+      {
+        "label": "Cadiz Yard",
+        "value": 0.2
+      }
+    ]
+  }
+}

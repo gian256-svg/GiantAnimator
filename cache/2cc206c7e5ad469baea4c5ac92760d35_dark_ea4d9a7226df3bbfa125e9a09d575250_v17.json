@@ -1,0 +1,20 @@
+{
+  "componentId": "BarChart",
+  "suggestedName": "GDPPerCapitaMap",
+  "reasoning": "A imagem original é um mapa coroplético, um tipo de visualização geográfica que não possui um componente correspondente no registro fornecido. A extração de dados de PIB per capita para centenas de países a partir de tons de cor seria inerentemente imprecisa e violaria as diretrizes de 'Precisão Numérica' e 'Supremacia dos Dados (Data-First)', que exigem 100% de precisão matemática e proibição de arredondamento. Além disso, a auditoria anterior explicitamente proibiu o uso das categorias da legenda do mapa (ex: '$0', '$1k', '$2k') como pontos de dados para um gráfico de barras, pois isso resulta em uma perda total dos dados originais e uma mudança fundamental no tipo de visualização. Consequentemente, não é possível extrair os dados primários (PIB per capita por país) com a fidelidade cirúrgica exigida para os componentes de gráfico disponíveis. O JSON é fornecido com arrays de dados vazios para cumprir o formato de saída, mas sem representação de dados, pois qualquer tentativa de extração resultaria em falha crítica de fidelidade.",
+  "props": {
+    "title": "GDP per capita, 2022",
+    "subtitle": "GDP per capita is a country's gross domestic product divided by its population. This data is adjusted for inflation and differences in living costs between countries.",
+    "labels": [],
+    "xAxisTitle": "",
+    "yAxisTitle": "",
+    "yMin": 0,
+    "yMax": 0,
+    "series": [],
+    "seriesColors": [],
+    "unit": "$",
+    "showValueLabels": false,
+    "showLegend": false,
+    "annotations": []
+  }
+}

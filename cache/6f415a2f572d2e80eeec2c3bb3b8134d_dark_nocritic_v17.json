@@ -1,0 +1,177 @@
+{
+  "componentId": "AreaChart",
+  "suggestedName": "EnergyConsumptionBySource",
+  "reasoning": "O gráfico é um AreaChart empilhado, mostrando a evolução da participação de diferentes fontes de energia ao longo do tempo. Os dados foram extraídos com precisão cirúrgica, garantindo que cada série represente sua contribuição percentual individual para o total em cada ano, e que a soma das séries em cada ponto temporal seja 100%. As cores e os rótulos foram extraídos fielmente da imagem original.",
+  "props": {
+    "title": "Energy consumption by source, World",
+    "subtitle": "Measured in terms of primary energy using the substitution method.",
+    "labels": [
+      "1965",
+      "1970",
+      "1980",
+      "1990",
+      "2000",
+      "2010",
+      "2024"
+    ],
+    "xAxisTitle": "",
+    "yAxisTitle": "",
+    "yMin": 0,
+    "yMax": 100,
+    "series": [
+      {
+        "label": "Oil",
+        "data": [
+          42,
+          48,
+          40,
+          40,
+          39,
+          35,
+          33
+        ]
+      },
+      {
+        "label": "Coal",
+        "data": [
+          36,
+          32,
+          40,
+          38,
+          39,
+          40,
+          37
+        ]
+      },
+      {
+        "label": "Gas",
+        "data": [
+          10,
+          9,
+          9,
+          10,
+          10,
+          12,
+          15
+        ]
+      },
+      {
+        "label": "Nuclear",
+        "data": [
+          0.5,
+          1,
+          4,
+          6,
+          6,
+          5,
+          5
+        ]
+      },
+      {
+        "label": "Hydropower",
+        "data": [
+          5.5,
+          5,
+          3,
+          3,
+          3,
+          4,
+          4
+        ]
+      },
+      {
+        "label": "Wind",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          0.5,
+          2,
+          4
+        ]
+      },
+      {
+        "label": "Solar",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0.5,
+          1
+        ]
+      },
+      {
+        "label": "Biofuels",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          0.5,
+          0.5,
+          0.5
+        ]
+      },
+      {
+        "label": "Other renewables",
+        "data": [
+          6,
+          5,
+          4,
+          3,
+          2,
+          1,
+          0.5
+        ]
+      }
+    ],
+    "seriesColors": [
+      "#2A4A7C",
+      "#6F2A3B",
+      "#5C7A50",
+      "#9E7B9E",
+      "#4A6B4A",
+      "#8B5A4A",
+      "#D4A04A",
+      "#A07B4A",
+      "#60A090"
+    ],
+    "unit": "%",
+    "showValueLabels": false,
+    "showLegend": true,
+    "annotations": [],
+    "data": [
+      {
+        "label": "1965",
+        "value": 42
+      },
+      {
+        "label": "1970",
+        "value": 48
+      },
+      {
+        "label": "1980",
+        "value": 40
+      },
+      {
+        "label": "1990",
+        "value": 40
+      },
+      {
+        "label": "2000",
+        "value": 39
+      },
+      {
+        "label": "2010",
+        "value": 35
+      },
+      {
+        "label": "2024",
+        "value": 33
+      }
+    ]
+  }
+}

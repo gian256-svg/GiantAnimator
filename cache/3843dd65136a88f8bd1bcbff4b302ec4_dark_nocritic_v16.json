@@ -1,0 +1,90 @@
+{
+  "componentId": "LineChart",
+  "suggestedName": "ActualsCashOnHandTrend",
+  "reasoning": "The chart displays two distinct series: 'Actuals' represented by vertical bars and 'Cash On Hand' by a line with markers, each utilizing a separate Y-axis scale. Given the strict directive 'Extrair 100% dos dados reais' and the absence of a dedicated dual-axis or combo chart component in the provided registry, 'LineChart' was selected as the only component capable of accommodating multiple series. This choice necessitates a visual compromise where the 'Actuals' series, originally depicted as bars, will be rendered as a line. This decision prioritizes the complete extraction of all data points over strict adherence to the original visual type for one series, aligning with the 'Supremacia dos Dados' rule. The rule 'NUNCA converta barras em linhas' is acknowledged as a conflict, but data completeness is considered paramount when component options are limited. No explicit title or axis titles were present in the original image. Units for 'Cash On Hand' (M) are preserved within the 'valueStr' of the annotations, as the differing units between series prevent the use of a single global 'unit' property.",
+  "props": {
+    "title": "",
+    "subtitle": "",
+    "labels": [
+      "Dec 24",
+      "Jan 25",
+      "Feb 25",
+      "Mar 25",
+      "Apr 25",
+      "May 25"
+    ],
+    "xAxisTitle": "",
+    "yAxisTitle": "",
+    "series": [
+      {
+        "label": "Actuals",
+        "data": [
+          58,
+          58,
+          55,
+          57,
+          53,
+          98
+        ]
+      },
+      {
+        "label": "Cash On Hand",
+        "data": [
+          25,
+          30,
+          45,
+          50,
+          55,
+          75
+        ]
+      }
+    ],
+    "unit": "",
+    "showValueLabels": true,
+    "showLegend": true,
+    "seriesColors": [
+      "#1A2B4D",
+      "#A52A2A"
+    ],
+    "annotations": [
+      {
+        "seriesIndex": 0,
+        "index": 5,
+        "label": "Valor mais alto para Actuals.",
+        "valueStr": "98"
+      },
+      {
+        "seriesIndex": 1,
+        "index": 5,
+        "label": "Valor mais alto para Cash On Hand.",
+        "valueStr": "75M"
+      }
+    ],
+    "data": [
+      {
+        "label": "Dec 24",
+        "value": 58
+      },
+      {
+        "label": "Jan 25",
+        "value": 58
+      },
+      {
+        "label": "Feb 25",
+        "value": 55
+      },
+      {
+        "label": "Mar 25",
+        "value": 57
+      },
+      {
+        "label": "Apr 25",
+        "value": 53
+      },
+      {
+        "label": "May 25",
+        "value": 98
+      }
+    ]
+  }
+}

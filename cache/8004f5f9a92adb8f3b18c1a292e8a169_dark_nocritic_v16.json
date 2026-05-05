@@ -1,0 +1,156 @@
+{
+  "componentId": "LineChart",
+  "suggestedName": "EnergyConsumptionShare",
+  "reasoning": "O gráfico é uma representação clara de uma série temporal com pontos conectados por linhas, indicando a evolução de uma métrica ao longo dos anos. Portanto, LineChart é o componente mais adequado. Os dados foram extraídos com precisão decimal e as unidades preservadas. As anotações destacam os pontos de mínimo e máximo.",
+  "props": {
+    "title": "",
+    "subtitle": "",
+    "labels": [
+      "2000",
+      "2001",
+      "2002",
+      "2003",
+      "2004",
+      "2005",
+      "2006",
+      "2007",
+      "2008",
+      "2009",
+      "2010",
+      "2011",
+      "2012",
+      "2013",
+      "2014",
+      "2015",
+      "2016",
+      "2017",
+      "2018"
+    ],
+    "xAxisTitle": "",
+    "yAxisTitle": "Share of energy consumption",
+    "series": [
+      {
+        "label": "",
+        "data": [
+          6.2,
+          5.4,
+          5.9,
+          6.1,
+          6.1,
+          6.3,
+          6.7,
+          6.5,
+          7.3,
+          8.2,
+          8.6,
+          9.5,
+          9.4,
+          9.8,
+          9.9,
+          10,
+          10.6,
+          11.5,
+          11.2
+        ]
+      }
+    ],
+    "unit": "%",
+    "showValueLabels": false,
+    "showLegend": false,
+    "seriesColors": [
+      "#000000"
+    ],
+    "yMin": 5,
+    "yMax": 13,
+    "annotations": [
+      {
+        "seriesIndex": 0,
+        "index": 1,
+        "label": "Menor consumo de energia (5.4%)"
+      },
+      {
+        "seriesIndex": 0,
+        "index": 17,
+        "label": "Maior consumo de energia (11.5%)"
+      }
+    ],
+    "data": [
+      {
+        "label": "2000",
+        "value": 6.2
+      },
+      {
+        "label": "2001",
+        "value": 5.4
+      },
+      {
+        "label": "2002",
+        "value": 5.9
+      },
+      {
+        "label": "2003",
+        "value": 6.1
+      },
+      {
+        "label": "2004",
+        "value": 6.1
+      },
+      {
+        "label": "2005",
+        "value": 6.3
+      },
+      {
+        "label": "2006",
+        "value": 6.7
+      },
+      {
+        "label": "2007",
+        "value": 6.5
+      },
+      {
+        "label": "2008",
+        "value": 7.3
+      },
+      {
+        "label": "2009",
+        "value": 8.2
+      },
+      {
+        "label": "2010",
+        "value": 8.6
+      },
+      {
+        "label": "2011",
+        "value": 9.5
+      },
+      {
+        "label": "2012",
+        "value": 9.4
+      },
+      {
+        "label": "2013",
+        "value": 9.8
+      },
+      {
+        "label": "2014",
+        "value": 9.9
+      },
+      {
+        "label": "2015",
+        "value": 10
+      },
+      {
+        "label": "2016",
+        "value": 10.6
+      },
+      {
+        "label": "2017",
+        "value": 11.5
+      },
+      {
+        "label": "2018",
+        "value": 11.2
+      }
+    ]
+  }
+}

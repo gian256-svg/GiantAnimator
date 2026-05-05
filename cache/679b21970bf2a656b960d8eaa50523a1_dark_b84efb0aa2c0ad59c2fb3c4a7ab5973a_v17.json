@@ -1,0 +1,234 @@
+{
+  "componentId": "HorizontalBarChart",
+  "suggestedName": "InternetUsageByCountry2025",
+  "reasoning": "A imagem original é um mapa coroplético (choropleth map) que visualiza a 'Share of the population using the Internet' por país em 2025, utilizando uma escala de cores para representar faixas percentuais. Como não há um componente de mapa disponível no registro, e a diretriz 'Soberania do Tipo' exige a escolha de um componente da lista, optei por 'HorizontalBarChart'. Este tipo de gráfico é o mais adequado para representar dados categóricos (países) com valores associados (percentual de uso da internet). No entanto, é crucial notar que o mapa original exibe *faixas* de valores (ex: 90-100%), e não valores numéricos exatos para cada país. Para cumprir a diretriz de 'Precisão Numérica', foi feita a suposição de que o valor numérico para cada país corresponde ao *limite inferior* da faixa percentual indicada pela cor na legenda. Países com 'No data' foram atribuídos ao valor 0% para inclusão no gráfico, com uma anotação explicando. Esta abordagem permite a reconstituição dos dados subjacentes no formato JSON, embora com a limitação inerente à granularidade da visualização original do mapa.",
+  "props": {
+    "title": "Share of the population using the Internet, 2025",
+    "subtitle": "Share of the population who used the Internet in the last three months.",
+    "labels": [
+      "USA",
+      "Canada",
+      "Mexico",
+      "Brazil",
+      "Argentina",
+      "UK",
+      "France",
+      "Germany",
+      "Japan",
+      "Australia",
+      "China (Eastern)",
+      "Russia (Western)",
+      "South Africa",
+      "Saudi Arabia",
+      "India",
+      "Indonesia",
+      "Egypt",
+      "Iran",
+      "Nigeria",
+      "Ethiopia",
+      "DR Congo",
+      "Pakistan",
+      "Sudan",
+      "Chad",
+      "Mali",
+      "Niger",
+      "Afghanistan",
+      "Somalia",
+      "Yemen",
+      "Central African Republic",
+      "North Korea",
+      "Greenland",
+      "Western Sahara"
+    ],
+    "xAxisTitle": "Share of population",
+    "yAxisTitle": "Country",
+    "xMin": 0,
+    "xMax": 100,
+    "series": [
+      {
+        "label": "Internet Usage",
+        "data": [
+          90,
+          90,
+          90,
+          90,
+          90,
+          90,
+          90,
+          90,
+          90,
+          90,
+          90,
+          90,
+          90,
+          90,
+          70,
+          70,
+          80,
+          80,
+          60,
+          60,
+          60,
+          60,
+          50,
+          50,
+          50,
+          50,
+          50,
+          40,
+          40,
+          30,
+          0,
+          0,
+          0
+        ],
+        "color": "#002060"
+      }
+    ],
+    "seriesColors": [
+      "#002060"
+    ],
+    "unit": "%",
+    "showValueLabels": true,
+    "showLegend": false,
+    "annotations": [
+      "Os valores numéricos para cada país foram inferidos a partir das faixas de cores apresentadas na legenda do mapa coroplético original. Para cada faixa, foi utilizado o limite inferior como valor representativo (ex: 90-100% -> 90%).",
+      "Países marcados como 'No data' no mapa original foram atribuídos ao valor 0% para fins de representação neste gráfico de barras, distinguindo-os da faixa '0-10%' que também começa em 0% mas indica dados existentes.",
+      "A extração de dados foi realizada para uma amostra representativa de países devido à inviabilidade de listar todos os países do mundo manualmente com a precisão exigida para cada pixel de cor."
+    ],
+    "data": [
+      {
+        "label": "USA",
+        "value": 90
+      },
+      {
+        "label": "Canada",
+        "value": 90
+      },
+      {
+        "label": "Mexico",
+        "value": 90
+      },
+      {
+        "label": "Brazil",
+        "value": 90
+      },
+      {
+        "label": "Argentina",
+        "value": 90
+      },
+      {
+        "label": "UK",
+        "value": 90
+      },
+      {
+        "label": "France",
+        "value": 90
+      },
+      {
+        "label": "Germany",
+        "value": 90
+      },
+      {
+        "label": "Japan",
+        "value": 90
+      },
+      {
+        "label": "Australia",
+        "value": 90
+      },
+      {
+        "label": "China (Eastern)",
+        "value": 90
+      },
+      {
+        "label": "Russia (Western)",
+        "value": 90
+      },
+      {
+        "label": "South Africa",
+        "value": 90
+      },
+      {
+        "label": "Saudi Arabia",
+        "value": 90
+      },
+      {
+        "label": "India",
+        "value": 70
+      },
+      {
+        "label": "Indonesia",
+        "value": 70
+      },
+      {
+        "label": "Egypt",
+        "value": 80
+      },
+      {
+        "label": "Iran",
+        "value": 80
+      },
+      {
+        "label": "Nigeria",
+        "value": 60
+      },
+      {
+        "label": "Ethiopia",
+        "value": 60
+      },
+      {
+        "label": "DR Congo",
+        "value": 60
+      },
+      {
+        "label": "Pakistan",
+        "value": 60
+      },
+      {
+        "label": "Sudan",
+        "value": 50
+      },
+      {
+        "label": "Chad",
+        "value": 50
+      },
+      {
+        "label": "Mali",
+        "value": 50
+      },
+      {
+        "label": "Niger",
+        "value": 50
+      },
+      {
+        "label": "Afghanistan",
+        "value": 50
+      },
+      {
+        "label": "Somalia",
+        "value": 40
+      },
+      {
+        "label": "Yemen",
+        "value": 40
+      },
+      {
+        "label": "Central African Republic",
+        "value": 30
+      },
+      {
+        "label": "North Korea",
+        "value": 0
+      },
+      {
+        "label": "Greenland",
+        "value": 0
+      },
+      {
+        "label": "Western Sahara",
+        "value": 0
+      }
+    ]
+  }
+}

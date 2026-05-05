@@ -1,0 +1,118 @@
+{
+  "componentId": "LineChart",
+  "suggestedName": "LineChartComparison",
+  "reasoning": "A imagem apresenta múltiplos exemplos de gráficos de linha. Devido à restrição de saída para um único componente, foi selecionado o gráfico 'Line Chart for Comparison' por ser o mais representativo de um gráfico de linhas com múltiplas séries para fins comparativos. Os dados foram estimados com base na posição relativa dos pontos na imagem, e as cores foram extraídas diretamente. Não há legendas explícitas para as séries nem rótulos para o eixo X, portanto, foram utilizados rótulos genéricos para o eixo X e rótulos vazios para as séries, com a legenda desativada.",
+  "props": {
+    "title": "Line Chart for Comparison",
+    "subtitle": "",
+    "labels": [
+      "P1",
+      "P2",
+      "P3",
+      "P4",
+      "P5",
+      "P6",
+      "P7",
+      "P8"
+    ],
+    "xAxisTitle": "",
+    "yAxisTitle": "",
+    "series": [
+      {
+        "label": "",
+        "data": [
+          55,
+          45,
+          60,
+          35,
+          70,
+          50,
+          65,
+          55
+        ]
+      },
+      {
+        "label": "",
+        "data": [
+          65,
+          75,
+          55,
+          85,
+          45,
+          65,
+          35,
+          75
+        ]
+      },
+      {
+        "label": "",
+        "data": [
+          75,
+          55,
+          85,
+          65,
+          55,
+          85,
+          45,
+          85
+        ]
+      }
+    ],
+    "unit": "",
+    "showValueLabels": true,
+    "showLegend": false,
+    "seriesColors": [
+      "#4285F4",
+      "#FBC02D",
+      "#1B5E20"
+    ],
+    "yMin": 35,
+    "yMax": 85,
+    "annotations": [
+      {
+        "seriesIndex": 1,
+        "index": 3,
+        "label": "Ponto mais alto: 85.00"
+      },
+      {
+        "seriesIndex": 0,
+        "index": 3,
+        "label": "Ponto mais baixo: 35.00"
+      }
+    ],
+    "data": [
+      {
+        "label": "P1",
+        "value": 55
+      },
+      {
+        "label": "P2",
+        "value": 45
+      },
+      {
+        "label": "P3",
+        "value": 60
+      },
+      {
+        "label": "P4",
+        "value": 35
+      },
+      {
+        "label": "P5",
+        "value": 70
+      },
+      {
+        "label": "P6",
+        "value": 50
+      },
+      {
+        "label": "P7",
+        "value": 65
+      },
+      {
+        "label": "P8",
+        "value": 55
+      }
+    ]
+  }
+}

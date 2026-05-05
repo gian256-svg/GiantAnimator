@@ -1,0 +1,8 @@
+{
+  "componentId": "HorizontalBarChart",
+  "suggestedName": "Participação de fontes renováveis por país em 2021",
+  "reasoning": "O gráfico representa a participação das fontes renováveis por país, com cada barra correspondente a um país. A escala do eixo Y mostra os valores percentuais de participação, enquanto o eixo X apresenta as nações. A legenda original é utilizada como parte do estilo do gráfico. O exemplo fornecido com os dados para a propriedade 'data' seria: { labels: ['Norte', 'Sul', 'Leste'], series: [{ label: 'Canadá', values: [0.8, 0.5] }], title: 'Participação de fontes renováveis por país em 2021' }, ",
+  "props": {
+    "labels": []
+  }
+}

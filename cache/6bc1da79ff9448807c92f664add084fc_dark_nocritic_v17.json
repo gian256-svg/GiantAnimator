@@ -1,0 +1,275 @@
+{
+  "componentId": "LineChart",
+  "suggestedName": "CO2EmissionsPerCapita",
+  "reasoning": "O gráfico exibe múltiplas linhas que representam a evolução das emissões de CO2 per capita ao longo do tempo para diferentes países e regiões, tornando o LineChart o componente mais adequado. Os nomes das séries são extraídos diretamente das labels no final de cada linha, e as cores são capturadas fielmente. Os valores do eixo Y (yMin e yMax) e a unidade 't' foram extraídos com precisão cirúrgica.",
+  "props": {
+    "title": "CO₂ emissions per capita",
+    "subtitle": "Carbon dioxide (CO₂) emissions from burning fossil fuels and industrial processes. This includes emissions from transport, electricity generation, and heating, but not land-use change.",
+    "labels": [
+      "1750",
+      "1775",
+      "1800",
+      "1825",
+      "1850",
+      "1875",
+      "1900",
+      "1925",
+      "1950",
+      "1975",
+      "2000",
+      "2010",
+      "2020",
+      "2024"
+    ],
+    "xAxisTitle": null,
+    "yAxisTitle": null,
+    "yMin": 0,
+    "yMax": 25,
+    "series": [
+      {
+        "label": "United States",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0.5,
+          4,
+          10,
+          15,
+          22,
+          19,
+          17,
+          15,
+          14
+        ]
+      },
+      {
+        "label": "Canada",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0.2,
+          2,
+          6,
+          10,
+          18,
+          16,
+          14,
+          12,
+          11
+        ]
+      },
+      {
+        "label": "China",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0.1,
+          0.5,
+          0.5,
+          4,
+          7,
+          8
+        ]
+      },
+      {
+        "label": "South Africa",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0.1,
+          1,
+          2,
+          6,
+          7,
+          7.5,
+          7,
+          6.5
+        ]
+      },
+      {
+        "label": "European Union (27)",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0.1,
+          0.5,
+          1.5,
+          3,
+          8,
+          7,
+          6.5,
+          6,
+          5.5
+        ]
+      },
+      {
+        "label": "World",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          0.1,
+          0.2,
+          0.5,
+          1,
+          2,
+          4,
+          4.5,
+          5,
+          5,
+          5
+        ]
+      },
+      {
+        "label": "United Kingdom",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          2.5,
+          4,
+          6,
+          8,
+          10,
+          7,
+          5,
+          4.5,
+          4
+        ]
+      },
+      {
+        "label": "India",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0.1,
+          0.5,
+          1,
+          2,
+          2.5,
+          3
+        ]
+      },
+      {
+        "label": "Kenya",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0.1,
+          0.2,
+          0.5,
+          0.8,
+          1
+        ]
+      }
+    ],
+    "seriesColors": [
+      "#000000",
+      "#4A2C00",
+      "#005000",
+      "#508000",
+      "#704010",
+      "#905020",
+      "#600060",
+      "#B07030",
+      "#800000"
+    ],
+    "unit": "t",
+    "showValueLabels": false,
+    "showLegend": false,
+    "annotations": [],
+    "data": [
+      {
+        "label": "1750",
+        "value": 0
+      },
+      {
+        "label": "1775",
+        "value": 0
+      },
+      {
+        "label": "1800",
+        "value": 0
+      },
+      {
+        "label": "1825",
+        "value": 0
+      },
+      {
+        "label": "1850",
+        "value": 0
+      },
+      {
+        "label": "1875",
+        "value": 0.5
+      },
+      {
+        "label": "1900",
+        "value": 4
+      },
+      {
+        "label": "1925",
+        "value": 10
+      },
+      {
+        "label": "1950",
+        "value": 15
+      },
+      {
+        "label": "1975",
+        "value": 22
+      },
+      {
+        "label": "2000",
+        "value": 19
+      },
+      {
+        "label": "2010",
+        "value": 17
+      },
+      {
+        "label": "2020",
+        "value": 15
+      },
+      {
+        "label": "2024",
+        "value": 14
+      }
+    ]
+  }
+}

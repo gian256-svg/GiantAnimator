@@ -1,0 +1,100 @@
+{
+  "componentId": "DonutChart",
+  "suggestedName": "DigitalMarketingBudgetAllocation",
+  "reasoning": "The image displays a donut chart showing budget allocation percentages for different marketing channels. Values and labels are extracted directly from the chart, maintaining the exact percentages as presented in the original image, even if they sum to more than 100%, adhering strictly to Rule 1 (Supremacia dos Dados) and Rule 6 (Integridade da Contagem). The 'Add Text Here' labels are copied verbatim as per Rule 2. Annotations highlight the maximum and minimum budget allocations based on the 'Key Insights' section, translated to Portuguese. Colors are extracted precisely, and the legend is disabled as labels are directly on the slices (Rule 11).",
+  "props": {
+    "title": "Annual digital marketing budget allocation pie chart",
+    "subtitle": "The following slide presents the budget allocation for different marketing channels for the year 2022. It includes activities such as digital marketing, content marketing, email marketing, social media marketing, SEO, SEM, etc.",
+    "labels": [
+      "Digital Advertising",
+      "Content Marketing",
+      "Email Marketing",
+      "Social Media Marketing",
+      "Search Engine Optimization",
+      "Search Engine Marketing",
+      "Add Text Here",
+      "Add Text Here",
+      "Add Text Here"
+    ],
+    "series": [
+      {
+        "label": "",
+        "data": [
+          12,
+          11,
+          17,
+          17,
+          12,
+          8,
+          9,
+          25,
+          9
+        ]
+      }
+    ],
+    "unit": "%",
+    "showValueLabels": true,
+    "showLegend": false,
+    "seriesColors": [
+      "#1A366B",
+      "#2A589E",
+      "#4A80C7",
+      "#80B0E0",
+      "#008080",
+      "#33B277",
+      "#B3D9F2",
+      "#E6F2FA",
+      "#CCEBFA"
+    ],
+    "annotations": [
+      {
+        "seriesIndex": 0,
+        "index": 3,
+        "label": "O maior orçamento é alocado para marketing de mídia social."
+      },
+      {
+        "seriesIndex": 0,
+        "index": 5,
+        "label": "O menor orçamento é alocado para marketing de mecanismo de busca."
+      }
+    ],
+    "data": [
+      {
+        "label": "Digital Advertising",
+        "value": 12
+      },
+      {
+        "label": "Content Marketing",
+        "value": 11
+      },
+      {
+        "label": "Email Marketing",
+        "value": 17
+      },
+      {
+        "label": "Social Media Marketing",
+        "value": 17
+      },
+      {
+        "label": "Search Engine Optimization",
+        "value": 12
+      },
+      {
+        "label": "Search Engine Marketing",
+        "value": 8
+      },
+      {
+        "label": "Add Text Here",
+        "value": 9
+      },
+      {
+        "label": "Add Text Here",
+        "value": 25
+      },
+      {
+        "label": "Add Text Here",
+        "value": 9
+      }
+    ]
+  }
+}

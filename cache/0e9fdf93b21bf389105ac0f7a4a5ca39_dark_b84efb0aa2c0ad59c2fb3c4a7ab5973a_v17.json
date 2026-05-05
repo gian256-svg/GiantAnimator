@@ -1,0 +1,221 @@
+{
+  "componentId": "HorizontalBarChart",
+  "suggestedName": "ShareOfDeathsByCauseWorld2023",
+  "reasoning": "O gráfico apresenta categorias (causas de morte) com valores percentuais associados, representados por barras horizontais. O componente 'HorizontalBarChart' é o mais adequado para essa representação. Os dados foram extraídos diretamente dos rótulos e valores exibidos ao lado de cada barra, mantendo a ordem e a precisão decimal.",
+  "props": {
+    "title": "Share of deaths by cause, World, 2023",
+    "subtitle": "The estimated share of total annual deaths from each cause.",
+    "labels": [
+      "Cardiovascular diseases",
+      "Cancers",
+      "Chronic respiratory diseases",
+      "Pneumonia",
+      "Digestive diseases",
+      "Alzheimer's disease",
+      "Diabetes",
+      "Neonatal deaths",
+      "Kidney disease",
+      "Road incidents",
+      "Liver disease",
+      "Enteric infections",
+      "Diarrheal diseases",
+      "Tuberculosis",
+      "Covid-19",
+      "HIV/AIDS",
+      "Suicide",
+      "Malaria",
+      "Homicide",
+      "Parkinson's disease",
+      "Drowning",
+      "Nutritional deficiencies",
+      "Meningitis",
+      "Protein-energy malnutrition",
+      "Maternal deaths",
+      "Drug disorders",
+      "Alcohol use disorders",
+      "Conflict (including terrorism)",
+      "Fire",
+      "Hepatitis",
+      "Natural disasters",
+      "Hot or cold exposure"
+    ],
+    "series": [
+      {
+        "label": "Share of deaths",
+        "data": [
+          31.9,
+          17.6,
+          6.9,
+          4.2,
+          4,
+          3.7,
+          3.3,
+          2.7,
+          2.5,
+          2.2,
+          2.1,
+          2.1,
+          1.8,
+          1.7,
+          1.4,
+          1.4,
+          1.3,
+          1.1,
+          0.7,
+          0.7,
+          0.5,
+          0.5,
+          0.4,
+          0.4,
+          0.4,
+          0.3,
+          0.3,
+          0.3,
+          0.3,
+          0.2,
+          0.1,
+          0.1
+        ]
+      }
+    ],
+    "seriesColors": [
+      "#46698C"
+    ],
+    "unit": "%",
+    "showValueLabels": true,
+    "showLegend": false,
+    "annotations": [
+      "Terrorism: <0.1% in 2021 (Nota: Este valor é uma anotação textual e não faz parte da série de barras do gráfico, pois não possui uma barra associada e o valor é expresso como '<0.1%'.)"
+    ],
+    "data": [
+      {
+        "label": "Cardiovascular diseases",
+        "value": 31.9
+      },
+      {
+        "label": "Cancers",
+        "value": 17.6
+      },
+      {
+        "label": "Chronic respiratory diseases",
+        "value": 6.9
+      },
+      {
+        "label": "Pneumonia",
+        "value": 4.2
+      },
+      {
+        "label": "Digestive diseases",
+        "value": 4
+      },
+      {
+        "label": "Alzheimer's disease",
+        "value": 3.7
+      },
+      {
+        "label": "Diabetes",
+        "value": 3.3
+      },
+      {
+        "label": "Neonatal deaths",
+        "value": 2.7
+      },
+      {
+        "label": "Kidney disease",
+        "value": 2.5
+      },
+      {
+        "label": "Road incidents",
+        "value": 2.2
+      },
+      {
+        "label": "Liver disease",
+        "value": 2.1
+      },
+      {
+        "label": "Enteric infections",
+        "value": 2.1
+      },
+      {
+        "label": "Diarrheal diseases",
+        "value": 1.8
+      },
+      {
+        "label": "Tuberculosis",
+        "value": 1.7
+      },
+      {
+        "label": "Covid-19",
+        "value": 1.4
+      },
+      {
+        "label": "HIV/AIDS",
+        "value": 1.4
+      },
+      {
+        "label": "Suicide",
+        "value": 1.3
+      },
+      {
+        "label": "Malaria",
+        "value": 1.1
+      },
+      {
+        "label": "Homicide",
+        "value": 0.7
+      },
+      {
+        "label": "Parkinson's disease",
+        "value": 0.7
+      },
+      {
+        "label": "Drowning",
+        "value": 0.5
+      },
+      {
+        "label": "Nutritional deficiencies",
+        "value": 0.5
+      },
+      {
+        "label": "Meningitis",
+        "value": 0.4
+      },
+      {
+        "label": "Protein-energy malnutrition",
+        "value": 0.4
+      },
+      {
+        "label": "Maternal deaths",
+        "value": 0.4
+      },
+      {
+        "label": "Drug disorders",
+        "value": 0.3
+      },
+      {
+        "label": "Alcohol use disorders",
+        "value": 0.3
+      },
+      {
+        "label": "Conflict (including terrorism)",
+        "value": 0.3
+      },
+      {
+        "label": "Fire",
+        "value": 0.3
+      },
+      {
+        "label": "Hepatitis",
+        "value": 0.2
+      },
+      {
+        "label": "Natural disasters",
+        "value": 0.1
+      },
+      {
+        "label": "Hot or cold exposure",
+        "value": 0.1
+      }
+    ]
+  }
+}

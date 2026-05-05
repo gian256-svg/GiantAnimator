@@ -49,7 +49,7 @@ export async function analyzeChartImageWithGroq(
 
   const imageBuffer = fs.readFileSync(imagePath);
   const imageBase64 = imageBuffer.toString("base64");
-  const registryJson = JSON.stringify(COMPONENT_REGISTRY, null, 2);
+  const registryJson = JSON.stringify(COMPONENT_REGISTRY);
   let prompt = buildImageAnalysisPrompt(registryJson, settings.includeCallouts);
 
   const rootDir = process.cwd().endsWith("server")

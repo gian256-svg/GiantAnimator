@@ -1,0 +1,91 @@
+{
+  "componentId": "LineChart",
+  "suggestedName": "PopulacaoUrbanaRuralMundial",
+  "reasoning": "O gráfico exibe a evolução de duas séries de dados (população urbana e rural) ao longo do tempo (anos), o que o caracteriza como um LineChart. Os valores foram extraídos diretamente dos pontos de dados visíveis no gráfico e da escala do eixo Y, com precisão decimal onde aplicável. As cores das linhas foram identificadas por seus códigos HEX.",
+  "props": {
+    "title": "Number of people living in urban and rural areas, World",
+    "subtitle": null,
+    "labels": [
+      "1960",
+      "1970",
+      "1980",
+      "1990",
+      "2000",
+      "2010",
+      "2024"
+    ],
+    "xAxisTitle": null,
+    "yAxisTitle": null,
+    "yMin": 0,
+    "yMax": 5,
+    "series": [
+      {
+        "label": "Urban population",
+        "data": [
+          1,
+          1.35,
+          1.8,
+          2.4,
+          3,
+          3.5,
+          4.7
+        ]
+      },
+      {
+        "label": "Rural population",
+        "data": [
+          2,
+          2.45,
+          2.85,
+          3.15,
+          3.35,
+          3.4,
+          3.45
+        ],
+        "color": "#A52A2A"
+      }
+    ],
+    "seriesColors": [
+      "#A52A2A"
+    ],
+    "unit": "billion",
+    "showValueLabels": false,
+    "showLegend": true,
+    "annotations": [
+      "O gráfico ilustra a tendência global de urbanização, com a população urbana crescendo consistentemente de 1 bilhão em 1960 para 4.7 bilhões em 2024.",
+      "A população rural, embora tenha crescido inicialmente, mostra uma estabilização a partir de 2000, mantendo-se em torno de 3.4 a 3.45 bilhões de 2000 a 2024.",
+      "Um ponto de inflexão significativo ocorre por volta de 2007-2008 (entre os pontos de dados de 2000 e 2010), quando a população urbana mundial ultrapassa a população rural pela primeira vez.",
+      "Em 2024, a população urbana é significativamente maior que a rural, com 4.7 bilhões contra 3.45 bilhões, respectivamente."
+    ],
+    "data": [
+      {
+        "label": "1960",
+        "value": 1
+      },
+      {
+        "label": "1970",
+        "value": 1.35
+      },
+      {
+        "label": "1980",
+        "value": 1.8
+      },
+      {
+        "label": "1990",
+        "value": 2.4
+      },
+      {
+        "label": "2000",
+        "value": 3
+      },
+      {
+        "label": "2010",
+        "value": 3.5
+      },
+      {
+        "label": "2024",
+        "value": 4.7
+      }
+    ]
+  }
+}

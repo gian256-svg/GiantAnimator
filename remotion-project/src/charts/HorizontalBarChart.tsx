@@ -14,7 +14,7 @@ interface HorizontalBarChartProps {
   data?: { label: string; value: number }[];
   series?: { label: string; data: number[]; color?: string }[];
   labels?: string[];
-  theme?: string;
+  theme?: 'dark' | 'light';
   backgroundColor?: string;
   colors?: string[];
   seriesColors?: string[];
@@ -27,6 +27,8 @@ interface HorizontalBarChartProps {
   bgStyle?: 'none' | 'mesh' | 'grid';
   backgroundType?: 'dark' | 'light';
   showLegend?: boolean;
+  xMin?: number;
+  xMax?: number;
 }
 
 export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
@@ -46,6 +48,8 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
   bgStyle = 'none',
   backgroundType,
   showLegend = true,
+  xMin: propXMin,
+  xMax: propXMax,
 }) => {
   const frame      = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
@@ -72,9 +76,9 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
      return <AbsoluteFill style={{ backgroundColor: resolvedBg }} />;
   }
 
-  const dataMinRaw = Math.min(...allValues, 0);
-  const dataMaxRaw = Math.max(...allValues, 0.0001);
-  const niceScale = getNiceScale(dataMaxRaw * 1.15, dataMinRaw, 5);
+  const dataMinRaw = propXMin !== undefined ? propXMin : Math.min(...allValues, 0);
+  const dataMaxRaw = propXMax !== undefined ? propXMax : Math.max(...allValues, 0.0001);
+  const niceScale = getNiceScale(dataMaxRaw * (propXMax !== undefined ? 1 : 1.15), dataMinRaw, 5);
   const dataMin = niceScale[0];
   const dataMax = niceScale[niceScale.length - 1];
   const range = dataMax - dataMin || 0.0001;

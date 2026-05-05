@@ -1,0 +1,62 @@
+{
+  "componentId": "HorizontalBarChart",
+  "suggestedName": "Representação financeira mensal",
+  "reasoning": "O gráfico apresenta uma representação visual do mês-a-mês de receitas e despesas no contexto de um estabelecimento. O tipo de gráfico é o barrado horizontal, onde cada barra representa a quantidade de receita ou despesa em um determinado mês. A escala do eixo Y (yAxisTitle) indica que os valores são expressos em dinheiro em milhar, enquanto o eixo X (xAxisTitle) lista os meses do ano. O título da imagem (title) sugere que a visualização apresenta uma representação simplificada do fluxo financeiro do estabelecimento ao longo do ano, mostrando também as variáveis de receita e despesa em cada mês. As barras representam tanto receitas quanto despesas, o que permite visualizar a relação entre estas duas variáveis ao longo do período. A legenda (legendPosition: 'right') indica que as barras são agrupadas por tipo (receita ou despesa), e cada grupo de barras tem uma cor diferente para facilitar a identificação e comparação dos valores mensais. No geral, o gráfico fornece uma maneira visual e intuitiva para analisar o fluxo financeiro do estabelecimento ao longo do ano.",
+  "props": {
+    "title": "Representação Financeira Mensal",
+    "subtitle": "Receitas e Despesas por Mês",
+    "labels": [
+      "Janeiro",
+      "Fevereiro",
+      "Março",
+      "Abril"
+    ],
+    "xAxisTitle": "Meses do Ano",
+    "yAxisTitle": "Renda em milhar de dólares",
+    "series": [
+      {
+        "label": "Receita",
+        "values": [
+          200,
+          150,
+          300,
+          400
+        ]
+      },
+      {
+        "label": "Despesa",
+        "values": [
+          100,
+          80,
+          100,
+          90
+        ]
+      }
+    ],
+    "legendPosition": "right"
+  },
+  "exampleProps": {
+    "title": "Exemplo de Fluxo Financeiro",
+    "labels": [
+      "Enero",
+      "Fevereiro"
+    ],
+    "series": [
+      {
+        "label": "Receita",
+        "values": [
+          100,
+          150
+        ]
+      },
+      {
+        "label": "Despesa",
+        "values": [
+          80,
+          90
+        ]
+      }
+    ],
+    "legendPosition": "right"
+  }
+}

@@ -7,7 +7,6 @@ import { v4 as uuidv4 } from 'uuid';
 import cors from 'cors';
 import { bundle } from '@remotion/bundler';
 import { renderMedia, selectComposition } from '@remotion/renderer';
-
 import { getHistory, addJob, clearHistory } from './historyService.js';
 import { syncPipelineJob, seedComponentRegistry, syncTrainingLog } from './supabaseService.js';
 import { analyzeChartImage } from './visionService.js';
@@ -21,6 +20,7 @@ import { startWatcher } from './watcherService.js';
 import { type ChartAnalysis } from './types.js';
 import { generateVoiceover } from './voiceoverService.js';
 import { hyperframesService } from './hyperframesService.js';
+import { validateChartData } from './dataValidator.js';
 
 const app = express();
 const portStr = process.env.PORT || '8080';
@@ -260,7 +260,17 @@ async function processJob(
       return;
     }
 
-    // Prossiga para o render direto se não houver revisão
+    // Modo treinamento: salva dados no Supabase sem renderizar vídeo (economiza CPU/disco)
+    if (options.trainingOnly) {
+      job.status = 'done';
+      job.stage = 'Mateus: Dados validados e salvos (modo treinamento)';
+      job.progress = 100;
+      addJob({ filename: originalName, outputFile: '', status: 'done', props: { analysis } });
+      await saveJob(job);
+      return;
+    }
+
+    // Prossiga para o render completo
     await finishJobRendering(jobId, analysis, chartTheme, originalName, options.customPalette);
 
   } catch (err: any) {
@@ -354,12 +364,13 @@ async function finishJobRendering(jobId: string, analysis: ChartAnalysis, chartT
         const outputPath = path.join(OUTPUT_DIR, outputName);
 
         const serveUrl = await getBundle();
+        const resolvedTheme = (chartTheme === 'dark' || chartTheme === 'light') ? chartTheme : 'dark';
         const composition = await selectComposition({
           serveUrl,
           id: analysis.componentId,
-          inputProps: { 
-            ...analysis.props, 
-            theme: chartTheme,
+          inputProps: {
+            ...analysis.props,
+            theme: resolvedTheme,
             backgroundType: options.backgroundType
           }
         });
@@ -369,15 +380,15 @@ async function finishJobRendering(jobId: string, analysis: ChartAnalysis, chartT
           serveUrl,
           outputLocation: outputPath,
           codec: 'h264',
-          inputProps: { 
-            ...analysis.props, 
-            theme: chartTheme,
+          inputProps: {
+            ...analysis.props,
+            theme: resolvedTheme,
             backgroundType: options.backgroundType
           }
         });
 
         const videoUrl = `/output/${outputName}`;
-        addJob({ filename: outputName, outputFile: outputName, status: 'done' });
+        addJob({ filename: outputName, outputFile: outputName, status: 'done', props: { analysis } });
         job.status = 'done';
         job.progress = 100;
         job.stage = 'André: Concluído!';
@@ -412,11 +423,12 @@ app.post('/upload', upload.single('file'), async (req: Request, res: Response) =
       chartTheme: req.body.chartTheme || 'dark',
       customPalette: req.body.customPalette ? JSON.parse(req.body.customPalette) : null,
       includeCallouts: req.body.includeCallouts === 'true',
-      enableAuditor: String(req.body.enableAuditor) !== 'false', 
+      enableAuditor: String(req.body.enableAuditor) !== 'false',
       enableVoiceover: req.body.enableVoiceover === 'true',
       elevenlabsKey: req.body.elevenlabsKey || process.env.ELEVENLABS_API_KEY,
       bgStyle: req.body.bgStyle || 'none',
-      reviewRequired: true 
+      reviewRequired: req.body.reviewRequired !== 'false',
+      trainingOnly: req.body.trainingOnly === 'true',
     };
 
     processJob(jobId, req.file.buffer, req.file.originalname, options.chartTheme, options);
@@ -526,12 +538,23 @@ async function runSurgeryGradePipeline(
   const log = (msg: string) => appendJobLog(job, msg);
   
   let analysis: ChartAnalysis = await analyzeChartImage(
-    filePath, 
-    chartTheme, 
-    undefined, 
+    filePath,
+    chartTheme,
+    undefined,
     { includeCallouts },
     log
   );
+
+  // ── Reality Shield: validação determinística antes de qualquer render ──
+  const dataCheck = validateChartData(analysis.componentId, analysis.props);
+  if (!dataCheck.isValid) {
+    const reasons = dataCheck.errors.join(' | ');
+    console.error(`🛑 [Reality Shield] Dados inválidos — bloqueando treino: ${reasons}`);
+    await appendJobLog(job, `🛑 Reality Shield: ${reasons}`);
+    throw new Error(`DADOS_INVALIDOS: ${reasons}`);
+  }
+  console.log(`✅ [Reality Shield] Dados verificados (${analysis.componentId}).`);
+
   let lastAudit: any = null;
 
   for (let attempt = 1; attempt <= 1; attempt++) {

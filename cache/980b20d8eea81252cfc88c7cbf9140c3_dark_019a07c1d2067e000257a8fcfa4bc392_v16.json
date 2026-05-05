@@ -1,0 +1,107 @@
+{
+  "componentId": "HorizontalBarChart",
+  "suggestedName": "RevenueByStationBarChart",
+  "reasoning": "Identificado como um HorizontalBarChart devido à orientação horizontal das barras. Todas as 11 categorias e seus valores numéricos correspondentes foram extraídos com precisão cirúrgica, baseando-se na escala do eixo X e nas linhas de grade. A unidade '€B' foi preservada conforme as diretrizes. O título principal 'The simple bar chart' foi capturado textualmente. A descrição 'Revenue by Station' é implicitamente transmitida pelo rótulo da série ('Revenue') e pelos rótulos das categorias (nomes das estações), uma vez que o esquema de propriedades do componente não suporta um subtítulo explícito. A cor da barra foi extraída diretamente da imagem original (#4DD0E1), e as cores de fundo e texto foram definidas para corresponder à imagem (branco e preto, respectivamente). Anotações para os valores mais alto e mais baixo foram adicionadas, seguindo a regra de 'Smart Call-outs' e o feedback da auditoria, garantindo a formatação correta da unidade ('€7.6B', '€0.2B') e o texto em português.",
+  "props": {
+    "title": "The simple bar chart",
+    "labels": [
+      "Nansen Node",
+      "Antwerp Relay",
+      "Mariana Gate",
+      "Midway Array",
+      "Barrow Anchorage",
+      "Titan Port",
+      "Helm's Depths",
+      "Noatun Dock",
+      "Tonga Beacon",
+      "Tyrrhenian Terminal",
+      "Cadiz Yard"
+    ],
+    "series": [
+      {
+        "label": "Revenue",
+        "data": [
+          7.6,
+          5.4,
+          4.4,
+          3,
+          2.8,
+          2.4,
+          1.8,
+          1.6,
+          1.2,
+          0.6,
+          0.2
+        ]
+      }
+    ],
+    "unit": "€B",
+    "showValueLabels": false,
+    "showLegend": false,
+    "seriesColors": [
+      "#4DD0E1"
+    ],
+    "backgroundColor": "#FFFFFF",
+    "textColor": "#000000",
+    "annotations": [
+      {
+        "seriesIndex": 0,
+        "index": 0,
+        "valueStr": "€7.6B",
+        "text": "Maior Receita"
+      },
+      {
+        "seriesIndex": 0,
+        "index": 10,
+        "valueStr": "€0.2B",
+        "text": "Menor Receita"
+      }
+    ],
+    "data": [
+      {
+        "label": "Nansen Node",
+        "value": 7.6
+      },
+      {
+        "label": "Antwerp Relay",
+        "value": 5.4
+      },
+      {
+        "label": "Mariana Gate",
+        "value": 4.4
+      },
+      {
+        "label": "Midway Array",
+        "value": 3
+      },
+      {
+        "label": "Barrow Anchorage",
+        "value": 2.8
+      },
+      {
+        "label": "Titan Port",
+        "value": 2.4
+      },
+      {
+        "label": "Helm's Depths",
+        "value": 1.8
+      },
+      {
+        "label": "Noatun Dock",
+        "value": 1.6
+      },
+      {
+        "label": "Tonga Beacon",
+        "value": 1.2
+      },
+      {
+        "label": "Tyrrhenian Terminal",
+        "value": 0.6
+      },
+      {
+        "label": "Cadiz Yard",
+        "value": 0.2
+      }
+    ]
+  }
+}

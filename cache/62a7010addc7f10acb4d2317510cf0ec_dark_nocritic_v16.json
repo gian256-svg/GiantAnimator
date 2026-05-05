@@ -1,0 +1,69 @@
+{
+  "componentId": "PieChart",
+  "suggestedName": "GlobalMarketStatisticsPieChart",
+  "reasoning": "O gráfico é claramente um Pie Chart, exibindo proporções de diferentes 'OPTIONS' com suas respectivas porcentagens. Os rótulos das séries são fornecidos como 'OPTION 01', 'OPTION 02', etc., e os valores são porcentagens. As cores foram extraídas diretamente das fatias. Não há uma legenda separada, mas sim rótulos diretos, portanto 'showLegend' é false. Os valores são exibidos nas fatias, então 'showValueLabels' é true.",
+  "props": {
+    "title": "Global Market Statistics Pie Chart With Percentage",
+    "subtitle": "",
+    "labels": [
+      "OPTION 01",
+      "OPTION 04",
+      "OPTION 03",
+      "OPTION 02"
+    ],
+    "series": [
+      {
+        "label": "OPTION 01",
+        "data": [
+          3
+        ]
+      },
+      {
+        "label": "OPTION 04",
+        "data": [
+          2
+        ]
+      },
+      {
+        "label": "OPTION 03",
+        "data": [
+          1
+        ]
+      },
+      {
+        "label": "OPTION 02",
+        "data": [
+          9
+        ]
+      }
+    ],
+    "data": [
+      {
+        "label": "OPTION 01",
+        "value": 3
+      },
+      {
+        "label": "OPTION 04",
+        "value": 2
+      },
+      {
+        "label": "OPTION 03",
+        "value": 1
+      },
+      {
+        "label": "OPTION 02",
+        "value": 9
+      }
+    ],
+    "unit": "%",
+    "showValueLabels": true,
+    "showLegend": false,
+    "seriesColors": [
+      "#40B0A6",
+      "#C83737",
+      "#F7E04B",
+      "#2F6F8C"
+    ],
+    "annotations": []
+  }
+}

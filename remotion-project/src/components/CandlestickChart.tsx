@@ -21,7 +21,7 @@ export interface CandlestickChartProps {
   data: CandleData[];
   title?: string;
   subtitle?: string;
-  theme?: string;
+  theme?: 'dark' | 'light';
   backgroundColor?: string;
   colors?: string[];
   textColor?: string;
@@ -32,10 +32,12 @@ export const CandlestickChart: React.FC<CandlestickChartProps> = ({
   data: propData = [],
   title,
   subtitle,
+  theme = 'dark',
   bgStyle = 'none',
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
+  const fs = (n: number) => Math.round(n * (width / 1920));
   const T = resolveTheme(theme ?? 'dark');
 
   const data = useMemo(() => Array.isArray(propData) ? propData : [], [propData]);
@@ -48,9 +50,8 @@ export const CandlestickChart: React.FC<CandlestickChartProps> = ({
     );
   }
 
-  // Safe Zone 4K
-  const margin = Theme.spacing.padding;
-  const titleHeight = Theme.spacing.titleHeight;
+  const margin = fs(128);
+  const titleHeight = fs(160);
   const plotWidth = width - margin * 2;
   const plotHeight = height - margin * 2 - titleHeight - 100;
   const chartTop = margin + titleHeight;
@@ -114,8 +115,8 @@ export const CandlestickChart: React.FC<CandlestickChartProps> = ({
             const y = getY(val);
             return (
               <React.Fragment key={val}>
-                <line x1={chartLeft} y1={y} x2={chartLeft + plotWidth} y2={y} stroke={T.grid} strokeWidth={1} />
-                <text x={chartLeft - 20} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.ui?.axisText || T.textMuted, fontFamily: Theme.typography.fontFamily }}>
+                <line x1={chartLeft} y1={y} x2={chartLeft + plotWidth} y2={y} stroke={T.grid} strokeWidth={fs(1)} />
+                <text x={chartLeft - fs(20)} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.ui?.axisText || T.textMuted, fontFamily: Theme.typography.fontFamily }}>
                   {formatValue(val)}
                 </text>
               </React.Fragment>
@@ -174,7 +175,7 @@ export const CandlestickChart: React.FC<CandlestickChartProps> = ({
               {/* Label de Categoria */}
               {data.length < 20 && (
                 <text
-                  x={barX + candleWidth / 2} y={chartTop + plotHeight + 60}
+                  x={barX + candleWidth / 2} y={chartTop + plotHeight + fs(60)}
                   textAnchor="middle"
                   style={{ fontSize: Theme.typography.axis.size, fill: Theme.colors.ui.axisText, fontFamily: Theme.typography.fontFamily }}
                 >

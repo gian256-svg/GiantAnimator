@@ -1,0 +1,132 @@
+{
+  "componentId": "BarChart",
+  "suggestedName": "RevenueBarCharts",
+  "reasoning": "O gráfico é claramente um BarChart com barras verticais. Os dados foram extraídos com base na altura das barras em relação ao eixo Y implícito, que começa em zero. As duas séries foram identificadas como 'Revenue' (barras verdes) e 'Cost' (barras pretas/azuis) com base no título e nas anotações. As anotações foram mapeadas para os índices corretos das séries e dos dados. As cores foram extraídas diretamente da imagem. Não há legenda explícita, portanto 'showLegend' é falso.",
+  "props": {
+    "title": "REVENUE BAR CHARTS",
+    "subtitle": "While Power Slides revenue grew 10x between 2012 and 2015, its costs kept pace. Investors were undeterred, sending Power Slides stock price up 7x",
+    "labels": [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec"
+    ],
+    "xAxisTitle": "",
+    "yAxisTitle": "",
+    "series": [
+      {
+        "label": "Revenue",
+        "data": [
+          30,
+          65,
+          60,
+          45,
+          75,
+          70,
+          80,
+          75,
+          85,
+          60,
+          95,
+          65
+        ]
+      },
+      {
+        "label": "Cost",
+        "data": [
+          10,
+          20,
+          40,
+          30,
+          40,
+          50,
+          60,
+          65,
+          55,
+          45,
+          50,
+          75
+        ]
+      }
+    ],
+    "unit": "",
+    "showValueLabels": false,
+    "showLegend": false,
+    "seriesColors": [
+      "#8BC34A",
+      "#000000"
+    ],
+    "yMin": 0,
+    "yMax": 100,
+    "annotations": [
+      {
+        "seriesIndex": 1,
+        "index": 3,
+        "text": "April cost"
+      },
+      {
+        "seriesIndex": 1,
+        "index": 7,
+        "text": "August cost"
+      }
+    ],
+    "data": [
+      {
+        "label": "Jan",
+        "value": 30
+      },
+      {
+        "label": "Feb",
+        "value": 65
+      },
+      {
+        "label": "Mar",
+        "value": 60
+      },
+      {
+        "label": "Apr",
+        "value": 45
+      },
+      {
+        "label": "May",
+        "value": 75
+      },
+      {
+        "label": "Jun",
+        "value": 70
+      },
+      {
+        "label": "Jul",
+        "value": 80
+      },
+      {
+        "label": "Aug",
+        "value": 75
+      },
+      {
+        "label": "Sep",
+        "value": 85
+      },
+      {
+        "label": "Oct",
+        "value": 60
+      },
+      {
+        "label": "Nov",
+        "value": 95
+      },
+      {
+        "label": "Dec",
+        "value": 65
+      }
+    ]
+  }
+}

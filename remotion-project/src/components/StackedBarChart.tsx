@@ -50,13 +50,16 @@ export const StackedBarChart: React.FC<StackedBarChartProps> = ({
   const paletteFromProps = (colors ?? seriesColors)?.filter(Boolean) ?? [];
   const resolvedColors = paletteFromProps.length > 0 ? paletteFromProps : [...T.colors];
 
-  // Safe Zone 4K
-  const margin = 128;
-  const titleHeight = 160;
-  const paddingX = margin + 100;
+  const fs = (base: number) => Math.round(base * (width / 1920));
+
+  // Safe Zone 4K — valores escalados
+  const margin = fs(100);
+  const titleHeight = fs(180);
+  const legendH = seriesLabels.length > 0 ? fs(60) : 0;
+  const paddingX = margin + fs(120);
   const plotWidth = width - paddingX * 2;
-  const plotHeight = height - margin * 2 - titleHeight - 100;
-  const chartTop = margin + titleHeight;
+  const plotHeight = height - margin * 2 - titleHeight - legendH - fs(120);
+  const chartTop = margin + titleHeight + legendH;
 
   const data = useMemo(() => Array.isArray(propData) ? propData : [], [propData]);
   const maxTotal = Math.max(...data.map(d => d.values.reduce((a, b) => a + b, 0)), 1);
@@ -75,10 +78,11 @@ export const StackedBarChart: React.FC<StackedBarChartProps> = ({
       />
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',
+        padding: `0 ${fs(100)}px`, boxSizing: 'border-box',
         opacity: interpolate(frame, [0, 15], [0, 1])
       }}>
-        {title && <div style={{ fontSize: Theme.typography.title.size, fontWeight: Theme.typography.title.weight, color: T.text, fontFamily: Theme.typography.fontFamily }}>{title}</div>}
-        {subtitle && <div style={{ fontSize: Theme.typography.subtitle.size, color: T.textMuted, fontFamily: Theme.typography.fontFamily }}>{subtitle}</div>}
+        {title && <div style={{ fontSize: fs(Theme.typography.title.size), fontWeight: Theme.typography.title.weight, color: T.text, fontFamily: Theme.typography.fontFamily, wordBreak: 'break-word' }}>{title}</div>}
+        {subtitle && <div style={{ fontSize: fs(Theme.typography.subtitle.size), color: T.textMuted, fontFamily: Theme.typography.fontFamily, marginTop: fs(12) }}>{subtitle}</div>}
       </div>
 
       <svg width={width} height={height} style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}>
@@ -91,24 +95,32 @@ export const StackedBarChart: React.FC<StackedBarChartProps> = ({
           ))}
         </defs>
 
-        {/* Legend */}
-        <g transform={`translate(${width - margin}, ${margin + 80})`}>
-           {seriesLabels.map((sl, i) => (
-            <g key={i} transform={`translate(0, ${i * 40})`}>
-              <rect width={30} height={20} fill={resolvedColors[i % resolvedColors.length]} rx={4} />
-              <text x={45} y={22} style={{ fontSize: Theme.typography.axis.size, fill: T.textMuted, fontWeight: 500, fontFamily: Theme.typography.fontFamily }}>{sl}</text>
-            </g>
-          ))}
-        </g>
+        {/* Legend — centralizada abaixo do título */}
+        {seriesLabels.length > 0 && (
+          <foreignObject x={0} y={margin + titleHeight} width={width} height={legendH}>
+            <div style={{
+              display: 'flex', justifyContent: 'center', flexWrap: 'wrap',
+              gap: fs(32), padding: `0 ${fs(100)}px`, boxSizing: 'border-box',
+              opacity: interpolate(frame, [15, 35], [0, 1])
+            } as React.CSSProperties}>
+              {seriesLabels.map((sl, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: fs(10) }}>
+                  <div style={{ width: fs(24), height: fs(24), borderRadius: fs(4), backgroundColor: resolvedColors[i % resolvedColors.length], flexShrink: 0 }} />
+                  <span style={{ fontSize: fs(22), color: T.textMuted, fontWeight: 600, fontFamily: Theme.typography.fontFamily }}>{sl}</span>
+                </div>
+              ))}
+            </div>
+          </foreignObject>
+        )}
 
         {/* Grid Y */}
         <g opacity={0.4}>
-          {[0, 0.5, 1].map(v => {
+          {[0, 0.25, 0.5, 0.75, 1].map(v => {
             const y = chartTop + plotHeight - v * plotHeight;
             return (
               <g key={v}>
-                <line x1={paddingX} y1={y} x2={paddingX + plotWidth} y2={y} stroke={T.grid} strokeWidth={1} opacity={0.3} />
-                <text x={paddingX - 20} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: Theme.typography.axis.size, fill: T.textMuted, fontFamily: Theme.typography.fontFamily }}>{Math.round(v * maxTotal)}</text>
+                <line x1={paddingX} y1={y} x2={paddingX + plotWidth} y2={y} stroke={T.grid} strokeWidth={fs(1.5)} strokeDasharray={fs(6)} opacity={0.5} />
+                <text x={paddingX - fs(16)} y={y} textAnchor="end" dominantBaseline="middle" style={{ fontSize: fs(22), fill: T.textMuted, fontFamily: Theme.typography.fontFamily }}>{Math.round(v * maxTotal)}</text>
               </g>
             );
           })}
@@ -137,7 +149,7 @@ export const StackedBarChart: React.FC<StackedBarChartProps> = ({
                   <rect key={vi} x={x} y={currentY} width={barWidth} height={Math.max(currentH, 2)} fill={resolvedColors[vi % resolvedColors.length]} rx={4} />
                 );
               })}
-               <text x={x + barWidth/2} y={chartTop + plotHeight + 60} textAnchor="middle" style={{ fontSize: Theme.typography.axis.size, fill: T.textMuted, fontWeight: 600, fontFamily: Theme.typography.fontFamily }}>{cat.label}</text>
+               <text x={x + barWidth/2} y={chartTop + plotHeight + fs(50)} textAnchor="middle" style={{ fontSize: fs(22), fill: T.textMuted, fontWeight: 600, fontFamily: Theme.typography.fontFamily }}>{cat.label}</text>
             </g>
           );
         })}

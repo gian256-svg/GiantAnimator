@@ -1,0 +1,17 @@
+{
+  "componentId": "BarChart",
+  "suggestedName": "BusinessInsiderLogo",
+  "reasoning": "A imagem fornecida é um logotipo de texto e não contém nenhum tipo de gráfico ou dados visuais que possam ser extraídos pelos componentes de gráfico disponíveis no registro. Para cumprir o requisito de formato JSON, 'BarChart' foi selecionado arbitrariamente como um placeholder, mas todos os campos de dados relacionados ao gráfico foram deixados vazios para refletir a ausência de dados de gráfico na imagem. O texto 'BUSINESS INSIDER' foi extraído como título.",
+  "props": {
+    "title": "BUSINESS INSIDER",
+    "subtitle": "",
+    "labels": [],
+    "xAxisTitle": "",
+    "yAxisTitle": "",
+    "series": [],
+    "unit": "",
+    "showValueLabels": false,
+    "showLegend": false,
+    "annotations": []
+  }
+}

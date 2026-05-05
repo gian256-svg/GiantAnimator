@@ -30,7 +30,7 @@ export interface PieChartProps {
   bgStyle?: 'none' | 'mesh' | 'grid';
   backgroundType?: 'dark' | 'light';
   includeCallouts?: boolean;
-  theme?: string;
+  theme?: 'dark' | 'light';
   legendPosition?: 'bottom' | 'right' | 'none';
   labelPosition?: 'inside' | 'outside' | 'auto';
 }

@@ -1,0 +1,143 @@
+{
+  "componentId": "HorizontalBarChart",
+  "suggestedName": "WindPowerGeneration2025",
+  "reasoning": "O gráfico original é um mapa coroplético que exibe a geração de energia eólica por país em 2025, utilizando uma escala de cores para representar diferentes faixas de terawatt-horas (TWh). Como não há um componente de mapa coroplético disponível na lista fornecida, optei por representar os dados mais proeminentes (os países com maior geração de energia eólica) como um HorizontalBarChart. Este tipo de gráfico é o mais adequado para comparar valores entre múltiplas categorias (países). Os valores numéricos para cada país foram estimados com base na faixa de cor correspondente na legenda do mapa. Devido às limitações do esquema do HorizontalBarChart, que permite apenas uma cor por série, não foi possível replicar a gradação de cores original para cada barra individualmente. Portanto, todas as barras da série utilizam a cor predominante da categoria de maior valor (China).",
+  "props": {
+    "title": "Wind power generation, 2025",
+    "subtitle": "Annual electricity generation from wind is measured in terawatt-hours (TWh) per year. This includes both onshore and offshore wind sources.",
+    "labels": [
+      "China",
+      "USA",
+      "Brazil",
+      "India",
+      "Australia",
+      "Canada",
+      "UK",
+      "Germany",
+      "Spain",
+      "France",
+      "Sweden",
+      "Mexico",
+      "South Africa",
+      "Argentina",
+      "Turkey",
+      "Japan",
+      "Vietnam",
+      "Chile"
+    ],
+    "xAxisTitle": "Wind Power Generation (TWh)",
+    "yAxisTitle": "Country",
+    "xMin": 0,
+    "xMax": 600,
+    "series": [
+      {
+        "label": "Wind Power Generation",
+        "data": [
+          550,
+          350,
+          150,
+          75,
+          75,
+          75,
+          75,
+          75,
+          35,
+          35,
+          35,
+          15,
+          15,
+          15,
+          7,
+          7,
+          7,
+          7
+        ]
+      }
+    ],
+    "seriesColors": [
+      "#007080"
+    ],
+    "unit": "TWh",
+    "showValueLabels": true,
+    "showLegend": false,
+    "annotations": [
+      "O gráfico original é um mapa coroplético, que não está diretamente disponível nos tipos de componentes. Esta representação utiliza um HorizontalBarChart para exibir os dados de geração de energia eólica dos países mais proeminentes.",
+      "Os valores de TWh para cada país foram estimados com base na faixa de cor correspondente na legenda do mapa. Por exemplo, a China, na faixa '> 500 TWh', foi estimada em 550 TWh.",
+      "Devido às limitações do esquema do componente HorizontalBarChart, que não permite cores individuais por barra dentro de uma única série, todas as barras foram representadas com a cor da faixa de maior valor (China: #007080). A fidelidade cromática individual por país não pôde ser mantida neste formato."
+    ],
+    "data": [
+      {
+        "label": "China",
+        "value": 550
+      },
+      {
+        "label": "USA",
+        "value": 350
+      },
+      {
+        "label": "Brazil",
+        "value": 150
+      },
+      {
+        "label": "India",
+        "value": 75
+      },
+      {
+        "label": "Australia",
+        "value": 75
+      },
+      {
+        "label": "Canada",
+        "value": 75
+      },
+      {
+        "label": "UK",
+        "value": 75
+      },
+      {
+        "label": "Germany",
+        "value": 75
+      },
+      {
+        "label": "Spain",
+        "value": 35
+      },
+      {
+        "label": "France",
+        "value": 35
+      },
+      {
+        "label": "Sweden",
+        "value": 35
+      },
+      {
+        "label": "Mexico",
+        "value": 15
+      },
+      {
+        "label": "South Africa",
+        "value": 15
+      },
+      {
+        "label": "Argentina",
+        "value": 15
+      },
+      {
+        "label": "Turkey",
+        "value": 7
+      },
+      {
+        "label": "Japan",
+        "value": 7
+      },
+      {
+        "label": "Vietnam",
+        "value": 7
+      },
+      {
+        "label": "Chile",
+        "value": 7
+      }
+    ]
+  }
+}

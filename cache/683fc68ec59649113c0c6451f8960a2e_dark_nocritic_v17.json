@@ -1,0 +1,51 @@
+{
+  "componentId": "HorizontalBarChart",
+  "suggestedName": "Energia Instalada",
+  "reasoning": "O gráfico é de barras horizontais representando o número de instalações de energia solar em cada região, com a escala do eixo Y indicando a quantidade de instalações.",
+  "props": {
+    "title": "Instalado",
+    "subtitle": "Energia solar",
+    "labels": [
+      "Norte",
+      "Sudeste",
+      "Centro-Oeste"
+    ],
+    "xAxisTitle": "",
+    "yAxisTitle": "Instalações de energia solar",
+    "yMin": 0,
+    "yMax": 900,
+    "series": [
+      {
+        "label": "MWp",
+        "data": [
+          250,
+          1500,
+          800
+        ]
+      }
+    ],
+    "seriesColors": [
+      "#4B87D9",
+      "#2A6FBE",
+      "#3A743D"
+    ],
+    "unit": "",
+    "showValueLabels": true,
+    "showLegend": false,
+    "annotations": [],
+    "data": [
+      {
+        "label": "Norte",
+        "value": 250
+      },
+      {
+        "label": "Sudeste",
+        "value": 1500
+      },
+      {
+        "label": "Centro-Oeste",
+        "value": 800
+      }
+    ]
+  }
+}

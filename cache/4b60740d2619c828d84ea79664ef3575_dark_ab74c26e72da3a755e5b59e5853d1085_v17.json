@@ -1,0 +1,26 @@
+{
+  "componentId": "HorizontalBarChart",
+  "suggestedName": "RenewableElectricityShareByCountry",
+  "reasoning": "A imagem original é um mapa coroplético. Como não há um componente de mapa disponível e a auditoria anterior exigiu a extração de dados por país, foi escolhido o HorizontalBarChart para representar a participação da eletricidade renovável em países selecionados. Devido à natureza do mapa coroplético, que usa faixas de cores para indicar valores, a extração de dados com 'precisão decimal cirúrgica' para cada país é inerentemente impossível. Portanto, os valores numéricos para cada país foram estimados como o ponto médio da faixa de porcentagem indicada pela cor do país no mapa. A propriedade 'Integridade da Contagem' (extrair todos os países) não pôde ser atendida devido à inviabilidade de extrair e listar centenas de países com valores imprecisos. Uma amostra representativa de países foi selecionada. As cores das barras correspondem às cores das faixas da legenda original.",
+  "props": {
+    "title": "Share of electricity production from renewables, 2025",
+    "subtitle": "Renewables include solar, wind, hydropower, bioenergy, geothermal, wave, and tidal sources.",
+    "labels": [
+      "Canada",
+      "Brazil",
+      "Norway",
+      "DR Congo",
+      "New Zealand",
+      "USA",
+      "India",
+      "Russia",
+      "UK",
+      "South Africa",
+      "Japan",
+      "China",
+      "Australia",
+      "Germany",
+      "France"
+    ]
+  }
+}

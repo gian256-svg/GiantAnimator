@@ -1,0 +1,20 @@
+{
+  "componentId": "BarChart",
+  "suggestedName": "BusinessInsiderLogo",
+  "reasoning": "A imagem de referência contém exclusivamente o texto 'BUSINESS INSIDER' sobre um fundo branco, sem quaisquer elementos de gráfico ou dados numéricos. Para aderir à diretriz de 'Integridade Textual e Idioma' e 'Soberania do Fundo', o texto foi extraído como título e as cores exatas de fundo e texto foram identificadas. O componente BarChart foi selecionado como um placeholder genérico, com todos os arrays de dados vazios, pois não há dados de gráfico para extrair. Esta abordagem visa mitigar a falha crítica de renderização vazia mencionada na auditoria, garantindo que o nome e a identidade visual sejam preservados no JSON.",
+  "props": {
+    "title": "BUSINESS INSIDER",
+    "subtitle": "",
+    "labels": [],
+    "xAxisTitle": "",
+    "yAxisTitle": "",
+    "series": [],
+    "unit": "",
+    "showValueLabels": false,
+    "showLegend": false,
+    "annotations": [],
+    "seriesColors": [],
+    "backgroundColor": "#FFFFFF",
+    "textColor": "#231F20"
+  }
+}

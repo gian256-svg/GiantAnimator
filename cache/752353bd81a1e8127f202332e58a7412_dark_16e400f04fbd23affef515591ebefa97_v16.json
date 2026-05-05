@@ -1,0 +1,101 @@
+{
+  "componentId": "LineChart",
+  "suggestedName": "LineChartWithMarkers",
+  "reasoning": "A imagem apresenta múltiplos exemplos ilustrativos de gráficos de linha, sem rótulos explícitos para os eixos categóricos (X), nomes de séries ou unidades. Conforme a Regra 2 ('Nomes Fidedignos'), é uma falha crítica inventar nomes. Portanto, para o gráfico 'Line with Markers' (canto superior esquerdo), utilizei strings vazias (`\"\"`) para os rótulos do eixo X e para o rótulo da série. Esta abordagem cumpre o requisito do esquema do componente para arrays de strings, ao mesmo tempo em que adere estritamente à proibição de inventar nomes. Os pontos de dados foram estimados visualmente em uma escala relativa de 0 a 100. Não foram fornecidos `yMin` ou `yMax` pois não são exibidos explicitamente na imagem original (Regra 10). A legenda foi desativada (`\"showLegend\": false`) pois não há legenda explícita na imagem e há apenas uma série.",
+  "props": {
+    "title": "Line with Markers",
+    "subtitle": "",
+    "labels": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    "xAxisTitle": "",
+    "yAxisTitle": "",
+    "series": [
+      {
+        "label": "",
+        "data": [
+          30,
+          40,
+          35,
+          45,
+          40,
+          50,
+          45,
+          60,
+          50,
+          70,
+          60,
+          75
+        ]
+      }
+    ],
+    "unit": "",
+    "showValueLabels": false,
+    "showLegend": false,
+    "annotations": [],
+    "seriesColors": [
+      "#4285F4"
+    ],
+    "data": [
+      {
+        "label": "",
+        "value": 30
+      },
+      {
+        "label": "",
+        "value": 40
+      },
+      {
+        "label": "",
+        "value": 35
+      },
+      {
+        "label": "",
+        "value": 45
+      },
+      {
+        "label": "",
+        "value": 40
+      },
+      {
+        "label": "",
+        "value": 50
+      },
+      {
+        "label": "",
+        "value": 45
+      },
+      {
+        "label": "",
+        "value": 60
+      },
+      {
+        "label": "",
+        "value": 50
+      },
+      {
+        "label": "",
+        "value": 70
+      },
+      {
+        "label": "",
+        "value": 60
+      },
+      {
+        "label": "",
+        "value": 75
+      }
+    ]
+  }
+}

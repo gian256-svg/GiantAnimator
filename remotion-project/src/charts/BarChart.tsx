@@ -18,13 +18,18 @@ interface BarChartProps {
   subtitle?: string;
   colors?: string[];
   seriesColors?: string[];
-  theme?: string;
+  theme?: 'dark' | 'light';
   backgroundColor?: string;
+  backgroundType?: string;
   textColor?: string;
   unit?: string;
+  showValueLabels?: boolean;
   showLegend?: boolean;
   xAxisTitle?: string;
   yAxisTitle?: string;
+  yMin?: number;
+  yMax?: number;
+  annotations?: { index: number; seriesIndex?: number; label: string }[];
 }
 
 export const BarChart: React.FC<BarChartProps> = (props) => {
@@ -36,7 +41,7 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
     subtitle = "",
     colors,
     seriesColors,
-    theme = "dark",
+    theme = "dark" as const,
     backgroundColor,
     textColor,
     unit = '',
@@ -46,6 +51,8 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
     showLegend = true,
     xAxisTitle = '',
     yAxisTitle = '',
+    yMin: propYMin,
+    yMax: propYMax,
   } = props;
 
   const frame = useCurrentFrame();
@@ -108,9 +115,9 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
   const plotWidth = width - plotLeft - margin;
   const plotHeight = height - chartTop - padBot;
 
-  const dataMinRaw = Math.min(...allValues, 0);
-  const dataMaxRaw = Math.max(...allValues, 0.0001);
-  const niceScale = getNiceScale(dataMaxRaw * 1.15, dataMinRaw, 5);
+  const dataMinRaw = propYMin !== undefined ? propYMin : Math.min(...allValues, 0);
+  const dataMaxRaw = propYMax !== undefined ? propYMax : Math.max(...allValues, 0.0001);
+  const niceScale = getNiceScale(dataMaxRaw * (propYMax !== undefined ? 1 : 1.15), dataMinRaw, 5);
   const dataMax = niceScale[niceScale.length - 1];
   const dataMin = niceScale[0];
   const range = dataMax - dataMin || 0.0001;

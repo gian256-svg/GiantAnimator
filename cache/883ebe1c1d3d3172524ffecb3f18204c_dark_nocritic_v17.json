@@ -1,0 +1,203 @@
+{
+  "componentId": "ScatterPlot",
+  "suggestedName": "MeatSupplyVsGDP",
+  "reasoning": "O gráfico apresenta pontos de dados individuais representando países, com duas variáveis numéricas (oferta de carne per capita e PIB per capita) plotadas em eixos X e Y. O eixo X utiliza uma escala logarítmica, o que é característico de um Scatter Plot (gráfico de dispersão) para visualizar a relação entre essas variáveis.",
+  "props": {
+    "title": "Meat supply vs. GDP per capita, 2023",
+    "subtitle": "Average meat supply per capita, measured in kilograms per year, versus GDP per capita, adjusted for inflation and differences in living costs between countries. Figures do not include fish or seafood.",
+    "xLabel": "GDP per capita (international-$ in 2021 prices; plotted on a logarithmic axis)",
+    "yLabel": "Meat supply per person (kilograms per year per capita)",
+    "series": [
+      {
+        "label": "North America",
+        "data": [
+          {
+            "x": 20000,
+            "y": 100
+          },
+          {
+            "x": 15000,
+            "y": 90
+          }
+        ]
+      },
+      {
+        "label": "South America",
+        "data": [
+          {
+            "x": 22000,
+            "y": 120
+          },
+          {
+            "x": 14000,
+            "y": 115
+          },
+          {
+            "x": 8000,
+            "y": 85
+          },
+          {
+            "x": 8000,
+            "y": 70
+          },
+          {
+            "x": 10000,
+            "y": 60
+          }
+        ]
+      },
+      {
+        "label": "Africa",
+        "data": [
+          {
+            "x": 1500,
+            "y": 10
+          },
+          {
+            "x": 1800,
+            "y": 25
+          },
+          {
+            "x": 2000,
+            "y": 15
+          },
+          {
+            "x": 5000,
+            "y": 60
+          },
+          {
+            "x": 3500,
+            "y": 20
+          },
+          {
+            "x": 7000,
+            "y": 10
+          },
+          {
+            "x": 7000,
+            "y": 45
+          },
+          {
+            "x": 12000,
+            "y": 25
+          }
+        ]
+      },
+      {
+        "label": "Europe",
+        "data": [
+          {
+            "x": 60000,
+            "y": 110
+          },
+          {
+            "x": 30000,
+            "y": 90
+          },
+          {
+            "x": 100000,
+            "y": 95
+          },
+          {
+            "x": 55000,
+            "y": 80
+          },
+          {
+            "x": 80000,
+            "y": 75
+          },
+          {
+            "x": 50000,
+            "y": 70
+          },
+          {
+            "x": 15000,
+            "y": 65
+          },
+          {
+            "x": 11000,
+            "y": 45
+          }
+        ]
+      },
+      {
+        "label": "Asia",
+        "data": [
+          {
+            "x": 15000,
+            "y": 140
+          },
+          {
+            "x": 4000,
+            "y": 35
+          },
+          {
+            "x": 10000,
+            "y": 35
+          },
+          {
+            "x": 2500,
+            "y": 10
+          },
+          {
+            "x": 15000,
+            "y": 25
+          },
+          {
+            "x": 12000,
+            "y": 35
+          },
+          {
+            "x": 40000,
+            "y": 40
+          }
+        ]
+      },
+      {
+        "label": "Oceania",
+        "data": [
+          {
+            "x": 10000,
+            "y": 148
+          },
+          {
+            "x": 10000,
+            "y": 130
+          },
+          {
+            "x": 10000,
+            "y": 110
+          },
+          {
+            "x": 12000,
+            "y": 110
+          },
+          {
+            "x": 5000,
+            "y": 85
+          },
+          {
+            "x": 4000,
+            "y": 45
+          },
+          {
+            "x": 55000,
+            "y": 120
+          }
+        ]
+      }
+    ],
+    "seriesColors": [
+      "#A86464",
+      "#643232",
+      "#646464",
+      "#326464",
+      "#326432",
+      "#649696"
+    ],
+    "annotations": [
+      "O gráfico de dispersão ilustra a correlação entre a oferta de carne per capita e o PIB per capita para diversos países em 2023. Uma tendência geral de aumento na oferta de carne é observada à medida que o PIB per capita cresce, embora haja uma dispersão considerável de dados, indicando outros fatores influenciadores e variações regionais."
+    ],
+    "labels": []
+  }
+}

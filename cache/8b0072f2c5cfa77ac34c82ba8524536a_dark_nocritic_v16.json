@@ -1,0 +1,50 @@
+{
+  "componentId": "HorizontalBarChart",
+  "suggestedName": "Vertical Bar Chart",
+  "reasoning": "Gráfico de barras verticais representando o valor de vendas agrupado por categoria, exibindo a taxa de crescimento e uma legenda com as séries disponíveis.",
+  "props": {
+    "title": "Grupo de Vendas (2019-2021)",
+    "subtitle": "Taxa de Crescimento Anual da Proposta",
+    "labels": [
+      "Q1",
+      "Q2",
+      "Q3",
+      "Q4"
+    ],
+    "xAxisTitle": "Quartal do Ano",
+    "yAxisTitle": "Vendas (USD)",
+    "series": [
+      {
+        "label": "Grupo 1",
+        "data": [
+          19.5,
+          20.6,
+          21.8,
+          23.4
+        ]
+      }
+    ],
+    "unit": "USD",
+    "showValueLabels": true,
+    "showLegend": true,
+    "annotations": [],
+    "data": [
+      {
+        "label": "Q1",
+        "value": 19.5
+      },
+      {
+        "label": "Q2",
+        "value": 20.6
+      },
+      {
+        "label": "Q3",
+        "value": 21.8
+      },
+      {
+        "label": "Q4",
+        "value": 23.4
+      }
+    ]
+  }
+}

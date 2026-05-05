@@ -1,0 +1,58 @@
+{
+  "componentId": "HorizontalBarChart",
+  "suggestedName": "Revenue Growth Trends",
+  "reasoning": "The image depicts a horizontal bar chart showing the revenue growth trend in terms of percentages. The x-axis represents time, while the y-axis indicates the percentage growth. There are two series, one for 'Bar Graph' and another for 'Line Chart', with the label 'Company Y/Z Quarterly Revenue'. The title could be updated to reflect this information.",
+  "props": {
+    "title": "Revenue Growth Trends",
+    "labels": [
+      "2019 Q3",
+      "2019 Q4",
+      "Q1 2020",
+      "Q2 2020"
+    ],
+    "xAxisTitle": "Time",
+    "yAxisTitle": "% Revenue Growth",
+    "series": [
+      {
+        "label": "Bar Graph",
+        "data": [
+          5,
+          3,
+          4,
+          6
+        ]
+      },
+      {
+        "label": "Line Chart",
+        "data": [
+          2,
+          1,
+          2,
+          3
+        ]
+      }
+    ],
+    "unit": "%",
+    "showValueLabels": true,
+    "showLegend": true,
+    "annotations": [],
+    "data": [
+      {
+        "label": "2019 Q3",
+        "value": 5
+      },
+      {
+        "label": "2019 Q4",
+        "value": 3
+      },
+      {
+        "label": "Q1 2020",
+        "value": 4
+      },
+      {
+        "label": "Q2 2020",
+        "value": 6
+      }
+    ]
+  }
+}

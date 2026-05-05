@@ -1,0 +1,73 @@
+{
+  "componentId": "BarChart",
+  "suggestedName": "Emissões de CO2",
+  "reasoning": "O gráfico é um tipo de barras verticais e exibe em porcentagem. A escala Y vai de 0 a 40, com etiquetas numéricas à cada uma das barras, e a escala X está restringida ao que é visível na imagem. A legenda indica que há quatro categorias diferentes: 'Fuel or Industry', 'Chemicals', 'Agriculture' e 'Other'. O título do gráfico menciona 'Emissions by industry type, World' e a descrição está em inglês. A unidade é porcentagem e o fundo da imagem é preto, com as barras sendo exibidas sobre um eixo Y que vai de 0 a 40, possivelmente com cores diferentes para cada categoria.",
+  "props": {
+    "title": "Emissions by industry type, World",
+    "subtitle": "",
+    "labels": [
+      "Fuel or Industry",
+      "Chemicals",
+      "Agriculture",
+      "Other"
+    ],
+    "xAxisTitle": "Industry type",
+    "yAxisTitle": "%",
+    "yMin": 0,
+    "yMax": 40,
+    "series": [
+      {
+        "label": "Fuel or Industry",
+        "data": [
+          29.5
+        ]
+      },
+      {
+        "label": "Chemicals",
+        "data": [
+          23.6
+        ]
+      },
+      {
+        "label": "Agriculture",
+        "data": [
+          17.4
+        ]
+      },
+      {
+        "label": "Other",
+        "data": [
+          20.8
+        ]
+      }
+    ],
+    "seriesColors": [
+      "#5F9B",
+      "#E8D3",
+      "#FFEDA",
+      "#F9C4"
+    ],
+    "unit": "%",
+    "showValueLabels": true,
+    "showLegend": true,
+    "legendPosition": "bottom",
+    "data": [
+      {
+        "label": "Fuel or Industry",
+        "value": 29.5
+      },
+      {
+        "label": "Chemicals",
+        "value": 0
+      },
+      {
+        "label": "Agriculture",
+        "value": 0
+      },
+      {
+        "label": "Other",
+        "value": 0
+      }
+    ]
+  }
+}

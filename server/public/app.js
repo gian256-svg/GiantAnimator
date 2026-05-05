@@ -578,6 +578,20 @@ document.addEventListener('DOMContentLoaded', () => {
               <label class="ve-label">Subtítulo / Insight</label>
               <input type="text" id="edit-subtitle" class="ve-input" value="${(props.subtitle||'').replace(/"/g,'&quot;')}" placeholder="Insight ou fonte dos dados...">
             </div>
+            <div class="ve-field" style="display:flex; gap:8px;">
+              <div style="flex:1;">
+                <label class="ve-label">Unidade (unit)</label>
+                <input type="text" id="edit-unit" class="ve-input" value="${(props.unit||'').replace(/"/g,'&quot;')}" placeholder="%, $, M...">
+              </div>
+              <div style="flex:1;">
+                <label class="ve-label">Eixo Y — Mín</label>
+                <input type="number" step="any" id="edit-ymin" class="ve-input" value="${props.yMin !== undefined ? props.yMin : ''}" placeholder="auto">
+              </div>
+              <div style="flex:1;">
+                <label class="ve-label">Eixo Y — Máx</label>
+                <input type="number" step="any" id="edit-ymax" class="ve-input" value="${props.yMax !== undefined ? props.yMax : ''}" placeholder="auto">
+              </div>
+            </div>
 
             <!-- TYPE SWITCHER (Restaurado) -->
             <div class="ve-field">
@@ -868,6 +882,14 @@ document.addEventListener('DOMContentLoaded', () => {
               editedAnalysis.props.title    = title;
               editedAnalysis.props.subtitle = subtitle;
               editedAnalysis.props.labels   = newLabels;
+              const yMinVal = document.getElementById('edit-ymin')?.value;
+              const yMaxVal = document.getElementById('edit-ymax')?.value;
+              const unitVal = document.getElementById('edit-unit')?.value;
+              if (yMinVal !== '' && yMinVal !== undefined) editedAnalysis.props.yMin = Number(yMinVal);
+              else delete editedAnalysis.props.yMin;
+              if (yMaxVal !== '' && yMaxVal !== undefined) editedAnalysis.props.yMax = Number(yMaxVal);
+              else delete editedAnalysis.props.yMax;
+              if (unitVal !== undefined) editedAnalysis.props.unit = unitVal;
 
               // Propaga o tipo de gráfico se o usuário trocou no switcher
               const newType = (container && typeof container._getEditorType === 'function') 

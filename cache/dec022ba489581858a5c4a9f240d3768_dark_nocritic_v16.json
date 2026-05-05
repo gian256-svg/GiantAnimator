@@ -1,0 +1,111 @@
+{
+  "componentId": "BarChart",
+  "suggestedName": "MarketShareComparison",
+  "reasoning": "O gráfico é claramente um BarChart (gráfico de colunas verticais) exibindo a comparação de participação de mercado entre diferentes produtos. Os rótulos dos produtos são extraídos diretamente do eixo X, e os valores percentuais são capturados com precisão do topo de cada barra. As cores das barras foram extraídas fielmente da imagem original. O eixo Y foi definido de 0 a 30, conforme a escala visível. Anotações foram adicionadas para destacar o maior e o menor valor, e showValueLabels está ativo pois os valores são explícitos nas barras.",
+  "props": {
+    "title": "Market Share Comparison of Smartphone Brands",
+    "subtitle": "",
+    "labels": [
+      "Product 1",
+      "Product 2",
+      "Product 3",
+      "Product 4",
+      "Product 5",
+      "Product 6",
+      "Product 7",
+      "Product 8",
+      "Product 9",
+      "Product 10"
+    ],
+    "xAxisTitle": "",
+    "yAxisTitle": "",
+    "series": [
+      {
+        "label": "",
+        "data": [
+          1,
+          2,
+          7,
+          12,
+          15,
+          28,
+          24,
+          9,
+          8,
+          4
+        ]
+      }
+    ],
+    "unit": "%",
+    "showValueLabels": true,
+    "yMin": 0,
+    "yMax": 30,
+    "showLegend": false,
+    "seriesColors": [
+      "#87CEEB",
+      "#20B2AA",
+      "#1E90FF",
+      "#FFD700",
+      "#CD853F",
+      "#5C0000",
+      "#B22222",
+      "#66CDAA",
+      "#4169E1",
+      "#DA70D6"
+    ],
+    "annotations": [
+      {
+        "seriesIndex": 0,
+        "index": 5,
+        "label": "Maior participação de mercado: 28%"
+      },
+      {
+        "seriesIndex": 0,
+        "index": 0,
+        "label": "Menor participação de mercado: 1%"
+      }
+    ],
+    "data": [
+      {
+        "label": "Product 1",
+        "value": 1
+      },
+      {
+        "label": "Product 2",
+        "value": 2
+      },
+      {
+        "label": "Product 3",
+        "value": 7
+      },
+      {
+        "label": "Product 4",
+        "value": 12
+      },
+      {
+        "label": "Product 5",
+        "value": 15
+      },
+      {
+        "label": "Product 6",
+        "value": 28
+      },
+      {
+        "label": "Product 7",
+        "value": 24
+      },
+      {
+        "label": "Product 8",
+        "value": 9
+      },
+      {
+        "label": "Product 9",
+        "value": 8
+      },
+      {
+        "label": "Product 10",
+        "value": 4
+      }
+    ]
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "componentId": "LineChart",
+  "suggestedName": "Gasto em pesquisa e desenvolvimento como pessoa",
+  "reasoning": "O gráfico é um gráfico de linha que mostra a evolução da gastos em pesquisa e desenvolvimento em diferentes países ao longo do tempo. O eixo Y representa o valor monetário dos gastos, enquanto o eixo X representa o tempo. Cada linha representa um país diferente e as áreas corretamente mostram a proporção de gasto entre os países.",
+  "props": {
+    "title": "Gasto em pesquisa e desenvolvimento como pessoa",
+    "labels": [
+      "Ano",
+      "Valor (em milhões)"
+    ],
+    "xAxisTitle": "Tempo",
+    "yAxisTitle": "Valor em milhões",
+    "series": [
+      {
+        "label": "Brasil",
+        "data": [
+          5,
+          10
+        ]
+      },
+      {
+        "label": "Estados Unidos",
+        "data": [
+          20,
+          30
+        ]
+      }
+    ],
+    "seriesColors": [
+      "#9D18C7",
+      "#FF6B2E"
+    ],
+    "unit": "Milhões",
+    "showValueLabels": true,
+    "showLegend": true,
+    "annotations": [],
+    "data": [
+      {
+        "label": "Ano",
+        "value": 5
+      },
+      {
+        "label": "Valor (em milhões)",
+        "value": 10
+      }
+    ]
+  }
+}

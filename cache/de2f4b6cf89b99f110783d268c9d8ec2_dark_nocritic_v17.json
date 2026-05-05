@@ -1,0 +1,92 @@
+{
+  "componentId": "HorizontalBarChart",
+  "suggestedName": "AgriculturalValueAddedPerWorkerLegend",
+  "reasoning": "A imagem original é um mapa coroplético que visualiza o valor agregado agrícola por trabalhador. Como não há um componente 'MapChart' ou 'ChoroplethMap' disponível no registro, e para cumprir a diretriz de fornecer um 'componentId' válido e extrair os dados quantitativos, optei por representar a *legenda* do mapa como um 'HorizontalBarChart'. Cada barra representa uma categoria de valor agregado, com seu rótulo e cor correspondente. Os valores numéricos na série representam o limite superior ou um valor representativo para cada faixa da legenda, permitindo a visualização da escala de cores e seus respectivos valores monetários. Esta é a forma mais fiel de extrair os dados quantitativos da escala de cores do gráfico, embora não represente a distribuição geográfica.",
+  "props": {
+    "title": "Agricultural value added per worker, 2023",
+    "subtitle": "Agricultural value added per worker is calculated by dividing the amount of economic value generated from farming, forestry and fishing by the number of people who work in these sectors. This data is expressed in US dollars. It is adjusted for inflation but does not account for differences in living costs between countries.",
+    "labels": [
+      "No data",
+      "$0",
+      "$1,000",
+      "$2,000",
+      "$5,000",
+      "$10,000",
+      "$20,000",
+      "$50,000"
+    ],
+    "xAxisTitle": "Value Added (US$)",
+    "yAxisTitle": "Category",
+    "xMin": 0,
+    "xMax": 75000,
+    "series": [
+      {
+        "label": "Agricultural Value Added",
+        "data": [
+          0,
+          1000,
+          2000,
+          5000,
+          10000,
+          20000,
+          50000,
+          75000
+        ],
+        "color": "#700070"
+      }
+    ],
+    "seriesColors": [
+      "#E0E0E0",
+      "#F0E0F0",
+      "#E0B0E0",
+      "#D080D0",
+      "#C050C0",
+      "#B020B0",
+      "#A000A0",
+      "#700070"
+    ],
+    "unit": "$",
+    "showValueLabels": true,
+    "showLegend": false,
+    "annotations": [
+      "A fonte dos dados é o World Bank (World Development Indicators) e ILO (ILOSTAT) (2025).",
+      "Os dados são expressos em dólares americanos constantes de 2015.",
+      "O gráfico original é um mapa coroplético que mostra a distribuição geográfica do valor agregado agrícola por trabalhador, categorizado por faixas de valor e cores correspondentes.",
+      "As cores na legenda variam de um cinza claro para 'No data' (Sem dados) a um roxo escuro para os valores mais altos (acima de $50.000)."
+    ],
+    "data": [
+      {
+        "label": "No data",
+        "value": 0
+      },
+      {
+        "label": "$0",
+        "value": 1000
+      },
+      {
+        "label": "$1,000",
+        "value": 2000
+      },
+      {
+        "label": "$2,000",
+        "value": 5000
+      },
+      {
+        "label": "$5,000",
+        "value": 10000
+      },
+      {
+        "label": "$10,000",
+        "value": 20000
+      },
+      {
+        "label": "$20,000",
+        "value": 50000
+      },
+      {
+        "label": "$50,000",
+        "value": 75000
+      }
+    ]
+  }
+}

@@ -10,64 +10,40 @@ if (!fs.existsSync(INPUT_DIR)) fs.mkdirSync(INPUT_DIR, { recursive: true });
 
 const TRAINING_DATA: Record<string, string[]> = {
   "LineChart": [
-    "https://cdn.statcdn.com/CMS/GettingStartedCMS/32ae80c589f097ca4fcf8b8ef9b5906a.png",
-    "https://www.investopedia.com/thmb/OzhMb4W_efag08s_Wdfbc8cNdQ8=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/dotdash_INV_Final_Line_Chart_Jan_2021-01-d2dc4eb9a59c43468e48c03e15501ebe.jpg",
-    "https://howtotrade.com/wp-content/uploads/2022/09/Line-Charts-in-Stocks.jpg",
-    "https://myforexvps.com/wp-content/uploads/2024/07/banner_1-1.png",
-    "https://www.statista.com/chart/static/daily/28744.png",
-    "https://www.slideteam.net/media/catalog/product/cache/1280x720/s/t/stock_price_trends_line_chart_ppt_slide_01.jpg",
-    "https://i.insider.com/61bb6d6d84944d0018a38a0b?width=700&format=jpeg&auto=webp",
-    "https://i.insider.com/59416174a7092120008b495f?width=700&format=jpeg&auto=webp",
-    "https://i.insider.com/5c585c5c1656f500a44f2d71?width=700&format=jpeg&auto=webp",
-    "https://www.fidelity.com/bin-public/060_www_fidelity_com/images/Viewpoints/active-investor/chart-analysis-1.png"
+    "https://ourworldindata.org/grapher/exports/co-emissions-per-capita.png",
+    "https://ourworldindata.org/grapher/exports/population-growth-rates.png",
+    "https://ourworldindata.org/grapher/exports/share-electricity-renewables.png",
+    "https://ourworldindata.org/grapher/exports/world-population-growth.png",
+    "https://ourworldindata.org/grapher/exports/natural-population-growth-rate.png",
+    "https://ourworldindata.org/grapher/exports/life-expectancy.png",
+    "https://ourworldindata.org/grapher/exports/gdp-per-capita-maddison.png",
+    "https://ourworldindata.org/grapher/exports/daily-cases-covid-19.png",
+    "https://ourworldindata.org/grapher/exports/annual-co2-emissions-per-country.png",
+    "https://ourworldindata.org/grapher/exports/cumulative-co-emissions.png",
+    "https://ourworldindata.org/grapher/exports/annual-co-emissions-by-region.png",
+    "https://ourworldindata.org/grapher/exports/ghg-emissions-by-sector.png",
+    "https://ourworldindata.org/grapher/exports/co2-by-source.png",
+    "https://ourworldindata.org/grapher/exports/installed-solar-pv-capacity.png",
+    "https://ourworldindata.org/grapher/exports/wind-generation.png",
+    "https://ourworldindata.org/grapher/exports/gdp-growth.png",
+    "https://ourworldindata.org/grapher/exports/poverty-gap-index.png",
+    "https://ourworldindata.org/grapher/exports/literacy-rate-by-generation.png"
   ],
   "PieChart": [
-    "https://www.slideteam.net/media/catalog/product/cache/1280x720/b/u/budget_allocation_for_different_services_pie_chart_example_of_ppt_slide01.jpg",
-    "https://www.slideteam.net/media/catalog/product/cache/1280x720/a/n/annual_digital_marketing_budget_allocation_pie_chart_slide01.jpg",
-    "https://www.slidekit.com/wp-content/uploads/2021/11/3D-Budget-Allocation-Pie-Chart-Slide-for-PowerPoint-Google-Slides.jpg",
-    "https://powerslides.com/wp-content/uploads/2022/03/Budget-Pie-Chart-1.png",
-    "https://www.slideteam.net/media/catalog/product/cache/1280x720/m/a/market_share_pie_chart_powerpoint_presentation_slide01.jpg",
-    "https://cdn.statcdn.com/Infographic/normal/3542.jpeg",
-    "https://www.slideteam.net/media/catalog/product/cache/1280x720/g/l/global_market_statistics_pie_chart_with_percentage_powerpoint_slides_Slide01.jpg",
-    "https://www.everviz.com/wp-content/uploads/2021/04/market-share-pie-chart.png",
-    "https://capitaloneshopping.com/research/wp-content/uploads/2023/10/credit-card-market-share-statistics.png",
-    "https://www.slideteam.net/media/catalog/product/cache/1280x720/m/a/market_share_analysis_pie_chart_powerpoint_slides_Slide01.jpg"
+    "https://ourworldindata.org/grapher/exports/global-primary-energy-share-inc-biomass.png",
+    "https://ourworldindata.org/grapher/exports/share-of-the-population-that-is-obese.png",
+    "https://ourworldindata.org/grapher/exports/share-of-deaths-by-cause.png",
+    "https://ourworldindata.org/grapher/exports/share-of-calories-from-animal-protein.png",
+    "https://ourworldindata.org/grapher/exports/share-of-individuals-using-the-internet.png"
   ],
-  "AreaChart": [
-    "https://chartexpo.com/blog/wp-content/uploads/2022/02/Area-Chart.png",
-    "https://community.atlassian.com/t5/image/serverpage/image-id/202458i23D6946658097C7C/image-size/large?v=v2&px=999",
-    "https://www.domo.com/learn/charts/stacked-area-chart/_jcr_content/root/container/section/container_2/image.coreimg.png/1638302064115/stacked-area-chart-example.png",
-    "https://cdn.statcdn.com/Infographic/normal/28114.jpeg",
-    "https://www.slideteam.net/media/catalog/product/cache/1280x720/q/u/quarterly_electronics_sales_overview_structured_sales_growth_area_chart_slide01.jpg",
-    "https://i.stack.imgur.com/5z6vL.png",
-    "https://visme.co/blog/wp-content/uploads/2018/06/area-chart-thumbnail.jpg",
-    "https://www.slideteam.net/media/catalog/product/cache/1280x720/p/r/project_revenue_growth_area_chart_slide01.jpg",
-    "https://www.slideteam.net/media/catalog/product/cache/1280x720/c/u/cumulative_growth_area_chart_ppt_presentation_slide01.jpg",
-    "https://www.slideteam.net/media/catalog/product/cache/1280x720/s/a/sales_growth_analysis_area_chart_slide01.jpg"
-  ],
-  "HorizontalBarChart": [
-    "https://www.slideteam.net/media/catalog/product/cache/1280x720/c/o/competency_rating_of_employees_horizontal_bar_chart_sample_ppt_presentation_slide01.jpg",
-    "https://www.slideteam.net/media/catalog/product/cache/1280x720/m/a/market_drivers_and_market_growth_factors_horizontal_bar_chart_ppt_icon_slide01.jpg",
-    "https://www.slideteam.net/media/catalog/product/cache/1280x720/h/o/horizontal_bar_graph_with_percentages_slide01.jpg",
-    "https://cdn.statcdn.com/Infographic/normal/5055.jpeg",
-    "https://www.slideteam.net/media/catalog/product/cache/1280x720/t/o/top_5_horizontal_bar_chart_examples_with_templates_and_samples_slide01.jpg",
-    "https://media.geeksforgeeks.org/wp-content/uploads/20220831154543/HorizontalBarGraph-660x315.png",
-    "https://www.slideteam.net/media/catalog/product/cache/1280x720/g/r/growth_drivers_and_barriers_horizontal_bar_chart_slide01.jpg",
-    "https://www.slideteam.net/media/catalog/product/cache/1280x720/h/o/horizontal_bar_chart_for_comparison_slide01.jpg",
-    "https://www.slideteam.net/media/catalog/product/cache/1280x720/i/n/increasing_efficiency_drivers_with_horizontal_bar_chart_slide01.jpg",
-    "https://www.slideteam.net/media/catalog/product/cache/1280x720/e/m/employee_productivity_horizontal_bar_chart_slide01.jpg"
-  ],
-  "StackedBarChart": [
-    "https://cdn.statcdn.com/Infographic/normal/14081.jpeg",
-    "https://www.smashingmagazine.com/wp-content/uploads/2017/02/01-stacked-bar-chart-large-opt.png",
-    "https://analysisfunction.civilservice.gov.uk/wp-content/uploads/2021/04/stacked-bar-chart-example.png",
-    "https://think.design/wp-content/uploads/2020/03/stacked-bar-chart-composition.png",
-    "https://think.design/wp-content/uploads/2020/03/stacked-bar-chart-comparison.png",
-    "https://think.design/wp-content/uploads/2020/03/stacked-bar-chart-distribution.png",
-    "https://www.slideteam.net/media/catalog/product/cache/1280x720/s/t/stacked_bar_chart_powerpoint_presentation_slide01.jpg",
-    "https://www.venngage.com/blog/wp-content/uploads/2019/08/Stacked-Bar-Chart-Template-1.png",
-    "https://chartexpo.com/blog/wp-content/uploads/2022/10/Stacked-Bar-Diagram.png",
-    "https://www.slideteam.net/media/catalog/product/cache/1280x720/p/r/project_allocation_stacked_bar_chart_slide01.jpg"
+  "BarChart": [
+    "https://ourworldindata.org/grapher/exports/co2-emissions-by-sector.png",
+    "https://ourworldindata.org/grapher/exports/energy-consumption-by-source-and-region.png",
+    "https://ourworldindata.org/grapher/exports/food-emissions-supply-chain.png",
+    "https://ourworldindata.org/grapher/exports/meat-consumption-vs-gdp-per-capita.png",
+    "https://ourworldindata.org/grapher/exports/agriculture-value-added-per-worker-wdi.png",
+    "https://ourworldindata.org/grapher/exports/research-spending-gdp.png",
+    "https://ourworldindata.org/grapher/exports/urban-and-rural-population.png"
   ]
 };
 
@@ -105,8 +81,10 @@ async function runTraining() {
         const blob = new Blob([fileBuffer], { type: 'image/png' });
         formData.append('file', blob, filename);
         formData.append('chartTheme', 'dark');
-        formData.append('includeCallouts', 'true');
-        formData.append('enableAuditor', 'true');
+        formData.append('includeCallouts', 'false');
+        formData.append('enableAuditor', 'false');
+        formData.append('reviewRequired', 'false');
+        formData.append('trainingOnly', 'true');
 
         const uploadRes = await fetch(`${SERVER_URL}/upload`, {
           method: 'POST',
@@ -117,27 +95,30 @@ async function runTraining() {
         const jobId = uploadData.jobId;
         console.log(`⏳ Job ID: ${jobId}. Aguardando conclusão...`);
 
-        // Polling para verificar progresso
+        // Polling com timeout de 3 minutos
         let done = false;
-        while (!done) {
+        const deadline = Date.now() + 3 * 60 * 1000;
+        while (!done && Date.now() < deadline) {
           await new Promise(r => setTimeout(r, 5000));
           const progRes = await fetch(`${SERVER_URL}/progress/${jobId}`);
           if (!progRes.ok) {
-              console.error(`❌ Erro ao consultar progresso do Job ${jobId}`);
-              break;
+            console.error(`❌ Erro ao consultar progresso do Job ${jobId}`);
+            break;
           }
           const job: any = await progRes.json();
-          
-          if (job.status === 'awaiting_review' || job.status === 'done') {
-            console.log(`✅ [${category}] Job ${jobId} finalizado com status: ${job.status}`);
+
+          if (job.status === 'done') {
+            console.log(`✅ [${category}] Job ${jobId} validado e salvo (trainingOnly).`);
+            done = true;
+          } else if (job.status === 'awaiting_review') {
+            console.log(`⚠️ [${category}] Job ${jobId} em revisão — auditoria não atingiu 95%.`);
             done = true;
           } else if (job.status === 'error') {
-            console.error(`❌ [${category}] Erro no Job ${jobId}: ${job.error}`);
+            console.error(`❌ [${category}] Rejeitado pelo Reality Shield: ${job.error}`);
             done = true;
-          } else {
-            // console.log(`... [${job.status}] ${job.stage} (${job.progress}%)`);
           }
         }
+        if (!done) console.error(`⏰ [${category}] Job ${jobId} atingiu timeout de 3min — descartado.`);
 
       } catch (err: any) {
         console.error(`❌ Falha no item ${category} #${i+1}:`, err.message);

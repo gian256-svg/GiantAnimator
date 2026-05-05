@@ -1,0 +1,19 @@
+{
+  "componentId": "BarChart",
+  "suggestedName": "BusinessInsiderLogo",
+  "reasoning": "A imagem de referência contém exclusivamente o texto 'BUSINESS INSIDER'. Como não há um componente de texto ou logo explícito no registro fornecido, o texto foi extraído e atribuído à propriedade 'title' de um BarChart vazio. Esta abordagem visa garantir que o conteúdo textual seja renderizado, conforme a diretriz de 'Supremacia dos Dados' e o feedback da auditoria anterior que indicou falha na reprodução do texto. As cores de fundo e texto foram definidas para replicar o contraste original.",
+  "props": {
+    "title": "BUSINESS INSIDER",
+    "subtitle": "",
+    "labels": [],
+    "xAxisTitle": "",
+    "yAxisTitle": "",
+    "series": [],
+    "unit": "",
+    "showValueLabels": false,
+    "showLegend": false,
+    "annotations": [],
+    "backgroundColor": "#FFFFFF",
+    "textColor": "#222222"
+  }
+}

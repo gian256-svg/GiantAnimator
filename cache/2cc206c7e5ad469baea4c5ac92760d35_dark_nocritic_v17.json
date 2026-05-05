@@ -1,0 +1,86 @@
+{
+  "componentId": "BarChart",
+  "suggestedName": "GDPPerCapitaLegend",
+  "reasoning": "The original image is a choropleth map, which is not directly supported by the available component types. To adhere to the requirement of providing a componentId and extracting data, the legend's categorical ranges and their associated numerical thresholds have been represented as a BarChart. 'No data' and '$0' are assigned a value of 0 due to component schema limitations, but their distinct colors are preserved in `seriesColors`. The chart effectively visualizes the color scale of the original map.",
+  "props": {
+    "title": "GDP per capita, 2022",
+    "subtitle": "GDP per capita is a country's gross domestic product divided by its population. This data is adjusted for inflation and differences in living costs between countries.",
+    "data": [
+      {
+        "label": "No data",
+        "value": 0
+      },
+      {
+        "label": "$0",
+        "value": 0
+      },
+      {
+        "label": "$1,000",
+        "value": 1000
+      },
+      {
+        "label": "$2,000",
+        "value": 2000
+      },
+      {
+        "label": "$5,000",
+        "value": 5000
+      },
+      {
+        "label": "$10,000",
+        "value": 10000
+      },
+      {
+        "label": "$20,000",
+        "value": 20000
+      },
+      {
+        "label": "$50,000",
+        "value": 50000
+      }
+    ],
+    "xAxisTitle": "",
+    "yAxisTitle": "GDP per capita",
+    "yMin": 0,
+    "yMax": 50000,
+    "seriesColors": [
+      "#CCCCCC",
+      "#E0F2F7",
+      "#C0E0E8",
+      "#90C8D8",
+      "#60B0C8",
+      "#3098B8",
+      "#0080A8",
+      "#006888"
+    ],
+    "unit": "$",
+    "showValueLabels": true,
+    "showLegend": false,
+    "annotations": [],
+    "labels": [
+      "No data",
+      "$0",
+      "$1,000",
+      "$2,000",
+      "$5,000",
+      "$10,000",
+      "$20,000",
+      "$50,000"
+    ],
+    "series": [
+      {
+        "label": "GDP per capita, 2022",
+        "data": [
+          0,
+          0,
+          1000,
+          2000,
+          5000,
+          10000,
+          20000,
+          50000
+        ]
+      }
+    ]
+  }
+}

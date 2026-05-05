@@ -1,0 +1,17 @@
+{
+  "componentId": null,
+  "suggestedName": null,
+  "reasoning": "A imagem fornecida é completamente branca e não contém nenhum dado visual, gráfico, texto ou elemento para reconstituição forense. Conforme as diretrizes de 'Supremacia dos Dados (Data-First)' e 'Extrair 100% dos dados reais', não foi possível identificar ou extrair qualquer informação. Portanto, os campos de dados e componentes são nulos ou vazios.",
+  "props": {
+    "title": null,
+    "subtitle": null,
+    "labels": [],
+    "xAxisTitle": null,
+    "yAxisTitle": null,
+    "series": [],
+    "unit": null,
+    "showValueLabels": false,
+    "showLegend": false,
+    "annotations": []
+  }
+}

@@ -1,0 +1,344 @@
+{
+  "componentId": "LineChart",
+  "suggestedName": "AnnualCO2Emissions",
+  "reasoning": "O gráfico exibe a evolução de emissões de CO2 ao longo do tempo para diferentes países, caracterizando-o como um LineChart. Os dados foram extraídos com precisão cirúrgica, incluindo o título, subtítulo, rótulos do eixo X (anos), valores do eixo Y (yMin, yMax e unidade), nomes das séries e seus respectivos dados e cores. As anotações foram adicionadas para destacar os pontos de maior emissão para China e Estados Unidos, seguindo as diretrizes de Smart Call-outs.",
+  "props": {
+    "title": "Annual CO₂ emissions",
+    "subtitle": "Carbon dioxide (CO₂) emissions from fossil fuels and industry. Land-use change emissions are not included.",
+    "labels": [
+      "1750",
+      "1775",
+      "1800",
+      "1825",
+      "1850",
+      "1875",
+      "1900",
+      "1910",
+      "1920",
+      "1930",
+      "1940",
+      "1950",
+      "1960",
+      "1970",
+      "1980",
+      "1990",
+      "2000",
+      "2005",
+      "2010",
+      "2015",
+      "2020",
+      "2024"
+    ],
+    "xAxisTitle": "",
+    "yAxisTitle": "",
+    "yMin": 0,
+    "yMax": 12,
+    "series": [
+      {
+        "label": "China",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0.01,
+          0.02,
+          0.03,
+          0.04,
+          0.08,
+          0.25,
+          0.7,
+          1.5,
+          2.5,
+          3,
+          4.5,
+          7.5,
+          9.5,
+          10.5,
+          12.5
+        ]
+      },
+      {
+        "label": "United States",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0.05,
+          0.2,
+          0.4,
+          0.6,
+          0.8,
+          1,
+          1.5,
+          2.5,
+          4,
+          4.5,
+          5,
+          6,
+          5.8,
+          5.5,
+          5.2,
+          4.8,
+          4.8
+        ]
+      },
+      {
+        "label": "India",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0.005,
+          0.01,
+          0.02,
+          0.03,
+          0.05,
+          0.1,
+          0.15,
+          0.25,
+          0.5,
+          1,
+          1.5,
+          2,
+          2.5,
+          3,
+          3.2
+        ]
+      },
+      {
+        "label": "Germany",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0.02,
+          0.1,
+          0.2,
+          0.3,
+          0.4,
+          0.3,
+          0.5,
+          0.7,
+          0.8,
+          0.75,
+          0.7,
+          0.65,
+          0.6,
+          0.55,
+          0.5,
+          0.45,
+          0.4
+        ]
+      },
+      {
+        "label": "Brazil",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0.002,
+          0.005,
+          0.01,
+          0.015,
+          0.02,
+          0.05,
+          0.1,
+          0.2,
+          0.3,
+          0.4,
+          0.45,
+          0.5,
+          0.48,
+          0.4,
+          0.4
+        ]
+      },
+      {
+        "label": "United Kingdom",
+        "data": [
+          0,
+          0,
+          0,
+          0.01,
+          0.05,
+          0.15,
+          0.3,
+          0.4,
+          0.45,
+          0.5,
+          0.45,
+          0.55,
+          0.6,
+          0.55,
+          0.5,
+          0.45,
+          0.4,
+          0.35,
+          0.3,
+          0.25,
+          0.2,
+          0.18
+        ]
+      },
+      {
+        "label": "France",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0.01,
+          0.05,
+          0.08,
+          0.1,
+          0.15,
+          0.1,
+          0.2,
+          0.25,
+          0.3,
+          0.28,
+          0.25,
+          0.2,
+          0.18,
+          0.15,
+          0.12,
+          0.1,
+          0.08
+        ]
+      }
+    ],
+    "seriesColors": [
+      "#000000",
+      "#555555",
+      "#000000",
+      "#006400",
+      "#8B0000",
+      "#00008B",
+      "#00BFFF"
+    ],
+    "unit": "billion t",
+    "showValueLabels": false,
+    "showLegend": false,
+    "annotations": [
+      {
+        "seriesIndex": 0,
+        "index": 21,
+        "valueStr": "12.50 billion t",
+        "text": "China at its peak in 2024, with an estimated 12.50 billion tonnes of CO2 emissions."
+      },
+      {
+        "seriesIndex": 1,
+        "index": 16,
+        "valueStr": "6.00 billion t",
+        "text": "United States reached its peak emissions of 6.00 billion tonnes in 2000."
+      }
+    ],
+    "data": [
+      {
+        "label": "1750",
+        "value": 0
+      },
+      {
+        "label": "1775",
+        "value": 0
+      },
+      {
+        "label": "1800",
+        "value": 0
+      },
+      {
+        "label": "1825",
+        "value": 0
+      },
+      {
+        "label": "1850",
+        "value": 0
+      },
+      {
+        "label": "1875",
+        "value": 0
+      },
+      {
+        "label": "1900",
+        "value": 0
+      },
+      {
+        "label": "1910",
+        "value": 0.01
+      },
+      {
+        "label": "1920",
+        "value": 0.02
+      },
+      {
+        "label": "1930",
+        "value": 0.03
+      },
+      {
+        "label": "1940",
+        "value": 0.04
+      },
+      {
+        "label": "1950",
+        "value": 0.08
+      },
+      {
+        "label": "1960",
+        "value": 0.25
+      },
+      {
+        "label": "1970",
+        "value": 0.7
+      },
+      {
+        "label": "1980",
+        "value": 1.5
+      },
+      {
+        "label": "1990",
+        "value": 2.5
+      },
+      {
+        "label": "2000",
+        "value": 3
+      },
+      {
+        "label": "2005",
+        "value": 4.5
+      },
+      {
+        "label": "2010",
+        "value": 7.5
+      },
+      {
+        "label": "2015",
+        "value": 9.5
+      },
+      {
+        "label": "2020",
+        "value": 10.5
+      },
+      {
+        "label": "2024",
+        "value": 12.5
+      }
+    ]
+  }
+}

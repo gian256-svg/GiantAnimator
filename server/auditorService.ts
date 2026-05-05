@@ -26,9 +26,10 @@ export async function auditRenderFidelity(
   const originalRaw = fs.readFileSync(originalImagePath);
   const renderedRaw = fs.readFileSync(renderedStillPath);
 
-  // ─── Otimizar Imagens para o Auditor (Payload Duplo = Precisa ser leve) ───
-  const optOriginal = await sharp(originalRaw).resize(1024, 1024, { fit: 'inside' }).jpeg({ quality: 80 }).toBuffer();
-  const optRendered = await sharp(renderedRaw).resize(1024, 1024, { fit: 'inside' }).jpeg({ quality: 80 }).toBuffer();
+  // ─── Otimizar Imagens para o Auditor (UHD Awareness) ───
+  // Aumentado para 1920p para garantir leitura de labels pequenos em 4K
+  const optOriginal = await sharp(originalRaw).resize(1920, 1920, { fit: 'inside' }).jpeg({ quality: 85 }).toBuffer();
+  const optRendered = await sharp(renderedRaw).resize(1920, 1920, { fit: 'inside' }).jpeg({ quality: 85 }).toBuffer();
 
   const originalB64  = optOriginal.toString('base64');
   const renderedB64  = optRendered.toString('base64');
@@ -112,11 +113,11 @@ export async function auditRenderFidelity(
           console.warn("⚠️ [AUDITOR] Ollama local offline para auditoria.");
         }
 
-        console.warn(`⚠️ [AUDITOR] Todos os provedores offline. Ativando 'Confiança Tácita (Resiliência)'.`);
+        console.warn(`⚠️ [AUDITOR] Todos os provedores offline. Marcando como 'Não Auditado' para evitar falso positivo.`);
         return {
-          score: 95,
-          isApproved: true,
-          critique: "Aviso: Servidor de auditoria indisponível (Erro 503). O vídeo foi gerado com base nos dados extraídos, mas a fidelidade visual não pôde ser validada pela IA Auditora. Verifique manualmente."
+          score: 0,
+          isApproved: false,
+          critique: "ERRO CRÍTICO: Servidores de auditoria indisponíveis (Google/Groq/Ollama). A fidelidade visual NÃO pôde ser validada. O sistema prossegue por resiliência, mas sem selo de qualidade 95%."
         };
       }
 

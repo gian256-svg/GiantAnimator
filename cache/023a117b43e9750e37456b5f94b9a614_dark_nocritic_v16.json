@@ -1,0 +1,102 @@
+{
+  "componentId": "LineChart",
+  "suggestedName": "AmazonClosingPrice",
+  "reasoning": "The image displays a single line tracking Amazon's closing price over several months, which is characteristic of a LineChart. Data points for each month are extracted, along with the y-axis scale and unit. Annotations are added for the lowest and highest points in the series as per Smart Call-outs rule.",
+  "props": {
+    "title": "Amazon",
+    "subtitle": "2018 year to date",
+    "labels": [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct"
+    ],
+    "xAxisTitle": "Date",
+    "yAxisTitle": "Closing Price",
+    "series": [
+      {
+        "label": "",
+        "data": [
+          1250,
+          1400,
+          1550,
+          1480,
+          1600,
+          1700,
+          1800,
+          1900,
+          1950,
+          1880
+        ]
+      }
+    ],
+    "unit": "$",
+    "showValueLabels": false,
+    "showLegend": false,
+    "seriesColors": [
+      "#217a7a"
+    ],
+    "yMin": 1200,
+    "yMax": 2000,
+    "annotations": [
+      {
+        "seriesIndex": 0,
+        "index": 0,
+        "label": "Mínimo: $1250 (Jan)"
+      },
+      {
+        "seriesIndex": 0,
+        "index": 8,
+        "label": "Máximo: $1950 (Set)"
+      }
+    ],
+    "data": [
+      {
+        "label": "Jan",
+        "value": 1250
+      },
+      {
+        "label": "Feb",
+        "value": 1400
+      },
+      {
+        "label": "Mar",
+        "value": 1550
+      },
+      {
+        "label": "Apr",
+        "value": 1480
+      },
+      {
+        "label": "May",
+        "value": 1600
+      },
+      {
+        "label": "Jun",
+        "value": 1700
+      },
+      {
+        "label": "Jul",
+        "value": 1800
+      },
+      {
+        "label": "Aug",
+        "value": 1900
+      },
+      {
+        "label": "Sep",
+        "value": 1950
+      },
+      {
+        "label": "Oct",
+        "value": 1880
+      }
+    ]
+  }
+}

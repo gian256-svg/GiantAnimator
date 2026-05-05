@@ -69,7 +69,9 @@ export function addJob(data: Omit<Job, 'id' | 'createdAt'>): Job {
     const jobs = loadJobs();
     const job: Job = { ...data, id: uuidv4(), createdAt: new Date().toISOString() };
     jobs.unshift(job);
-    if (jobs.length > 50) jobs.splice(50);
+    // Mantemos os últimos 500 para performance da UI (Event Loop Friendly)
+    // O Supabase já recebeu o registro completo antes deste corte
+    if (jobs.length > 500) jobs.splice(500);
     saveJobs(jobs);
     syncHistoryJob(job);
     return job;

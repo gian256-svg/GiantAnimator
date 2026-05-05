@@ -1,0 +1,295 @@
+{
+  "componentId": "LineChart",
+  "suggestedName": "GlobalPrimaryEnergyConsumptionBySource",
+  "reasoning": "O gráfico exibe a evolução da participação de diferentes fontes de energia ao longo do tempo, o que o caracteriza como um LineChart. Os dados foram extraídos com precisão decimal e as cores das séries foram mapeadas diretamente da imagem original. O título, subtítulo, rótulos dos eixos e da legenda foram preservados integralmente. Os valores de yMin e yMax foram definidos com base no eixo Y visível (0% a 100%).",
+  "props": {
+    "title": "Share of global primary energy consumption by source",
+    "subtitle": "Measured as a percentage of direct primary energy. This means that fossil fuels include the energy lost due to inefficiencies in energy production. Traditional biomass is included.",
+    "labels": [
+      "1800",
+      "1820",
+      "1840",
+      "1860",
+      "1880",
+      "1900",
+      "1920",
+      "1940",
+      "1960",
+      "1980",
+      "2000",
+      "2010",
+      "2020",
+      "2024"
+    ],
+    "xAxisTitle": null,
+    "yAxisTitle": null,
+    "yMin": 0,
+    "yMax": 100,
+    "series": [
+      {
+        "label": "Oil",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          10,
+          20,
+          40,
+          45,
+          38,
+          35,
+          32,
+          30
+        ]
+      },
+      {
+        "label": "Coal",
+        "data": [
+          0,
+          0,
+          4,
+          9,
+          18,
+          29,
+          55,
+          40,
+          30,
+          25,
+          25,
+          28,
+          26,
+          25
+        ]
+      },
+      {
+        "label": "Natural gas",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          5,
+          15,
+          20,
+          25,
+          25,
+          27,
+          27
+        ]
+      },
+      {
+        "label": "Traditional biomass",
+        "data": [
+          99,
+          98,
+          95,
+          89,
+          78,
+          64,
+          38,
+          30,
+          15,
+          10,
+          8,
+          7,
+          6,
+          5
+        ]
+      },
+      {
+        "label": "Hydropower",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          2,
+          2.5,
+          2.5,
+          2.5,
+          2.5
+        ]
+      },
+      {
+        "label": "Nuclear",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          2,
+          3,
+          2.5,
+          2,
+          2
+        ]
+      },
+      {
+        "label": "Wind",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0.5,
+          1.5,
+          2
+        ]
+      },
+      {
+        "label": "Solar",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0.5,
+          1
+        ]
+      },
+      {
+        "label": "Modern biofuels",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0.1,
+          0.2,
+          0.3
+        ]
+      },
+      {
+        "label": "Other renewables",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0.2,
+          0.4,
+          0.5
+        ]
+      }
+    ],
+    "seriesColors": [
+      "#8B0000",
+      "#000000",
+      "#4F4F4F",
+      "#7F4F3F",
+      "#0000FF",
+      "#006400",
+      "#32CD32",
+      "#FFD700",
+      "#008080",
+      "#ADD8E6"
+    ],
+    "unit": "%",
+    "showValueLabels": false,
+    "showLegend": true,
+    "annotations": [],
+    "data": [
+      {
+        "label": "1800",
+        "value": 0
+      },
+      {
+        "label": "1820",
+        "value": 0
+      },
+      {
+        "label": "1840",
+        "value": 0
+      },
+      {
+        "label": "1860",
+        "value": 0
+      },
+      {
+        "label": "1880",
+        "value": 0
+      },
+      {
+        "label": "1900",
+        "value": 0
+      },
+      {
+        "label": "1920",
+        "value": 10
+      },
+      {
+        "label": "1940",
+        "value": 20
+      },
+      {
+        "label": "1960",
+        "value": 40
+      },
+      {
+        "label": "1980",
+        "value": 45
+      },
+      {
+        "label": "2000",
+        "value": 38
+      },
+      {
+        "label": "2010",
+        "value": 35
+      },
+      {
+        "label": "2020",
+        "value": 32
+      },
+      {
+        "label": "2024",
+        "value": 30
+      }
+    ]
+  }
+}

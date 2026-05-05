@@ -1,0 +1,108 @@
+{
+  "componentId": "HorizontalBarChart",
+  "suggestedName": "InternetUsageLegend",
+  "reasoning": "O gráfico original é um mapa coroplético (choropleth map), que não está diretamente disponível nos componentes fornecidos. Para extrair os dados da legenda de forma estruturada e cumprir a exigência de um 'componentId', foi utilizado um HorizontalBarChart. Os 'labels' representam os intervalos percentuais da legenda do mapa, e os 'data' representam o limite superior de cada intervalo (ou 0 para 'No data') para fins de visualização das categorias. As cores de cada barra correspondem às cores exatas da legenda do mapa original. Esta é uma representação da legenda do mapa, e não dos dados geográficos por país.",
+  "props": {
+    "title": "Share of the population using the Internet, 2025",
+    "subtitle": "Share of the population who used the Internet in the last three months.",
+    "labels": [
+      "No data",
+      "0% - 10%",
+      "10% - 20%",
+      "20% - 30%",
+      "30% - 40%",
+      "40% - 50%",
+      "50% - 60%",
+      "60% - 70%",
+      "70% - 80%",
+      "80% - 90%",
+      "90% - 100%"
+    ],
+    "xAxisTitle": "Share of population (%)",
+    "yAxisTitle": "Percentage Range",
+    "xMin": 0,
+    "xMax": 100,
+    "series": [
+      {
+        "label": "Internet Usage",
+        "data": [
+          0,
+          10,
+          20,
+          30,
+          40,
+          50,
+          60,
+          70,
+          80,
+          90,
+          100
+        ],
+        "color": "#003662"
+      }
+    ],
+    "seriesColors": [
+      "#CCCCCC",
+      "#E0F2F7",
+      "#B3E0ED",
+      "#80CCDF",
+      "#4DB8D0",
+      "#26A2C1",
+      "#008CB2",
+      "#00769E",
+      "#00608A",
+      "#004B76",
+      "#003662"
+    ],
+    "unit": "%",
+    "showValueLabels": true,
+    "showLegend": false,
+    "annotations": [],
+    "data": [
+      {
+        "label": "No data",
+        "value": 0
+      },
+      {
+        "label": "0% - 10%",
+        "value": 10
+      },
+      {
+        "label": "10% - 20%",
+        "value": 20
+      },
+      {
+        "label": "20% - 30%",
+        "value": 30
+      },
+      {
+        "label": "30% - 40%",
+        "value": 40
+      },
+      {
+        "label": "40% - 50%",
+        "value": 50
+      },
+      {
+        "label": "50% - 60%",
+        "value": 60
+      },
+      {
+        "label": "60% - 70%",
+        "value": 70
+      },
+      {
+        "label": "70% - 80%",
+        "value": 80
+      },
+      {
+        "label": "80% - 90%",
+        "value": 90
+      },
+      {
+        "label": "90% - 100%",
+        "value": 100
+      }
+    ]
+  }
+}

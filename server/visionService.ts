@@ -2,8 +2,6 @@ import fs from "fs";
 import path from "path";
 import sharp from "sharp";
 import crypto from "crypto";
-import Tesseract from "tesseract.js";
-import { ai } from "./agent.js";
 import { HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
 import { GEMINI_MODEL_VISION } from "./calibration/constants.js";
 import { COMPONENT_REGISTRY } from "./componentRegistry.js";
@@ -42,9 +40,11 @@ export async function analyzeChartImage(
   onProgress?: (message: string) => void
 ): Promise<ChartAnalysis> {
   const rawImageData = fs.readFileSync(imagePath);
+  let prompt = buildImageAnalysisPrompt(REGISTRY_JSON, settings.includeCallouts);
+  if (auditorCritique) prompt += `\n### ⚠️ FEEDBACK AUDITORIA:\n${auditorCritique}\n`;
 
   // ─── MD5 Cache ───────────────────────────────────────────────
-  const CACHE_VERSION = 'v16';
+  const CACHE_VERSION = 'v17';
   const IS_VERCEL = !!process.env.VERCEL;
   const cacheKey = `${crypto.createHash("md5").update(rawImageData).digest("hex")}_${requestedTheme || 'default'}_${auditorCritique ? crypto.createHash("md5").update(auditorCritique).digest("hex") : 'nocritic'}_${CACHE_VERSION}`;
   const cacheDir = IS_VERCEL ? "/tmp/cache" : path.join(process.cwd(), "cache");
@@ -72,8 +72,6 @@ export async function analyzeChartImage(
     .toBuffer();
 
   const imageBase64 = optimizedBuffer.toString("base64");
-  let prompt = buildImageAnalysisPrompt(REGISTRY_JSON, settings.includeCallouts);
-  if (auditorCritique) prompt += `\n### ⚠️ FEEDBACK AUDITORIA:\n${auditorCritique}\n`;
 
   // ─── Gemini Call ───
   const systemInstruction = getSystemInstruction();
@@ -88,7 +86,7 @@ export async function analyzeChartImage(
       });
       const result = await model.generateContent({
         contents: [{ role: "user", parts: [{ inlineData: { data: imageBase64, mimeType: "image/jpeg" } }, { text: prompt }] }],
-        generationConfig: { temperature: 0.1, topP: 0.1, maxOutputTokens: 8192 },
+        generationConfig: { temperature: 0.1, topP: 0.1, maxOutputTokens: 16384 },
         safetySettings: [
           { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
           { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
@@ -248,16 +246,44 @@ export async function analyzeChartImage(
   return analysis;
 }
 
+const VALID_HEX_RE = /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/;
+
 export function normalizeAnalysisProps(analysis: ChartAnalysis): ChartAnalysis {
   if (!analysis.props) analysis.props = {};
   const p = analysis.props;
   if (!p.labels) p.labels = [];
-  if (p.series?.length > 0 && Array.isArray(p.series[0].data)) {
-    if (p.labels.length === 0) p.labels = p.series[0].data.map((_: any, i: number) => `Item ${i + 1}`);
-    if (!p.data || p.data.length === 0) p.data = p.labels.map((l: string, i: number) => ({ label: l, value: p.series[0].data[i] ?? 0 }));
-  } else if (p.data?.length > 0) {
-    if (!p.series) p.series = [{ label: p.title || "Série", data: p.data.map((d: any) => (typeof d === 'object' ? d.value : d)) }];
-    if (p.labels.length === 0) p.labels = p.data.map((d: any) => (typeof d === 'object' ? d.label : `Item`));
+
+  // Strip invalid/truncated hex colors so the theme applies defaults instead of blocking
+  if (p.seriesColors && Array.isArray(p.seriesColors)) {
+    const cleaned = p.seriesColors.filter((c: any) => typeof c === 'string' && VALID_HEX_RE.test(c) && c !== '#000000');
+    if (cleaned.length < p.seriesColors.length) {
+      console.warn(`⚠️ [Normalize] ${p.seriesColors.length - cleaned.length} seriesColor(s) removidas (inválidas ou preto puro).`);
+      p.seriesColors = cleaned.length > 0 ? cleaned : undefined;
+    }
   }
+  // Same for per-series color
+  if (p.series && Array.isArray(p.series)) {
+    p.series.forEach((s: any) => {
+      if (s.color && (typeof s.color !== 'string' || !VALID_HEX_RE.test(s.color) || s.color === '#000000')) {
+        delete s.color;
+      }
+    });
+  }
+
+  if (p.series?.length > 0 && Array.isArray(p.series[0].data)) {
+    // Formato series[] → garante p.data espelhado (sem inventar labels)
+    if (p.labels.length > 0 && (!p.data || p.data.length === 0)) {
+      p.data = p.labels.map((l: string, i: number) => ({ label: l, value: p.series[0].data[i] ?? 0 }));
+    }
+  } else if (p.data?.length > 0) {
+    // Formato data[{label,value}] → deriva labels e series a partir dos dados reais
+    if (p.labels.length === 0) {
+      p.labels = p.data.map((d: any) => (typeof d === 'object' && d.label ? d.label : null)).filter(Boolean);
+    }
+    if (!p.series) {
+      p.series = [{ label: p.title || "", data: p.data.map((d: any) => (typeof d === 'object' ? d.value : d)) }];
+    }
+  }
+
   return analysis;
 }

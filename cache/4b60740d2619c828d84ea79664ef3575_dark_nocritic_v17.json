@@ -1,0 +1,114 @@
+{
+  "componentId": "HorizontalBarChart",
+  "suggestedName": "RenewableElectricityShareLegend",
+  "reasoning": "A imagem é um mapa coroplético. A extração de dados numéricos precisos para cada país diretamente da imagem (com 'surgery-grade precision' e 2 casas decimais) é inviável, pois os valores são representados por gradientes de cor sem rótulos explícitos por país. Para aderir à regra de 'Supremacia dos Dados' e 'Precisão Decimal', os dados extraídos representam a escala da legenda do mapa, que contém rótulos e valores numéricos explícitos. Cada barra no HorizontalBarChart corresponde a um ponto da escala da legenda, com seu valor numérico e cor exatos. O 'No data' é incluído como uma categoria com valor 0 para representação.",
+  "props": {
+    "title": "Share of electricity production from renewables, 2025",
+    "subtitle": "Renewables include solar, wind, hydropower, bioenergy, geothermal, wave, and tidal sources.",
+    "labels": [
+      "No data",
+      "0%",
+      "10%",
+      "20%",
+      "30%",
+      "40%",
+      "50%",
+      "60%",
+      "70%",
+      "80%",
+      "90%",
+      "100%"
+    ],
+    "xAxisTitle": "Share of electricity production from renewables",
+    "yAxisTitle": "",
+    "xMin": 0,
+    "xMax": 100,
+    "series": [
+      {
+        "label": "Share",
+        "data": [
+          0,
+          0,
+          10,
+          20,
+          30,
+          40,
+          50,
+          60,
+          70,
+          80,
+          90,
+          100
+        ]
+      }
+    ],
+    "seriesColors": [
+      "#F7F7F7",
+      "#E0F2E7",
+      "#C8E6D0",
+      "#A8D9B5",
+      "#88CC9A",
+      "#68BF7F",
+      "#48B264",
+      "#28A549",
+      "#08982E",
+      "#008B20",
+      "#007E10",
+      "#007E10"
+    ],
+    "unit": "%",
+    "showValueLabels": true,
+    "showLegend": false,
+    "annotations": [],
+    "data": [
+      {
+        "label": "No data",
+        "value": 0
+      },
+      {
+        "label": "0%",
+        "value": 0
+      },
+      {
+        "label": "10%",
+        "value": 10
+      },
+      {
+        "label": "20%",
+        "value": 20
+      },
+      {
+        "label": "30%",
+        "value": 30
+      },
+      {
+        "label": "40%",
+        "value": 40
+      },
+      {
+        "label": "50%",
+        "value": 50
+      },
+      {
+        "label": "60%",
+        "value": 60
+      },
+      {
+        "label": "70%",
+        "value": 70
+      },
+      {
+        "label": "80%",
+        "value": 80
+      },
+      {
+        "label": "90%",
+        "value": 90
+      },
+      {
+        "label": "100%",
+        "value": 100
+      }
+    ]
+  }
+}

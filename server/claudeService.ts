@@ -73,7 +73,7 @@ export async function analyzeChartImageWithClaude(
   const rawImageData = fs.readFileSync(imagePath);
   const imageBase64 = rawImageData.toString("base64");
   
-  const registryJson = JSON.stringify(COMPONENT_REGISTRY, null, 2);
+  const registryJson = JSON.stringify(COMPONENT_REGISTRY);
   let prompt = buildImageAnalysisPrompt(registryJson, settings.includeCallouts);
 
   const rootDir = process.cwd().endsWith("server") ? path.join(process.cwd(), "..") : process.cwd();

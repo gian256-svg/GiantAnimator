@@ -1,0 +1,86 @@
+{
+  "componentId": "BarChart",
+  "suggestedName": "AgriculturalValueAddedPerWorkerLegend",
+  "reasoning": "A imagem original é um mapa coroplético (Choropleth Map) que utiliza cores para representar faixas de valores de 'Agricultural value added per worker' por país. Como não há um componente de mapa disponível no registro fornecido, e para aderir estritamente às diretrizes de fidelidade de dados (especialmente evitando a invenção de valores numéricos para regiões geográficas ou a atribuição arbitrária de valores a categorias da legenda, conforme feedback de auditoria anterior), o gráfico foi reconstituído como um BarChart que representa a *legenda de valores* do mapa. Cada barra corresponde a um limiar de valor da legenda, e as cores são as cores exatas da legenda original. A categoria 'No data' é representada com valor 0 e cor branca para indicar ausência de dados numéricos específicos, distinguindo-se da categoria '$0' que tem um valor de 0 e a cor rosa mais clara da legenda.",
+  "props": {
+    "title": "Agricultural value added per worker, 2023",
+    "subtitle": "Agricultural value added per worker is calculated by dividing the amount of economic value generated from farming, forestry and fishing by the number of people who work in these sectors. This data is expressed in US dollars. It is adjusted for inflation but does not account for differences in living costs between countries.",
+    "data": [
+      {
+        "label": "No data",
+        "value": 0
+      },
+      {
+        "label": "$0",
+        "value": 0
+      },
+      {
+        "label": "$1,000",
+        "value": 1000
+      },
+      {
+        "label": "$2,000",
+        "value": 2000
+      },
+      {
+        "label": "$5,000",
+        "value": 5000
+      },
+      {
+        "label": "$10,000",
+        "value": 10000
+      },
+      {
+        "label": "$20,000",
+        "value": 20000
+      },
+      {
+        "label": "$50,000",
+        "value": 50000
+      }
+    ],
+    "xAxisTitle": "",
+    "yAxisTitle": "Value Added per Worker (US$)",
+    "yMin": 0,
+    "yMax": 55000,
+    "seriesColors": [
+      "#FFFFFF",
+      "#F0D9E6",
+      "#E0BBDD",
+      "#D09ED4",
+      "#C080CB",
+      "#B062C2",
+      "#A044B9",
+      "#9026B0"
+    ],
+    "unit": "$",
+    "showValueLabels": true,
+    "showLegend": false,
+    "annotations": [],
+    "labels": [
+      "No data",
+      "$0",
+      "$1,000",
+      "$2,000",
+      "$5,000",
+      "$10,000",
+      "$20,000",
+      "$50,000"
+    ],
+    "series": [
+      {
+        "label": "Agricultural value added per worker, 2023",
+        "data": [
+          0,
+          0,
+          1000,
+          2000,
+          5000,
+          10000,
+          20000,
+          50000
+        ]
+      }
+    ]
+  }
+}

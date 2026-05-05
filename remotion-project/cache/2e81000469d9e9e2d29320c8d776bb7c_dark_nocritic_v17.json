@@ -1,0 +1,175 @@
+{
+  "componentId": "LineChart",
+  "suggestedName": "CumulativeCO2Emissions",
+  "reasoning": "O gráfico exibe a evolução temporal das emissões cumulativas de CO2 para diferentes regiões e países, o que é perfeitamente representado por um LineChart. Os dados são apresentados como linhas contínuas ao longo do tempo.",
+  "props": {
+    "title": "Cumulative CO₂ emissions",
+    "subtitle": "Running sum of CO₂ emissions produced from fossil fuels and industry since the first year of recording, measured in tonnes. Land-use change emissions are not included.",
+    "labels": [
+      "1750",
+      "1800",
+      "1850",
+      "1900",
+      "1950",
+      "2000",
+      "2024"
+    ],
+    "xAxisTitle": "Year",
+    "yAxisTitle": "Cumulative CO₂ emissions",
+    "yMin": 0,
+    "yMax": 500,
+    "series": [
+      {
+        "label": "United States",
+        "data": [
+          0,
+          0,
+          0,
+          10,
+          70,
+          280,
+          430
+        ]
+      },
+      {
+        "label": "European Union (27)",
+        "data": [
+          0,
+          0,
+          0,
+          10,
+          60,
+          200,
+          295
+        ],
+        "color": "#4A2C2C"
+      },
+      {
+        "label": "China",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          20,
+          285
+        ],
+        "color": "#6A006A"
+      },
+      {
+        "label": "United Kingdom",
+        "data": [
+          0,
+          0,
+          0,
+          10,
+          30,
+          60,
+          75
+        ],
+        "color": "#00004A"
+      },
+      {
+        "label": "India",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          10,
+          55
+        ],
+        "color": "#8A0000"
+      },
+      {
+        "label": "Canada",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          5,
+          20,
+          35
+        ],
+        "color": "#4A4A00"
+      },
+      {
+        "label": "South Africa",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          5,
+          15,
+          25
+        ],
+        "color": "#6A4A00"
+      },
+      {
+        "label": "Brazil",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          5,
+          15
+        ],
+        "color": "#8A4A00"
+      }
+    ],
+    "seriesColors": [
+      "#4A2C2C",
+      "#6A006A",
+      "#00004A",
+      "#8A0000",
+      "#4A4A00",
+      "#6A4A00",
+      "#8A4A00"
+    ],
+    "unit": "billion t",
+    "showValueLabels": false,
+    "showLegend": true,
+    "annotations": [
+      "O gráfico ilustra a contribuição histórica cumulativa de diferentes países e blocos econômicos para as emissões de CO₂.",
+      "Os Estados Unidos são o maior emissor cumulativo, seguidos pela União Europeia (27).",
+      "A China, apesar de ter começado a emitir significativamente mais tarde, apresenta um crescimento extremamente rápido nas últimas décadas, aproximando-se rapidamente da União Europeia em termos de emissões cumulativas.",
+      "Países como Índia, Canadá, África do Sul e Brasil têm uma contribuição cumulativa menor, mas a Índia também mostra uma curva de crescimento acentuada nos anos mais recentes."
+    ],
+    "data": [
+      {
+        "label": "1750",
+        "value": 0
+      },
+      {
+        "label": "1800",
+        "value": 0
+      },
+      {
+        "label": "1850",
+        "value": 0
+      },
+      {
+        "label": "1900",
+        "value": 10
+      },
+      {
+        "label": "1950",
+        "value": 70
+      },
+      {
+        "label": "2000",
+        "value": 280
+      },
+      {
+        "label": "2024",
+        "value": 430
+      }
+    ]
+  }
+}

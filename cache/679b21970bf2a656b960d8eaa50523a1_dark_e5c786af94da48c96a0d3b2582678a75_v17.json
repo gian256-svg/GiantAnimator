@@ -1,0 +1,109 @@
+{
+  "componentId": "HorizontalBarChart",
+  "suggestedName": "InternetUsageLegendScale",
+  "reasoning": "A imagem original é um mapa coroplético que visualiza a 'Share of the population using the Internet' por país, utilizando uma escala de cores para representar faixas percentuais. Como não há um componente de mapa coroplético disponível, e a extração de dados precisos (com 100% de fidelidade) para cada país individualmente a partir das tonalidades de cor é inviável e violaria a diretriz de 'erro de 1% é falha crítica', optei por representar a *escala da legenda* do mapa como um HorizontalBarChart. Esta abordagem extrai os valores numéricos e as cores explicitamente presentes na legenda, embora reconheça que não representa os dados geográficos por país, conforme feedback anterior. As barras representam os pontos percentuais da escala, e seus comprimentos correspondem a esses valores, com as cores extraídas diretamente da barra de legenda.",
+  "props": {
+    "title": "Share of the population using the Internet, 2025",
+    "subtitle": "Share of the population who used the Internet in the last three months.",
+    "labels": [
+      "0%",
+      "10%",
+      "20%",
+      "30%",
+      "40%",
+      "50%",
+      "60%",
+      "70%",
+      "80%",
+      "90%",
+      "100%"
+    ],
+    "xAxisTitle": "Share of population",
+    "yAxisTitle": "Percentage Range",
+    "series": [
+      {
+        "label": "Internet Usage Scale",
+        "data": [
+          0,
+          10,
+          20,
+          30,
+          40,
+          50,
+          60,
+          70,
+          80,
+          90,
+          100
+        ],
+        "color": "#044D78"
+      }
+    ],
+    "seriesColors": [
+      "#E0F2F7",
+      "#C1E0ED",
+      "#A2CFE3",
+      "#83BFD9",
+      "#64AFCF",
+      "#459EC5",
+      "#268EBB",
+      "#077DB1",
+      "#066D9E",
+      "#055D8B",
+      "#044D78"
+    ],
+    "unit": "%",
+    "showValueLabels": true,
+    "showLegend": false,
+    "annotations": [
+      "Este gráfico representa a escala da legenda do mapa coroplético original, e não os dados de uso da internet por país. A categoria 'No data' da legenda original não foi incluída na série de dados por não possuir um valor numérico associável à escala.",
+      "A representação fiel dos dados geográficos por país não é possível com os componentes de gráfico disponíveis, e a extração de valores exatos para cada país a partir das cores do mapa violaria a diretriz de fidelidade de 100%."
+    ],
+    "data": [
+      {
+        "label": "0%",
+        "value": 0
+      },
+      {
+        "label": "10%",
+        "value": 10
+      },
+      {
+        "label": "20%",
+        "value": 20
+      },
+      {
+        "label": "30%",
+        "value": 30
+      },
+      {
+        "label": "40%",
+        "value": 40
+      },
+      {
+        "label": "50%",
+        "value": 50
+      },
+      {
+        "label": "60%",
+        "value": 60
+      },
+      {
+        "label": "70%",
+        "value": 70
+      },
+      {
+        "label": "80%",
+        "value": 80
+      },
+      {
+        "label": "90%",
+        "value": 90
+      },
+      {
+        "label": "100%",
+        "value": 100
+      }
+    ]
+  }
+}

@@ -1,0 +1,164 @@
+{
+  "componentId": "LineChart",
+  "suggestedName": "CumulativeCO2Emissions",
+  "reasoning": "The chart displays multiple lines showing the cumulative CO2 emissions over time for different entities, making LineChart the most appropriate component. Data points are extracted from the x-axis (years) and y-axis (emissions in billion tonnes). Series labels are directly on the lines, so showLegend is set to false. yMin and yMax are explicitly extracted from the y-axis scale.",
+  "props": {
+    "title": "Cumulative CO₂ emissions",
+    "subtitle": "Running sum of CO₂ emissions produced from fossil fuels and industry since the first year of recording, measured in tonnes. Land-use change emissions are not included.",
+    "labels": [
+      "1750",
+      "1800",
+      "1850",
+      "1900",
+      "1950",
+      "2000",
+      "2024"
+    ],
+    "xAxisTitle": "Year",
+    "yAxisTitle": "Cumulative CO₂ emissions",
+    "yMin": 0,
+    "yMax": 500,
+    "series": [
+      {
+        "label": "United States",
+        "data": [
+          0,
+          0,
+          0,
+          10,
+          70,
+          250,
+          430
+        ]
+      },
+      {
+        "label": "European Union (27)",
+        "data": [
+          0,
+          0,
+          0,
+          5,
+          50,
+          200,
+          295
+        ]
+      },
+      {
+        "label": "China",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          5,
+          50,
+          285
+        ]
+      },
+      {
+        "label": "United Kingdom",
+        "data": [
+          0,
+          0,
+          0,
+          10,
+          30,
+          60,
+          80
+        ]
+      },
+      {
+        "label": "India",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          2,
+          15,
+          55
+        ]
+      },
+      {
+        "label": "Canada",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          5,
+          25,
+          45
+        ]
+      },
+      {
+        "label": "South Africa",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          2,
+          10,
+          35
+        ]
+      },
+      {
+        "label": "Brazil",
+        "data": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          5,
+          25
+        ]
+      }
+    ],
+    "seriesColors": [
+      "#000000",
+      "#4A2C3F",
+      "#6A006A",
+      "#7F4F24",
+      "#8B0000",
+      "#6B4226",
+      "#5C4033",
+      "#A0522D"
+    ],
+    "unit": "billion t",
+    "showValueLabels": false,
+    "showLegend": false,
+    "annotations": [],
+    "data": [
+      {
+        "label": "1750",
+        "value": 0
+      },
+      {
+        "label": "1800",
+        "value": 0
+      },
+      {
+        "label": "1850",
+        "value": 0
+      },
+      {
+        "label": "1900",
+        "value": 10
+      },
+      {
+        "label": "1950",
+        "value": 70
+      },
+      {
+        "label": "2000",
+        "value": 250
+      },
+      {
+        "label": "2024",
+        "value": 430
+      }
+    ]
+  }
+}

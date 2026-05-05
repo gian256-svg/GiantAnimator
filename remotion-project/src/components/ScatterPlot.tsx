@@ -19,8 +19,9 @@ export interface ScatterPlotProps {
   }[];
   xLabel?: string;
   yLabel?: string;
-  theme?: string;
+  theme?: 'dark' | 'light';
   backgroundColor?: string;
+  seriesColors?: string[];
   colors?: string[];
   textColor?: string;
   bgStyle?: 'none' | 'mesh' | 'grid';
@@ -34,17 +35,20 @@ export const ScatterPlot: React.FC<ScatterPlotProps> = ({
   yLabel = "Eixo Y",
   theme = "dark",
   backgroundColor,
+  seriesColors,
+  colors,
   textColor,
   bgStyle = 'none',
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
+  const fs = (n: number) => Math.round(n * (width / 1920));
   const T = resolveTheme(theme ?? 'dark');
+  const resolvedColors = seriesColors ?? colors ?? T.colors;
   const resolvedBg = backgroundColor ?? T.background;
   const resolvedText = textColor ?? T.text;
 
-  // Layout 4K - Margens ampliadas para legibilidade
-  const MARGIN = { top: 160, right: 300, bottom: 200, left: 240 };
+  const MARGIN = { top: fs(160), right: fs(300), bottom: fs(200), left: fs(240) };
   const plotWidth = width - MARGIN.left - MARGIN.right;
   const plotHeight = height - MARGIN.top - MARGIN.bottom;
 
@@ -78,12 +82,12 @@ export const ScatterPlot: React.FC<ScatterPlotProps> = ({
       />
       {/* 1. TÍTULO */}
       <div style={{
-        position: "absolute", top: 60, width: "100%", textAlign: "center",
+        position: "absolute", top: fs(60), width: "100%", textAlign: "center",
         fontSize: Theme.typography.title.size, fontWeight: Theme.typography.title.weight, opacity: interpolate(frame, [0, 20], [0, 1])
       }}>
         {title}
       </div>
-      {subtitle && <div style={{ position: "absolute", top: 160, width: "100%", textAlign: "center", fontSize: Theme.typography.subtitle.size, opacity: 0.7 }}>{subtitle}</div>}
+      {subtitle && <div style={{ position: "absolute", top: fs(160), width: "100%", textAlign: "center", fontSize: Theme.typography.subtitle.size, opacity: 0.7 }}>{subtitle}</div>}
 
       <svg width={width} height={height} style={{ overflow: "visible" }}>
         {/* 2 & 3. GRID & AXIS TICKS */}
@@ -93,9 +97,8 @@ export const ScatterPlot: React.FC<ScatterPlotProps> = ({
             const yPos = MARGIN.top + (1 - v) * plotHeight;
             return (
               <React.Fragment key={`y-${i}`}>
-                {/* Grid Horiz */}
-                <line x1={MARGIN.left} y1={yPos} x2={MARGIN.left + plotWidth} y2={yPos} stroke={T.grid} strokeWidth={3} />
-                <text x={MARGIN.left - 40} y={yPos} textAnchor="end" dominantBaseline="middle" style={{ fontSize: 36, fill: resolvedText, opacity: 0.7 }}>
+                <line x1={MARGIN.left} y1={yPos} x2={MARGIN.left + plotWidth} y2={yPos} stroke={T.grid} strokeWidth={fs(3)} />
+                <text x={MARGIN.left - fs(40)} y={yPos} textAnchor="end" dominantBaseline="middle" style={{ fontSize: fs(36), fill: resolvedText, opacity: 0.7 }}>
                   {formatValue(yVal)}
                 </text>
               </React.Fragment>
@@ -106,9 +109,8 @@ export const ScatterPlot: React.FC<ScatterPlotProps> = ({
             const xPos = MARGIN.left + v * plotWidth;
             return (
               <React.Fragment key={`x-${i}`}>
-                {/* Grid Vert */}
-                <line x1={xPos} y1={MARGIN.top} x2={xPos} y2={MARGIN.top + plotHeight} stroke={T.grid} strokeWidth={3} />
-                <text x={xPos} y={MARGIN.top + plotHeight + 60} textAnchor="middle" style={{ fontSize: 36, fill: resolvedText, opacity: 0.7 }}>
+                <line x1={xPos} y1={MARGIN.top} x2={xPos} y2={MARGIN.top + plotHeight} stroke={T.grid} strokeWidth={fs(3)} />
+                <text x={xPos} y={MARGIN.top + plotHeight + fs(60)} textAnchor="middle" style={{ fontSize: fs(36), fill: resolvedText, opacity: 0.7 }}>
                   {formatValue(xVal)}
                 </text>
               </React.Fragment>
@@ -117,20 +119,20 @@ export const ScatterPlot: React.FC<ScatterPlotProps> = ({
         </g>
 
         {/* 7 & 8. AXIS LABELS */}
-        <text x={MARGIN.left + plotWidth / 2} y={MARGIN.top + plotHeight + 160} textAnchor="middle" style={{ fontSize: 48, fontWeight: 600, fill: resolvedText }}>
+        <text x={MARGIN.left + plotWidth / 2} y={MARGIN.top + plotHeight + fs(160)} textAnchor="middle" style={{ fontSize: fs(48), fontWeight: 600, fill: resolvedText }}>
           {xLabel}
         </text>
         <text
-          x={80} y={MARGIN.top + plotHeight / 2} textAnchor="middle"
-          transform={`rotate(-90, 80, ${MARGIN.top + plotHeight / 2})`}
-          style={{ fontSize: 48, fontWeight: 600, fill: resolvedText }}
+          x={fs(80)} y={MARGIN.top + plotHeight / 2} textAnchor="middle"
+          transform={`rotate(-90, ${fs(80)}, ${MARGIN.top + plotHeight / 2})`}
+          style={{ fontSize: fs(48), fontWeight: 600, fill: resolvedText }}
         >
           {yLabel}
         </text>
 
         {/* 9. DATA POINTS */}
         {series.map((s, sIdx) => {
-          const color = s.color || T.colors[sIdx % T.colors.length];
+          const color = s.color || resolvedColors[sIdx % resolvedColors.length];
           return (
             <g key={sIdx}>
               {s.data.map((p, pIdx) => {
@@ -147,11 +149,11 @@ export const ScatterPlot: React.FC<ScatterPlotProps> = ({
                     key={pIdx}
                     cx={toPixelX(p.x)}
                     cy={toPixelY(p.y)}
-                    r={20 * pop}
+                    r={fs(20) * pop}
                     fill={color}
                     fillOpacity={0.8}
                     stroke="#FFFFFF"
-                    strokeWidth={4}
+                    strokeWidth={fs(4)}
                   />
                 );
               })}
@@ -159,12 +161,12 @@ export const ScatterPlot: React.FC<ScatterPlotProps> = ({
           );
         })}
 
-        {/* 10. LEGENDA (Fixed Size) */}
-        <g transform={`translate(${width - MARGIN.right + 40}, ${MARGIN.top})`}>
+        {/* 10. LEGENDA */}
+        <g transform={`translate(${width - MARGIN.right + fs(40)}, ${MARGIN.top})`}>
           {series.map((s, i) => (
-            <g key={i} transform={`translate(0, ${i * 60})`}>
-              <rect width={40} height={24} fill={s.color || T.colors[i % T.colors.length]} rx={4} />
-              <text x={55} y={20} style={{ fontSize: 32, fill: resolvedText, fontWeight: 500 }}>{s.label}</text>
+            <g key={i} transform={`translate(0, ${i * fs(60)})`}>
+              <rect width={fs(40)} height={fs(24)} fill={s.color || resolvedColors[i % resolvedColors.length]} rx={4} />
+              <text x={fs(55)} y={fs(20)} style={{ fontSize: fs(32), fill: resolvedText, fontWeight: 500 }}>{s.label}</text>
             </g>
           ))}
         </g>

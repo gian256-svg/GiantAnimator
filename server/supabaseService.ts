@@ -50,17 +50,41 @@ interface JobRow {
 
 // ── Helpers ──────────────────────────────────────────────────
 
-function fire(thenable: any, label: string) {
-  return Promise.resolve(thenable).then(({ error }) => {
-    if (error) {
-      console.error(`❌ [SUPABASE] ${label} erro:`, error.message);
-      console.error(`💡 [SUPABASE] Dica: Verifique se a tabela correspondente existe e se a sua chave de API tem permissão de escrita.`);
-    } else {
-      console.log(`✅ [SUPABASE] ${label} sincronizado.`);
+async function fire(thenable: any, label: string, retries = 2): Promise<void> {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const { error } = await Promise.resolve(thenable);
+      if (!error) return;
+
+      // Erro de schema (coluna inexistente, RLS, etc.) — não adianta retry
+      const isSchemaError = error.message?.includes('column') ||
+                            error.message?.includes('violates') ||
+                            error.message?.includes('permission') ||
+                            error.message?.includes('policy');
+
+      console.error(`❌ [SUPABASE] ${label} (tentativa ${attempt + 1}):`, error.message);
+      if (isSchemaError) {
+        console.error(`💡 [SUPABASE] Erro de schema/permissão — verifique colunas e RLS da tabela.`);
+        return;
+      }
+      if (attempt < retries) await new Promise(r => setTimeout(r, 1500 * (attempt + 1)));
+    } catch (err: any) {
+      console.error(`❌ [SUPABASE] ${label} erro de rede (tentativa ${attempt + 1}):`, err?.message ?? err);
+      if (attempt < retries) await new Promise(r => setTimeout(r, 1500 * (attempt + 1)));
     }
-  }).catch((err) => {
-    console.error(`❌ [SUPABASE] ${label} erro de rede:`, err?.message ?? err);
-  });
+  }
+}
+
+// Throttle de progresso: só sincroniza se mudou de status OU passou 10+ pontos de progresso
+const _lastSyncedProgress: Map<string, number> = new Map();
+function shouldSyncProgress(id: string, progress: number, status: string): boolean {
+  const key = `${id}:${status}`;
+  const last = _lastSyncedProgress.get(key) ?? -1;
+  if (progress - last >= 10 || progress === 100) {
+    _lastSyncedProgress.set(key, progress);
+    return true;
+  }
+  return false;
 }
 
 // ── API pública ──────────────────────────────────────────────
@@ -120,6 +144,10 @@ export function syncPipelineJob(job: {
 }) {
   const db = getClient();
   if (!db) return;
+
+  // Só sincroniza se houve mudança de status ou salto de ≥10 pontos de progresso
+  const isTerminal = job.status === 'done' || job.status === 'error' || job.status === 'awaiting_review';
+  if (!isTerminal && !shouldSyncProgress(job.id, job.progress, job.status)) return;
 
   const row: JobRow = {
     id: job.id,

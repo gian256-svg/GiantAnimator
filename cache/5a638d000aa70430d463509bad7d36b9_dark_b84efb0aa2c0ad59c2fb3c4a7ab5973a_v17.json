@@ -1,0 +1,138 @@
+{
+  "componentId": "HorizontalBarChart",
+  "suggestedName": "WindPowerGeneration2025",
+  "reasoning": "O gráfico original é um mapa coroplético que representa a geração de energia eólica por país usando um gradiente de cores para indicar faixas de TWh. Como não há um componente de mapa coroplético no registro fornecido, e para aderir à diretriz de 'Reconstituição Forense de Dados' extraindo os valores subjacentes, o `HorizontalBarChart` foi escolhido como o tipo de gráfico mais próximo para exibir os países e suas respectivas gerações de energia. Esta escolha implica uma abstração significativa, pois a representação geográfica e a natureza de 'faixa de valores' são convertidas em valores numéricos discretos (o limite inferior da faixa) e apresentadas em um formato linear, perdendo a dimensão espacial e a granularidade das faixas de cores originais. A seleção de países foi limitada aos mais proeminentes para manter a concisão, e os valores representam o limite inferior da faixa de TWh indicada pela cor no mapa original.",
+  "props": {
+    "title": "Wind power generation, 2025",
+    "subtitle": "Annual electricity generation from wind is measured in terawatt-hours (TWh) per year. This includes both onshore and offshore wind sources.",
+    "labels": [
+      "China",
+      "United States",
+      "India",
+      "Brazil",
+      "Canada",
+      "United Kingdom",
+      "Germany",
+      "Spain",
+      "France",
+      "Australia",
+      "Japan",
+      "Mexico",
+      "Turkey",
+      "Sweden",
+      "Italy",
+      "South Africa",
+      "Russia"
+    ],
+    "xAxisTitle": "Wind Power Generation (TWh)",
+    "yAxisTitle": "Country",
+    "xMin": 0,
+    "xMax": 500,
+    "series": [
+      {
+        "label": "Wind Power Generation",
+        "data": [
+          500,
+          500,
+          200,
+          200,
+          200,
+          200,
+          200,
+          200,
+          200,
+          200,
+          100,
+          100,
+          100,
+          100,
+          50,
+          50,
+          5
+        ]
+      }
+    ],
+    "seriesColors": [
+      "#4848A8"
+    ],
+    "unit": "TWh",
+    "showValueLabels": true,
+    "showLegend": false,
+    "annotations": [
+      "O gráfico original é um mapa coroplético e não pode ser diretamente representado por nenhum dos componentes disponíveis no registro. Foi feita uma adaptação para um HorizontalBarChart para extrair os dados subjacentes.",
+      "Os valores numéricos para cada país representam o limite inferior da faixa de geração de energia eólica (em TWh) indicada pela cor no mapa original.",
+      "A cor da série no HorizontalBarChart é uma cor representativa do gradiente azul do mapa original, pois o esquema não permite cores por barra para uma única série.",
+      "A lista de países foi limitada aos mais proeminentes para concisão; uma reconstituição completa incluiria centenas de países com seus respectivos intervalos de TWh."
+    ],
+    "data": [
+      {
+        "label": "China",
+        "value": 500
+      },
+      {
+        "label": "United States",
+        "value": 500
+      },
+      {
+        "label": "India",
+        "value": 200
+      },
+      {
+        "label": "Brazil",
+        "value": 200
+      },
+      {
+        "label": "Canada",
+        "value": 200
+      },
+      {
+        "label": "United Kingdom",
+        "value": 200
+      },
+      {
+        "label": "Germany",
+        "value": 200
+      },
+      {
+        "label": "Spain",
+        "value": 200
+      },
+      {
+        "label": "France",
+        "value": 200
+      },
+      {
+        "label": "Australia",
+        "value": 200
+      },
+      {
+        "label": "Japan",
+        "value": 100
+      },
+      {
+        "label": "Mexico",
+        "value": 100
+      },
+      {
+        "label": "Turkey",
+        "value": 100
+      },
+      {
+        "label": "Sweden",
+        "value": 100
+      },
+      {
+        "label": "Italy",
+        "value": 50
+      },
+      {
+        "label": "South Africa",
+        "value": 50
+      },
+      {
+        "label": "Russia",
+        "value": 5
+      }
+    ]
+  }
+}

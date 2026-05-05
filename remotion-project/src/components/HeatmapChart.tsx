@@ -23,7 +23,7 @@ export interface HeatmapChartProps {
   title?: string;
   subtitle?: string;
   seriesColors?: string[]; // Min, Max colors
-  theme?: string;
+  theme?: 'dark' | 'light';
   backgroundColor?: string;
   colors?: string[];
   textColor?: string;
@@ -35,12 +35,14 @@ export const HeatmapChart: React.FC<HeatmapChartProps> = ({
   data = [],
   xLabels = [],
   yLabels = [],
+  title,
   subtitle,
   seriesColors,
   bgStyle = 'none',
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
+  const fs = (n: number) => Math.round(n * (width / 1920));
   const T = resolveTheme(theme ?? 'dark');
   const resolvedSeriesColors = seriesColors || [T.grid, T.colors[0]];
 
@@ -50,18 +52,17 @@ export const HeatmapChart: React.FC<HeatmapChartProps> = ({
     return { min: Math.min(...vals), max: Math.max(...vals) };
   }, [data]);
 
-  // Safe Zone 4K
-  const margin = 128;
-  const titleHeight = 160;
-  const paddingLeft = 300; // EspaÃ§o para labels Y
-  const paddingTop = margin + titleHeight + 80; // EspaÃ§o para labels X
-  
+  const margin = fs(128);
+  const titleHeight = fs(160);
+  const paddingLeft = fs(300);
+  const paddingTop = margin + titleHeight + fs(80);
+
   const plotWidth = width - paddingLeft - margin;
   const plotHeight = height - paddingTop - margin;
 
   const cellSizeX = plotWidth / (xLabels.length || 1);
   const cellSizeY = plotHeight / (yLabels.length || 1);
-  const cellGap = 6;
+  const cellGap = fs(6);
 
   const getColor = (val: number) => {
     const norm = (val - minMax.min) / (minMax.max - minMax.min || 1);
@@ -99,7 +100,7 @@ export const HeatmapChart: React.FC<HeatmapChartProps> = ({
         {yLabels.map((lbl, i) => (
           <text
             key={`y-${lbl}`}
-            x={paddingLeft - 30}
+            x={paddingLeft - fs(30)}
             y={paddingTop + i * cellSizeY + cellSizeY / 2}
             textAnchor="end"
             dominantBaseline="middle"
@@ -114,9 +115,9 @@ export const HeatmapChart: React.FC<HeatmapChartProps> = ({
           <text
             key={`x-${lbl}`}
             x={paddingLeft + i * cellSizeX + cellSizeX / 2}
-            y={paddingTop - 30}
+            y={paddingTop - fs(30)}
             textAnchor="middle"
-            style={{ fontSize: Theme.typography.axis.size - 4, fill: T.textMuted, fontFamily: Theme.typography.fontFamily, opacity: interpolate(frame, [15, 30], [0, 1]) }}
+            style={{ fontSize: Theme.typography.axis.size, fill: T.textMuted, fontFamily: Theme.typography.fontFamily, opacity: interpolate(frame, [15, 30], [0, 1]) }}
           >
             {lbl}
           </text>

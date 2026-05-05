@@ -20,7 +20,7 @@ interface LineChartProps {
   showArea?: boolean;
   colors?: string[];
   seriesColors?: string[];
-  theme?: string;
+  theme?: 'dark' | 'light';
   backgroundColor?: string;
   textColor?: string;
   bgStyle?: any;
