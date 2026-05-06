@@ -8,7 +8,7 @@ import {
 } from "remotion";
 import { Theme, resolveTheme, formatValue, parseSafeNumber, getNiceScale } from '../theme';
 import { DynamicBackground } from "../layout/DynamicBackground";
-import { SmartCallout } from "../components/SmartCallout";
+import { HighlightCircle } from "../components/HighlightCircle";
 
 interface LineChartProps {
   data?: any;
@@ -387,7 +387,7 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
         )}
       </svg>
 
-      {/* Container de Callouts com Z-Index Superior Garantido */}
+      {/* Destaques (Highlights) Container Z-Index Superior */}
       <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 100, pointerEvents: 'none' }}>
         {annotations.map((ann, i) => {
           if (!ann || ann.index === undefined || !normalizedSeries[ann.seriesIndex || 0]) return null;
@@ -399,17 +399,12 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
           const y = getY(val);
 
           return (
-            <SmartCallout
+            <HighlightCircle
               key={`ann-${i}`}
               x={x}
               y={y}
-              label={ann.label}
-              value={formatValue(val, unit)}
-              theme={theme}
               delay={140 + i * 15}
-              color={normalizedSeries[sIdx].color || T.colors[sIdx % T.colors.length]}
-              index={i}
-              backgroundType={backgroundType}
+              color="#ff4d6d"
             />
           );
         })}

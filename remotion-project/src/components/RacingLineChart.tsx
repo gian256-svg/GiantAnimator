@@ -10,7 +10,7 @@ import {
 } from "remotion";
 import { Theme, resolveTheme, parseSafeNumber, formatValue, getNiceScale } from '../theme';
 import { DynamicBackground } from "../layout/DynamicBackground";
-import { SmartCallout } from "./SmartCallout";
+import { HighlightCircle } from "./HighlightCircle";
 
 const getCountryCode = (name: string) => {
   const map: Record<string, string> = {
@@ -323,7 +323,7 @@ export const RacingLineChart: React.FC<RacingLineChartProps> = ({
         })}
       </svg>
 
-      {/* ANOTAÇÕES INTELIGENTES (SMART CALLOUTS) */}
+      {/* Destaques (Highlights) Container Z-Index Superior */}
       {annotations.map((ann, i) => {
         if (!ann || ann.index === undefined || !series[ann.seriesIndex || 0]) return null;
         
@@ -340,17 +340,12 @@ export const RacingLineChart: React.FC<RacingLineChartProps> = ({
         const calloutY = getY(val);
 
         return (
-          <SmartCallout
+          <HighlightCircle
             key={`ann-${i}`}
             x={calloutX}
             y={calloutY}
-            label={ann.label}
-            value={ann.value !== undefined ? formatValue(ann.value, unit) : undefined}
-            theme={theme}
             delay={0} // Aparece imediatamente assim que alcançada
-            color={T.colors[0]}
-            index={i}
-            backgroundType={backgroundType}
+            color="#ff4d6d"
           />
         );
       })}

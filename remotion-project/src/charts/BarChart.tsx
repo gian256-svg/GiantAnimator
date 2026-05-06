@@ -8,7 +8,7 @@ import {
 } from "remotion";
 import { Theme, resolveTheme, formatValue, getNiceScale, parseSafeNumber, wrapText } from "../theme";
 import { DynamicBackground } from "../layout/DynamicBackground";
-import { SmartCallout } from "../components/SmartCallout";
+import { HighlightCircle } from "../components/HighlightCircle";
 
 interface BarChartProps {
   data?: any;
@@ -214,6 +214,7 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
       <svg width={width} height={height} style={{ position: "absolute", top: 0, left: 0, overflow: 'visible', zIndex: 1 }}>
         <defs>
           {normalizedSeries.map((s, seriesIdx) => {
+            const bottomOpacity = backgroundType === 'transparent' ? 1 : 0.65;
             // Se tiver apenas uma série, criamos um gradiente para cada barra (Efeito Rainbow)
             if (seriesCount === 1) {
               return xAxisLabels.map((_, barIdx) => {
@@ -221,7 +222,7 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
                 return (
                   <linearGradient key={`barGrad-${seriesIdx}-${barIdx}-${instanceId}`} id={`barGrad-${seriesIdx}-${barIdx}-${instanceId}`} x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor={baseColor} />
-                    <stop offset="100%" stopColor={baseColor} stopOpacity={0.65} />
+                    <stop offset="100%" stopColor={baseColor} stopOpacity={bottomOpacity} />
                   </linearGradient>
                 );
               });
@@ -231,7 +232,7 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
             return (
               <linearGradient key={seriesIdx} id={`barGrad-${seriesIdx}-${instanceId}`} x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor={baseColor} />
-                <stop offset="100%" stopColor={baseColor} stopOpacity={0.65} />
+                <stop offset="100%" stopColor={baseColor} stopOpacity={bottomOpacity} />
               </linearGradient>
             );
           })}
@@ -337,7 +338,7 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
         )}
       </svg>
 
-      {/* Callouts Container Z-Index Superior */}
+      {/* Destaques (Highlights) Container Z-Index Superior */}
       <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 100, pointerEvents: 'none' }}>
         {annotations.map((ann, i) => {
           if (!ann || ann.index === undefined || !normalizedSeries[ann.seriesIndex || 0]) return null;
@@ -350,17 +351,12 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
           const calloutY = getY(val);
 
           return (
-            <SmartCallout
+            <HighlightCircle
               key={`ann-${i}`}
               x={calloutX}
               y={calloutY}
-              label={ann.label}
-              value={formatValue(val, unit)}
-              theme={theme}
               delay={140 + i * 15}
-              color={normalizedSeries[sIdx].color || T.colors[sIdx % T.colors.length]}
-              index={i}
-              backgroundType={backgroundType}
+              color="#ff4d6d"
             />
           );
         })}

@@ -1,13 +1,4 @@
-export function buildImageAnalysisPrompt(registryJson: string, includeCallouts: boolean = false): string {
-  const calloutInstruction = includeCallouts 
-    ? `
-### 📢 SMART CALL-OUTS (ATIVADO):
-- **PROIBIDO INVENTAR**: Adicione anotações (array "annotations") APENAS se houver valores escritos explicitamente na imagem original. 
-- **NUNCA** adicione destaques de "maior/menor valor" se eles não estiverem visualmente destacados na referência. Fidelidade > Estética.
-- **IDENTIDADE**: Se a imagem original NÃO possui balões ou textos de destaque nos dados, o array "annotations" deve estar VAZIO.
-- **CRÍTICO**: "seriesIndex" e "index" devem ser matematicamente exatos.
-` : "";
-
+export function buildImageAnalysisPrompt(registryJson: string): string {
   return `
 Você é o Analista de Visão "GIANT" (Surgery-Grade Precision). Sua missão é a Reconstituição Forense de Dados.
 O erro de 1% é considerado FALHA CRÍTICA.
@@ -51,7 +42,6 @@ O erro de 1% é considerado FALHA CRÍTICA.
 - **PASSO 2**: Identifique o Tipo de Gráfico.
 - **PASSO 3**: Mapeie Categorias e Séries.
 - **PASSO 4**: Extraia valores e cores exatos da imagem.
-${calloutInstruction}
 
 ### FORMATO DE RESPOSTA (JSON APENAS):
 {

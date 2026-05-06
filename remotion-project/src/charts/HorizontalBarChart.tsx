@@ -8,7 +8,7 @@ import {
 } from "remotion";
 import { Theme, resolveTheme, formatValue, getNiceScale, wrapText } from '../theme';
 import { DynamicBackground } from "../layout/DynamicBackground";
-import { SmartCallout } from "../components/SmartCallout";
+import { HighlightCircle } from "../components/HighlightCircle";
 
 interface HorizontalBarChartProps {
   data?: { label: string; value: number }[];
@@ -186,10 +186,11 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
         <defs>
           {normalizedSeries.map((s, sIdx) => {
             const baseColor = s.color || resolvedColors[sIdx % resolvedColors.length];
+            const edgeOpacity = (backgroundType as string) === 'transparent' ? 1 : 0.85;
             return (
               <linearGradient key={sIdx} id={`hbarGrad-${sIdx}-${instanceId}`} x1="0" y1="0" x2="1" y2="0">
                 <stop offset="0%" stopColor={baseColor} />
-                <stop offset="100%" stopColor={baseColor} stopOpacity={0.85} />
+                <stop offset="100%" stopColor={baseColor} stopOpacity={edgeOpacity} />
               </linearGradient>
             );
           })}
@@ -305,7 +306,7 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
         })}
       </svg>
 
-      {/* CALLOUTS CONTAINER Z-INDEX SUPERIOR */}
+      {/* Destaques (Highlights) Container Z-Index Superior */}
       <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 100, pointerEvents: 'none' }}>
         {annotations.map((ann, i) => {
           const sIdx = ann.seriesIndex || 0;
@@ -316,10 +317,12 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
           const bY = gY + sIdx * (groupHeight / seriesCount);
           const bW = ((val - dataMin) / range) * plotWidth;
           return (
-            <SmartCallout 
-              key={i} x={plotLeft + bW} y={bY + barHeight/2} label={ann.label} value={formatValue(val, unit)}
-              theme={theme} delay={160 + i * 20} color={normalizedSeries[sIdx].color || T.colors[sIdx % T.colors.length]}
-              index={i} backgroundType={backgroundType}
+            <HighlightCircle 
+              key={i} 
+              x={plotLeft + bW} 
+              y={bY + barHeight/2} 
+              delay={160 + i * 20} 
+              color="#ff4d6d"
             />
           );
         })}

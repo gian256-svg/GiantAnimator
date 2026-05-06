@@ -9,7 +9,7 @@ import {
 import { evolvePath } from "@remotion/paths";
 import { Theme, resolveTheme, parseSafeNumber, formatValue, getNiceScale } from '../theme';
 import { DynamicBackground } from "../layout/DynamicBackground";
-import { SmartCallout } from "./SmartCallout";
+import { HighlightCircle } from "./HighlightCircle";
 
 export interface MultiLineChartProps {
   series: {
@@ -276,7 +276,7 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
         })}
       </svg>
 
-      {/* ANOTAÇÕES INTELIGENTES (SMART CALLOUTS) */}
+      {/* Destaques (Highlights) Container Z-Index Superior */}
       {annotations.map((ann, i) => {
         if (!ann || ann.index === undefined || !series[ann.seriesIndex || 0]) return null;
         
@@ -290,17 +290,12 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
         const calloutY = getY(val);
 
         return (
-          <SmartCallout
+          <HighlightCircle
             key={`ann-${i}`}
             x={calloutX}
             y={calloutY}
-            label={ann.label}
-            value={ann.value !== undefined ? formatValue(ann.value, unit) : undefined}
-            theme={theme}
             delay={140 + i * 15}
-            color={T.colors[0]}
-            index={i}
-            backgroundType={backgroundType}
+            color="#ff4d6d"
           />
         );
       })}

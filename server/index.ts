@@ -239,6 +239,18 @@ async function processJob(
       }
     }
 
+    // ─── ETAPA FINAL: Enriquecimento de Destaques (Highlights) ───
+    if (includeCallouts) {
+      job.stage = 'André: Adicionando destaques de Alta e Baixa...';
+      await saveJob(job);
+      try {
+        const { enrichAnalysisWithCallouts } = await import('./calloutService.js');
+        analysis = await enrichAnalysisWithCallouts(analysis);
+      } catch (e) {
+        console.warn("⚠️ [Orchestrator] Falha no enriquecimento de Destaques:", e);
+      }
+    }
+
     job.analysis = analysis;
     await saveJob(job);
 
@@ -666,16 +678,6 @@ async function runSurgeryGradePipeline(
   // Verificação final do auditor (Regra de Resiliência: 85% é o novo "Gold Standard" para bloqueio)
   if (lastAudit && lastAudit.score < 80) {
       throw new Error(`FIDELIDADE INSUFICIENTE: O render atingiu apenas ${lastAudit.score}% de precisão. Meta mínima: 80% (alvo: 90%). Auditor: ${lastAudit.critique}`);
-  }
-
-  // ── PHASE 3: Smart Call-outs (Enrichment AFTER Audit) ────────
-  if (includeCallouts) {
-    try {
-      const { enrichAnalysisWithCallouts } = await import('./calloutService.js');
-      analysis = await enrichAnalysisWithCallouts(analysis);
-    } catch (e) {
-      console.warn("⚠️ [Orchestrator] Falha no enriquecimento de Call-outs:", e);
-    }
   }
 
   // Final job result

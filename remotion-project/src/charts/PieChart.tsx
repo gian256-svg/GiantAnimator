@@ -8,7 +8,7 @@ import {
 } from "remotion";
 import { Theme, resolveTheme, formatValue, wrapText } from "../theme";
 import { DynamicBackground } from "../layout/DynamicBackground";
-import { SmartCallout } from "../components/SmartCallout";
+
 
 export interface PieSlice {
   label: string;
@@ -111,10 +111,11 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
         <defs>
           {slices.map((slice, i) => {
             const color = slice.color || sliceColors[i % sliceColors.length];
+            const edgeOpacity = (backgroundType as string) === 'transparent' ? 1 : 0.8;
             return (
               <radialGradient key={i} id={`pieGrad-${i}-${instanceId}`} cx="50%" cy="50%" r="50%">
                 <stop offset="0%" stopColor={color} />
-                <stop offset="100%" stopColor={color} stopOpacity={0.8} />
+                <stop offset="100%" stopColor={color} stopOpacity={edgeOpacity} />
               </radialGradient>
             );
           })}

@@ -40,7 +40,7 @@ export async function analyzeChartImage(
   onProgress?: (message: string) => void
 ): Promise<ChartAnalysis> {
   const rawImageData = fs.readFileSync(imagePath);
-  let prompt = buildImageAnalysisPrompt(REGISTRY_JSON, settings.includeCallouts);
+  let prompt = buildImageAnalysisPrompt(REGISTRY_JSON);
   if (auditorCritique) prompt += `\n### ⚠️ FEEDBACK AUDITORIA:\n${auditorCritique}\n`;
 
   // ─── MD5 Cache ───────────────────────────────────────────────

@@ -631,3 +631,22 @@ Caso a imagem mande um tÃƒÂ­tulo muito longo, ele nÃƒÂ£o pode flanquear 
 2. **Fidelidade Textual Absoluta**: Proibição estrita de truncamento de títulos. O prompt agora exige a captura da frase COMPLETA, incluindo unidades e notas.
 3. **Safety Zone UHD (Layout)**: Aumentado o `padTop` de 0.22 para 0.25 em `BarChart.tsx` para garantir que títulos longos e anotações nunca colidam.
 4. **Anti-Hallucination Guard**: Anotações agora são restritas a pontos extremos REAIS e proibidas de sobrepor textos, com foco em minimalismo se o gráfico estiver denso.
+
+---
+
+### ⭕ [2026-05-06] EVOLUÇÃO — DESTAQUES DE ALTA E BAIXA (DETERMINÍSTICO)
+**Contexto**: O sistema legado de "Smart Call-outs" (narrativas e balões de texto gerados pela IA) era propenso a alucinações, colisões de layout e poluição visual em gráficos densos. O usuário solicitou uma simplificação elegante e de alta visibilidade.
+
+**Ação e Novas Regras**:
+1. **Substituição por Destaques Circulares**: O componente `SmartCallout` foi removido em favor do `HighlightCircle.tsx`. Este novo componente utiliza apenas círculos vermelhos animados (`spring` + `glow`) para marcar pontos, sem texto associado, garantindo 100% de legibilidade.
+2. **Lógica de Destaque Automático**: 
+   - A identificação dos destaques agora é feita por um serviço especializado (`calloutService.ts`) que analisa os dados PÓS-extração.
+   - O sistema identifica obrigatoriamente apenas os dois pontos de maior relevância: o **Valor MÁXIMO** e o **Valor MÍNIMO** absoluto de cada série.
+   - Isso elimina a necessidade de a IA "decidir" o que é importante, tornando os destaques previsíveis e úteis.
+3. **Soberania do Pipeline Unificado**: 
+   - A etapa de enriquecimento (`enrichAnalysisWithCallouts`) foi movida para o final do pipeline de análise no servidor.
+   - Isso garante que tanto uploads de **IMAGEM** quanto de **DADOS (CSV/XLSX)** recebam automaticamente os destaques se a opção estiver ativa.
+4. **Design UHD Premium**: 
+   - O círculo de destaque utiliza `drop-shadow` de alta fidelidade e animação de escala suave (Ease In/Out).
+   - As cores são cravadas em vermelho vibrante (#ff4d6d) para máximo contraste em fundos claros e escuros.
+5. **Impacto no Front-end**: A opção na UI foi renomeada para **"Destaques de Alta e Baixa"**, alinhando a expectativa do usuário com o resultado visual minimalista e funcional.

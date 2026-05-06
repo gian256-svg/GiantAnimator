@@ -1,55 +1,36 @@
-import { ai } from './agent.js';
-import { GEMINI_MODEL } from './calibration/constants.js';
 import { type ChartAnalysis } from './types.js';
 
-/**
- * Gera Smart Call-outs baseados na verdade matemática do JSON, após auditoria de fidelidade.
- */
 export async function enrichAnalysisWithCallouts(analysis: ChartAnalysis): Promise<ChartAnalysis> {
-  console.log(`🧠 [Analista] Gerando Smart Call-outs baseados nos dados auditados...`);
-  
-  const dataForAi = {
-    title: analysis.props.title,
-    labels: analysis.props.labels,
-    series: analysis.props.series?.map(s => ({ label: s.label, data: s.data }))
-  };
+  const series = analysis.props.series;
+  if (!series || series.length === 0) return analysis;
 
-  const prompt = `
-Você é um Analista de Dados Especialista em Visualização. 
-Sua tarefa é criar anotações (Smart Call-outs) para um gráfico baseado APENAS no JSON fornecido.
+  // Compute global max and min across all series mathematically
+  let maxVal = -Infinity, minVal = Infinity;
+  let maxSeriesIdx = 0, maxDataIdx = 0;
+  let minSeriesIdx = 0, minDataIdx = 0;
 
-### REGRAS DE DESIGN:
-1. **Minimalismo**: Gere no máximo 2 ou 3 anotações por gráfico.
-2. **Relevância**: Foque no valor MAIOR, no valor MENOR ou em uma mudança brusca de tendência.
-3. **Precisão**: O campo "index" deve corresponder ao índice exato do array de dados (0-based).
-4. **Idioma**: Escreva o campo "label" em PORTUGUÊS (Brasil).
-5. **Formato**: O valor (propriedade "value") deve ser formatado de forma amigável.
+  series.forEach((s: { data?: number[] }, sIdx: number) => {
+    (s.data || []).forEach((v: number, dIdx: number) => {
+      const n = Number(v);
+      if (!isFinite(n)) return;
+      if (n > maxVal) { maxVal = n; maxSeriesIdx = sIdx; maxDataIdx = dIdx; }
+      if (n < minVal) { minVal = n; minSeriesIdx = sIdx; minDataIdx = dIdx; }
+    });
+  });
 
-JSON DE DADOS:
-${JSON.stringify(dataForAi, null, 2)}
+  if (!isFinite(maxVal) || !isFinite(minVal)) return analysis;
 
-RESPONDA APENAS UM ARRAY JSON de anotações no formato:
-[
-  { "seriesIndex": 0, "index": 5, "label": "Pico de Vendas" },
-  { "seriesIndex": 0, "index": 2, "label": "Queda Sazonal" }
-]
-`;
+  const annotations: { seriesIndex: number; index: number; label: string }[] = [];
 
-  try {
-    const model = ai.getGenerativeModel({ model: GEMINI_MODEL });
-    const result = await model.generateContent(prompt);
-    const responseText = result.response.text();
-    const jsonMatch = responseText.match(/\[[\s\S]*\]/);
-    
-    if (jsonMatch) {
-      const annotations = JSON.parse(jsonMatch[0]);
-      analysis.props.annotations = annotations;
-      console.log(`✅ [Analista] ${annotations.length} anotações geradas com sucesso.`);
-    }
-  } catch (err: any) {
-    console.error(`⚠️ [Analista] Falha ao gerar call-outs:`, err.message);
-    // Não falha o processo, apenas segue sem call-outs
+  if (maxVal !== minVal) {
+    annotations.push({ seriesIndex: maxSeriesIdx, index: maxDataIdx, label: 'Máximo' });
+    annotations.push({ seriesIndex: minSeriesIdx, index: minDataIdx, label: 'Mínimo' });
+  } else {
+    annotations.push({ seriesIndex: maxSeriesIdx, index: maxDataIdx, label: 'Máximo' });
   }
+
+  analysis.props.annotations = annotations;
+  console.log(`✅ [Destaques] Máximo idx=${maxDataIdx} (${maxVal}), Mínimo idx=${minDataIdx} (${minVal})`);
 
   return analysis;
 }

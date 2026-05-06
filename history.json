@@ -1,5 +1,164 @@
 [
   {
+    "filename": "ExpenditurePerPupil_AN_imagem_colada_1778102838755.mp4",
+    "outputFile": "ExpenditurePerPupil_AN_imagem_colada_1778102838755.mp4",
+    "thumbnailFile": "ExpenditurePerPupil_AN_imagem_colada_1778102838755.thumb.jpg",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "LineChart",
+        "suggestedName": "ExpenditurePerPupil",
+        "reasoning": "O gráfico é claramente um LineChart, mostrando a evolução de duas séries de dados ao longo do tempo. O título, subtítulo, rótulos dos eixos e da legenda foram extraídos textualmente. Os valores de cada ponto de dados foram lidos com precisão, incluindo as casas decimais. As cores das séries foram capturadas diretamente da imagem original. A escala do eixo Y (yMin: 0, yMax: 10) foi definida exatamente como exibido no gráfico. A unidade 'in thousands' foi omitida da propriedade 'unit' porque já está presente no 'yAxisTitle', seguindo a regra de anti-redundância. A presença de rótulos de valor explícitos nos pontos de dados levou a 'showValueLabels: true', e a existência de uma legenda separada resultou em 'showLegend: true'.",
+        "props": {
+          "title": "Expenditure per Pupil in Average Daily Attendance: Selected years, 1977-78 through 2002-03",
+          "subtitle": "The NCES Common Core of Data (CCD) 2004-2005",
+          "labels": [
+            "1977-78",
+            "1982-83",
+            "1987-88",
+            "1992-93",
+            "1997-98",
+            "2002-03"
+          ],
+          "xAxisTitle": "School Year",
+          "yAxisTitle": "Expenditure per Student (in thousands)",
+          "yMin": 0,
+          "yMax": 10,
+          "series": [
+            {
+              "label": "Total Expenditure in Unadjusted Dollars",
+              "data": [
+                2,
+                3.2,
+                4.6,
+                6.2,
+                7.7,
+                9.9
+              ]
+            },
+            {
+              "label": "Total Expenditure in Constant 2004-05 Dollars",
+              "data": [
+                6.1,
+                6.2,
+                7.8,
+                8.4,
+                9.1,
+                10
+              ]
+            }
+          ],
+          "unit": "",
+          "stacked": false,
+          "showValueLabels": true,
+          "showLegend": true,
+          "annotations": [],
+          "data": [
+            {
+              "label": "1977-78",
+              "value": 2
+            },
+            {
+              "label": "1982-83",
+              "value": 3.2
+            },
+            {
+              "label": "1987-88",
+              "value": 4.6
+            },
+            {
+              "label": "1992-93",
+              "value": 6.2
+            },
+            {
+              "label": "1997-98",
+              "value": 7.7
+            },
+            {
+              "label": "2002-03",
+              "value": 9.9
+            }
+          ],
+          "insightText": "O gasto por aluno em dólares constantes aumentou consistentemente ao longo dos anos, refletindo um crescimento contínuo de 6,1% em 1977-78 para 10% em 2002-03, indicando uma tendência de investimento crescente na educação."
+        }
+      }
+    },
+    "id": "5ca65991-b4cf-461f-b9ed-d4ad94094e52",
+    "createdAt": "2026-05-06T21:28:30.237Z"
+  },
+  {
+    "filename": "FoodPreferenceByGender_AN_imagem_colada_1778101707930.mov",
+    "outputFile": "FoodPreferenceByGender_AN_imagem_colada_1778101707930.mov",
+    "thumbnailFile": "FoodPreferenceByGender_AN_imagem_colada_1778101707930.thumb.jpg",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "BarChart",
+        "suggestedName": "FoodPreferenceByGender",
+        "reasoning": "The image displays a grouped bar chart, with vertical bars representing values for different categories ('Beans', 'Rice', 'Semo', 'Yam') and two distinct series ('Boys' and 'Girls'). The y-axis ranges from 0 to 10. Data points were extracted with one decimal place precision based on their alignment with the grid lines. The legend is present at the bottom, and colors for each series were accurately captured. No explicit title or axis titles were present in the original image. The chart is clearly grouped, not stacked.",
+        "props": {
+          "title": "",
+          "subtitle": "",
+          "labels": [
+            "Beans",
+            "Rice",
+            "Semo",
+            "Yam"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "yMin": 0,
+          "yMax": 10,
+          "series": [
+            {
+              "label": "Boys",
+              "data": [
+                5.7,
+                6.8,
+                1.8,
+                4.8
+              ]
+            },
+            {
+              "label": "Girls",
+              "data": [
+                3.7,
+                6.8,
+                3.7,
+                9.7
+              ]
+            }
+          ],
+          "unit": "",
+          "stacked": false,
+          "showValueLabels": false,
+          "showLegend": true,
+          "data": [
+            {
+              "label": "Beans",
+              "value": 5.7
+            },
+            {
+              "label": "Rice",
+              "value": 6.8
+            },
+            {
+              "label": "Semo",
+              "value": 1.8
+            },
+            {
+              "label": "Yam",
+              "value": 4.8
+            }
+          ],
+          "insightText": "Os meninos consomem mais feijão, enquanto as meninas têm uma preferência significativa por inhame."
+        }
+      }
+    },
+    "id": "87f0e77d-9a05-4942-98c4-0c3923c43353",
+    "createdAt": "2026-05-06T21:10:15.325Z"
+  },
+  {
     "filename": "FavoriteSports_AN_imagem_colada_1778101419982.mp4",
     "outputFile": "FavoriteSports_AN_imagem_colada_1778101419982.mp4",
     "thumbnailFile": "FavoriteSports_AN_imagem_colada_1778101419982.thumb.jpg",
