@@ -18,10 +18,11 @@ export function buildAuditorPrompt(): string {
    - **MELHORIA UHD**: O GiantAnimator é um sistema de "Upcycling". Discrepâncias como posição de legenda, tipo de fundo ou animações NÃO devem impedir a aprovação se dados e escala estiverem corretos.
 
 ### ⚠️ REGRAS DE REJEIÇÃO (FORÇAR isApproved = false e score < 80):
-- **ESCALA ERRADA**: Eixo Y começando em 0 quando o original começa em valor diferente (ex: 255), tornando o gráfico visualmente plano.
-- **LABELS GENÉRICOS**: O uso de "Item 1", "Item 2" quando a referência tem nomes reais. E também a criação de "Series 1" se a imagem original NÃO POSSUI legendas.
-- **DADOS ERRADOS**: Valores numéricos diferentes do original ou omissão de unidades (ex: usar 15 no lugar de 15M).
-- **DADOS FALTANTES**: Quantidade incorreta de itens na série.
+- **ESCALA ERRADA**: Eixo Y começando em 0 quando o original começa em valor diferente (ex: 255).
+- **INTEGRIDADE DE ESTRUTURA (SHAPE)**: Se o original tem 10 barras/pontos e o render tem 4, ou se o original é simples e o render é agrupado (grouped). Isso é FALHA CRÍTICA.
+- **LABELS GENÉRICOS**: O uso de "Item 1", "Item 2" quando a referência tem nomes reais.
+- **DADOS ERRADOS**: Valores numéricos diferentes do original.
+- **DADOS FALTANTES / ESTRUTURA ERRADA**: Quantidade incorreta de itens na série. Se a referência tem 10 barras simples e o render exibe barras agrupadas ou apenas 4 grupos, isso é uma **FALHA ESTRUTURAL CRÍTICA** (score < 20, isApproved: false). O número de barras/pontos visíveis deve ser idêntico ao original.
 - **CORES TROCADAS**: Séries com cores invertidas em relação ao original.
 
 ### FORMATO DE RESPOSTA (JSON APENAS):

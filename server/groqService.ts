@@ -6,7 +6,7 @@ import { buildImageAnalysisPrompt } from "./prompts/imageAnalyzer.js";
 import { buildAuditorPrompt } from "./prompts/auditor.js";
 import { type ChartAnalysis } from "./types.js";
 
-const VISION_MODEL = "llama-3.2-90b-vision-preview";
+const VISION_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct";
 const TEXT_MODEL   = "llama-3.3-70b-versatile";
 
 let _client: Groq | null = null;

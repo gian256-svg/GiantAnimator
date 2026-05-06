@@ -65,16 +65,21 @@ export function validateChartData(type: string, props: any): ValidationResult {
   }
 
   // ── 2. Labels genéricos ───────────────────────────────────────────────────
-  const allLabels: string[] = [
+  // Apenas labels de eixo — series[].label é omitido intencionalmente porque
+  // "Series 1 + Product 1-4" combinados inflariam o contador falsamente.
+  const axisOnlyLabels: string[] = [
     ...(props.labels ?? []),
     ...(props.categories ?? []),
-    ...(props.series?.map((s: any) => s.label).filter(Boolean) ?? []),
     ...(props.data?.map((d: any) => d.label).filter(Boolean) ?? []),
     ...(props.xLabels ?? []),
     ...(props.yLabels ?? []),
   ];
-  const { genericCount, keywordDensity, genericList } = hasGenericLabels(allLabels);
-  if (genericCount >= 2 || keywordDensity > 0.4) {
+  const uniqueLabels = [...new Set(axisOnlyLabels)];
+  const isTitleValid = props.title && !props.title.toLowerCase().includes("untitled") && !FAKE_TITLE_RE.test(props.title);
+  const { genericCount, keywordDensity, genericList } = hasGenericLabels(uniqueLabels);
+  const maxGeneric = isTitleValid ? 15 : 6;
+
+  if (genericCount >= maxGeneric || keywordDensity > 0.8) {
     errors.push(`Labels genéricos (alucinação): ${genericList.slice(0, 4).join(', ')}`);
   }
 

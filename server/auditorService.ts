@@ -108,11 +108,11 @@ export async function auditRenderFidelity(
           console.warn("⚠️ [AUDITOR] Ollama local offline para auditoria.");
         }
 
-        console.warn(`⚠️ [AUDITOR] Todos os provedores cloud offline. Acionando APROVAÇÃO TÉCNICA DE EMERGÊNCIA para não bloquear o workflow.`);
+        console.error(`❌ [AUDITOR] Todos os provedores cloud offline. BLOQUEANDO RENDER por falta de auditoria de fidelidade.`);
         return {
-          score: 100,
-          isApproved: true,
-          critique: "⚠️ APROVAÇÃO TÉCNICA: Servidores de auditoria indisponíveis (Google/Groq/Ollama). Prosseguindo por resiliência."
+          score: 0,
+          isApproved: false,
+          critique: "❌ FALHA TÉCNICA: Os sistemas de auditoria (Google/Groq/Ollama) estão indisponíveis. Para garantir 100% de fidelidade UHD, o processo foi interrompido. Verifique sua conexão ou chaves de API."
         };
       }
 
