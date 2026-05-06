@@ -32,9 +32,10 @@ O erro de 1% é considerado FALHA CRÍTICA.
    - Analise os eixos com lupa. Se um valor está entre 60 e 70 e parece ser 66, use 66.
    - Verifique a escala do eixo Y. Se o máximo visível é 80, capture isso.
 
-5. **Tratamento de Unidades**:
-   - Se houver "%", "$" ou "€", coloque na propriedade "unit" global. 
-   - Se houver multiplicadores (Billion, Million, M, B), preserve-os na unidade ou no valueStr.
+5. **Tratamento de Unidades e Limpeza Visual (Anti-Redundância)**:
+   - **REGRA DE OURO**: Se a unidade (ex: "thousands", "millions", "$", "%") já estiver escrita no \`yAxisTitle\` ou no \`title\`, você **NÃO DEVE** colocá-la na propriedade "unit".
+   - Mantenha os dados limpos: se o eixo diz "(in thousands)", os valores nos pontos devem ser apenas números (ex: 6.1 em vez de 6.1k ou 6.1 thousands). Isso evita poluição visual no render UHD.
+   - Se houver multiplicadores que NÃO estejam no título do eixo, aí sim preserve-os.
 
 6. **Associação Rótulo-Valor (Data Binding Integrity)**:
    - **ERRO FATAL**: Trocar a associação de um nome com seu valor (ex: atribuir o valor da categoria 'A' ao rótulo 'B'). 

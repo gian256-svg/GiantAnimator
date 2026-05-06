@@ -23,14 +23,13 @@ export const dataTransformationService = {
 
     // 2. Normalização de Nomes de Colunas (PascalCase para o componente)
     const columnMapping: Record<string, string> = {};
-    const newHeaders = data.headers.map(h => {
+    data.headers.map(h => {
       const clean = _.camelCase(h);
       columnMapping[h] = clean;
-      return h; // Mantemos o label original no header para UI
+      return h;
     });
 
     // 3. Outlier detection centralizado no tableParserService (3-sigma).
-    // Aqui apenas logamos o número de linhas após limpeza.
     console.log(`✅ [Transformation] ${transformedRows.length} linhas válidas após limpeza.`);
 
     return {
@@ -65,6 +64,51 @@ export const dataTransformationService = {
         delete p.backgroundColor;
     }
 
-    return p;
+    // 🇧🇷 Localização de Meses (EN -> PT-BR)
+    return this.localizeLabels(p);
+  },
+
+  /**
+   * Traduz automaticamente nomes e abreviações de meses para PT-BR
+   */
+  localizeLabels(props: any): any {
+    const map: Record<string, string> = {
+      'Jan': 'Jan', 'January': 'Jan',
+      'Feb': 'Fev', 'February': 'Fev',
+      'Mar': 'Mar', 'March': 'Mar',
+      'Apr': 'Abr', 'April': 'Abr',
+      'May': 'Mai',
+      'Jun': 'Jun', 'June': 'Jun',
+      'Jul': 'Jul', 'July': 'Jul',
+      'Aug': 'Ago', 'August': 'Ago',
+      'Sep': 'Set', 'Sept': 'Set', 'September': 'Set',
+      'Oct': 'Out', 'October': 'Out',
+      'Nov': 'Nov', 'November': 'Nov',
+      'Dec': 'Dez', 'December': 'Dez'
+    };
+
+    const regex = new RegExp(`\\b(${Object.keys(map).join('|')})\\b`, 'gi');
+    
+    const translate = (text: any) => {
+        if (typeof text !== 'string') return text;
+        return text.replace(regex, (match) => {
+            const key = Object.keys(map).find(k => k.toLowerCase() === match.toLowerCase());
+            return key ? map[key] : match;
+        });
+    };
+
+    if (props.labels) props.labels = props.labels.map((l: any) => translate(l));
+    if (props.series) {
+        props.series = props.series.map((s: any) => ({
+            ...s,
+            label: translate(s.label)
+        }));
+    }
+    if (props.title) props.title = translate(props.title);
+    if (props.subtitle) props.subtitle = translate(props.subtitle);
+    if (props.xAxisTitle) props.xAxisTitle = translate(props.xAxisTitle);
+    if (props.yAxisTitle) props.yAxisTitle = translate(props.yAxisTitle);
+
+    return props;
   }
 };

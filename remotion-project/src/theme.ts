@@ -781,33 +781,40 @@ export function resolveTheme(
     }
   }
 
-  // APLICAÇÃO FINAL DO backgroundType explícito (Sobrescreve se presente, mas RESPEITA custom)
+  // APLICAÇÃO FINAL DO backgroundType explícito
+  // REGRA: Só sobrescrevemos o fundo do tema se for tema 'original', 'custom' 
+  // ou se o backgroundType for 'transparent'. Temas premium (volcano, neon, etc) 
+  // devem manter sua cor de fundo identitária.
   if (backgroundType) {
-    if (backgroundType === 'light') {
-      if (!baseColor || name !== 'custom') config.background = '#FAF9F6';
-      if (!customText || name !== 'custom') config.text = '#0f172a';
-      config.textMuted = '#475569';
-      config.axis = 'rgba(15,23,42,0.45)';
-      config.grid = 'rgba(15,23,42,0.18)';
-    } else if (backgroundType === 'transparent') {
+    if (backgroundType === 'transparent') {
       config.background = 'transparent';
       config.text = '#ffffff';
       config.textMuted = '#8892b0';
       config.axis = 'rgba(232,234,246,0.25)';
       config.grid = 'rgba(232,234,246,0.12)';
-    } else {
-      if (!baseColor || name !== 'custom') config.background = '#0f1117';
-      if (!customText || name !== 'custom') config.text = '#e8eaf6';
-      config.textMuted = '#8892b0';
-      config.axis = 'rgba(232,234,246,0.25)';
-      config.grid = 'rgba(232,234,246,0.12)';
+    } else if (name === 'original' || name === 'custom' || name === 'dark' || name === 'light') {
+       // Apenas para temas básicos aplicamos o override genérico de light/dark
+       if (backgroundType === 'light') {
+         config.background = '#FAF9F6';
+         config.text = '#0f172a';
+         config.textMuted = '#475569';
+         config.axis = 'rgba(15,23,42,0.45)';
+         config.grid = 'rgba(15,23,42,0.18)';
+       } else {
+         config.background = '#0f1117';
+         config.text = '#e8eaf6';
+         config.textMuted = '#8892b0';
+         config.axis = 'rgba(232,234,246,0.25)';
+         config.grid = 'rgba(232,234,246,0.12)';
+       }
     }
   }
 
   // 🛡️ AUTO-CONTRAST GUARD (Regra de Resiliência Visual)
-  // Só aplica o guard se o backgroundType NÃO foi definido explicitamente pelo usuário
-  // ou se não houver detecção baseada em imagem (baseColor).
-  if (!backgroundType) {
+  // Não se aplica a temas premium nomeados — eles são deliberadamente desenhados
+  // com paletas que podem violar a regra de contraste genérica (ex: Volcano: laranja em fundo preto).
+  const isBasicTheme = name === 'dark' || name === 'light' || name === 'original' || name === 'custom';
+  if (!backgroundType && isBasicTheme) {
     const primaryColorDark = isColorDark(config.colors[0]);
     const bgDark = isColorDark(config.background);
 
@@ -852,11 +859,16 @@ export const formatValue = (n: number, unit = '') => {
   }
 
   if (unit === 'M' || unit === 'k') return valueStr;
-  
+
   if (unit === '%') return `${valueStr}%`;
-  
+
   const isPrefix = unit.includes('$') || unit.includes('£') || unit.includes('€') || unit.trim().toLowerCase() === 'r$';
-  return isPrefix ? `${unit.trim()}${valueStr}` : (unit ? `${valueStr} ${unit}`.trim() : valueStr);
+  if (isPrefix) return `${unit.trim()}${valueStr}`;
+
+  // Palavras longas (ex: "thousands", "millions") já estão no yAxisTitle — não repetir nos labels
+  if (unit.length > 3) return valueStr;
+
+  return unit ? `${valueStr} ${unit}`.trim() : valueStr;
 };
 
 /**

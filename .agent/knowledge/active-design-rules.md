@@ -27,3 +27,15 @@ Estas são as regras OBRIGATÓRIAS de estruturação dos componentes React/Remot
 
 ## 6. Auto-Contrast Guard
 - A legibilidade do texto (`resolvedText`) é mais importante que o tema extraído. Se a IA sugerir fundo escuro e texto escuro, o sistema deve automaticamente intervir garantindo Alto Contraste (High Contrast Premium).
+- **Exceção — Temas Premium Nomeados**: Temas como `volcano`, `neon`, `frost`, `ocean`, `sunset`, `glass` são intencionalmente desenhados com paletas que podem violar a regra genérica de contraste. O guard NÃO deve ser aplicado a esses temas — eles têm soberania sobre suas próprias cores de fundo e paleta.
+
+## 7. Títulos e Subtítulos Dinâmicos (Anti-Colisão)
+- **Auto-Scale**: Títulos com mais de 60 caracteres devem reduzir o tamanho da fonte (base 55px em vez de 72px) para evitar colisão vertical.
+- **Header Height**: O espaço reservado para o cabeçalho (`titleH`) deve ser dinâmico. Se o título for longo, reserve `fs(240)` em vez de `fs(160)`.
+
+## 8. Soberania do Tema vs. Visão
+- Se um tema premium (Volcano, Neon, etc) for selecionado, as cores da paleta do tema TÊM PRIORIDADE sobre as cores extraídas da imagem original. Isso garante a consistência da marca escolhida pelo usuário.
+- O fundo original do tema (ex: marrom do Volcano) deve ser preservado, ignorando o override genérico de `backgroundType: dark` (preto).
+
+## 9. Margens Laterais (Safe Zone 4K)
+- O título do eixo Y e os rótulos de dados nunca devem ficar a menos de **100px** da borda lateral esquerda para evitar vazamento em monitores UHD.

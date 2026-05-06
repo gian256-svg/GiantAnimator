@@ -702,7 +702,7 @@ select optgroup { color: var(--text-muted); font-weight: 600; }
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     backdrop-filter: blur(12px);
-    overflow: hidden;
+    padding: 14px;
 }
 
 .history-empty {
@@ -712,60 +712,165 @@ select optgroup { color: var(--text-muted); font-weight: 600; }
     font-size: 13px;
 }
 
-.history-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 18px;
-    border-bottom: 1px solid var(--border);
-    cursor: pointer;
-    transition: var(--transition);
+/* ── History Grid ─────────────────────────────────────────────── */
+.history-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
 }
 
-.history-item:last-child { border-bottom: none; }
-.history-item:hover { background: rgba(94, 79, 255, 0.04); }
+.hist-card {
+    position: relative;
+    height: 96px;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.08);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
 
-.hist-thumb {
-    width: 52px;
-    height: 32px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid var(--border);
-    border-radius: 6px;
+.hist-card:hover {
+    transform: translateY(-3px) scale(1.03);
+    border-color: rgba(255,255,255,0.22);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+}
+
+/* Icon wrapper */
+.hist-icon-wrap {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
+    background: rgba(255,255,255,0.12);
+    transition: background 0.18s ease;
     flex-shrink: 0;
 }
 
-.hist-thumb svg { width: 15px; height: 15px; color: var(--text-subtle); }
-.hist-info { flex: 1; min-width: 0; }
+.hist-card:hover .hist-icon-wrap {
+    background: rgba(255,255,255,0.2);
+}
 
-.hist-name {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text);
+.hist-icon-wrap svg {
+    width: 22px;
+    height: 22px;
+}
+
+/* Type label */
+.hist-type-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    line-height: 1;
+}
+
+/* Thumbnail image fills the card */
+.hist-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    position: absolute;
+    inset: 0;
+}
+
+/* Icon fallback (when no thumbnail or img fails) */
+.hist-icon-fallback {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    height: 100%;
+}
+
+/* Hover overlay: dark scrim + play button */
+.hist-card-hover {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    transition: background 0.2s ease;
+    pointer-events: none;
+}
+
+.hist-card:hover .hist-card-hover {
+    background: rgba(0,0,0,0.52);
+}
+
+.hist-play-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0.6);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    flex-shrink: 0;
+}
+
+.hist-card:hover .hist-play-btn {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.hist-play-btn svg {
+    width: 12px;
+    height: 12px;
+    margin-left: 2px;
+}
+
+/* Filename tooltip — slides up from bottom on hover */
+.hist-card-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 5px 8px 6px;
+    background: linear-gradient(transparent, rgba(0,0,0,0.82));
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    pointer-events: none;
+}
+
+.hist-card:hover .hist-card-footer {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.hist-card-footer-name {
+    font-size: 9.5px;
+    font-weight: 700;
+    color: #fff;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    display: block;
 }
 
-.hist-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-
-.hist-play {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: rgba(94, 79, 255, 0.10);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    opacity: 0;
-    transition: var(--transition);
+.hist-card-footer-date {
+    font-size: 8.5px;
+    color: rgba(255,255,255,0.55);
+    display: block;
+    margin-top: 1px;
 }
-
-.hist-play svg { width: 11px; height: 11px; color: var(--accent); }
-.history-item:hover .hist-play { opacity: 1; }
 
 /* ─── FOOTER ─────────────────────────────────────────────────────── */
 footer {

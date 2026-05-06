@@ -1266,15 +1266,56 @@ async function refreshHistory() {
   } catch (err) { console.error(err); }
 }
 
+function chartTypeIcon(filename) {
+  const n = (filename || '').toLowerCase();
+  if (n.includes('bar') && n.includes('horizontal')) return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="18" y2="6"/><line x1="3" y1="12" x2="13" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>`;
+  if (n.includes('bar') || n.includes('column')) return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="10" width="4" height="11"/><rect x="10" y="5" width="4" height="16"/><rect x="17" y="13" width="4" height="8"/></svg>`;
+  if (n.includes('line') || n.includes('multiline')) return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,17 8,11 13,14 21,6"/></svg>`;
+  if (n.includes('pie') || n.includes('donut')) return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l6.5 4"/></svg>`;
+  if (n.includes('area')) return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,17 8,10 13,13 21,5"/><line x1="3" y1="17" x2="21" y2="17"/></svg>`;
+  if (n.includes('scatter')) return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="15" r="2"/><circle cx="13" cy="8" r="2"/><circle cx="19" cy="13" r="2"/><circle cx="9" cy="19" r="2"/></svg>`;
+  if (n.includes('waterfall')) return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="12" width="4" height="9"/><rect x="9" y="7" width="4" height="5"/><rect x="15" y="9" width="4" height="12"/></svg>`;
+  if (n.includes('racing')) return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="7" x2="16" y2="7"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="17" x2="11" y2="17"/></svg>`;
+  // default
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="8" width="4" height="13"/><rect x="10" y="4" width="4" height="17"/><rect x="17" y="11" width="4" height="10"/></svg>`;
+}
+
+function chartTypeLabel(filename) {
+  const n = (filename || '').toLowerCase();
+  if (n.includes('horizontal')) return 'Barras H';
+  if (n.includes('bar') || n.includes('column')) return 'Barras';
+  if (n.includes('multiline')) return 'Multi-linha';
+  if (n.includes('line')) return 'Linha';
+  if (n.includes('donut')) return 'Donut';
+  if (n.includes('pie')) return 'Pizza';
+  if (n.includes('area')) return 'Área';
+  if (n.includes('scatter')) return 'Dispersão';
+  if (n.includes('waterfall')) return 'Cascata';
+  if (n.includes('racing')) return 'Racing';
+  return 'Gráfico';
+}
+
+function chartAccentColor(filename) {
+  const n = (filename || '').toLowerCase();
+  if (n.includes('line')) return ['#1e3a5f', '#3b82f6'];
+  if (n.includes('pie') || n.includes('donut')) return ['#3b1f5e', '#a855f7'];
+  if (n.includes('area')) return ['#1a3d2e', '#22c55e'];
+  if (n.includes('scatter')) return ['#3d2a1a', '#f59e0b'];
+  if (n.includes('waterfall')) return ['#1f3040', '#06b6d4'];
+  if (n.includes('racing')) return ['#3d1f2a', '#ef4444'];
+  return ['#1e1b3a', '#5e4fff']; // bar / default
+}
+
 function renderHistory() {
   const el = document.getElementById('history-list');
   const countEl = document.getElementById('history-count');
   const clearBtn = document.getElementById('btn-clear-history');
   if (!el) return;
 
-  if (countEl) countEl.textContent = `${state.history.length} / 10`;
-  
-  // Mostrar/esconder botão Limpar
+  const GRID_LIMIT = 16;
+  const visible = state.history.slice(0, GRID_LIMIT);
+
+  if (countEl) countEl.textContent = `${visible.length} / ${GRID_LIMIT}`;
   if (clearBtn) clearBtn.style.display = state.history.length > 0 ? 'flex' : 'none';
 
   if (!state.history.length) {
@@ -1282,18 +1323,39 @@ function renderHistory() {
     return;
   }
 
-  const playIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;
+  const playIcon = `<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;
 
-  el.innerHTML = state.history.map(h => `
-    <div class="history-item" onclick="loadVideo('${h.videoUrl || '/output/'+h.outputFile}', '${h.filename || h.name}', '${h.duration || ''}')">
-      <div class="hist-thumb">${fileIcon(h.filename || h.name)}</div>
-      <div class="hist-info">
-        <div class="hist-name">${h.filename || h.name}</div>
-        <div class="hist-meta">${new Date(h.createdAt).toLocaleString('pt-BR')}</div>
-      </div>
-      <div class="hist-play">${playIcon}</div>
-    </div>
-  `).join('');
+  el.innerHTML = `<div class="history-grid">${visible.map(h => {
+    const url = h.videoUrl || '/output/' + h.outputFile;
+    const name = (h.filename || h.name || '').replace(/'/g, '&#39;');
+    const safeName = (h.filename || h.name || '');
+    const date = new Date(h.createdAt).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+    const thumbUrl = h.thumbnailFile ? `/output/${h.thumbnailFile}` : null;
+    const [bg1, bg2] = chartAccentColor(safeName);
+
+    const inner = thumbUrl
+      ? `<img src="${thumbUrl}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+         <div class="hist-icon-fallback" style="display:none;">
+           <div class="hist-icon-wrap">${chartTypeIcon(safeName)}</div>
+           <span class="hist-type-label">${chartTypeLabel(safeName)}</span>
+         </div>`
+      : `<div class="hist-icon-wrap">${chartTypeIcon(safeName)}</div>
+         <span class="hist-type-label">${chartTypeLabel(safeName)}</span>`;
+
+    return `
+      <div class="hist-card" style="background:linear-gradient(145deg,${bg1},${bg2 + '44'});"
+           onclick="loadVideo('${url}', '${name}', '${h.duration || ''}')">
+        ${inner}
+        <div class="hist-card-hover">
+          <div class="hist-play-btn">${playIcon}</div>
+        </div>
+        <div class="hist-card-footer">
+          <span class="hist-card-footer-name">${safeName}</span>
+          <span class="hist-card-footer-date">${date}</span>
+        </div>
+      </div>`;
+  }).join('')}</div>`;
 }
 
 window.loadVideo = loadVideo; // expose to onclick

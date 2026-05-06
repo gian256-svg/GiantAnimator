@@ -5,9 +5,8 @@ import {
   interpolate,
   AbsoluteFill,
   Easing,
-  spring
 } from "remotion";
-import { Theme, resolveTheme, formatValue, parseSafeNumber, getNiceScale, wrapText } from '../theme';
+import { Theme, resolveTheme, formatValue, parseSafeNumber, getNiceScale } from '../theme';
 import { DynamicBackground } from "../layout/DynamicBackground";
 import { SmartCallout } from "../components/SmartCallout";
 
@@ -60,7 +59,7 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
   } = props;
 
   const frame = useCurrentFrame();
-  const { width, height, fps } = useVideoConfig();
+  const { width, height } = useVideoConfig();
   const instanceId = useId().replace(/:/g, "");
 
   // Resolve tema
@@ -107,24 +106,23 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
   
   // REGRA DE OURO: Espaçamento dinâmico baseado na existência de Header
   const hasHeader = (title && title.trim().length > 0) || (subtitle && subtitle.trim().length > 0);
-  const margin = hasHeader ? fs(100) : fs(60); 
-  const titleH = hasHeader ? fs(160) : 0; 
-  const legendGapTop = hasHeader ? fs(20) : fs(10);
+  
+  // Título Dinâmico: Reduz o tamanho se for muito longo para evitar colisões
+  const titleLength = title.length;
+  const titleFontSize = titleLength > 100 ? fs(45) : titleLength > 60 ? fs(55) : fs(72);
+  const titleH = hasHeader ? (titleLength > 60 ? fs(240) : fs(160)) : 0; 
+  
+  const margin = hasHeader ? fs(80) : fs(60); 
+  const legendGapTop = hasHeader ? fs(30) : fs(10);
 
   // ── Legenda: acima do gráfico, centralizada ──────────────────
-  const LEGEND_FONT_SIZE = fs(28);
-  const LEGEND_LINE_H = LEGEND_FONT_SIZE * 1.35;
-  const MAX_CHARS_PER_LINE = 28;
-  const ICON_SIZE = fs(32);
-  const ICON_TEXT_GAP = fs(12);
-
   const seriesCount = normalizedSeries.length;
   const legendTop = margin + titleH + legendGapTop;
   const chartTop = legendTop + (showLegend && seriesCount > 1 ? fs(100) : 0);
   const padBot = fs(140);
 
-  const plotLeft = margin + fs(120);
-  const rightBuffer = fs(400); 
+  const plotLeft = margin + fs(180); // Aumentado de 120 para 180 para evitar vazamento
+  const rightBuffer = fs(450); // Aumentado para dar respiro aos labels da direita
   const plotWidth = width - plotLeft - margin - rightBuffer;
   const plotHeight = height - chartTop - padBot;
 
@@ -168,7 +166,7 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
   return (
     <AbsoluteFill style={{ 
       fontFamily: Theme.typography.fontFamily,
-      backgroundColor: backgroundType === 'transparent' ? 'transparent' : undefined
+      backgroundColor: (backgroundType as string) === 'transparent' ? 'transparent' : undefined
     }}>
       <DynamicBackground
         baseColor={resolvedBg}
@@ -192,7 +190,7 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
         }}>
           {title && (
             <div style={{ 
-              fontSize: fs(Theme.typography.title.size), 
+              fontSize: titleFontSize, 
               lineHeight: 1.1,
               fontWeight: 800, 
               color: resolvedText, 
@@ -205,7 +203,7 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
           )}
           {subtitle && (
             <div style={{ 
-              fontSize: fs(Theme.typography.subtitle.size), 
+              fontSize: fs(28),
               color: T.textMuted, 
               marginTop: fs(15),
               textAlign: "center",
@@ -272,7 +270,7 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
         })}
 
         {/* Grid X (Vertical) */}
-        {xAxisLabels.map((l, i) => {
+        {xAxisLabels.map((_l, i) => {
           const x = plotLeft + (i / (xAxisLabels.length - 1 || 1)) * plotWidth;
           return (
             <line key={`vgrid-${i}`} x1={x} y1={chartTop} x2={x} y2={chartTop + plotHeight} stroke={T.grid} strokeWidth={fs(1)} strokeDasharray={fs(5)} opacity={0.6} />
@@ -293,22 +291,37 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
                 {!isHighDensity && s.data.map((v: number, i: number) => (
                   <React.Fragment key={i}>
                     <circle cx={getX(sIndex, i)} cy={getY(v)} r={fs(6)} fill={resolvedBg} stroke={color} strokeWidth={fs(3)} />
-                    {showValueLabels && progress > 0.8 && (
-                      <text
-                        x={getX(sIndex, i)}
-                        y={getY(v) + (sIndex % 2 === 0 ? -fs(25) : fs(38))}
-                        textAnchor="middle"
-                        style={{
-                          fontSize: fs(22),
-                          fill: color,
-                          fontWeight: 800,
-                          opacity: interpolate(progress, [0.8, 1], [0, 1]),
-                          textShadow: `0 0 ${fs(10)}px ${resolvedBg}`
-                        }}
-                      >
-                        {formatValue(v, unit)}
-                      </text>
-                    )}
+                    {showValueLabels && progress > 0.8 && (() => {
+                      // Smart Labeling: Se houver muitos pontos, mostre apenas os críticos (Início, Fim, Máx, Mín)
+                      const isDense = s.data.length > 10;
+                      if (isDense) {
+                        const maxVal = Math.max(...s.data);
+                        const minVal = Math.min(...s.data);
+                        const isMax = v === maxVal && s.data.indexOf(v) === i;
+                        const isMin = v === minVal && s.data.indexOf(v) === i;
+                        const isFirst = i === 0;
+                        const isLast = i === s.data.length - 1;
+                        
+                        if (!isMax && !isMin && !isFirst && !isLast) return null;
+                      }
+
+                      return (
+                        <text
+                          x={getX(sIndex, i)}
+                          y={getY(v) + (sIndex % 2 === 0 ? -fs(25) : fs(38))}
+                          textAnchor="middle"
+                          style={{
+                            fontSize: fs(22),
+                            fill: color,
+                            fontWeight: 800,
+                            opacity: interpolate(progress, [0.8, 1], [0, 1]),
+                            textShadow: `0 0 ${fs(10)}px ${resolvedBg}`
+                          }}
+                        >
+                          {formatValue(v, unit)}
+                        </text>
+                      );
+                    })()}
                   </React.Fragment>
                 ))}
               </g>
@@ -363,10 +376,10 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
         {/* Título do Eixo Y */}
         {yAxisTitle && (
           <text
-            x={fs(40)}
+            x={fs(100)}
             y={chartTop + plotHeight / 2}
             textAnchor="middle"
-            transform={`rotate(-90, ${fs(40)}, ${chartTop + plotHeight / 2})`}
+            transform={`rotate(-90, ${fs(100)}, ${chartTop + plotHeight / 2})`}
             style={{ fontSize: fs(24), fill: T.textMuted, fontWeight: 700, opacity: 0.8 }}
           >
             {yAxisTitle}

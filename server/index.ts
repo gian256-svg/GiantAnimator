@@ -6,7 +6,7 @@ import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import cors from 'cors';
 import { bundle } from '@remotion/bundler';
-import { renderMedia, selectComposition } from '@remotion/renderer';
+import { renderMedia, renderStill, selectComposition } from '@remotion/renderer';
 import { getHistory, addJob, clearHistory } from './historyService.js';
 import { syncPipelineJob, seedComponentRegistry, syncTrainingLog } from './supabaseService.js';
 import { analyzeChartImage } from './visionService.js';
@@ -157,8 +157,7 @@ async function processJob(
             }));
         }
 
-        // 🔥 Final Pass
-        props = dataTransformationService.prepareFor4K(props);
+        // 🔥 Final Pass (Movido para o render final pós-auditoria)
         
         // Diagnóstico Final: Grava as props assincronamente
         fs.promises.writeFile(path.join(process.cwd(), 'current_props.json'), JSON.stringify(props, null, 2)).catch(() => {});
@@ -357,14 +356,33 @@ async function finishJobRendering(jobId: string, analysis: ChartAnalysis, chartT
         const outputPath = path.join(OUTPUT_DIR, outputName);
 
         const serveUrl = await getBundle();
-        const resolvedTheme = (chartTheme === 'dark' || chartTheme === 'light') ? chartTheme : 'dark';
+        const resolvedTheme = chartTheme || 'dark';
         
-        const inputProps = {
-          ...analysis.props,
-          theme: resolvedTheme,
-          backgroundType: isAlpha ? 'transparent' : (options.backgroundType || analysis.props.backgroundType),
-          backgroundColor: isAlpha ? 'transparent' : (analysis.props.backgroundColor === '#000000' ? undefined : analysis.props.backgroundColor)
-        };
+        // Se for um tema PREMIUM (Volcano, Neon, etc), limpamos as cores da IA.
+        // Se for um tema BÁSICO (dark, light) ou ORIGINAL/CUSTOM, preservamos as cores extraídas.
+        const isPremiumTheme = !['dark','light','original','custom'].includes(resolvedTheme);
+
+        if (isPremiumTheme) {
+            console.log(`🎨 [Render] Aplicando SOBERANIA DO TEMA PREMIUM: ${resolvedTheme}`);
+            if (analysis.props.series) {
+                analysis.props.series = analysis.props.series.map((s: any) => {
+                    const { color, ...rest } = s; 
+                    return rest;
+                });
+            }
+            delete analysis.props.seriesColors;
+            delete analysis.props.colors;
+        }
+
+        // 🔥 FINAL LOCALIZATION & 4K PREP (Pós-Auditoria)
+        const finalizedProps = dataTransformationService.prepareFor4K({
+            ...analysis.props,
+            theme: resolvedTheme,
+            backgroundType: isAlpha ? 'transparent' : (options.backgroundType || analysis.props.backgroundType),
+            backgroundColor: isAlpha ? 'transparent' : (analysis.props.backgroundColor === '#000000' ? undefined : analysis.props.backgroundColor)
+        });
+
+        const inputProps = finalizedProps;
 
         console.log("🎨 [Render] Propriedades finais enviadas ao Remotion:");
         console.dir(inputProps, { depth: null });
@@ -396,8 +414,29 @@ async function finishJobRendering(jobId: string, analysis: ChartAnalysis, chartT
 
         await renderMedia(renderOptions);
 
+        // Generate thumbnail from final frame
+        let thumbnailFile: string | undefined;
+        try {
+            const thumbName = outputName.replace(/\.(mp4|mov)$/i, '.thumb.jpg');
+            const thumbPath = path.join(OUTPUT_DIR, thumbName);
+            const thumbFrame = Math.max(0, composition.durationInFrames - 1);
+            await renderStill({
+                composition,
+                serveUrl,
+                output: thumbPath,
+                inputProps,
+                frame: thumbFrame,
+                imageFormat: 'jpeg',
+                jpegQuality: 85,
+            });
+            thumbnailFile = thumbName;
+            console.log(`🖼️ [Thumb] Gerado: ${thumbName}`);
+        } catch (thumbErr: any) {
+            console.warn(`⚠️ [Thumb] Falha ao gerar thumbnail: ${thumbErr.message}`);
+        }
+
         const videoUrl = `/output/${outputName}`;
-        addJob({ filename: outputName, outputFile: outputName, status: 'done', props: { analysis } });
+        addJob({ filename: outputName, outputFile: outputName, thumbnailFile, status: 'done', props: { analysis } });
         job.status = 'done';
         job.progress = 100;
         job.stage = 'André: Concluído!';
@@ -568,7 +607,7 @@ async function runSurgeryGradePipeline(
 
   let lastAudit: any = null;
 
-  for (let attempt = 1; attempt <= 1; attempt++) {
+  for (let attempt = 1; attempt <= 2; attempt++) {
     console.log(`🤖 [Orchestrator] Iniciando Auditoria Silent (Tentativa ${attempt})...`);
     job.progress = 25 + (attempt * 5); 
     job.stage = `Tomé: Auditando fidelidade (tentativa ${attempt})...`;

@@ -13,6 +13,7 @@ export interface Job {
     id: string;
     filename: string;
     outputFile: string;
+    thumbnailFile?: string;
     status: 'processing' | 'done' | 'error';
     duration?: number;
     props?: any;
