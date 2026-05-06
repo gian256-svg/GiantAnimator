@@ -86,7 +86,7 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
 
   const allValues = normalizedSeries.flatMap(s => s.data).map(v => Number(v)).filter(v => isFinite(v));
   if (allValues.length === 0 || xAxisLabels.length === 0) {
-    return <AbsoluteFill style={{ backgroundColor: resolvedBg }} />;
+    return <AbsoluteFill style={{ backgroundColor: (backgroundType as string) === 'transparent' ? 'rgba(0,0,0,0)' : resolvedBg }} />;
   }
 
   const safeDataCount = xAxisLabels.length || 1;
@@ -138,7 +138,7 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
   return (
     <AbsoluteFill style={{ 
       fontFamily: Theme.typography.fontFamily,
-      backgroundColor: backgroundType === 'transparent' ? 'transparent' : undefined
+      backgroundColor: backgroundType === 'transparent' ? 'rgba(0,0,0,0)' : undefined
     }}>
       <DynamicBackground
         baseColor={resolvedBg}

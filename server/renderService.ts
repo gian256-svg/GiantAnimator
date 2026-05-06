@@ -51,6 +51,11 @@ export async function getBundle(): Promise<string> {
   }
 }
 
+export function clearBundleCache(): void {
+  cachedBundleLocation = null;
+  console.log('🗑️ [REMOTION] Bundle cache limpo. Próximo render vai recompilar.');
+}
+
 /**
  * Renderiza um gráfico e retorna o caminho do arquivo gerado
  */
@@ -147,6 +152,7 @@ export async function generateStill(
       output: outputPath,
       frame: auditFrame,
       inputProps,
+      transparentBackground: true, // Habilita Alpha no still de auditoria (PNG)
     });
 
     const timeoutPromise = new Promise((_, reject) => 

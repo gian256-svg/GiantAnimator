@@ -1,4 +1,4 @@
-﻿import React, { useId } from "react";
+import React, { useId } from "react";
 import {
   spring,
   useCurrentFrame,
@@ -23,6 +23,8 @@ export interface FunnelChartProps {
   colors?: string[];
   textColor?: string;
   bgStyle?: 'none' | 'mesh' | 'grid';
+  backgroundType?: 'dark' | 'light' | 'transparent';
+  seriesColors?: string[];
 }
 
 export const FunnelChart: React.FC<FunnelChartProps> = ({
@@ -33,10 +35,13 @@ export const FunnelChart: React.FC<FunnelChartProps> = ({
   backgroundColor,
   textColor,
   bgStyle = 'none',
+  backgroundType,
+  colors,
+  seriesColors,
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
-  const T = resolveTheme(theme ?? 'dark');
+  const T = resolveTheme(theme ?? 'dark', backgroundColor, backgroundType, seriesColors || colors, textColor);
   const instanceId = useId().replace(/:/g, "");
 
   const resolvedBg     = backgroundColor ?? T.background;
@@ -63,7 +68,7 @@ export const FunnelChart: React.FC<FunnelChartProps> = ({
 
   if (data.length === 0) {
     return (
-      <AbsoluteFill style={{ backgroundColor: resolvedBg, justifyContent: 'center', alignItems: 'center' }}>
+      <AbsoluteFill style={{ backgroundColor: (backgroundType as string) === 'transparent' ? 'rgba(0,0,0,0)' : resolvedBg, justifyContent: 'center', alignItems: 'center' }}>
         <p style={{ color: resolvedText, fontSize: Theme.typography.subtitle.size }}>Nenhum dado para exibir.</p>
       </AbsoluteFill>
     );
@@ -72,7 +77,10 @@ export const FunnelChart: React.FC<FunnelChartProps> = ({
   const maxValue = Math.max(...data.map(d => d.value)) || 1;
 
   return (
-    <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
+    <AbsoluteFill style={{ 
+      fontFamily: Theme.typography.fontFamily,
+      backgroundColor: (backgroundType as string) === 'transparent' ? 'rgba(0,0,0,0)' : undefined
+    }}>
       <DynamicBackground 
         style={bgStyle} 
         baseColor={resolvedBg} 

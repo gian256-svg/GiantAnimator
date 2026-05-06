@@ -92,7 +92,7 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
 
   if (waterfallData.length <= 1) {
     return (
-      <AbsoluteFill style={{ backgroundColor: backgroundType === 'transparent' ? 'transparent' : T.background, justifyContent: 'center', alignItems: 'center' }}>
+      <AbsoluteFill style={{ backgroundColor: backgroundType === 'transparent' ? 'rgba(0,0,0,0)' : T.background, justifyContent: 'center', alignItems: 'center' }}>
         <p style={{ color: T.text, fontSize: Theme.typography.subtitle.size }}>Aguardando dados...</p>
       </AbsoluteFill>
     );
@@ -158,9 +158,11 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
   };
 
   return (
-    <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
+    <AbsoluteFill style={{ 
+      fontFamily: Theme.typography.fontFamily,
+      backgroundColor: backgroundType === 'transparent' ? 'rgba(0,0,0,0)' : undefined
+    }}>
       <DynamicBackground
-        style={bgStyle}
         baseColor={T.background}
         accentColor={T.colors[0]}
         backgroundType={backgroundType}

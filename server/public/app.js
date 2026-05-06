@@ -52,10 +52,10 @@ function updateUploadUI() {
   if (btnData) btnData.classList.toggle('active', state.uploadMode === 'data');
 
   if (state.uploadMode === 'vision') {
-    if (text) text.textContent = 'Arraste uma referência visual ou clique';
-    if (hint) hint.textContent = 'Formatos: PNG · JPG · JPEG · WEBP';
+    if (text) text.textContent = 'Arraste um GRÁFICO para analisar';
+    if (hint) hint.textContent = 'Logos/Marcas? Use o botão "EDITAR CORES" abaixo.';
     if (fileInput) fileInput.accept = '.png,.jpg,.jpeg,.webp';
-    log("Pedro: Modo Referência Visual ativado.");
+    log("Pedro: Modo Referência Visual (Gráficos) ativado.");
   } else {
     if (text) text.textContent = 'Arraste sua planilha ou clique';
     if (hint) hint.textContent = 'Formatos: XLSX · CSV · XLS · JSON';
@@ -209,9 +209,55 @@ document.addEventListener('DOMContentLoaded', () => {
     const cpInput = document.getElementById('cp-ref-input');
     const canvas = document.getElementById('cp-ref-canvas');
 
+    const cpReset = document.getElementById('cp-ref-reset');
+    if (cpReset) {
+        cpReset.addEventListener('click', () => {
+            document.getElementById('cp-ref-preview-container').style.display = 'none';
+            document.getElementById('cp-ref-drop').style.display = '';
+            if (cpInput) cpInput.value = '';
+        });
+    }
+
     if (cpDrop && cpInput) {
         cpDrop.addEventListener('click', () => cpInput.click());
         cpInput.addEventListener('change', e => handlePaletteRefImage(e.target.files[0]));
+        
+        // Suporte para Drag & Drop de imagens na Referência Visual
+        cpDrop.addEventListener('dragover', e => { e.preventDefault(); cpDrop.style.borderColor = 'var(--teal)'; });
+        cpDrop.addEventListener('dragleave', e => { cpDrop.style.borderColor = ''; });
+        cpDrop.addEventListener('drop', e => {
+            e.preventDefault();
+            cpDrop.style.borderColor = '';
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                handlePaletteRefImage(e.dataTransfer.files[0]);
+            }
+        });
+        
+        // Suporte para colar print (Ctrl+V) direto no painel
+        document.addEventListener('paste', (e) => {
+            const cpModal = document.getElementById('custom-palette-overlay');
+            if (cpModal && cpModal.style.display !== 'none') {
+                const items = (e.clipboardData || window.clipboardData).items;
+                for (let item of items) {
+                    if (item.type.indexOf('image') === 0) {
+                        const file = item.getAsFile();
+                        
+                        // Força a mudança para a aba de referência visual
+                        document.querySelectorAll('.cp-tab').forEach(t => t.classList.remove('active'));
+                        const refTab = document.querySelector('.cp-tab[data-tab="reference"]');
+                        if (refTab) refTab.classList.add('active');
+                        
+                        document.querySelectorAll('.cp-tab-content').forEach(c => c.classList.remove('active'));
+                        const refContent = document.getElementById('cp-tab-reference');
+                        if (refContent) refContent.classList.add('active');
+
+                        handlePaletteRefImage(file);
+                        e.preventDefault();
+                        break;
+                    }
+                }
+            }
+        });
     }
 
     if (canvas) {
@@ -254,7 +300,56 @@ function handlePaletteRefImage(file) {
             ctx.drawImage(img, 0, 0);
             document.getElementById('cp-ref-preview-container').style.display = 'block';
             document.getElementById('cp-ref-drop').style.display = 'none';
-            toast("Clique na imagem para extrair cores!", "info");
+            
+            // Auto-Extração (Palette Thief V3 - Two-Pass, Brand-Friendly)
+            const tmpC = document.createElement('canvas');
+            const tmpCtx = tmpC.getContext('2d');
+            tmpC.width = 100; tmpC.height = 100;
+            tmpCtx.drawImage(img, 0, 0, 100, 100);
+            const data = tmpCtx.getImageData(0, 0, 100, 100).data;
+
+            function extractWithThreshold(minChroma) {
+                const buckets = {};
+                for (let i = 0; i < data.length; i += 4) {
+                    const r = data[i], g = data[i+1], b = data[i+2], a = data[i+3];
+                    if (a < 200) continue;
+                    const max = Math.max(r,g,b), min = Math.min(r,g,b);
+                    const chroma = max - min;
+                    if (chroma < minChroma) continue;
+                    if (max < 50) continue;
+                    if (min > 210) continue;
+                    const qR = Math.round(r / 32) * 32;
+                    const qG = Math.round(g / 32) * 32;
+                    const qB = Math.round(b / 32) * 32;
+                    const key = `${qR},${qG},${qB}`;
+                    const hex = "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+                    if (!buckets[key]) buckets[key] = { score: 0, exact: hex };
+                    buckets[key].score += chroma;
+                }
+                return Object.values(buckets).sort((a,b) => b.score - a.score).slice(0, 6);
+            }
+
+            // First pass: vibrant colors (chroma >= 20); second pass fallback for desaturated brands
+            let sorted = extractWithThreshold(20);
+            if (sorted.length === 0) sorted = extractWithThreshold(5);
+
+            if (sorted.length > 0) {
+                const inputs = document.querySelectorAll('#cp-tab-manual .cp-color-input');
+                let inputIdx = 0;
+                for (let i = 0; i < sorted.length && inputIdx < inputs.length; i++) {
+                    inputs[inputIdx].value = sorted[i].exact;
+                    inputs[inputIdx].dataset.new = 'false';
+                    inputIdx++;
+                }
+                // Switch to Manual tab so user sees the extracted colors
+                document.querySelectorAll('.cp-tab').forEach(t => t.classList.remove('active'));
+                document.querySelector('.cp-tab[data-tab="manual"]')?.classList.add('active');
+                document.querySelectorAll('.cp-tab-content').forEach(c => c.classList.remove('active'));
+                document.getElementById('cp-tab-manual')?.classList.add('active');
+                toast(`✨ ${inputIdx} cores extraídas! Ajuste no painel manual.`, "success");
+            } else {
+                toast("Nenhuma cor detectada. Clique na imagem para capturar manualmente.", "info");
+            }
         };
         img.src = e.target.result;
     };
@@ -467,6 +562,10 @@ async function loadCSVPreview(file) {
 
 
 function addClipboardImage(blob, index) {
+  if (state.uploadMode !== 'vision') {
+    toast("Mude para o modo de Análise de Gráfico para colar imagens.", "error");
+    return;
+  }
   const name = `imagem_colada_${Date.now()}${index > 0 ? '_' + index : ''}.png`;
   const file = new File([blob], name, { type: blob.type || 'image/png' });
   state.files.push({ id: uid(), file, name: file.name, size: file.size, status: 'pending' });
@@ -505,6 +604,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ─── CTRL+V / PASTE ────────────────────────────────────────
   document.addEventListener('paste', (e) => {
+    // IGNORA SE O MODAL DO TEMA ESTIVER ABERTO (delega pro listener do tema)
+    const cpModal = document.getElementById('custom-palette-overlay');
+    if (cpModal && cpModal.style.display !== 'none') {
+        return; // Não envia para o pipeline principal
+    }
+
     if (!e.clipboardData) return;
     const items = Array.from(e.clipboardData.items);
     const imageItems = items.filter(item => item.type.startsWith('image/'));
@@ -1013,6 +1118,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     bannerDesc.textContent = errorMsg;
                 }
                 toast("❌ FIDELIDADE REPROVADA", "error");
+            } else if (errorMsg.includes('Título ausente')) {
+                toast("❌ Título não detectado. Se for uma logomarca, use o botão 'EDITAR CORES'!", "error");
+                if (banner) {
+                    banner.classList.remove('hidden');
+                    bannerDesc.innerHTML = `<strong>Erro de Análise:</strong> Título não encontrado.<br><br>Parece que você subiu uma imagem de marca no lugar de um gráfico. Se quiser extrair cores, abra o modal <strong>EDITAR CORES</strong> na seção de estilos.`;
+                }
             } else {
                 toast(`Erro: ${errorMsg}`, "error");
             }
@@ -1146,12 +1257,12 @@ function startPolling(jobId, fileName, fileId) {
         if (file) file.status = 'error';
         
         const errMsg = msg.error || 'Erro interno desconhecido do servidor';
+        
         log(`✕ Erro 4K: ${errMsg}`, 'error');
         toast(`Erro: ${errMsg}`, 'error');
-        setProgress(0, 'Erro ✕');
         
-        renderFileQueue(); // Atualiza botão e lista
-        // alert(`Status: ${errMsg}`); // Removido conforme solicitado para evitar interrupções
+        setProgress(0, 'Erro ✕');
+        renderFileQueue(); 
       }
     } catch(err) {
       console.error('Polling Error:', err);

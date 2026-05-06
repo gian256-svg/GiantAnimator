@@ -18,6 +18,9 @@ O erro de 1% é considerado FALHA CRÍTICA.
    - Se os dados são barras verticais -> USE OBRIGATORIAMENTE "BarChart".
    - Se os dados são barras horizontais -> USE OBRIGATORIAMENTE "HorizontalBarChart".
    - **NUNCA** converta barras em linhas (LineChart). Isso altera a natureza da percepção visual.
+   - **DETECÇÃO EMPILHADO vs AGRUPADO**: Se as barras de cada categoria formam UMA ÚNICA LINHA com segmentos coloridos contíguos (como uma barra particionada), é EMPILHADO -> "stacked": true. Se cada categoria tem várias linhas paralelas separadas (uma por série), é AGRUPADO -> "stacked": false.
+   - **EXTRAÇÃO CRÍTICA PARA STACKED (FALHA FATAL SE ERRAR)**: Para gráficos empilhados, extraia a LARGURA INDIVIDUAL de cada segmento, NUNCA a posição cumulativa do fim do segmento. EXEMPLO OBRIGATÓRIO: se o segmento A vai de 0 a 10k e o segmento B vai de 10k a 18k, o valor de B é 8k (não 18k). Ler a posição final como valor DOBRA os dados e destrói o gráfico.
+   - **xMax para HorizontalBarChart**: Use a propriedade "xMax" (NAO "yMax") para definir o limite do eixo horizontal. O valor deve ser a maior SOMA TOTAL dentre todas as categorias (some todos os segmentos da categoria mais longa).
 
 2. **Integridade Textual e Idioma (Títulos, Legendas e Rótulos)**:
    - **NUNCA TRADUZA OU TRUNQUE TÍTULOS E RÓTULOS**. Capture a frase COMPLETA e EXATA no idioma original da imagem. Se a imagem está em Inglês, o JSON deve estar em Inglês.
@@ -28,7 +31,8 @@ O erro de 1% é considerado FALHA CRÍTICA.
 
 4. **Precisão Numérica e Cromática (Fidelidade de 100%)**:
    - **DECIMAIS EXATOS**: Capture os valores exatamente como aparecem na imagem.
-   - **VIBRANCY MANDATE (CRÍTICO)**: NUNCA use cores HEX pretas, cinzas ou extremamente escuras para as séries (barras/linhas). Se uma cor detectada for muito escura (brilho < 20%), substitua por uma cor VIBRANTE do mesmo matiz (ex: marinho quase preto → Azul Royal; verde musgo → Verde Esmeralda). Cores escuras matam a legibilidade em renders 4K. **NUNCA** retorne um gráfico P/B ou cinza se a imagem for colorida.
+    - **RESPEITO CROMÁTICO (FIDELIDADE > ESTÉTICA)**: Capture as cores EXATAS da imagem original para cada série ou categoria. Se a imagem usa cinza para uma série, use cinza. Se usa cores pastéis, use cores pastéis. **NUNCA** mude o matiz (ex: não troque um vinho sóbrio por um vermelho neon). A única exceção é clarear levemente tons que sejam quase pretos (#000000) apenas para garantir visibilidade em fundos escuros.
+
    - Analise os eixos com lupa. Se um valor está entre 60 e 70 e parece ser 66, use 66.
    - Verifique a escala do eixo Y. Se o máximo visível é 80, capture isso.
 
@@ -62,19 +66,24 @@ ${calloutInstruction}
     "yAxisTitle": "TÍTULO DO EIXO Y (se existir)",
     "yMin": 0,
     "yMax": 25,
+    "xMin": 0,
+    "xMax": 60000,
     "series": [
       { "label": "Série 1", "data": [10.5, 20.3], "color": "#HEX_DA_IMAGEM_A" }
     ],
     "seriesColors": ["#HEX_SERIE_1_DA_IMAGEM_A", "#HEX_SERIE_2_DA_IMAGEM_A"],
     "unit": "",
+    "stacked": false,
     "showValueLabels": true,
     "showLegend": true,
     "annotations": []
   }
 }
 
-NOTAS SOBRE yMax:
-- SEMPRE extraia o "yMax" visível no eixo da a imagem. Se o eixo termina em 25, use 25.
+NOTAS SOBRE ESCALA:
+- yMin/yMax: para BarChart e LineChart (eixo vertical). SEMPRE extraia o valor visível no eixo.
+- xMin/xMax: para HorizontalBarChart (eixo horizontal). Para stacked, xMax = maior soma total entre as categorias. Para grouped, xMax = maior valor individual.
+- NUNCA omita xMax em HorizontalBarChart — sem ele a escala fica errada.
 
 ### REGISTRY DE COMPONENTES DISPONÍVEIS:
 ${registryJson}

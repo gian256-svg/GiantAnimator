@@ -96,7 +96,7 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
   }
 
   if (!xAxisLabels || xAxisLabels.length === 0 || !normalizedSeries || normalizedSeries.length === 0) {
-    return <AbsoluteFill style={{ backgroundColor: resolvedBg }} />;
+    return <AbsoluteFill style={{ backgroundColor: (backgroundType as string) === 'transparent' ? 'rgba(0,0,0,0)' : resolvedBg }} />;
   }
 
   const isHighDensity = xAxisLabels.length > 30;
@@ -166,7 +166,7 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
   return (
     <AbsoluteFill style={{ 
       fontFamily: Theme.typography.fontFamily,
-      backgroundColor: (backgroundType as string) === 'transparent' ? 'transparent' : undefined
+      backgroundColor: backgroundType === 'transparent' ? 'rgba(0,0,0,0)' : undefined
     }}>
       <DynamicBackground
         baseColor={resolvedBg}

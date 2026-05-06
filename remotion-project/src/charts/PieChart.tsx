@@ -66,7 +66,7 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
     normalizedData = rawData.labels.map((l: string, i: number) => ({ label: l, value: rawData.series[0].data[i] || 0 }));
   }
 
-  if (!normalizedData.length) return <AbsoluteFill style={{ backgroundColor: resolvedBg }} />;
+  if (!normalizedData.length) return <AbsoluteFill style={{ backgroundColor: (backgroundType as string) === 'transparent' ? 'rgba(0,0,0,0)' : resolvedBg }} />;
 
   const totalValue = normalizedData.reduce((acc, s) => acc + s.value, 0) || 1;
   const slices = normalizedData.map((slice) => ({
@@ -93,7 +93,7 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
   return (
     <AbsoluteFill style={{ 
       fontFamily: Theme.typography.fontFamily,
-      backgroundColor: backgroundType === 'transparent' ? 'transparent' : undefined
+      backgroundColor: backgroundType === 'transparent' ? 'rgba(0,0,0,0)' : undefined
     }}>
       <DynamicBackground 
         baseColor={resolvedBg} 

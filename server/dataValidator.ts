@@ -58,10 +58,14 @@ export function validateChartData(type: string, props: any): ValidationResult {
   const errors: string[] = [];
 
   // ── 1. Título ─────────────────────────────────────────────────────────────
-  if (!props.title || props.title.toLowerCase().includes("untitled") || props.title.trim().length < 3) {
-    errors.push("Título ausente ou genérico (alucinação provável).");
-  } else if (FAKE_TITLE_RE.test(props.title)) {
-    errors.push(`Título contém empresa sintética de template (dado não-real): "${props.title}".`);
+  // Ausência de título é válida — gráficos sem título existem. Só bloqueia
+  // títulos genéricos/sintéticos que indicam alucinação do modelo.
+  if (props.title && props.title.trim().length > 0) {
+    if (props.title.toLowerCase().includes("untitled") || props.title.trim().length < 3) {
+      errors.push("Título genérico demais (alucinação provável).");
+    } else if (FAKE_TITLE_RE.test(props.title)) {
+      errors.push(`Título contém empresa sintética de template (dado não-real): "${props.title}".`);
+    }
   }
 
   // ── 2. Labels genéricos ───────────────────────────────────────────────────

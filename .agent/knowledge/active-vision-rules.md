@@ -17,3 +17,10 @@ Nunca viole estas regras.
 10. **Cores das Séries (seriesColors)**: As cores extraídas da imagem original DEVEM ser retornadas SEMPRE na propriedade `seriesColors` (array de strings hex). Esta propriedade é o único canal de fidelidade de cor do sistema — omiti-la causa 100% das falhas de cor na auditoria. Nunca use `colors` como nome alternativo na raiz do JSON; use exclusivamente `seriesColors`.
 11. **Escala do Eixo Y (yMin / yMax) — CRÍTICO**: Inspecione o eixo Y da imagem original e extraia o valor mínimo e máximo EXATAMENTE como exibido. Retorne `"yMin": <valor>` e `"yMax": <valor>` nas props. NUNCA assuma que o eixo começa em zero — se o eixo começa em 255, retorne `"yMin": 255`. Um eixo começando em 0 quando a imagem mostra 255 é uma FALHA CRÍTICA que torna os dados visualmente irreconhecíveis. Na dúvida, siga a referência.
 12. **Legenda vs. Direct Labels**: Se a imagem original exibe rótulos de série no final das linhas (direct labeling) em vez de uma legenda separada, retorne `"showLegend": false`. Se possuir legenda centralizada/inferior, retorne `"showLegend": true`. Nunca ative ambos simultaneamente.
+
+13. **Barras Empilhadas (Stacked) vs. Agrupadas (Grouped) — CRÍTICO**:
+    - EMPILHADO: cada categoria = uma única barra particionada em segmentos coloridos contíguos → `"stacked": true`.
+    - AGRUPADO: cada categoria = múltiplas barras paralelas separadas → `"stacked": false`.
+    - **EXTRAÇÃO DE VALOR EM STACKED**: Extraia a LARGURA INDIVIDUAL de cada segmento. NUNCA a posição final/cumulativa. Se segmento A vai de 0→10k e B vai de 10k→18k, B vale 8k, NÃO 18k. Erro aqui dobra todos os dados.
+    - **xMax para HorizontalBarChart**: sempre use `"xMax"` (não `"yMax"`). O valor = maior soma total de segmentos entre todas as categorias.
+    - **Cores**: cada série de um stacked chart DEVE ter cor distinta e vibrante, extraída diretamente da imagem original.

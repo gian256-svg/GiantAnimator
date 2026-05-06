@@ -1,5 +1,3545 @@
 [
   {
+    "filename": "FavoriteSports_AN_imagem_colada_1778101419982.mp4",
+    "outputFile": "FavoriteSports_AN_imagem_colada_1778101419982.mp4",
+    "thumbnailFile": "FavoriteSports_AN_imagem_colada_1778101419982.thumb.jpg",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "BarChart",
+        "suggestedName": "FavoriteSports",
+        "reasoning": "O gráfico é um BarChart vertical que exibe a preferência por diferentes esportes. Os dados foram extraídos diretamente da altura de cada barra em relação ao eixo Y. As cores de cada barra foram capturadas com precisão da imagem original. O título e os títulos dos eixos foram copiados textualmente. A escala do eixo Y (yMin: 0, yMax: 20) foi definida exatamente como na imagem. Não há legenda explícita, e as unidades não são repetidas, pois 'Students' já está no título do eixo Y.",
+        "props": {
+          "title": "Favorite Sports",
+          "subtitle": "",
+          "labels": [
+            "Golf",
+            "Tennis",
+            "Football",
+            "Rugby",
+            "Basketball"
+          ],
+          "xAxisTitle": "Types of Sports",
+          "yAxisTitle": "Number of Students",
+          "yMin": 0,
+          "yMax": 20,
+          "series": [
+            {
+              "label": "Sports",
+              "data": [
+                6,
+                8,
+                12,
+                10,
+                16
+              ]
+            }
+          ],
+          "unit": "",
+          "stacked": false,
+          "showValueLabels": false,
+          "showLegend": false,
+          "data": [
+            {
+              "label": "Golf",
+              "value": 6
+            },
+            {
+              "label": "Tennis",
+              "value": 8
+            },
+            {
+              "label": "Football",
+              "value": 12
+            },
+            {
+              "label": "Rugby",
+              "value": 10
+            },
+            {
+              "label": "Basketball",
+              "value": 16
+            }
+          ],
+          "insightText": "O basquete lidera como esporte favorito, com 16 preferências, destacando-se como o esporte mais popular entre as opções apresentadas.",
+          "backgroundColor": "#0f1117",
+          "textColor": "#ffffff",
+          "seriesColors": [
+            "#eb4132",
+            "#4086f4",
+            "#30a952",
+            "#fbbd01",
+            "#f8a905",
+            "#f27c19"
+          ]
+        }
+      }
+    },
+    "id": "2709f603-8a70-47ea-9bdb-9f5116f9cf02",
+    "createdAt": "2026-05-06T21:04:40.472Z"
+  },
+  {
+    "filename": "QuarterlyProductSales_AN_imagem_colada_1778097332843.mp4",
+    "outputFile": "QuarterlyProductSales_AN_imagem_colada_1778097332843.mp4",
+    "thumbnailFile": "QuarterlyProductSales_AN_imagem_colada_1778097332843.thumb.jpg",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "BarChart",
+        "suggestedName": "QuarterlyProductSales",
+        "reasoning": "O gráfico é um BarChart (barras verticais) agrupado, com múltiplas séries (Doohickey, Gadget, Gizmo, Widget) para cada categoria de tempo (Quarter-Year). Os dados foram extraídos diretamente dos rótulos de valor em cada barra, convertendo 'k' para milhares (ex: 6.8k para 6800). As cores das séries foram capturadas da legenda. O yMin foi definido como 0, e o yMax como 20000 para acomodar o valor máximo de 19100, garantindo que todas as barras sejam visíveis. A propriedade 'unit' foi deixada vazia porque o eixo Y já comunica a escala em unidades de milhar (ex: 18000), evitando redundância. A legenda e os rótulos de valor são visíveis na imagem original, portanto 'showLegend' e 'showValueLabels' são true.",
+        "props": {
+          "title": "",
+          "subtitle": "",
+          "labels": [
+            "1-2023",
+            "2-2023",
+            "3-2023",
+            "4-2023"
+          ],
+          "xAxisTitle": "Quarter-Year",
+          "yAxisTitle": "sum",
+          "yMin": 0,
+          "yMax": 20000,
+          "series": [
+            {
+              "label": "Doohickey",
+              "data": [
+                6800,
+                8800,
+                12300,
+                13600
+              ]
+            },
+            {
+              "label": "Gadget",
+              "data": [
+                9100,
+                11700,
+                14300,
+                17600
+              ]
+            },
+            {
+              "label": "Gizmo",
+              "data": [
+                9100,
+                9400,
+                12800,
+                15000
+              ]
+            },
+            {
+              "label": "Widget",
+              "data": [
+                9900,
+                12700,
+                15000,
+                19100
+              ]
+            }
+          ],
+          "seriesColors": [],
+          "unit": "",
+          "stacked": false,
+          "showValueLabels": true,
+          "showLegend": true,
+          "data": [
+            {
+              "label": "1-2023",
+              "value": 6800
+            },
+            {
+              "label": "2-2023",
+              "value": 8800
+            },
+            {
+              "label": "3-2023",
+              "value": 12300
+            },
+            {
+              "label": "4-2023",
+              "value": 13600
+            }
+          ],
+          "insightText": "O crescimento dos produtos Gadget e Widget apresenta uma tendência ascendente consistente, superando os demais produtos em termos de desempenho ao longo do período analisado.",
+          "backgroundColor": "#0f1117",
+          "textColor": "#ffffff",
+          "colors": [
+            "#5bcd07",
+            "#c0eca0",
+            "#ff9c00",
+            "#ffb000",
+            "#71d327",
+            "#ffd800"
+          ]
+        }
+      }
+    },
+    "id": "a759dc94-2e07-4d46-8b4f-c89c646a80c1",
+    "createdAt": "2026-05-06T19:56:49.182Z"
+  },
+  {
+    "filename": "Top10DigitalLobbyists_AN_imagem_colada_1778092852171.mp4",
+    "outputFile": "Top10DigitalLobbyists_AN_imagem_colada_1778092852171.mp4",
+    "thumbnailFile": "Top10DigitalLobbyists_AN_imagem_colada_1778092852171.thumb.jpg",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "HorizontalBarChart",
+        "suggestedName": "Top10DigitalLobbyists",
+        "reasoning": "O gráfico é um 'HorizontalBarChart' que exibe o ranking dos 10 principais lobistas da indústria digital. O título e o subtítulo foram extraídos textualmente. Os rótulos das categorias (nomes das empresas) foram extraídos do eixo vertical. Os valores numéricos foram extraídos das barras e convertidos para sua representação em milhões (ex: 10M para 10000000), mantendo a precisão decimal (4.5M para 4500000). O eixo horizontal (x-axis) varia de 0 a 10M, portanto, 'xMin' é 0 e 'xMax' é 10000000. A unidade 'M' (milhões) já está presente nos rótulos do eixo X, então a propriedade 'unit' foi deixada vazia para evitar redundância, conforme a regra 3. As cores das barras foram extraídas diretamente da imagem original e aplicadas em 'seriesColors'. Os valores são exibidos explicitamente nas barras, então 'showValueLabels' é 'true'. Não há uma legenda separada, apenas rótulos diretos, então 'showLegend' é 'false' e o 'label' da série é vazio, conforme a regra 2. A contagem de barras e pontos de dados é de 10, garantindo a integridade dos dados (regra 5).",
+        "props": {
+          "title": "Top 10 digital industry lobbyists",
+          "subtitle": "Digital lobby actors ranked by how much they spend lobbying the EU Institutions.",
+          "labels": [
+            "Meta Platforms",
+            "Microsoft Corporation",
+            "Apple Inc.",
+            "Amazon Europe Core SARL",
+            "QUALCOMM Incorporated",
+            "Google",
+            "DIGITALEUROPE",
+            "Telefonica, S.A.",
+            "Intel Corporation",
+            "Samsung Electronics Europe"
+          ],
+          "xAxisTitle": null,
+          "yAxisTitle": null,
+          "xMin": 0,
+          "xMax": 10000000,
+          "series": [
+            {
+              "label": "",
+              "data": [
+                10000000,
+                7000000,
+                7000000,
+                7000000,
+                4500000,
+                4500000,
+                3000000,
+                2000000,
+                2000000,
+                2000000
+              ]
+            }
+          ],
+          "seriesColors": [],
+          "unit": "",
+          "showValueLabels": true,
+          "showLegend": false,
+          "data": [
+            {
+              "label": "Meta Platforms",
+              "value": 10000000
+            },
+            {
+              "label": "Microsoft Corporation",
+              "value": 7000000
+            },
+            {
+              "label": "Apple Inc.",
+              "value": 7000000
+            },
+            {
+              "label": "Amazon Europe Core SARL",
+              "value": 7000000
+            },
+            {
+              "label": "QUALCOMM Incorporated",
+              "value": 4500000
+            },
+            {
+              "label": "Google",
+              "value": 4500000
+            },
+            {
+              "label": "DIGITALEUROPE",
+              "value": 3000000
+            },
+            {
+              "label": "Telefonica, S.A.",
+              "value": 2000000
+            },
+            {
+              "label": "Intel Corporation",
+              "value": 2000000
+            },
+            {
+              "label": "Samsung Electronics Europe",
+              "value": 2000000
+            }
+          ],
+          "insightText": "O setor de tecnologia lidera os esforços de lobby na União Europeia, com a Meta Platforms destacando-se como a maior investidora, alocando 10 milhões de euros, seguida de perto por Microsoft, Apple e Amazon, que investem 7 milhões de euros cada.",
+          "backgroundColor": "#0f1117",
+          "textColor": "#ffffff",
+          "colors": [
+            "#7c3aed",
+            "#06b6d4",
+            "#a855f7",
+            "#22c55e",
+            "#f59e0b",
+            "#ef4444"
+          ]
+        }
+      }
+    },
+    "id": "68e8f5d5-c474-4f2d-ae33-13e7f7db27ce",
+    "createdAt": "2026-05-06T18:42:12.119Z"
+  },
+  {
+    "filename": "auto_DonutChart_6.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "PieChart",
+        "suggestedName": "Distribuicao6",
+        "reasoning": "O gráfico apresentado é um gráfico de pizza (PieChart) com quatro fatias representando as categorias Tech, Health, Finance e outra sem rótulo explícito, mas que podemos inferir como a quarta categoria. As cores e valores são claramente identificáveis.",
+        "props": {
+          "title": "Distribution 6",
+          "data": [
+            {
+              "label": "Tech",
+              "value": 33
+            },
+            {
+              "label": "Health",
+              "value": 22
+            },
+            {
+              "label": "Finance",
+              "value": 23
+            },
+            {
+              "label": "",
+              "value": 23
+            }
+          ],
+          "seriesColors": [
+            "#3498db",
+            "#f1c40f",
+            "#e74c3c",
+            "#2ecc71"
+          ],
+          "legendPosition": "bottom",
+          "labelPosition": "inside",
+          "labels": [
+            "Tech",
+            "Health",
+            "Finance"
+          ],
+          "series": [
+            {
+              "label": "Distribution 6",
+              "data": [
+                33,
+                22,
+                23,
+                23
+              ]
+            }
+          ],
+          "insightText": "O setor de Tecnologia lidera a distribuição com 33%, enquanto os setores de Finanças e Saúde seguem de perto, com 23% cada, e o setor de Saúde apresenta um desempenho ligeiramente abaixo, com 22%."
+        },
+        "engine": "groq-llama-vision"
+      }
+    },
+    "id": "343970e9-5c0e-45d9-8375-8ea0772ff921",
+    "createdAt": "2026-05-06T18:28:47.143Z"
+  },
+  {
+    "filename": "auto_DonutChart_2.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "DonutChart",
+        "suggestedName": "Distribution2",
+        "reasoning": "O gráfico é um Donut Chart, conforme a forma circular com um centro vazio. O título 'Distribution 2' foi extraído diretamente. Os valores e as cores de cada segmento foram extraídos com precisão cirúrgica da imagem original. A legenda explícita para 'Tech', 'Health' e 'Finance' foi respeitada, e para os segmentos sem rótulo explícito na legenda, o campo 'label' foi deixado vazio, conforme a regra 'Nomes Fidedignos'. A propriedade 'showValueLabels' foi definida como 'true' porque os valores numéricos estão visíveis dentro de cada fatia. A propriedade 'showLegend' foi definida como 'true' devido à presença da legenda no topo do gráfico. As cores foram extraídas diretamente da imagem e mapeadas para a ordem visual dos segmentos no array 'seriesColors'.",
+        "props": {
+          "title": "Distribution 2",
+          "subtitle": "",
+          "data": [
+            {
+              "label": "Tech",
+              "value": 27
+            },
+            {
+              "label": "Health",
+              "value": 26
+            },
+            {
+              "label": "Finance",
+              "value": 10
+            },
+            {
+              "label": "",
+              "value": 26
+            },
+            {
+              "label": "",
+              "value": 13
+            }
+          ],
+          "seriesColors": [
+            "#1A1A33",
+            "#994D1A",
+            "#661A1A",
+            "#336666",
+            "#1A4D1A"
+          ],
+          "unit": "",
+          "showValueLabels": true,
+          "showLegend": true,
+          "annotations": [],
+          "labels": [
+            "Tech",
+            "Health",
+            "Finance"
+          ],
+          "series": [
+            {
+              "label": "Distribution 2",
+              "data": [
+                27,
+                26,
+                10,
+                26,
+                13
+              ]
+            }
+          ],
+          "insightText": "O setor de Tecnologia lidera a distribuição com 27%, seguido de perto pelo setor de Saúde com 26%, enquanto o setor Financeiro apresenta uma participação relativamente baixa de 10%."
+        }
+      }
+    },
+    "id": "c1cf0422-9a01-40b6-85a8-f5889de5051c",
+    "createdAt": "2026-05-06T18:26:47.776Z"
+  },
+  {
+    "filename": "auto_PieChart_2.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "PieChart",
+        "suggestedName": "MarketShare2",
+        "reasoning": "O gráfico é um Pie Chart, representando a distribuição de 'Market Share 2'. Os dados foram extraídos diretamente das fatias do gráfico, e os rótulos 'Tech', 'Health' e 'Finance' foram associados às suas respectivas cores e valores conforme a legenda fornecida. Para as duas fatias restantes que não possuíam rótulos explícitos na legenda, seus campos 'label' foram deixados vazios, seguindo a regra de 'Nomes Fidedignos' para evitar invenção de dados. As cores foram capturadas com precisão cirúrgica da imagem original. A propriedade 'showValueLabels' está ativada porque os valores numéricos são visíveis dentro de cada fatia. A propriedade 'showLegend' está ativada porque uma legenda explícita foi fornecida para algumas das séries.",
+        "props": {
+          "title": "Market Share 2",
+          "subtitle": "",
+          "data": [
+            {
+              "label": "Tech",
+              "value": 11
+            },
+            {
+              "label": "Health",
+              "value": 27
+            },
+            {
+              "label": "Finance",
+              "value": 17
+            },
+            {
+              "label": "",
+              "value": 36
+            },
+            {
+              "label": "",
+              "value": 13
+            }
+          ],
+          "seriesColors": [
+            "#994C00",
+            "#660000",
+            "#336666",
+            "#003300"
+          ],
+          "unit": "",
+          "showValueLabels": true,
+          "showLegend": true,
+          "legendPosition": "bottom",
+          "labelPosition": "inside",
+          "labels": [
+            "Tech",
+            "Health",
+            "Finance"
+          ],
+          "series": [
+            {
+              "label": "Market Share 2",
+              "data": [
+                11,
+                27,
+                17,
+                36,
+                13
+              ]
+            }
+          ],
+          "insightText": "O setor de saúde lidera com 27% da participação de mercado, enquanto o setor financeiro e tecnologia seguem com 17% e 11%, respectivamente, indicando uma clara tendência de crescimento no setor de saúde."
+        }
+      }
+    },
+    "id": "adc69d41-ac8a-4784-bbe8-c8c86ad040f2",
+    "createdAt": "2026-05-06T18:24:04.765Z"
+  },
+  {
+    "filename": "auto_MultiLineChart_10.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "AreaChart",
+        "suggestedName": "ProductComparison10AreaChart",
+        "reasoning": "O gráfico é um Area Chart com duas séries empilhadas. O título 'Product Comparison 10' foi extraído diretamente. Os rótulos do eixo X ('Jan', 'Feb', 'Mar', 'Apr', 'May') e os valores do eixo Y (de 0 a 80) foram lidos com precisão. As duas séries, 'Product B 10' (inferior) e 'Product A 10' (superior), foram identificadas pela legenda e seus valores foram extraídos como contribuições individuais para a pilha (não cumulativos), conforme a regra de extração para gráficos empilhados. As cores das séries foram capturadas diretamente da legenda. Não há unidades explícitas nos eixos ou título, portanto 'unit' está vazio. A legenda está presente, então 'showLegend' é true. Não há rótulos de valor explícitos nos pontos de dados, então 'showValueLabels' é false.",
+        "props": {
+          "title": "Product Comparison 10",
+          "subtitle": "",
+          "labels": [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "yMin": 0,
+          "yMax": 80,
+          "series": [
+            {
+              "label": "Product B 10",
+              "data": [
+                25,
+                42,
+                20,
+                26,
+                45
+              ]
+            },
+            {
+              "label": "Product A 10",
+              "data": [
+                20,
+                17,
+                41,
+                15,
+                31
+              ]
+            }
+          ],
+          "seriesColors": [
+            "#8B572A",
+            "#4A5B6E"
+          ],
+          "unit": "",
+          "showValueLabels": false,
+          "showLegend": true,
+          "annotations": [],
+          "data": [
+            {
+              "label": "Jan",
+              "value": 25
+            },
+            {
+              "label": "Feb",
+              "value": 42
+            },
+            {
+              "label": "Mar",
+              "value": 20
+            },
+            {
+              "label": "Apr",
+              "value": 26
+            },
+            {
+              "label": "May",
+              "value": 45
+            }
+          ],
+          "insightText": "O Produto B 10 apresenta uma tendência de crescimento significativo, com um pico de 45 unidades em maio, superando consistentemente o desempenho do Produto A 10."
+        }
+      }
+    },
+    "id": "e0a40ae9-ac32-4f7f-a6ca-987dc0490c35",
+    "createdAt": "2026-05-06T18:23:21.956Z"
+  },
+  {
+    "filename": "auto_MultiLineChart_9.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "AreaChart",
+        "suggestedName": "ProductComparison9Area",
+        "reasoning": "O gráfico é um AreaChart empilhado, conforme indicado pelas áreas preenchidas e pela sobreposição das séries. A extração dos valores para cada série foi feita calculando a 'largura individual' de cada segmento, ou seja, a diferença entre o topo da área da série e o topo da série anterior (ou zero para a série base). As cores foram extraídas diretamente da legenda. O título, rótulos do eixo X e limites do eixo Y foram capturados com precisão cirúrgica da imagem original. A legenda é visível, portanto 'showLegend' é true. Não há rótulos de valor explícitos, então 'showValueLabels' é false.",
+        "props": {
+          "title": "Product Comparison 9",
+          "subtitle": "",
+          "labels": [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "yMin": 0,
+          "yMax": 80,
+          "series": [
+            {
+              "label": "Product B 9",
+              "data": [
+                40,
+                51,
+                47,
+                21,
+                18
+              ]
+            },
+            {
+              "label": "Product A 9",
+              "data": [
+                0,
+                0,
+                4,
+                55,
+                62
+              ]
+            }
+          ],
+          "seriesColors": [
+            "#8C5E3D",
+            "#4A6B82"
+          ],
+          "unit": "",
+          "stacked": true,
+          "showValueLabels": false,
+          "showLegend": true,
+          "annotations": [],
+          "data": [
+            {
+              "label": "Jan",
+              "value": 40
+            },
+            {
+              "label": "Feb",
+              "value": 51
+            },
+            {
+              "label": "Mar",
+              "value": 47
+            },
+            {
+              "label": "Apr",
+              "value": 21
+            },
+            {
+              "label": "May",
+              "value": 18
+            }
+          ],
+          "insightText": "O Produto A 9 apresentou um crescimento explosivo a partir de março, superando o Produto B 9 em abril e maio, indicando uma mudança significativa no mercado."
+        }
+      }
+    },
+    "id": "efbc1df3-e13b-45bb-b843-e8efba37d7bd",
+    "createdAt": "2026-05-06T18:23:04.449Z"
+  },
+  {
+    "filename": "auto_MultiLineChart_8.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "AreaChart",
+        "suggestedName": "ProductComparison8",
+        "reasoning": "O gráfico exibe duas áreas preenchidas que representam a evolução de dois produtos ao longo do tempo, o que o classifica como um AreaChart. Os rótulos do eixo X (meses) e os valores do eixo Y foram extraídos com precisão. As cores das séries foram capturadas diretamente da imagem original. Não há unidades explícitas no título ou nos eixos, portanto, a propriedade 'unit' foi deixada vazia. A legenda está presente na imagem, então 'showLegend' é true. Os valores de yMin e yMax foram definidos com base na escala visível do eixo Y.",
+        "props": {
+          "title": "Product Comparison 8",
+          "subtitle": "",
+          "labels": [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "yMin": 0,
+          "yMax": 90,
+          "series": [
+            {
+              "label": "Product A 8",
+              "data": [
+                22,
+                27,
+                40,
+                52,
+                87
+              ]
+            },
+            {
+              "label": "Product B 8",
+              "data": [
+                35,
+                49,
+                38,
+                24,
+                55
+              ]
+            }
+          ],
+          "seriesColors": [
+            "#4A6C87",
+            "#B08C60"
+          ],
+          "unit": "",
+          "stacked": false,
+          "showValueLabels": false,
+          "showLegend": true,
+          "annotations": [],
+          "data": [
+            {
+              "label": "Jan",
+              "value": 22
+            },
+            {
+              "label": "Feb",
+              "value": 27
+            },
+            {
+              "label": "Mar",
+              "value": 40
+            },
+            {
+              "label": "Apr",
+              "value": 52
+            },
+            {
+              "label": "May",
+              "value": 87
+            }
+          ],
+          "insightText": "O Produto A apresenta uma tendência de crescimento contínuo e acelerado, alcançando um pico de 87 unidades em maio, superando significativamente o desempenho do Produto B."
+        }
+      }
+    },
+    "id": "05a801f4-7cf7-456c-a239-262bac374e63",
+    "createdAt": "2026-05-06T18:22:42.661Z"
+  },
+  {
+    "filename": "auto_MultiLineChart_7.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "AreaChart",
+        "suggestedName": "ProductComparison7",
+        "reasoning": "The chart displays multiple series as stacked areas over a categorical X-axis (months), making 'AreaChart' the appropriate component. The data for each series represents its individual contribution to the stack, not cumulative values, adhering strictly to the rule for stacked charts (Rule 13). The bottom-most black area, despite lacking an explicit legend label, is treated as a distinct series with an empty label (`\"\"`) to maintain data integrity and avoid inventing names (Rule 2). The 'showLegend' property is set to 'true' because 'Product A 7' and 'Product B 7' have explicit legend entries. All colors are extracted directly from the image, and the Y-axis scale (yMin: 0, yMax: 80) is precisely captured from the original chart (Rule 11). No value labels are present in the original image, so 'showValueLabels' is 'false'.",
+        "props": {
+          "title": "Product Comparison 7",
+          "subtitle": "",
+          "labels": [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "yMin": 0,
+          "yMax": 80,
+          "series": [
+            {
+              "label": "",
+              "data": [
+                41,
+                47,
+                41,
+                38,
+                11
+              ]
+            },
+            {
+              "label": "Product B 7",
+              "data": [
+                9,
+                1,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "label": "Product A 7",
+              "data": [
+                0,
+                1,
+                12,
+                33,
+                43
+              ]
+            }
+          ],
+          "seriesColors": [
+            "#965A3B",
+            "#4A657B"
+          ],
+          "unit": "",
+          "showValueLabels": false,
+          "showLegend": true,
+          "annotations": [],
+          "data": [
+            {
+              "label": "Jan",
+              "value": 41
+            },
+            {
+              "label": "Feb",
+              "value": 47
+            },
+            {
+              "label": "Mar",
+              "value": 41
+            },
+            {
+              "label": "Apr",
+              "value": 38
+            },
+            {
+              "label": "May",
+              "value": 11
+            }
+          ],
+          "insightText": "O produto A 7 apresenta uma tendência de crescimento explosivo, enquanto o produto B 7 mostra um desempenho extremamente fraco, com o produto sem rótulo inicial apresentando uma queda acentuada em maio."
+        }
+      }
+    },
+    "id": "277688eb-4180-4c1a-96e7-7fc548435bd8",
+    "createdAt": "2026-05-06T18:22:32.120Z"
+  },
+  {
+    "filename": "auto_MultiLineChart_6.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "AreaChart",
+        "suggestedName": "ProductComparison6",
+        "reasoning": "O gráfico é um 'AreaChart' com duas séries sobrepostas, 'Product A 6' e 'Product B 6'. Os rótulos do eixo X são os meses de 'Jan' a 'May'. Os valores de cada série foram extraídos com precisão cirúrgica, observando a escala do eixo Y de 0 a 90. As cores das séries foram capturadas diretamente da imagem original para garantir fidelidade cromática. A legenda é visível na imagem, portanto 'showLegend' é true. Não há títulos explícitos para os eixos nem unidades adicionais, e não há labels de valor nos pontos, então 'showValueLabels' é false.",
+        "props": {
+          "title": "Product Comparison 6",
+          "subtitle": "",
+          "labels": [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "yMin": 0,
+          "yMax": 90,
+          "series": [
+            {
+              "label": "Product A 6",
+              "data": [
+                36,
+                24,
+                39,
+                48,
+                85
+              ]
+            },
+            {
+              "label": "Product B 6",
+              "data": [
+                36,
+                45,
+                64,
+                40,
+                38
+              ]
+            }
+          ],
+          "seriesColors": [
+            "#4A5B70",
+            "#B8926B"
+          ],
+          "unit": "",
+          "showValueLabels": false,
+          "showLegend": true,
+          "annotations": [],
+          "data": [
+            {
+              "label": "Jan",
+              "value": 36
+            },
+            {
+              "label": "Feb",
+              "value": 24
+            },
+            {
+              "label": "Mar",
+              "value": 39
+            },
+            {
+              "label": "Apr",
+              "value": 48
+            },
+            {
+              "label": "May",
+              "value": 85
+            }
+          ],
+          "insightText": "O Produto A apresenta uma tendência de crescimento explosivo, com um aumento de 85% em maio em relação ao início do ano, superando o desempenho do Produto B."
+        }
+      }
+    },
+    "id": "0ded81af-0256-43cc-ba9f-d2a6d5d5238e",
+    "createdAt": "2026-05-06T18:22:04.870Z"
+  },
+  {
+    "filename": "auto_MultiLineChart_5.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "AreaChart",
+        "suggestedName": "ProductComparison5",
+        "reasoning": "O gráfico é um Area Chart com duas séries. A interpretação inicial de um gráfico de área empilhada (stacked) onde cada cor representa um segmento individual levou a valores negativos para as séries, o que é inconsistente com a natureza aditiva de gráficos empilhados. Portanto, a interpretação mais fiel aos dados e ao componente 'AreaChart' disponível é que as séries representam os valores absolutos das linhas, e o componente renderizará as áreas preenchidas a partir do eixo X até cada linha. As cores das séries foram extraídas das caixas de legenda para garantir fidelidade cromática. Os valores dos eixos Y (yMin, yMax) e os rótulos do eixo X foram extraídos diretamente da imagem.",
+        "props": {
+          "title": "Product Comparison 5",
+          "subtitle": "",
+          "labels": [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "yMin": 0,
+          "yMax": 80,
+          "series": [
+            {
+              "label": "Product A 5",
+              "data": [
+                29,
+                55,
+                65,
+                63,
+                71
+              ]
+            },
+            {
+              "label": "Product B 5",
+              "data": [
+                48,
+                50,
+                63,
+                31,
+                64
+              ]
+            }
+          ],
+          "seriesColors": [
+            "#4A657B",
+            "#7B4A2C"
+          ],
+          "unit": "",
+          "showValueLabels": false,
+          "showLegend": true,
+          "annotations": [],
+          "data": [
+            {
+              "label": "Jan",
+              "value": 29
+            },
+            {
+              "label": "Feb",
+              "value": 55
+            },
+            {
+              "label": "Mar",
+              "value": 65
+            },
+            {
+              "label": "Apr",
+              "value": 63
+            },
+            {
+              "label": "May",
+              "value": 71
+            }
+          ],
+          "insightText": "O Produto A apresenta uma tendência de crescimento consistente, com um aumento de 144% nos valores entre janeiro e maio, enquanto o Produto B mostra uma flutuação irregular, indicando uma vantagem competitiva para o Produto A."
+        }
+      }
+    },
+    "id": "d778da3f-d2bc-4ce9-a935-96dd547c4486",
+    "createdAt": "2026-05-06T18:21:40.307Z"
+  },
+  {
+    "filename": "auto_MultiLineChart_4.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "AreaChart",
+        "suggestedName": "ProductComparison4",
+        "reasoning": "O gráfico é um Area Chart empilhado, mostrando a comparação de dois produtos ao longo de cinco meses. Os valores foram extraídos como contribuições individuais de cada série para a área total em cada ponto, seguindo a regra de extração de largura/altura individual para gráficos empilhados. As cores e os rótulos foram extraídos fielmente da imagem original. O eixo Y varia de 0 a 60, conforme exibido.",
+        "props": {
+          "title": "Product Comparison 4",
+          "subtitle": "",
+          "labels": [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "yMin": 0,
+          "yMax": 60,
+          "series": [
+            {
+              "label": "Product B 4",
+              "data": [
+                40,
+                40,
+                20,
+                39,
+                41
+              ]
+            },
+            {
+              "label": "Product A 4",
+              "data": [
+                9,
+                3,
+                15,
+                2,
+                18
+              ]
+            }
+          ],
+          "seriesColors": [
+            "#8B4513",
+            "#4A657B"
+          ],
+          "unit": "",
+          "showValueLabels": false,
+          "showLegend": true,
+          "annotations": [],
+          "data": [
+            {
+              "label": "Jan",
+              "value": 40
+            },
+            {
+              "label": "Feb",
+              "value": 40
+            },
+            {
+              "label": "Mar",
+              "value": 20
+            },
+            {
+              "label": "Apr",
+              "value": 39
+            },
+            {
+              "label": "May",
+              "value": 41
+            }
+          ],
+          "insightText": "O Produto B 4 apresenta uma tendência de estabilidade e ligeira alta, enquanto o Produto A 4 mostra uma grande volatilidade, com o Produto B 4 mantendo uma vantagem significativa em termos de desempenho."
+        }
+      }
+    },
+    "id": "93886585-051d-41b1-939c-b70fafad965e",
+    "createdAt": "2026-05-06T18:19:42.226Z"
+  },
+  {
+    "filename": "auto_MultiLineChart_3.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "AreaChart",
+        "suggestedName": "ProductComparison3",
+        "reasoning": "O gráfico é um 'Area Chart' com duas séries sobrepostas, representando a comparação de dois produtos ao longo do tempo. Os rótulos do eixo X ('Jan' a 'May') e os valores do eixo Y (0 a 70) foram extraídos diretamente da imagem. Os dados de cada série ('Product A 3' e 'Product B 3') foram lidos com precisão a partir dos pontos de intersecção das linhas com as grades. As cores das séries foram capturadas fielmente da legenda e das áreas preenchidas. A legenda é visível na imagem original, portanto 'showLegend' é true. Não há unidades explícitas nos títulos ou eixos, nem rótulos de valor nos pontos, portanto 'unit' é vazio e 'showValueLabels' é false.",
+        "props": {
+          "title": "Product Comparison 3",
+          "subtitle": "",
+          "labels": [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "yMin": 0,
+          "yMax": 70,
+          "series": [
+            {
+              "label": "Product A 3",
+              "data": [
+                21,
+                55,
+                65,
+                50,
+                51
+              ]
+            },
+            {
+              "label": "Product B 3",
+              "data": [
+                35,
+                42,
+                65,
+                34,
+                66
+              ]
+            }
+          ],
+          "seriesColors": [
+            "#6688A0",
+            "#A07850"
+          ],
+          "unit": "",
+          "showValueLabels": false,
+          "showLegend": true,
+          "annotations": [],
+          "data": [
+            {
+              "label": "Jan",
+              "value": 21
+            },
+            {
+              "label": "Feb",
+              "value": 55
+            },
+            {
+              "label": "Mar",
+              "value": 65
+            },
+            {
+              "label": "Apr",
+              "value": 50
+            },
+            {
+              "label": "May",
+              "value": 51
+            }
+          ],
+          "insightText": "O Produto A apresentou uma tendência de crescimento inicial, mas estabilizou e perdeu fôlego, enquanto o Produto B manteve uma trajetória mais volátil, superando o Produto A em maio."
+        }
+      }
+    },
+    "id": "f09df551-1927-499d-a2e9-e88a33c2a0e3",
+    "createdAt": "2026-05-06T18:19:17.707Z"
+  },
+  {
+    "filename": "auto_MultiLineChart_2.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "AreaChart",
+        "suggestedName": "ProductComparison2",
+        "reasoning": "O gráfico é um 'AreaChart' empilhado, mostrando a comparação de dois produtos ao longo do tempo. Os rótulos do eixo X ('Jan' a 'May') e o título ('Product Comparison 2') foram extraídos diretamente. A escala do eixo Y foi definida de 0 a 90, conforme a imagem. Para a extração dos dados, a série 'Product A 2' representa a área base, e seus valores foram lidos diretamente da linha inferior. Para a série 'Product B 2', que é empilhada, os valores foram calculados como a diferença entre a linha superior total e a linha de 'Product A 2' em cada ponto, garantindo que cada série represente sua contribuição individual. As cores das séries foram extraídas da legenda: '#2C353C' para 'Product A 2' e '#8B572A' para 'Product B 2'. A legenda está visível na imagem original, portanto 'showLegend' é true. Não há unidades explícitas no título ou nos eixos, e não há labels de valor nos pontos, então 'unit' é vazio e 'showValueLabels' é false.",
+        "props": {
+          "title": "Product Comparison 2",
+          "subtitle": "",
+          "labels": [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "yMin": 0,
+          "yMax": 90,
+          "series": [
+            {
+              "label": "Product A 2",
+              "data": [
+                32,
+                32,
+                32,
+                42,
+                73
+              ]
+            },
+            {
+              "label": "Product B 2",
+              "data": [
+                7,
+                28,
+                10,
+                22,
+                14
+              ]
+            }
+          ],
+          "seriesColors": [
+            "#2C353C",
+            "#8B572A"
+          ],
+          "unit": "",
+          "showValueLabels": false,
+          "showLegend": true,
+          "annotations": [],
+          "data": [
+            {
+              "label": "Jan",
+              "value": 32
+            },
+            {
+              "label": "Feb",
+              "value": 32
+            },
+            {
+              "label": "Mar",
+              "value": 32
+            },
+            {
+              "label": "Apr",
+              "value": 42
+            },
+            {
+              "label": "May",
+              "value": 73
+            }
+          ],
+          "insightText": "O Produto A apresenta uma tendência de crescimento explosivo, com um aumento de 127% nos últimos 4 meses, enquanto o Produto B mostra uma trajetória irregular e decrescente."
+        }
+      }
+    },
+    "id": "deff6d74-ca74-4b20-896e-92ede24892f6",
+    "createdAt": "2026-05-06T18:19:01.483Z"
+  },
+  {
+    "filename": "auto_MultiLineChart_1.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "AreaChart",
+        "suggestedName": "ProductComparison1",
+        "reasoning": "O gráfico é um 'Area Chart' com duas séries que se sobrepõem, mas não são empilhadas cumulativamente. Os rótulos do eixo X são meses e os valores do eixo Y variam de 0 a 90. As cores das séries foram extraídas diretamente da legenda. Não há unidades explícitas no título ou nos eixos, e não há rótulos de valor nos pontos de dados.",
+        "props": {
+          "title": "Product Comparison 1",
+          "subtitle": "",
+          "labels": [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "yMin": 0,
+          "yMax": 90,
+          "series": [
+            {
+              "label": "Product A 1",
+              "data": [
+                21,
+                59,
+                54,
+                46,
+                81
+              ]
+            },
+            {
+              "label": "Product B 1",
+              "data": [
+                47,
+                59,
+                22,
+                57,
+                13
+              ]
+            }
+          ],
+          "seriesColors": [
+            "#4A657B",
+            "#9E6B4A"
+          ],
+          "unit": "",
+          "showValueLabels": false,
+          "showLegend": true,
+          "annotations": [],
+          "data": [
+            {
+              "label": "Jan",
+              "value": 21
+            },
+            {
+              "label": "Feb",
+              "value": 59
+            },
+            {
+              "label": "Mar",
+              "value": 54
+            },
+            {
+              "label": "Apr",
+              "value": 46
+            },
+            {
+              "label": "May",
+              "value": 81
+            }
+          ],
+          "insightText": "O Produto A apresenta uma tendência de crescimento consistente, com um pico significativo em maio, enquanto o Produto B mostra uma flutuação irregular, indicando uma vantagem competitiva para o Produto A."
+        }
+      }
+    },
+    "id": "3ef5820c-b138-4306-bae6-0e98d39ed6bd",
+    "createdAt": "2026-05-06T18:18:19.017Z"
+  },
+  {
+    "filename": "auto_LineChart_10.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "AreaChart",
+        "suggestedName": "MonthlyGrowth10",
+        "reasoning": "O gráfico é um 'AreaChart' com uma única série preenchida. O título e a legenda foram extraídos fielmente. Os rótulos do eixo X (meses) e os valores do eixo Y foram lidos com precisão cirúrgica, ponto a ponto, da imagem original. A cor da área foi capturada diretamente. O eixo Y varia de 0 a 100, e a legenda é visível. Não há unidades explícitas no título ou nos eixos, e não há anotações ou rótulos de valor nos pontos.",
+        "props": {
+          "title": "Monthly Growth 10",
+          "subtitle": "",
+          "labels": [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul"
+          ],
+          "series": [
+            {
+              "label": "Growth 10",
+              "data": [
+                12,
+                48,
+                45,
+                64,
+                72,
+                67,
+                100
+              ]
+            }
+          ],
+          "seriesColors": [
+            "#343d47"
+          ],
+          "unit": "",
+          "showValueLabels": false,
+          "showLegend": true,
+          "bgStyle": "grid",
+          "annotations": [],
+          "data": [
+            {
+              "label": "Jan",
+              "value": 12
+            },
+            {
+              "label": "Feb",
+              "value": 48
+            },
+            {
+              "label": "Mar",
+              "value": 45
+            },
+            {
+              "label": "Apr",
+              "value": 64
+            },
+            {
+              "label": "May",
+              "value": 72
+            },
+            {
+              "label": "Jun",
+              "value": 67
+            },
+            {
+              "label": "Jul",
+              "value": 100
+            }
+          ],
+          "insightText": "O crescimento mensal apresentou uma tendência ascendente, com um aumento expressivo de 733% entre janeiro e julho, indicando um desempenho financeiro robusto e consistente."
+        }
+      }
+    },
+    "id": "833aefa3-0cc4-486c-8d9a-48150d449947",
+    "createdAt": "2026-05-06T18:18:04.086Z"
+  },
+  {
+    "filename": "auto_LineChart_9.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "AreaChart",
+        "suggestedName": "MonthlyGrowth9",
+        "reasoning": "O gráfico é um AreaChart, pois exibe uma área preenchida sob uma linha que representa a evolução de uma única série ao longo do tempo. O título 'Monthly Growth 9' e a legenda 'Growth 9' foram extraídos fielmente. Os rótulos do eixo X (meses) e os valores do eixo Y foram lidos com precisão cirúrgica, utilizando as linhas de grade como referência para determinar os pontos exatos. O eixo Y varia de 0 a 120, conforme a imagem. A cor da série foi extraída diretamente da área preenchida do gráfico. Não há unidades explícitas no título ou no eixo Y, portanto, a propriedade 'unit' foi deixada vazia. Não há labels de valor explícitos nos pontos, então 'showValueLabels' é false.",
+        "props": {
+          "title": "Monthly Growth 9",
+          "subtitle": "",
+          "labels": [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "yMin": 0,
+          "yMax": 120,
+          "series": [
+            {
+              "label": "Growth 9",
+              "data": [
+                36,
+                24,
+                68,
+                56,
+                84,
+                72,
+                104
+              ]
+            }
+          ],
+          "unit": "",
+          "showValueLabels": false,
+          "showLegend": true,
+          "annotations": [],
+          "data": [
+            {
+              "label": "Jan",
+              "value": 36
+            },
+            {
+              "label": "Feb",
+              "value": 24
+            },
+            {
+              "label": "Mar",
+              "value": 68
+            },
+            {
+              "label": "Apr",
+              "value": 56
+            },
+            {
+              "label": "May",
+              "value": 84
+            },
+            {
+              "label": "Jun",
+              "value": 72
+            },
+            {
+              "label": "Jul",
+              "value": 104
+            }
+          ],
+          "insightText": "A tendência de crescimento mensal apresenta uma recuperação significativa após fevereiro, com um aumento constante e expressivo ao longo dos meses, alcançando um pico de 104 em julho."
+        }
+      }
+    },
+    "id": "3c619b96-5da7-4902-844e-0bae0cfdec14",
+    "createdAt": "2026-05-06T18:17:49.911Z"
+  },
+  {
+    "filename": "auto_LineChart_8.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "AreaChart",
+        "suggestedName": "MonthlyGrowth8",
+        "reasoning": "O gráfico é um 'AreaChart' pois exibe uma área preenchida sob uma linha que representa a evolução de uma única série ao longo do tempo. O título 'Monthly Growth 8' e os rótulos do eixo X (meses de Jan a Jul) foram extraídos diretamente da imagem. Os valores da série 'Growth 8' foram lidos com precisão do eixo Y, que varia de 0 a 100. A cor da série foi capturada diretamente da área preenchida. A legenda é visível, portanto 'showLegend' é true. Não há anotações ou rótulos de valor explícitos nos pontos.",
+        "props": {
+          "title": "Monthly Growth 8",
+          "subtitle": "",
+          "labels": [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "yMin": 0,
+          "yMax": 100,
+          "series": [
+            {
+              "label": "Growth 8",
+              "data": [
+                32,
+                47,
+                34,
+                58,
+                84,
+                95,
+                86
+              ]
+            }
+          ],
+          "seriesColors": [
+            "#2e3a46"
+          ],
+          "unit": "",
+          "stacked": false,
+          "showValueLabels": false,
+          "showLegend": true,
+          "annotations": [],
+          "data": [
+            {
+              "label": "Jan",
+              "value": 32
+            },
+            {
+              "label": "Feb",
+              "value": 47
+            },
+            {
+              "label": "Mar",
+              "value": 34
+            },
+            {
+              "label": "Apr",
+              "value": 58
+            },
+            {
+              "label": "May",
+              "value": 84
+            },
+            {
+              "label": "Jun",
+              "value": 95
+            },
+            {
+              "label": "Jul",
+              "value": 86
+            }
+          ],
+          "insightText": "O crescimento mensal apresentou uma tendência de alta, com um pico em junho e uma ligeira estabilização em julho, indicando um desempenho sólido e consistente ao longo do período."
+        }
+      }
+    },
+    "id": "89f987a8-be19-49fb-8a7b-bee0e30364eb",
+    "createdAt": "2026-05-06T18:17:35.725Z"
+  },
+  {
+    "filename": "auto_LineChart_7.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "AreaChart",
+        "suggestedName": "MonthlyGrowth7",
+        "reasoning": "O gráfico é um 'Area Chart' pois exibe uma linha com a área abaixo preenchida. O título 'Monthly Growth 7' foi extraído diretamente. Os rótulos do eixo X ('Jan' a 'Jul') e os valores da série 'Growth 7' foram lidos com precisão da grade e dos pontos. A cor da série foi extraída diretamente da área preenchida. O eixo Y varia de 0 a 100, conforme a imagem. A legenda é explícita, então 'showLegend' é true. Não há anotações explícitas nos pontos, então 'showValueLabels' é false.",
+        "props": {
+          "title": "Monthly Growth 7",
+          "subtitle": "",
+          "labels": [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "yMin": 0,
+          "yMax": 100,
+          "series": [
+            {
+              "label": "Growth 7",
+              "data": [
+                21,
+                23,
+                52,
+                45,
+                73,
+                95,
+                72
+              ]
+            }
+          ],
+          "seriesColors": [
+            "#2C3E50"
+          ],
+          "unit": "",
+          "stacked": false,
+          "showValueLabels": false,
+          "showLegend": true,
+          "annotations": [],
+          "data": [
+            {
+              "label": "Jan",
+              "value": 21
+            },
+            {
+              "label": "Feb",
+              "value": 23
+            },
+            {
+              "label": "Mar",
+              "value": 52
+            },
+            {
+              "label": "Apr",
+              "value": 45
+            },
+            {
+              "label": "May",
+              "value": 73
+            },
+            {
+              "label": "Jun",
+              "value": 95
+            },
+            {
+              "label": "Jul",
+              "value": 72
+            }
+          ],
+          "insightText": "O crescimento mensal apresentou uma tendência de alta, com um pico em junho e uma pequena correção em julho, indicando um ritmo de expansão consistente."
+        }
+      }
+    },
+    "id": "9597b16a-7b8c-4c64-ac8c-8f4ddd4c089a",
+    "createdAt": "2026-05-06T18:17:25.581Z"
+  },
+  {
+    "filename": "auto_LineChart_6.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "AreaChart",
+        "suggestedName": "MonthlyGrowth6",
+        "reasoning": "The chart displays a single series with a filled area under a line, indicating an AreaChart. The title, x-axis labels (months), and series label ('Growth 6') were extracted directly from the image. Data points were meticulously read from the y-axis grid lines, ensuring precision to at least one decimal place where necessary. The y-axis range is from 0 to 100. The color of the filled area was extracted for the seriesColors property. No explicit units were found in the title or axis labels, so 'unit' is an empty string. A legend is present, so 'showLegend' is true. No value labels are displayed on the chart itself, so 'showValueLabels' is false.",
+        "props": {
+          "title": "Monthly Growth 6",
+          "subtitle": "",
+          "labels": [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "yMin": 0,
+          "yMax": 100,
+          "series": [
+            {
+              "label": "Growth 6",
+              "data": [
+                49,
+                32,
+                60,
+                55,
+                56,
+                59,
+                97
+              ]
+            }
+          ],
+          "seriesColors": [
+            "#28333D"
+          ],
+          "unit": "",
+          "stacked": false,
+          "showValueLabels": false,
+          "showLegend": true,
+          "annotations": [],
+          "data": [
+            {
+              "label": "Jan",
+              "value": 49
+            },
+            {
+              "label": "Feb",
+              "value": 32
+            },
+            {
+              "label": "Mar",
+              "value": 60
+            },
+            {
+              "label": "Apr",
+              "value": 55
+            },
+            {
+              "label": "May",
+              "value": 56
+            },
+            {
+              "label": "Jun",
+              "value": 59
+            },
+            {
+              "label": "Jul",
+              "value": 97
+            }
+          ],
+          "insightText": "O crescimento mensal apresentou uma tendência de recuperação acentuada, com um pico expressivo em julho, alcançando 97, após uma flutuação inicial, indicando um forte potencial de expansão."
+        }
+      }
+    },
+    "id": "e2f63606-3c7a-4d2b-8707-64c46cd80a2a",
+    "createdAt": "2026-05-06T18:17:10.686Z"
+  },
+  {
+    "filename": "auto_LineChart_5.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "AreaChart",
+        "suggestedName": "MonthlyGrowth5",
+        "reasoning": "O gráfico é um AreaChart, pois exibe uma linha com a área abaixo preenchida, representando a evolução de uma única série ao longo do tempo. O título, os rótulos do eixo X (meses) e os valores do eixo Y foram extraídos com precisão. A cor da série foi capturada diretamente da imagem. O yMin e yMax foram definidos pelos limites visíveis do eixo Y. A legenda foi identificada e seu nome extraído fielmente.",
+        "props": {
+          "title": "Monthly Growth 5",
+          "subtitle": "",
+          "labels": [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "yMin": 0,
+          "yMax": 100,
+          "series": [
+            {
+              "label": "Growth 5",
+              "data": [
+                38,
+                48,
+                35,
+                45,
+                66,
+                98,
+                72
+              ]
+            }
+          ],
+          "seriesColors": [
+            "#2C3640"
+          ],
+          "unit": "",
+          "stacked": false,
+          "showValueLabels": false,
+          "showLegend": true,
+          "annotations": [],
+          "data": [
+            {
+              "label": "Jan",
+              "value": 38
+            },
+            {
+              "label": "Feb",
+              "value": 48
+            },
+            {
+              "label": "Mar",
+              "value": 35
+            },
+            {
+              "label": "Apr",
+              "value": 45
+            },
+            {
+              "label": "May",
+              "value": 66
+            },
+            {
+              "label": "Jun",
+              "value": 98
+            },
+            {
+              "label": "Jul",
+              "value": 72
+            }
+          ],
+          "insightText": "O crescimento mensal apresentou uma tendência de alta, com um pico significativo em junho, atingindo 98, e uma subsequente estabilização em julho, indicando um potencial de manutenção de um ritmo de expansão robusto."
+        }
+      }
+    },
+    "id": "0a0c3e0b-5259-4725-aef2-3627b1a6210a",
+    "createdAt": "2026-05-06T18:16:50.206Z"
+  },
+  {
+    "filename": "auto_LineChart_4.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "AreaChart",
+        "suggestedName": "MonthlyGrowth4",
+        "reasoning": "O gráfico é um AreaChart, mostrando a evolução de uma única série ao longo do tempo. O título 'Monthly Growth 4' e os rótulos do eixo X (meses) foram extraídos diretamente da imagem. Os valores do eixo Y foram lidos com precisão cirúrgica, ponto a ponto, respeitando a escala de 0 a 90. A cor da área foi extraída fielmente da imagem original. A legenda está presente e foi ativada, e os rótulos de valor não estão explícitos no gráfico, portanto, 'showValueLabels' é falso.",
+        "props": {
+          "title": "Monthly Growth 4",
+          "subtitle": "",
+          "labels": [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "yMin": 0,
+          "yMax": 90,
+          "series": [
+            {
+              "label": "Growth 4",
+              "data": [
+                42,
+                41,
+                46,
+                55,
+                72,
+                81,
+                71
+              ]
+            }
+          ],
+          "seriesColors": [
+            "#34404B"
+          ],
+          "unit": "",
+          "stacked": false,
+          "showValueLabels": false,
+          "showLegend": true,
+          "annotations": [],
+          "data": [
+            {
+              "label": "Jan",
+              "value": 42
+            },
+            {
+              "label": "Feb",
+              "value": 41
+            },
+            {
+              "label": "Mar",
+              "value": 46
+            },
+            {
+              "label": "Apr",
+              "value": 55
+            },
+            {
+              "label": "May",
+              "value": 72
+            },
+            {
+              "label": "Jun",
+              "value": 81
+            },
+            {
+              "label": "Jul",
+              "value": 71
+            }
+          ],
+          "insightText": "O crescimento mensal apresentou uma tendência de alta significativa, atingindo seu pico em junho com 81, antes de registrar uma leve retração em julho."
+        }
+      }
+    },
+    "id": "432054b0-1512-4374-9859-e9fdba975b90",
+    "createdAt": "2026-05-06T18:16:41.111Z"
+  },
+  {
+    "filename": "auto_LineChart_3.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "AreaChart",
+        "suggestedName": "MonthlyGrowth3",
+        "reasoning": "The image displays a line chart with the area beneath the line filled, which corresponds to an AreaChart component. The title 'Monthly Growth 3' and the series label 'Growth 3' were extracted directly. The x-axis labels represent months, and the y-axis shows numerical values from 0 to 100. Data points were precisely extracted by cross-referencing the line's position with the y-axis grid lines. The color of the filled area was accurately sampled from the image.",
+        "props": {
+          "title": "Monthly Growth 3",
+          "subtitle": "",
+          "labels": [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "yMin": 0,
+          "yMax": 100,
+          "series": [
+            {
+              "label": "Growth 3",
+              "data": [
+                49,
+                38,
+                63,
+                50,
+                72,
+                81,
+                95
+              ]
+            }
+          ],
+          "seriesColors": [
+            "#2C3E50"
+          ],
+          "unit": "",
+          "showValueLabels": false,
+          "showLegend": true,
+          "annotations": [],
+          "data": [
+            {
+              "label": "Jan",
+              "value": 49
+            },
+            {
+              "label": "Feb",
+              "value": 38
+            },
+            {
+              "label": "Mar",
+              "value": 63
+            },
+            {
+              "label": "Apr",
+              "value": 50
+            },
+            {
+              "label": "May",
+              "value": 72
+            },
+            {
+              "label": "Jun",
+              "value": 81
+            },
+            {
+              "label": "Jul",
+              "value": 95
+            }
+          ],
+          "insightText": "O crescimento mensal apresenta uma tendência ascendente consistente, com um aumento significativo de 49 em janeiro para 95 em julho, indicando um desempenho robusto e uma expansão contínua."
+        }
+      }
+    },
+    "id": "db3dad69-95cc-4d39-a427-e0dacda08e3c",
+    "createdAt": "2026-05-06T18:16:16.273Z"
+  },
+  {
+    "filename": "auto_LineChart_2.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "AreaChart",
+        "suggestedName": "MonthlyGrowth2",
+        "reasoning": "O gráfico é claramente um AreaChart, com uma única série preenchendo a área abaixo da linha. O título, os rótulos do eixo X e a legenda foram extraídos diretamente da imagem. Os valores do eixo Y foram lidos com precisão cirúrgica, observando a posição exata de cada ponto em relação à grade e aos rótulos do eixo. As cores foram extraídas diretamente da imagem para garantir fidelidade cromática. O yMin e yMax foram definidos pelos limites visíveis do eixo Y (0 a 100). Não há unidades explícitas no gráfico, portanto, 'unit' permanece vazio. A legenda está presente, então 'showLegend' é true. Não há labels de valor explícitos nos pontos, então 'showValueLabels' é false.",
+        "props": {
+          "title": "Monthly Growth 2",
+          "subtitle": "",
+          "labels": [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "yMin": 0,
+          "yMax": 100,
+          "series": [
+            {
+              "label": "Growth 2",
+              "data": [
+                46,
+                38,
+                68,
+                71,
+                72,
+                89,
+                100
+              ]
+            }
+          ],
+          "seriesColors": [
+            "#2F3C47"
+          ],
+          "unit": "",
+          "stacked": false,
+          "showValueLabels": false,
+          "showLegend": true,
+          "annotations": [],
+          "data": [
+            {
+              "label": "Jan",
+              "value": 46
+            },
+            {
+              "label": "Feb",
+              "value": 38
+            },
+            {
+              "label": "Mar",
+              "value": 68
+            },
+            {
+              "label": "Apr",
+              "value": 71
+            },
+            {
+              "label": "May",
+              "value": 72
+            },
+            {
+              "label": "Jun",
+              "value": 89
+            },
+            {
+              "label": "Jul",
+              "value": 100
+            }
+          ],
+          "insightText": "A tendência de crescimento apresenta um aumento significativo ao longo dos meses, com um salto notável em junho e atingindo o pico em julho, indicando um desempenho cada vez mais robusto."
+        }
+      }
+    },
+    "id": "5964ee59-c656-4437-bef9-892a0c19c70a",
+    "createdAt": "2026-05-06T18:15:57.347Z"
+  },
+  {
+    "filename": "auto_LineChart_1.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "AreaChart",
+        "suggestedName": "MonthlyGrowth1",
+        "reasoning": "O gráfico é um 'Area Chart' pois exibe uma área preenchida abaixo de uma linha que representa a evolução de uma única série ao longo do tempo. O título 'Monthly Growth 1' e os rótulos do eixo X (meses) confirmam a natureza temporal. Os dados foram extraídos com precisão dos pontos na grade, e a cor da série foi capturada diretamente da área preenchida na imagem original. A legenda é visível e foi incluída, e os limites do eixo Y foram definidos exatamente como na imagem.",
+        "props": {
+          "title": "Monthly Growth 1",
+          "subtitle": "",
+          "labels": [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "yMin": 0,
+          "yMax": 120,
+          "series": [
+            {
+              "label": "Growth 1",
+              "data": [
+                35,
+                57,
+                43,
+                42,
+                54,
+                96,
+                102
+              ]
+            }
+          ],
+          "unit": "",
+          "stacked": false,
+          "showValueLabels": false,
+          "showLegend": true,
+          "annotations": [],
+          "data": [
+            {
+              "label": "Jan",
+              "value": 35
+            },
+            {
+              "label": "Feb",
+              "value": 57
+            },
+            {
+              "label": "Mar",
+              "value": 43
+            },
+            {
+              "label": "Apr",
+              "value": 42
+            },
+            {
+              "label": "May",
+              "value": 54
+            },
+            {
+              "label": "Jun",
+              "value": 96
+            },
+            {
+              "label": "Jul",
+              "value": 102
+            }
+          ],
+          "insightText": "O crescimento mensal apresenta uma tendência de alta, com um aumento significativo a partir de junho, alcançando um pico de 102 em julho, indicando um desempenho cada vez mais robusto."
+        }
+      }
+    },
+    "id": "e8e84ae1-12f6-4973-8e5d-2d62b4fe49ac",
+    "createdAt": "2026-05-06T18:15:42.255Z"
+  },
+  {
+    "filename": "auto_HorizontalBarChart_10.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "HorizontalBarChart",
+        "suggestedName": "GlobalUsers10",
+        "reasoning": "O gráfico é um HorizontalBarChart, com categorias (países) no eixo Y e valores numéricos no eixo X. O título 'Global Users 10' e a legenda 'Users 10' foram extraídos fielmente. Os valores de cada barra (US: 72, UK: 31, BR: 79, CA: 88) foram lidos com precisão da escala do eixo X, que varia de 30 a 90. A cor da série foi extraída diretamente da imagem original. A unidade não é repetida nos dados, pois a escala do eixo X já a comunica implicitamente através do título e da legenda. A legenda é visível na imagem original, portanto 'showLegend' é true.",
+        "props": {
+          "title": "Global Users 10",
+          "subtitle": "",
+          "labels": [
+            "US",
+            "UK",
+            "BR",
+            "CA"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "xMin": 30,
+          "xMax": 90,
+          "series": [
+            {
+              "label": "Users 10",
+              "data": [
+                72,
+                31,
+                79,
+                88
+              ]
+            }
+          ],
+          "seriesColors": [
+            "#0F142B"
+          ],
+          "unit": "",
+          "stacked": false,
+          "showValueLabels": false,
+          "showLegend": true,
+          "annotations": [],
+          "data": [
+            {
+              "label": "US",
+              "value": 72
+            },
+            {
+              "label": "UK",
+              "value": 31
+            },
+            {
+              "label": "BR",
+              "value": 79
+            },
+            {
+              "label": "CA",
+              "value": 88
+            }
+          ],
+          "insightText": "O mercado canadense lidera com 88 usuários, enquanto o Brasil segue de perto com 79 usuários, destacando-se como os principais mercados de crescimento."
+        }
+      }
+    },
+    "id": "b747ccca-57d8-46dd-a834-b03396901938",
+    "createdAt": "2026-05-06T18:15:16.755Z"
+  },
+  {
+    "filename": "auto_HorizontalBarChart_9.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "HorizontalBarChart",
+        "suggestedName": "GlobalUsers9",
+        "reasoning": "A imagem apresenta um gráfico de barras horizontais intitulado 'Global Users 9'. Ele exibe a contagem de usuários para diferentes regiões (US, UK, BR, CA). O eixo horizontal (x-axis) varia de 10 a 90. Os pontos de dados foram extraídos com precisão cirúrgica: US em 89, UK em 0 (não há barra visível para esta categoria, mas o rótulo existe), BR em 53 e CA em 51. O gráfico possui uma única série nomeada 'Users 9', conforme a legenda. A cor da barra é um azul marinho muito escuro (#0F142B). Os valores mínimo e máximo do eixo X são definidos explicitamente como 10 e 90, respectivamente, correspondendo à representação visual do gráfico original.",
+        "props": {
+          "title": "Global Users 9",
+          "subtitle": "",
+          "labels": [
+            "US",
+            "UK",
+            "BR",
+            "CA"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "xMin": 10,
+          "xMax": 90,
+          "series": [
+            {
+              "label": "Users 9",
+              "data": [
+                89,
+                0,
+                53,
+                51
+              ]
+            }
+          ],
+          "seriesColors": [
+            "#0F142B"
+          ],
+          "unit": "",
+          "stacked": false,
+          "showValueLabels": false,
+          "showLegend": true,
+          "annotations": [],
+          "data": [
+            {
+              "label": "US",
+              "value": 89
+            },
+            {
+              "label": "UK",
+              "value": 0
+            },
+            {
+              "label": "BR",
+              "value": 53
+            },
+            {
+              "label": "CA",
+              "value": 51
+            }
+          ],
+          "insightText": "Os EUA lideram com 89 usuários, enquanto o Reino Unido não apresenta nenhum usuário, indicando uma distribuição desigual dos usuários globais."
+        }
+      }
+    },
+    "id": "7efcae04-7714-42c6-a9ad-e36c57624fcf",
+    "createdAt": "2026-05-06T18:14:46.130Z"
+  },
+  {
+    "filename": "auto_HorizontalBarChart_8.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "HorizontalBarChart",
+        "suggestedName": "GlobalUsers8",
+        "reasoning": "O gráfico é claramente um HorizontalBarChart, com categorias no eixo Y e valores no eixo X. O título 'Global Users 8' foi extraído diretamente. Os rótulos das categorias (CA, BR, UK, US) e o nome da série ('Users 8') foram capturados fielmente da imagem. Os valores de cada barra foram lidos com precisão do eixo X, que varia de 20 a 90. As cores das barras foram extraídas diretamente da imagem original. Não há unidades explícitas no título ou nos eixos, portanto, 'unit' permanece vazio. A legenda está presente, então 'showLegend' é true. Não há labels de valor explícitas nas barras, então 'showValueLabels' é false. O gráfico não é empilhado.",
+        "props": {
+          "title": "Global Users 8",
+          "subtitle": "",
+          "labels": [
+            "CA",
+            "BR",
+            "UK",
+            "US"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "xMin": 20,
+          "xMax": 90,
+          "series": [
+            {
+              "label": "Users 8",
+              "data": [
+                57,
+                55,
+                24,
+                26
+              ]
+            }
+          ],
+          "seriesColors": [
+            "#0F142B"
+          ],
+          "unit": "",
+          "stacked": false,
+          "showValueLabels": false,
+          "showLegend": true,
+          "annotations": [],
+          "data": [
+            {
+              "label": "CA",
+              "value": 57
+            },
+            {
+              "label": "BR",
+              "value": 55
+            },
+            {
+              "label": "UK",
+              "value": 24
+            },
+            {
+              "label": "US",
+              "value": 26
+            }
+          ],
+          "insightText": "O Canadá e o Brasil lideram o ranking de usuários globais, com 57 e 55 usuários, respectivamente, destacando-se como os principais mercados para investimentos estratégicos."
+        }
+      }
+    },
+    "id": "17d6abe3-ce04-40e3-97da-8238a994fe3d",
+    "createdAt": "2026-05-06T18:14:30.304Z"
+  },
+  {
+    "filename": "auto_HorizontalBarChart_7.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "HorizontalBarChart",
+        "suggestedName": "GlobalUsers7",
+        "reasoning": "O gráfico é claramente um 'HorizontalBarChart' com barras horizontais representando valores para diferentes categorias. O título 'Global Users 7' foi extraído fielmente. Os rótulos das categorias ('US', 'UK', 'BR', 'CA') e o nome da série ('Users 7') foram extraídos diretamente da imagem, sem invenções. Os valores de cada barra foram lidos com precisão do eixo X, que varia de 55 a 90, definindo 'xMin' e 'xMax' corretamente. A cor da barra foi extraída com precisão hexadecimal. A legenda está presente na imagem, então 'showLegend' é true. Não há unidades explícitas no título ou eixo, então 'unit' é vazio. Não há labels de valor explícitas nas barras, então 'showValueLabels' é false.",
+        "props": {
+          "title": "Global Users 7",
+          "subtitle": "",
+          "labels": [
+            "US",
+            "UK",
+            "BR",
+            "CA"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "xMin": 55,
+          "xMax": 90,
+          "series": [
+            {
+              "label": "Users 7",
+              "data": [
+                83,
+                60,
+                56,
+                90
+              ]
+            }
+          ],
+          "seriesColors": [
+            "#0e112a"
+          ],
+          "unit": "",
+          "showValueLabels": false,
+          "showLegend": true,
+          "annotations": [],
+          "data": [
+            {
+              "label": "US",
+              "value": 83
+            },
+            {
+              "label": "UK",
+              "value": 60
+            },
+            {
+              "label": "BR",
+              "value": 56
+            },
+            {
+              "label": "CA",
+              "value": 90
+            }
+          ],
+          "insightText": "O Canadá lidera o ranking de usuários globais com 90 registros, enquanto os EUA, Reino Unido e Brasil seguem com 83, 60 e 56 usuários, respectivamente."
+        }
+      }
+    },
+    "id": "ec0f93ca-d6bc-4abf-b688-580ae8bc371c",
+    "createdAt": "2026-05-06T18:14:14.897Z"
+  },
+  {
+    "filename": "auto_HorizontalBarChart_5.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "HorizontalBarChart",
+        "suggestedName": "GlobalUsers5",
+        "reasoning": "The image displays a horizontal bar chart titled 'Global Users 5'. It features five distinct categories on the y-axis: US, UK, BR, CA, and JP. There is a single data series, explicitly labeled 'Users 5' in the legend. The x-axis (horizontal) ranges from 20 to 55. Data values were extracted by precisely reading the end points of each bar against the x-axis scale. The color of the bars and the legend was accurately captured. No explicit units were found in the title or axis labels, so the 'unit' property is left empty. No value labels are displayed on the bars, hence 'showValueLabels' is false. A legend is present, so 'showLegend' is true. The x-axis minimum and maximum values were extracted directly from the chart's visible scale.",
+        "props": {
+          "title": "Global Users 5",
+          "subtitle": "",
+          "labels": [
+            "US",
+            "UK",
+            "BR",
+            "CA",
+            "JP"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "xMin": 20,
+          "xMax": 55,
+          "series": [
+            {
+              "label": "Users 5",
+              "data": [
+                22.5,
+                47.5,
+                52.5,
+                42.5,
+                47
+              ]
+            }
+          ],
+          "seriesColors": [
+            "#10152B"
+          ],
+          "unit": "",
+          "showValueLabels": false,
+          "showLegend": true,
+          "annotations": [],
+          "data": [
+            {
+              "label": "US",
+              "value": 22.5
+            },
+            {
+              "label": "UK",
+              "value": 47.5
+            },
+            {
+              "label": "BR",
+              "value": 52.5
+            },
+            {
+              "label": "CA",
+              "value": 42.5
+            },
+            {
+              "label": "JP",
+              "value": 47
+            }
+          ],
+          "insightText": "O Brasil lidera o ranking de usuários, com 52,5%, seguido de perto pelo Reino Unido e Japão, que apresentam taxas de 47,5% e 47%, respectivamente."
+        }
+      }
+    },
+    "id": "7f414bac-e70b-4b70-8c87-88ba170885e5",
+    "createdAt": "2026-05-06T18:13:32.992Z"
+  },
+  {
+    "filename": "auto_HorizontalBarChart_4.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "HorizontalBarChart",
+        "suggestedName": "GlobalUsers4",
+        "reasoning": "The image displays a horizontal bar chart with a single series. The title 'Global Users 4' is extracted directly. The categorical labels 'US', 'UK', 'BR', 'CA' are used for the `labels` array. The numerical values for each bar are precisely extracted from the x-axis, which ranges from 50 to 85. The series is named 'Users 4' as per the legend. The color of the bar is a dark blue, identified as #0F1120. No units are specified in the chart title or axis, so `unit` is an empty string. The chart has a legend, so `showLegend` is true. No value labels are present on the bars, so `showValueLabels` is false. The x-axis minimum and maximum are explicitly set to 50 and 85 respectively, matching the visual representation.",
+        "props": {
+          "title": "Global Users 4",
+          "subtitle": "",
+          "labels": [
+            "US",
+            "UK",
+            "BR",
+            "CA"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "xMin": 50,
+          "xMax": 85,
+          "series": [
+            {
+              "label": "Users 4",
+              "data": [
+                0,
+                63,
+                55,
+                68
+              ]
+            }
+          ],
+          "seriesColors": [
+            "#0F1120"
+          ],
+          "unit": "",
+          "stacked": false,
+          "showValueLabels": false,
+          "showLegend": true,
+          "annotations": [],
+          "data": [
+            {
+              "label": "US",
+              "value": 0
+            },
+            {
+              "label": "UK",
+              "value": 63
+            },
+            {
+              "label": "BR",
+              "value": 55
+            },
+            {
+              "label": "CA",
+              "value": 68
+            }
+          ],
+          "insightText": "O Canadá lidera o ranking com 68 usuários, seguido pelo Reino Unido com 63, enquanto os Estados Unidos apresentam um desempenho nulo."
+        }
+      }
+    },
+    "id": "0f5ccd4e-1e59-4bfd-a656-ea8a0ba2866c",
+    "createdAt": "2026-05-06T18:13:18.161Z"
+  },
+  {
+    "filename": "auto_HorizontalBarChart_3.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "HorizontalBarChart",
+        "suggestedName": "GlobalUsers3",
+        "reasoning": "O gráfico é claramente um 'HorizontalBarChart' com barras horizontais representando valores para diferentes categorias. O título 'Global Users 3' foi extraído fielmente. As categorias (JP, CA, BR, UK, US) e seus respectivos valores (65, 78, 49, 18, 0) foram extraídos com precisão cirúrgica, observando que a barra 'US' não é visível, indicando um valor de 0. A cor da série foi extraída diretamente da imagem original (#0F1424). O eixo horizontal (x-axis) começa em 10 e termina em 80, o que foi refletido em 'xMin' e 'xMax'. A legenda 'Users 3' está presente, portanto 'showLegend' é true. Não há unidades explícitas no título ou nos eixos, então 'unit' permanece vazio. Não há anotações ou labels de valor explícitas nas barras.",
+        "props": {
+          "title": "Global Users 3",
+          "subtitle": "",
+          "labels": [
+            "JP",
+            "CA",
+            "BR",
+            "UK",
+            "US"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "xMin": 10,
+          "xMax": 80,
+          "series": [
+            {
+              "label": "Users 3",
+              "data": [
+                65,
+                78,
+                49,
+                18,
+                0
+              ]
+            }
+          ],
+          "seriesColors": [
+            "#0F1424"
+          ],
+          "unit": "",
+          "stacked": false,
+          "showValueLabels": false,
+          "showLegend": true,
+          "annotations": [],
+          "data": [
+            {
+              "label": "JP",
+              "value": 65
+            },
+            {
+              "label": "CA",
+              "value": 78
+            },
+            {
+              "label": "BR",
+              "value": 49
+            },
+            {
+              "label": "UK",
+              "value": 18
+            },
+            {
+              "label": "US",
+              "value": 0
+            }
+          ],
+          "insightText": "O Canadá lidera o ranking de usuários, com 78 registros, enquanto os Estados Unidos não apresentam nenhum usuário, indicando uma oportunidade de expansão significativa nesse mercado."
+        }
+      }
+    },
+    "id": "b10909c8-1b21-4c68-81ea-1ec2c9e3fe2e",
+    "createdAt": "2026-05-06T18:13:02.094Z"
+  },
+  {
+    "filename": "auto_HorizontalBarChart_2.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "HorizontalBarChart",
+        "suggestedName": "GlobalUsers2",
+        "reasoning": "O gráfico é um HorizontalBarChart, com o título 'Global Users 2'. O eixo categórico (vertical) contém os rótulos 'US', 'UK', 'BR', 'CA'. O eixo numérico (horizontal) varia de 25 a 70. Há uma única série chamada 'Users 2', com os valores extraídos precisamente da escala do eixo X: US em 70, UK em 36, BR em 37 e CA em 29. A cor das barras é um azul marinho escuro, extraída diretamente da imagem. A legenda está presente, portanto 'showLegend' é true. Não há unidades explícitas no título ou nos eixos, então 'unit' é vazio. O eixo X começa em 25 e termina em 70, o que é refletido em 'xMin' e 'xMax'.",
+        "props": {
+          "title": "Global Users 2",
+          "subtitle": "",
+          "labels": [
+            "US",
+            "UK",
+            "BR",
+            "CA"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "xMin": 25,
+          "xMax": 70,
+          "series": [
+            {
+              "label": "Users 2",
+              "data": [
+                70,
+                36,
+                37,
+                29
+              ]
+            }
+          ],
+          "seriesColors": [
+            "#0F112A"
+          ],
+          "unit": "",
+          "stacked": false,
+          "showValueLabels": false,
+          "showLegend": true,
+          "annotations": [],
+          "data": [
+            {
+              "label": "US",
+              "value": 70
+            },
+            {
+              "label": "UK",
+              "value": 36
+            },
+            {
+              "label": "BR",
+              "value": 37
+            },
+            {
+              "label": "CA",
+              "value": 29
+            }
+          ],
+          "insightText": "Os EUA lideram o ranking de usuários globais, com 70 registros, mais que o dobro do total de usuários no Reino Unido, Brasil e Canadá somados."
+        }
+      }
+    },
+    "id": "2ef8deca-a1fb-436a-879f-f2ad3180b4e2",
+    "createdAt": "2026-05-06T18:12:47.368Z"
+  },
+  {
+    "filename": "auto_HorizontalBarChart_1.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "HorizontalBarChart",
+        "suggestedName": "GlobalUsers1",
+        "reasoning": "The image displays horizontal bars representing user data for different regions. The chart type is clearly a HorizontalBarChart. The title 'Global Users 1' and the series label 'Users 1' were extracted verbatim. The categorical labels (JP, CA, BR, UK, US) and their corresponding values were precisely measured against the x-axis scale, maintaining at least two decimal places where necessary for accuracy. The x-axis range is from 10 to 80, so 'xMin' is 10 and 'xMax' is 80. The single series color was extracted directly from the bars. A legend is present, so 'showLegend' is true. No explicit value labels are on the bars, so 'showValueLabels' is false. No units are specified in the title or axis, so 'unit' is an empty string.",
+        "props": {
+          "title": "Global Users 1",
+          "subtitle": "",
+          "labels": [
+            "JP",
+            "CA",
+            "BR",
+            "UK",
+            "US"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "xMin": 10,
+          "xMax": 80,
+          "series": [
+            {
+              "label": "Users 1",
+              "data": [
+                46.5,
+                61.5,
+                48,
+                14.5,
+                71.5
+              ]
+            }
+          ],
+          "seriesColors": [
+            "#0F142B"
+          ],
+          "unit": "",
+          "stacked": false,
+          "showValueLabels": false,
+          "showLegend": true,
+          "annotations": [],
+          "data": [
+            {
+              "label": "JP",
+              "value": 46.5
+            },
+            {
+              "label": "CA",
+              "value": 61.5
+            },
+            {
+              "label": "BR",
+              "value": 48
+            },
+            {
+              "label": "UK",
+              "value": 14.5
+            },
+            {
+              "label": "US",
+              "value": 71.5
+            }
+          ],
+          "insightText": "Os EUA lideram com 71,5% de participação, enquanto o Reino Unido apresenta o menor desempenho, com apenas 14,5% de participação no mercado de usuários globais."
+        }
+      }
+    },
+    "id": "cd979b8c-8ac7-47b4-acc3-b344bcf1bb3c",
+    "createdAt": "2026-05-06T18:12:36.157Z"
+  },
+  {
+    "filename": "auto_BarChart_10.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "BarChart",
+        "suggestedName": "AnnualRevenueAnalysis",
+        "reasoning": "O gráfico é um BarChart vertical com três categorias ('Tech', 'Health', 'Finance') e uma única série ('Revenue 10'). Os valores foram extraídos diretamente da altura das barras em relação ao eixo Y. As cores das barras foram capturadas com precisão cirúrgica da imagem original, resultando em um tom de azul marinho muito escuro (`#0A0A2A`). O título e a legenda foram copiados textualmente. A escala do eixo Y foi definida de 0 a 450, conforme a imagem. Não há unidades explícitas no título ou no eixo Y, portanto, a propriedade 'unit' está vazia. Não há labels de valor explícitos nas barras, então 'showValueLabels' é false. A legenda está presente, então 'showLegend' é true.",
+        "props": {
+          "title": "Annual Revenue Analysis 10",
+          "subtitle": "",
+          "labels": [
+            "Tech",
+            "Health",
+            "Finance"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "yMin": 0,
+          "yMax": 450,
+          "series": [
+            {
+              "label": "Revenue 10",
+              "data": [
+                330,
+                230,
+                445
+              ]
+            }
+          ],
+          "unit": "",
+          "stacked": false,
+          "showValueLabels": false,
+          "showLegend": true,
+          "annotations": [],
+          "data": [
+            {
+              "label": "Tech",
+              "value": 330
+            },
+            {
+              "label": "Health",
+              "value": 230
+            },
+            {
+              "label": "Finance",
+              "value": 445
+            }
+          ],
+          "insightText": "O setor Financeiro lidera a receita anual, com um valor impressionante de 445, superando significativamente os setores de Tecnologia e Saúde."
+        }
+      }
+    },
+    "id": "95c95708-f3c4-4d1c-af54-5f2508ea3e53",
+    "createdAt": "2026-05-06T18:12:19.479Z"
+  },
+  {
+    "filename": "auto_BarChart_9.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "BarChart",
+        "suggestedName": "AnnualRevenueAnalysis9",
+        "reasoning": "O gráfico apresentado é um gráfico de barras verticais, mostrando a análise de receita anual de diferentes setores. As barras são coloridas em azul, o que sugere uma única série de dados. O eixo x lista as categorias (Tech, Health, Finance, Energy, Retail) e o eixo y representa a receita.",
+        "props": {
+          "title": "Annual Revenue Analysis 9",
+          "subtitle": "",
+          "labels": [
+            "Tech",
+            "Health",
+            "Finance",
+            "Energy",
+            "Retail"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "yMin": 0,
+          "yMax": 500,
+          "xMin": 0,
+          "xMax": 0,
+          "series": [
+            {
+              "label": "Revenue 9",
+              "data": [
+                300,
+                500,
+                250,
+                120,
+                150
+              ]
+            }
+          ],
+          "seriesColors": [
+            "#4682B4"
+          ],
+          "unit": "",
+          "stacked": false,
+          "showValueLabels": true,
+          "showLegend": true,
+          "annotations": [],
+          "data": [
+            {
+              "label": "Tech",
+              "value": 300
+            },
+            {
+              "label": "Health",
+              "value": 500
+            },
+            {
+              "label": "Finance",
+              "value": 250
+            },
+            {
+              "label": "Energy",
+              "value": 120
+            },
+            {
+              "label": "Retail",
+              "value": 150
+            }
+          ],
+          "insightText": "O setor de saúde lidera a receita anual, com um valor impressionante de 500, destacando-se como o principal motor de crescimento."
+        },
+        "engine": "groq-llama-vision"
+      }
+    },
+    "id": "d8916e1a-4142-42c7-82bf-e2b46516ed04",
+    "createdAt": "2026-05-06T18:11:45.578Z"
+  },
+  {
+    "filename": "auto_BarChart_8.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "BarChart",
+        "suggestedName": "AnnualRevenueAnalysis",
+        "reasoning": "O gráfico é um BarChart (barras verticais) com um título claro 'Annual Revenue Analysis 8'. Possui três categorias no eixo X ('Tech', 'Health', 'Finance') e uma única série de dados 'Revenue 8'. Os valores foram extraídos com precisão do eixo Y, que varia de 0 a 500. As cores das barras e da legenda foram fielmente capturadas da imagem original. Não há unidades explícitas no título ou nos eixos, portanto, a propriedade 'unit' é vazia. A legenda está presente, então 'showLegend' é true. Não há labels de valor nas barras, então 'showValueLabels' é false.",
+        "props": {
+          "title": "Annual Revenue Analysis 8",
+          "subtitle": "",
+          "labels": [
+            "Tech",
+            "Health",
+            "Finance"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "yMin": 0,
+          "yMax": 500,
+          "series": [
+            {
+              "label": "Revenue 8",
+              "data": [
+                375,
+                460,
+                220
+              ]
+            }
+          ],
+          "seriesColors": [
+            "#0F142B"
+          ],
+          "unit": "",
+          "stacked": false,
+          "showValueLabels": false,
+          "showLegend": true,
+          "annotations": [],
+          "data": [
+            {
+              "label": "Tech",
+              "value": 375
+            },
+            {
+              "label": "Health",
+              "value": 460
+            },
+            {
+              "label": "Finance",
+              "value": 220
+            }
+          ],
+          "insightText": "O setor de saúde lidera a receita anual, com um valor impressionante de 460, superando significativamente os setores de tecnologia e finanças."
+        }
+      }
+    },
+    "id": "2ecd816d-4f3c-4c60-a57e-371b50b11a00",
+    "createdAt": "2026-05-06T18:10:36.605Z"
+  },
+  {
+    "filename": "auto_BarChart_4.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "BarChart",
+        "suggestedName": "AnnualRevenueAnalysis4",
+        "reasoning": "The image displays a vertical bar chart with three distinct categories: Tech, Health, and Finance. The title 'Annual Revenue Analysis 4' is clearly visible, and a single series 'Revenue 4' is indicated by the legend. The y-axis ranges from 0 to 400. Data values for each bar have been precisely extracted by aligning the bar tops with the y-axis grid lines. The color of the bars is a consistent dark navy blue. No explicit units are present on the axes or title, so the 'unit' property is left empty. The chart is not stacked, and there are no value labels directly on the bars.",
+        "props": {
+          "title": "Annual Revenue Analysis 4",
+          "subtitle": "",
+          "labels": [
+            "Tech",
+            "Health",
+            "Finance"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "yMin": 0,
+          "yMax": 400,
+          "series": [
+            {
+              "label": "Revenue 4",
+              "data": [
+                195,
+                250,
+                280
+              ]
+            }
+          ],
+          "seriesColors": [
+            "#0F142B"
+          ],
+          "unit": "",
+          "stacked": false,
+          "showValueLabels": false,
+          "showLegend": true,
+          "annotations": [],
+          "data": [
+            {
+              "label": "Tech",
+              "value": 195
+            },
+            {
+              "label": "Health",
+              "value": 250
+            },
+            {
+              "label": "Finance",
+              "value": 280
+            }
+          ],
+          "insightText": "O setor Financeiro lidera a receita anual, com um valor impressionante de 280, ultrapassando significativamente os setores de Tecnologia e Saúde."
+        }
+      }
+    },
+    "id": "b17a0639-2d35-481d-8f9f-3a4b147c16f7",
+    "createdAt": "2026-05-06T18:08:17.478Z"
+  },
+  {
+    "filename": "auto_BarChart_3.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "BarChart",
+        "suggestedName": "AnnualRevenueAnalysis",
+        "reasoning": "O gráfico é um BarChart (barras verticais) com um único conjunto de dados. O título 'Annual Revenue Analysis 3' foi extraído fielmente. Os rótulos do eixo X ('Tech', 'Health', 'Finance', 'Energy', 'Retail') e os valores correspondentes foram extraídos com precisão cirúrgica, utilizando as linhas de grade do eixo Y para estimativa decimal. O eixo Y varia de 0 a 350, conforme a imagem. A legenda 'Revenue 3' foi identificada e sua cor correspondente (#0F1120) foi extraída. Não há unidades explícitas no título ou nos eixos, portanto, a propriedade 'unit' está vazia. Não há rótulos de valor explícitos nas barras, então 'showValueLabels' é falso. O gráfico não é empilhado nem agrupado.",
+        "props": {
+          "title": "Annual Revenue Analysis 3",
+          "subtitle": "",
+          "labels": [
+            "Tech",
+            "Health",
+            "Finance",
+            "Energy",
+            "Retail"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "yMin": 0,
+          "yMax": 350,
+          "series": [
+            {
+              "label": "Revenue 3",
+              "data": [
+                300,
+                128,
+                217,
+                162.5,
+                243.75
+              ]
+            }
+          ],
+          "seriesColors": [
+            "#0F1120"
+          ],
+          "unit": "",
+          "stacked": false,
+          "showValueLabels": false,
+          "showLegend": true,
+          "annotations": [],
+          "data": [
+            {
+              "label": "Tech",
+              "value": 300
+            },
+            {
+              "label": "Health",
+              "value": 128
+            },
+            {
+              "label": "Finance",
+              "value": 217
+            },
+            {
+              "label": "Energy",
+              "value": 162.5
+            },
+            {
+              "label": "Retail",
+              "value": 243.75
+            }
+          ],
+          "insightText": "O setor de Tecnologia lidera a receita anual, com um desempenho 134% superior à segunda colocada, Finanças."
+        }
+      }
+    },
+    "id": "5815acec-5244-4454-bb18-c03b0414a512",
+    "createdAt": "2026-05-06T18:08:07.792Z"
+  },
+  {
+    "filename": "auto_BarChart_2.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "BarChart",
+        "suggestedName": "AnnualRevenueAnalysis",
+        "reasoning": "O gráfico é um BarChart vertical simples. O título 'Annual Revenue Analysis 2' foi extraído fielmente. Os rótulos do eixo X ('Tech', 'Health', 'Finance', 'Energy', 'Retail') foram capturados exatamente. Os valores de cada barra foram lidos com precisão cirúrgica em relação às linhas de grade do eixo Y (0 a 450), resultando em 295, 425, 195, 165 e 140. A cor da série foi extraída diretamente da imagem original (#0F1120). O eixo Y começa em 0 e termina em 450, conforme a imagem. A legenda 'Revenue 2' está presente, portanto 'showLegend' é true. Não há unidades explícitas no título ou no eixo Y, então 'unit' é vazio. Não há labels de valor explícitas nas barras, então 'showValueLabels' é false.",
+        "props": {
+          "title": "Annual Revenue Analysis 2",
+          "subtitle": "",
+          "labels": [
+            "Tech",
+            "Health",
+            "Finance",
+            "Energy",
+            "Retail"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "yMin": 0,
+          "yMax": 450,
+          "series": [
+            {
+              "label": "Revenue 2",
+              "data": [
+                295,
+                425,
+                195,
+                165,
+                140
+              ]
+            }
+          ],
+          "seriesColors": [
+            "#0F1120"
+          ],
+          "unit": "",
+          "stacked": false,
+          "showValueLabels": false,
+          "showLegend": true,
+          "annotations": [],
+          "data": [
+            {
+              "label": "Tech",
+              "value": 295
+            },
+            {
+              "label": "Health",
+              "value": 425
+            },
+            {
+              "label": "Finance",
+              "value": 195
+            },
+            {
+              "label": "Energy",
+              "value": 165
+            },
+            {
+              "label": "Retail",
+              "value": 140
+            }
+          ],
+          "insightText": "O setor de saúde lidera a receita anual, com um valor impressionante de 425, destacando-se como o principal motor de crescimento."
+        }
+      }
+    },
+    "id": "088a2300-85fa-4248-919a-2565852bde26",
+    "createdAt": "2026-05-06T18:07:21.903Z"
+  },
+  {
+    "filename": "auto_BarChart_1.png",
+    "outputFile": "",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "BarChart",
+        "suggestedName": "AnnualRevenueAnalysis",
+        "reasoning": "The image displays a vertical bar chart with a single series, 'Revenue 1', across four distinct categories: 'Tech', 'Health', 'Finance', and 'Energy'. The y-axis ranges from 0 to 350. Data values were extracted by precisely aligning the top of each bar with the y-axis grid lines. The chart includes a title and a legend. No explicit axis titles or units are present, and no value labels are shown on the bars themselves. The color of the bars was accurately extracted.",
+        "props": {
+          "title": "Annual Revenue Analysis 1",
+          "subtitle": "",
+          "labels": [
+            "Tech",
+            "Health",
+            "Finance",
+            "Energy"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "",
+          "yMin": 0,
+          "yMax": 350,
+          "series": [
+            {
+              "label": "Revenue 1",
+              "data": [
+                250,
+                200,
+                300,
+                125
+              ]
+            }
+          ],
+          "seriesColors": [
+            "#0F142B"
+          ],
+          "unit": "",
+          "stacked": false,
+          "showValueLabels": false,
+          "showLegend": true,
+          "annotations": [],
+          "data": [
+            {
+              "label": "Tech",
+              "value": 250
+            },
+            {
+              "label": "Health",
+              "value": 200
+            },
+            {
+              "label": "Finance",
+              "value": 300
+            },
+            {
+              "label": "Energy",
+              "value": 125
+            }
+          ],
+          "insightText": "O setor Financeiro lidera a receita anual, com um valor de 300, destacando-se como o principal motor de crescimento."
+        }
+      }
+    },
+    "id": "5bde3c91-1d94-4514-8642-4d22728a7c77",
+    "createdAt": "2026-05-06T18:07:02.436Z"
+  },
+  {
+    "filename": "FavouriteColour_AN_imagem_colada_1778084829455.mov",
+    "outputFile": "FavouriteColour_AN_imagem_colada_1778084829455.mov",
+    "thumbnailFile": "FavouriteColour_AN_imagem_colada_1778084829455.thumb.jpg",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "BarChart",
+        "suggestedName": "FavouriteColour",
+        "reasoning": "O gráfico é um BarChart (barras verticais) agrupado, não empilhado, com três categorias no eixo X ('Preschool', 'Primary', 'Secondary') e quatro séries ('Green', 'Blue', 'Yellow', 'Red') representadas por cores distintas. Os valores foram extraídos diretamente da altura das barras em relação ao eixo Y, que varia de 0 a 8. O título, rótulos dos eixos e da legenda foram copiados textualmente. As cores das séries foram extraídas com precisão da imagem original. A legenda é visível, portanto 'showLegend' é true. Não há rótulos de valor explícitos nas barras, então 'showValueLabels' é false. A unidade 'Children' já está no yAxisTitle, então 'unit' é vazio.",
+        "props": {
+          "title": "Favourite Colour",
+          "subtitle": "",
+          "labels": [
+            "Preschool",
+            "Primary",
+            "Secondary"
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "Children",
+          "yMin": 0,
+          "yMax": 8,
+          "series": [
+            {
+              "label": "Green",
+              "data": [
+                4,
+                2,
+                1
+              ]
+            },
+            {
+              "label": "Blue",
+              "data": [
+                2,
+                4,
+                6
+              ]
+            },
+            {
+              "label": "Yellow",
+              "data": [
+                5,
+                6,
+                4
+              ]
+            },
+            {
+              "label": "Red",
+              "data": [
+                4,
+                3,
+                4
+              ]
+            }
+          ],
+          "unit": "",
+          "stacked": false,
+          "showValueLabels": false,
+          "showLegend": true,
+          "data": [
+            {
+              "label": "Preschool",
+              "value": 4
+            },
+            {
+              "label": "Primary",
+              "value": 2
+            },
+            {
+              "label": "Secondary",
+              "value": 1
+            }
+          ],
+          "insightText": "A cor azul é a preferida na faixa etária de ensino secundário, com 6 votos, enquanto o amarelo lidera no ensino fundamental com 6 votos, indicando uma tendência de mudança de preferência de cor ao longo do desenvolvimento educacional."
+        }
+      }
+    },
+    "id": "2a884d89-c99c-4a1f-9bdc-4053b8aa55c8",
+    "createdAt": "2026-05-06T16:28:52.083Z"
+  },
+  {
+    "filename": "VegetablesSoldAtFranksFarmStand_AN_imagem_colada_1778083633333.mov",
+    "outputFile": "VegetablesSoldAtFranksFarmStand_AN_imagem_colada_1778083633333.mov",
+    "thumbnailFile": "VegetablesSoldAtFranksFarmStand_AN_imagem_colada_1778083633333.thumb.jpg",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "BarChart",
+        "suggestedName": "VegetablesSoldAtFranksFarmStand",
+        "reasoning": "O gráfico é um BarChart agrupado, com barras verticais representando a quantidade de vegetais vendidos por dia. Os dados foram extraídos diretamente da altura das barras em relação ao eixo Y. As cores das séries foram capturadas da legenda e das barras, garantindo vivacidade. Os títulos dos eixos e do gráfico foram copiados textualmente. A unidade 'Pounds' já está no yAxisTitle, portanto, a propriedade 'unit' foi deixada vazia para evitar redundância. O yMin e yMax foram definidos com base na escala visível do eixo Y (0 a 70). A propriedade 'stacked' é false, pois as barras são agrupadas e não empilhadas. A legenda é visível na imagem, então 'showLegend' é true. Não há labels de valor explícitas nas barras, então 'showValueLabels' é false.",
+        "props": {
+          "title": "Amount of Vegetables Sold at Frank's Farm Stand",
+          "subtitle": "",
+          "labels": [
+            "Squash",
+            "Zucchini",
+            "Corn",
+            "Carrots",
+            "Romaine Lettuce",
+            "Tomatoes"
+          ],
+          "xAxisTitle": "Type of Vegetable",
+          "yAxisTitle": "Pounds Sold",
+          "yMin": 0,
+          "yMax": 70,
+          "series": [
+            {
+              "label": "Day One",
+              "data": [
+                32,
+                40,
+                56,
+                28,
+                27,
+                44
+              ]
+            },
+            {
+              "label": "Day Two",
+              "data": [
+                36,
+                33,
+                65,
+                25,
+                31,
+                54
+              ]
+            },
+            {
+              "label": "Day Three",
+              "data": [
+                36,
+                37,
+                67,
+                23,
+                34,
+                58
+              ]
+            }
+          ],
+          "unit": "",
+          "stacked": false,
+          "showValueLabels": false,
+          "showLegend": true,
+          "data": [
+            {
+              "label": "Squash",
+              "value": 32
+            },
+            {
+              "label": "Zucchini",
+              "value": 40
+            },
+            {
+              "label": "Corn",
+              "value": 56
+            },
+            {
+              "label": "Carrots",
+              "value": 28
+            },
+            {
+              "label": "Romaine Lettuce",
+              "value": 27
+            },
+            {
+              "label": "Tomatoes",
+              "value": 44
+            }
+          ],
+          "insightText": "O milho lidera as vendas de vegetais em todos os dias, com um aumento significativo de 56 para 67 unidades vendidas entre o primeiro e o terceiro dia."
+        }
+      }
+    },
+    "id": "85086644-3dbe-464a-ab4e-93504fb61823",
+    "createdAt": "2026-05-06T16:09:20.820Z"
+  },
+  {
+    "filename": "Top10ProductsByRevenue_AN_imagem_colada_1778083094387.mp4",
+    "outputFile": "Top10ProductsByRevenue_AN_imagem_colada_1778083094387.mp4",
+    "thumbnailFile": "Top10ProductsByRevenue_AN_imagem_colada_1778083094387.thumb.jpg",
+    "status": "done",
+    "props": {
+      "analysis": {
+        "componentId": "HorizontalBarChart",
+        "suggestedName": "Top10ProductsByRevenue",
+        "reasoning": "The image presents a horizontal bar chart comparing the revenue of various cosmetic products across four states: Florida, Texas, Arizona, and Nevada. The chart's orientation and structure indicate that a HorizontalBarChart is the appropriate component.",
+        "props": {
+          "title": "Top 10 Products by Revenue",
+          "labels": [
+            "Powder",
+            "Mascara",
+            "Lip gloss",
+            "Foundation",
+            "Eyeliner",
+            "Eyeshadows",
+            "Lipstick",
+            "Rouge",
+            "Eyebrow pencil",
+            "Nail polish"
+          ],
+          "series": [
+            {
+              "label": "Florida",
+              "data": [
+                18543,
+                16543,
+                14423,
+                12345,
+                10234,
+                9234,
+                8234,
+                7234,
+                6234,
+                5234
+              ]
+            },
+            {
+              "label": "Texas",
+              "data": [
+                20432,
+                17345,
+                15321,
+                13214,
+                11234,
+                10234,
+                9234,
+                8234,
+                7234,
+                6234
+              ]
+            },
+            {
+              "label": "Arizona",
+              "data": [
+                22345,
+                19234,
+                16234,
+                14234,
+                12234,
+                11234,
+                10234,
+                9234,
+                8234,
+                7234
+              ]
+            },
+            {
+              "label": "Nevada",
+              "data": [
+                24321,
+                21234,
+                18234,
+                15234,
+                13234,
+                12234,
+                11234,
+                10234,
+                9234,
+                8234
+              ]
+            }
+          ],
+          "xAxisTitle": "",
+          "yAxisTitle": "Revenue in Dollars",
+          "unit": "",
+          "showValueLabels": true,
+          "showLegend": true,
+          "data": [
+            {
+              "label": "Powder",
+              "value": 18543
+            },
+            {
+              "label": "Mascara",
+              "value": 16543
+            },
+            {
+              "label": "Lip gloss",
+              "value": 14423
+            },
+            {
+              "label": "Foundation",
+              "value": 12345
+            },
+            {
+              "label": "Eyeliner",
+              "value": 10234
+            },
+            {
+              "label": "Eyeshadows",
+              "value": 9234
+            },
+            {
+              "label": "Lipstick",
+              "value": 8234
+            },
+            {
+              "label": "Rouge",
+              "value": 7234
+            },
+            {
+              "label": "Eyebrow pencil",
+              "value": 6234
+            },
+            {
+              "label": "Nail polish",
+              "value": 5234
+            }
+          ],
+          "insightText": "O estado de Nevada lidera as vendas de produtos de beleza, com uma receita significativamente maior que os demais estados, destacando-se como um mercado-chave para investimentos e expansão.",
+          "subtitle": ""
+        },
+        "engine": "groq-llama-vision"
+      }
+    },
+    "id": "020dcf80-d07c-4171-a64b-60d537ed297e",
+    "createdAt": "2026-05-06T15:59:33.645Z"
+  },
+  {
     "filename": "US_EnergyConsumption_AN_imagem_colada_1778081728168.mp4",
     "outputFile": "US_EnergyConsumption_AN_imagem_colada_1778081728168.mp4",
     "status": "done",

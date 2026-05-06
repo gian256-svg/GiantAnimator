@@ -42,7 +42,7 @@ export const ComparativeBarChart: React.FC<ComparativeBarChartProps> = ({
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
-  const T = resolveTheme(theme ?? 'dark', backgroundColor, backgroundType);
+  const T = resolveTheme(theme ?? 'dark', backgroundColor, backgroundType, colors, textColor);
   const resolvedBg = backgroundType ? T.background : (backgroundColor ?? T.background);
   const instanceId = useId().replace(/:/g, "");
 
@@ -56,7 +56,7 @@ export const ComparativeBarChart: React.FC<ComparativeBarChartProps> = ({
 
   if (data.length === 0) {
     return (
-      <AbsoluteFill style={{ backgroundColor: resolvedBg,  justifyContent: 'center', alignItems: 'center' }}>
+      <AbsoluteFill style={{ backgroundColor: (backgroundType as string) === 'transparent' ? 'rgba(0,0,0,0)' : resolvedBg,  justifyContent: 'center', alignItems: 'center' }}>
         <p style={{ color: T.text, fontSize: Theme.typography.axis.size }}>Nenhum dado para exibir.</p>
       </AbsoluteFill>
     );
@@ -69,7 +69,10 @@ export const ComparativeBarChart: React.FC<ComparativeBarChartProps> = ({
   const barGap = (plotHeight / data.length) * 0.3;
 
   return (
-    <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
+    <AbsoluteFill style={{ 
+      fontFamily: Theme.typography.fontFamily,
+      backgroundColor: (backgroundType as string) === 'transparent' ? 'rgba(0,0,0,0)' : undefined
+    }}>
       <DynamicBackground 
         baseColor={resolvedBg} 
         accentColor={T.colors[0]} 

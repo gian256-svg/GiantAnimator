@@ -1,4 +1,4 @@
-﻿import React, { useId, useMemo } from "react";
+import React, { useId, useMemo } from "react";
 import {
   spring,
   useCurrentFrame,
@@ -25,6 +25,7 @@ export interface StackedBarChartProps {
   seriesColors?: string[];
   textColor?: string;
   bgStyle?: 'none' | 'mesh' | 'grid';
+  backgroundType?: 'dark' | 'light' | 'transparent';
 }
 
 export const StackedBarChart: React.FC<StackedBarChartProps> = ({
@@ -38,13 +39,14 @@ export const StackedBarChart: React.FC<StackedBarChartProps> = ({
   colors,
   seriesColors,
   bgStyle = 'none',
+  backgroundType,
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
 
   const initialT = resolveTheme(theme ?? 'dark');
   const resolvedBg = backgroundColor ?? initialT.background;
-  const T = resolveTheme(theme ?? 'dark', resolvedBg);
+  const T = resolveTheme(theme ?? 'dark', resolvedBg, backgroundType, seriesColors || colors, textColor);
   const instanceId = useId().replace(/:/g, "");
 
   const paletteFromProps = (colors ?? seriesColors)?.filter(Boolean) ?? [];
@@ -67,14 +69,19 @@ export const StackedBarChart: React.FC<StackedBarChartProps> = ({
   const categoryWidth = plotWidth / data.length;
   const barWidth = categoryWidth * (1 - barGap);
 
-  if (data.length === 0) return null;
+  if (data.length === 0) {
+    return <AbsoluteFill style={{ backgroundColor: (backgroundType as string) === 'transparent' ? 'rgba(0,0,0,0)' : resolvedBg }} />;
+  }
 
   return (
-    <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
+    <AbsoluteFill style={{ 
+      fontFamily: Theme.typography.fontFamily,
+      backgroundColor: (backgroundType as string) === 'transparent' ? 'rgba(0,0,0,0)' : undefined
+    }}>
       <DynamicBackground 
-        style={bgStyle} 
         baseColor={resolvedBg}
         accentColor={resolvedColors[0]}
+        backgroundType={backgroundType}
       />
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',

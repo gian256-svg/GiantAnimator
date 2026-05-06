@@ -10,7 +10,7 @@ import { renderMedia, renderStill, selectComposition } from '@remotion/renderer'
 import { getHistory, addJob, clearHistory } from './historyService.js';
 import { syncPipelineJob, seedComponentRegistry, syncTrainingLog } from './supabaseService.js';
 import { analyzeChartImage } from './visionService.js';
-import { generateStill, getBundle } from './renderService.js';
+import { generateStill, getBundle, clearBundleCache } from './renderService.js';
 import { auditRenderFidelity } from './auditorService.js';
 import { dataTransformationService } from './dataTransformationService.js';
 import { tableParserService } from './tableParserService.js';
@@ -289,7 +289,7 @@ async function finishJobRendering(jobId: string, analysis: ChartAnalysis, chartT
             console.log("🎨 [Render] Aplicando paleta customizada...");
             analysis.props.backgroundColor = customPalette.bg;
             analysis.props.textColor = customPalette.text;
-            analysis.props.colors = customPalette.colors;
+            analysis.props.seriesColors = customPalette.colors;
         }
 
         const options = job.options || {};
@@ -379,7 +379,7 @@ async function finishJobRendering(jobId: string, analysis: ChartAnalysis, chartT
             ...analysis.props,
             theme: resolvedTheme,
             backgroundType: isAlpha ? 'transparent' : (options.backgroundType || analysis.props.backgroundType),
-            backgroundColor: isAlpha ? 'transparent' : (analysis.props.backgroundColor === '#000000' ? undefined : analysis.props.backgroundColor)
+            backgroundColor: isAlpha ? 'rgba(0,0,0,0)' : (analysis.props.backgroundColor === '#000000' ? undefined : analysis.props.backgroundColor)
         });
 
         const inputProps = finalizedProps;
@@ -403,11 +403,9 @@ async function finishJobRendering(jobId: string, analysis: ChartAnalysis, chartT
         if (isAlpha) {
           console.log("🎬 [Render] Exportando com canal ALPHA (ProRes 4444)...");
           renderOptions.codec = 'prores';
+          renderOptions.proResProfile = '4444';
           renderOptions.pixelFormat = 'yuva444p10le';
           renderOptions.imageFormat = 'png';
-          // chromiumOptions.transparentBackground instrui o Chrome a renderizar sem fundo
-          // (REMOTION_TRANSPARENT env var não é uma API real do Remotion)
-          renderOptions.chromiumOptions = { transparentBackground: true };
         } else {
           renderOptions.codec = 'h264';
         }
@@ -455,6 +453,11 @@ async function finishJobRendering(jobId: string, analysis: ChartAnalysis, chartT
 const upload = multer({ storage: multer.memoryStorage() });
 app.use(express.static(path.join(PATHS.server, 'public'))); 
 app.use('/output', express.static(OUTPUT_DIR));
+
+app.post('/reload-bundle', (_req: Request, res: Response) => {
+  clearBundleCache();
+  getBundle().then(() => res.json({ ok: true, message: 'Bundle reconstruído.' })).catch(err => res.status(500).json({ error: err.message }));
+});
 
 app.post('/upload', upload.single('file'), async (req: Request, res: Response) => {
   try {
@@ -521,6 +524,7 @@ app.post('/jobs/:jobId/start-render', async (req: Request, res: Response) => {
         delete analysis.props.backgroundColor;
         delete analysis.props.textColor;
         delete analysis.props.colors;
+        delete analysis.props.seriesColors;
     }
     
     const job = loadJob(String(jobId));

@@ -1,4 +1,4 @@
-﻿import React, { useId } from "react";
+import React, { useId } from "react";
 import {
   spring,
   useCurrentFrame,
@@ -19,6 +19,7 @@ export interface GaugeChartProps {
   colors?: string[];
   textColor?: string;
   bgStyle?: 'none' | 'mesh' | 'grid';
+  backgroundType?: 'dark' | 'light' | 'transparent';
 }
 
 export const GaugeChart: React.FC<GaugeChartProps> = ({
@@ -26,14 +27,13 @@ export const GaugeChart: React.FC<GaugeChartProps> = ({
   title,
   subtitle,
   label = "Taxa de Desempenho",
-  theme = 'dark',
-  backgroundColor,
   textColor,
   bgStyle = 'none',
+  backgroundType,
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
-  const T = resolveTheme(theme);
+  const T = resolveTheme(theme ?? 'dark', backgroundColor, backgroundType, colors, textColor);
   const instanceId = useId().replace(/:/g, "");
 
   const resolvedBg   = backgroundColor ?? T.background;
@@ -71,6 +71,7 @@ export const GaugeChart: React.FC<GaugeChartProps> = ({
         style={bgStyle} 
         baseColor={resolvedBg} 
         accentColor={needleColor} 
+        backgroundType={backgroundType}
       />
       <div style={{ position: 'absolute', top: 50, width: '100%', textAlign: 'center', opacity: interpolate(frame, [0, 15], [0, 1]) }}>
         {title && (

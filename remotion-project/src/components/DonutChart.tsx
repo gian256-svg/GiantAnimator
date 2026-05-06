@@ -26,6 +26,7 @@ export interface DonutChartProps {
   seriesColors?: string[]; // alias retornado pela IA vision
   textColor?: string;
   bgStyle?: 'none' | 'mesh' | 'grid';
+  backgroundType?: 'dark' | 'light' | 'transparent';
 }
 
 const describeSlice = (cx: number, cy: number, ir: number, or: number, start: number, end: number) => {
@@ -52,10 +53,11 @@ export const DonutChart: React.FC<DonutChartProps> = ({
   seriesColors,
   textColor,
   bgStyle = 'none',
+  backgroundType,
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
-  const T = resolveTheme(theme);
+  const T = resolveTheme(theme, backgroundColor, backgroundType, seriesColors || colors, textColor);
   const instanceId = useId().replace(/:/g, "");
 
   const resolvedBg = backgroundColor ?? T.background;
@@ -77,6 +79,10 @@ export const DonutChart: React.FC<DonutChartProps> = ({
   const data = useMemo(() => (Array.isArray(propData) ? propData : []).filter(d => d.value > 0).slice(0, 10), [propData]);
   const total = useMemo(() => data.reduce((acc, d) => acc + d.value, 0) || 1, [data]);
 
+  if (data.length === 0) {
+    return <AbsoluteFill style={{ backgroundColor: (backgroundType as string) === 'transparent' ? 'rgba(0,0,0,0)' : resolvedBg }} />;
+  }
+
   const legendWidth = 800;
   const chartAreaWidth = width - legendWidth;
   const cx = Theme.canvas.safeZoneX + chartAreaWidth / 2;
@@ -93,10 +99,14 @@ export const DonutChart: React.FC<DonutChartProps> = ({
   });
 
   return (
-    <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
+    <AbsoluteFill style={{ 
+      fontFamily: Theme.typography.fontFamily,
+      backgroundColor: (backgroundType as string) === 'transparent' ? 'rgba(0,0,0,0)' : undefined
+    }}>
       <DynamicBackground 
         baseColor={resolvedBg} 
         accentColor={resolvedColors[0]} 
+        backgroundType={backgroundType}
       />
       {/* HEADER */}
       <div style={{ position: 'absolute', top: Theme.canvas.safeZoneTop, width: '100%', textAlign: 'center', opacity: interpolate(frame, [0, 15], [0, 1]) }}>

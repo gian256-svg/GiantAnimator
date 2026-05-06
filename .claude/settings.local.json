@@ -3,7 +3,15 @@
     "allow": [
       "Bash(python3)",
       "Bash(python3 -c ' *)",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "Bash(grep -v \"//.*background\")",
+      "Bash(grep -v \"\\\\.map\\\\|//\")",
+      "Bash(grep -v \"map\\\\|comment\\\\|//\")",
+      "Bash(xargs grep *)",
+      "Bash(find c:\\\\\\\\Users\\\\\\\\gianluca.palmisciano\\\\\\\\.gemini\\\\\\\\antigravity\\\\\\\\scratch\\\\\\\\GiantAnimator\\\\\\\\server -type f -name \"*.ts\" -o -name \"*.tsx\")",
+      "Bash(find c:\\\\\\\\Users\\\\\\\\gianluca.palmisciano\\\\\\\\.gemini\\\\\\\\antigravity\\\\\\\\scratch\\\\\\\\GiantAnimator\\\\\\\\client\\\\\\\\src -type f -name \"*.ts\" -o -name \"*.tsx\")",
+      "Bash(grep -n \"app\\\\\\\\.post\\\\|app\\\\\\\\.get\\\\|app\\\\\\\\.put\" \"c:/Users/gianluca.palmisciano/.gemini/antigravity/scratch/GiantAnimator/server/index.ts\")",
+      "Bash(xargs -I{} git show {} -- server/public/app.js)"
     ]
   }
 }

@@ -40,6 +40,7 @@ export interface RacingLineChartProps {
   backgroundColor?: string;
   textColor?: string;
   colors?: string[];
+  seriesColors?: string[];
   highlightSeries?: number;
   legendMode?: 'inline' | 'classic';
   bgStyle?: 'none' | 'mesh' | 'grid';
@@ -57,6 +58,8 @@ export const RacingLineChart: React.FC<RacingLineChartProps> = ({
   theme = "dark",
   backgroundColor,
   textColor,
+  colors,
+  seriesColors,
   highlightSeries,
   legendMode = 'inline',
   bgStyle = 'none',
@@ -67,7 +70,7 @@ export const RacingLineChart: React.FC<RacingLineChartProps> = ({
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps, durationInFrames } = useVideoConfig();
-  const T = resolveTheme(theme ?? 'dark', backgroundColor, backgroundType);
+  const T = resolveTheme(theme ?? 'dark', backgroundColor, backgroundType, seriesColors || colors, textColor);
   const resolvedBg = backgroundType ? T.background : (backgroundColor ?? T.background);
 
   const series = useMemo(() => {
@@ -79,7 +82,7 @@ export const RacingLineChart: React.FC<RacingLineChartProps> = ({
 
   if (series.length === 0 || labels.length < 2) {
     return (
-      <AbsoluteFill style={{ backgroundColor: T.background, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <AbsoluteFill style={{ backgroundColor: (backgroundType as string) === 'transparent' ? 'rgba(0,0,0,0)' : T.background, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <p style={{ color: T.text, fontSize: Theme.typography.subtitle.size }}>Aguardando dados...</p>
       </AbsoluteFill>
     );
@@ -179,7 +182,10 @@ export const RacingLineChart: React.FC<RacingLineChartProps> = ({
   const fs = (base: number) => Math.round(base * (width / 1920));
 
   return (
-    <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
+    <AbsoluteFill style={{ 
+      fontFamily: Theme.typography.fontFamily,
+      backgroundColor: (backgroundType as string) === 'transparent' ? 'rgba(0,0,0,0)' : undefined
+    }}>
       <DynamicBackground 
         baseColor={resolvedBg} 
         accentColor={T.colors[0]} 

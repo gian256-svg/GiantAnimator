@@ -27,6 +27,7 @@ export interface GroupedBarChartProps {
   backgroundColor?: string;
   theme?: string;
   colors?: string[];
+  seriesColors?: string[];
   textColor?: string;
   bgStyle?: 'none' | 'mesh' | 'grid';
 }
@@ -60,11 +61,13 @@ export const GroupedBarChart: React.FC<GroupedBarChartProps> = ({
   highlightGroup,
   backgroundColor,
   theme = 'dark',
+  colors,
+  seriesColors,
   bgStyle = 'none',
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
-  const T = resolveTheme(theme ?? 'dark');
+  const T = resolveTheme(theme ?? 'dark', backgroundColor, undefined, seriesColors || colors);
   const instanceId = useId().replace(/:/g, "");
 
   // ── Layout base ─────────────────────────────────────────────

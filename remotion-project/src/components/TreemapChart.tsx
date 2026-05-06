@@ -1,4 +1,4 @@
-﻿import React, { useMemo, useId } from "react";
+import React, { useMemo, useId } from "react";
 import {
   spring,
   useCurrentFrame,
@@ -25,6 +25,7 @@ export interface TreemapChartProps {
   colors?: string[];
   textColor?: string;
   bgStyle?: 'none' | 'mesh' | 'grid';
+  backgroundType?: 'dark' | 'light' | 'transparent';
 }
 
 interface Rect {
@@ -43,13 +44,14 @@ export const TreemapChart: React.FC<TreemapChartProps> = ({
   textColor,
   theme = 'dark',
   bgStyle = 'none',
+  backgroundType,
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
   
   const initialT = resolveTheme(theme ?? 'dark');
   const resolvedBg = backgroundColor ?? initialT.background;
-  const T = resolveTheme(theme ?? 'dark', resolvedBg);
+  const T = resolveTheme(theme ?? 'dark', resolvedBg, backgroundType, colors, textColor);
   const instanceId = useId().replace(/:/g, "");
 
   // Safe Zone 4K
@@ -117,14 +119,22 @@ export const TreemapChart: React.FC<TreemapChartProps> = ({
     return results;
   }, [data, plotWidth, plotHeight, margin, chartTop]);
 
+  if (data.length === 0) {
+    return <AbsoluteFill style={{ backgroundColor: (backgroundType as string) === 'transparent' ? 'rgba(0,0,0,0)' : resolvedBg }} />;
+  }
+
   const groups = Array.from(new Set(data.map(d => d.group || "default")));
 
   return (
-    <AbsoluteFill style={{ fontFamily: Theme.typography.fontFamily }}>
+    <AbsoluteFill style={{ 
+      fontFamily: Theme.typography.fontFamily,
+      backgroundColor: (backgroundType as string) === 'transparent' ? 'rgba(0,0,0,0)' : undefined
+    }}>
       <DynamicBackground 
         style={bgStyle} 
         baseColor={resolvedBg} 
         accentColor={T.colors[0]} 
+        backgroundType={backgroundType}
       />
       <div style={{
         position: 'absolute', top: margin, width: '100%', textAlign: 'center',

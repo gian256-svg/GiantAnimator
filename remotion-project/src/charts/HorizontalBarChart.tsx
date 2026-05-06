@@ -29,6 +29,8 @@ interface HorizontalBarChartProps {
   showLegend?: boolean;
   xMin?: number;
   xMax?: number;
+  xAxisTitle?: string;
+  stacked?: boolean;
 }
 
 export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
@@ -45,11 +47,13 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
   textColor,
   showValueLabels = true,
   annotations = [],
-  bgStyle = 'none',
+  bgStyle: _bgStyle = 'none',
   backgroundType,
   showLegend = true,
+  stacked = false,
   xMin: propXMin,
   xMax: propXMax,
+  xAxisTitle = '',
 }) => {
   const frame      = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
@@ -69,14 +73,24 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
     { label: title || 'Data', data: safeData.map(d => d.value) }
   ];
   const xAxisLabels = labels || safeData.map(d => d.label);
-
   const allValues = normalizedSeries.flatMap(s => s.data).map(v => Number(v) || 0);
+
   if (allValues.length === 0 || xAxisLabels.length === 0) {
-     return <AbsoluteFill style={{ backgroundColor: resolvedBg }} />;
+    return <AbsoluteFill style={{ backgroundColor: (backgroundType as string) === 'transparent' ? 'transparent' : resolvedBg }} />;
+  }
+
+  // Cálculo de Escala (ajustado para Stacking)
+  let effectiveMax = Math.max(...allValues, 0.0001);
+  
+  if (stacked) {
+      const sums = xAxisLabels.map((_, i) => 
+          normalizedSeries.reduce((acc, s) => acc + (Number(s.data[i]) || 0), 0)
+      );
+      effectiveMax = Math.max(...sums, 0.0001);
   }
 
   const dataMinRaw = propXMin !== undefined ? propXMin : Math.min(...allValues, 0);
-  const dataMaxRaw = propXMax !== undefined ? propXMax : Math.max(...allValues, 0.0001);
+  const dataMaxRaw = propXMax !== undefined ? propXMax : effectiveMax;
   const niceScale = getNiceScale(dataMaxRaw * (propXMax !== undefined ? 1 : 1.15), dataMinRaw, 5);
   const dataMin = niceScale[0];
   const dataMax = niceScale[niceScale.length - 1];
@@ -88,7 +102,7 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
   const titleH = hasHeader ? fs(240) : 0;
   const legendGapTop = hasHeader ? fs(32) : fs(10);
 
-  // ── Legenda: acima do gráfico, centralizada ──────────────────
+  // ── Legenda ──────────────────────────────────────────────────
   const LEGEND_FONT_SIZE = fs(28);
   const LEGEND_LINE_H = LEGEND_FONT_SIZE * 1.35;
   const MAX_CHARS_PER_LINE = 28;
@@ -112,12 +126,14 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
   const categoryHeight = plotHeight / xAxisLabels.length;
   const groupGap       = 0.3;
   const groupHeight    = categoryHeight * (1 - groupGap);
-  const barHeight      = (groupHeight / seriesCount) * 0.9;
+  
+  // No modo stacked, a barra é única e grossa. No modo grouped, são barras finas.
+  const barHeight      = stacked ? groupHeight : (groupHeight / seriesCount) * 0.9;
 
   return (
     <AbsoluteFill style={{ 
       fontFamily: Theme.typography.fontFamily, 
-      backgroundColor: backgroundType === 'transparent' ? 'transparent' : undefined 
+      backgroundColor: (backgroundType as string) === 'transparent' ? 'rgba(0,0,0,0)' : undefined
     }}>
       <DynamicBackground 
         baseColor={resolvedBg} 
@@ -169,22 +185,11 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
       <svg width={width} height={height} style={{ overflow: "visible", position: "relative", zIndex: 10 }}>
         <defs>
           {normalizedSeries.map((s, sIdx) => {
-            if (seriesCount === 1) {
-              return xAxisLabels.map((_, gIdx) => {
-                const baseColor = resolvedColors[gIdx % resolvedColors.length];
-                return (
-                  <linearGradient key={`hbarGrad-${sIdx}-${gIdx}-${instanceId}`} id={`hbarGrad-${sIdx}-${gIdx}-${instanceId}`} x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor={baseColor} />
-                    <stop offset="100%" stopColor={baseColor} stopOpacity={0.7} />
-                  </linearGradient>
-                );
-              });
-            }
             const baseColor = s.color || resolvedColors[sIdx % resolvedColors.length];
             return (
               <linearGradient key={sIdx} id={`hbarGrad-${sIdx}-${instanceId}`} x1="0" y1="0" x2="1" y2="0">
                 <stop offset="0%" stopColor={baseColor} />
-                <stop offset="100%" stopColor={baseColor} stopOpacity={0.7} />
+                <stop offset="100%" stopColor={baseColor} stopOpacity={0.85} />
               </linearGradient>
             );
           })}
@@ -231,39 +236,65 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
           );
         })}
 
+        {/* TÍTULO DO EIXO X */}
+        {xAxisTitle && (
+          <text
+            x={plotLeft + plotWidth / 2}
+            y={chartTop + plotHeight + fs(90)}
+            textAnchor="middle"
+            style={{ fontSize: fs(24), fill: T.textMuted, fontWeight: 700, opacity: 0.8 }}
+          >
+            {xAxisTitle}
+          </text>
+        )}
+
         {/* BARRAS E LABELS DE CATEGORIA */}
         {xAxisLabels.map((label, gIdx) => {
           const gY = chartTop + gIdx * categoryHeight + (categoryHeight * groupGap) / 2;
+          
+          let currentStackX = plotLeft;
+
           return (
             <g key={gIdx}>
               <text x={plotLeft - fs(20)} y={gY + groupHeight/2} textAnchor="end" dominantBaseline="middle" style={{ fontSize: fs(32), fill: resolvedText, fontWeight: 700 }}>
                 {label}
               </text>
               {normalizedSeries.map((s, sIdx) => {
-                const val = s.data[gIdx] || 0;
+                const val = Number(s.data[gIdx]) || 0;
                 const delay = 40 + gIdx * 4 + sIdx * 2;
                 const progress = spring({ frame: frame - delay, fps, config: { damping: 50, stiffness: 200 } });
-                const bY = gY + sIdx * (groupHeight / (seriesCount || 1));
-                const bW = Math.max(1, ((val - dataMin) / (range || 1)) * plotWidth * progress);
                 
-                const fillId = seriesCount === 1 
-                  ? `url(#hbarGrad-${sIdx}-${gIdx}-${instanceId})`
-                  : `url(#hbarGrad-${sIdx}-${instanceId})`;
+                // Lógica de Posicionamento (Stacked vs Grouped)
+                const bY = stacked ? gY : gY + sIdx * (groupHeight / (seriesCount || 1));
+                const bX = stacked ? currentStackX : plotLeft;
+                const bW = Math.max(0, ((val - dataMin) / (range || 1)) * plotWidth * progress);
+                
+                if (stacked) {
+                    currentStackX += bW;
+                }
 
                 return (
                   <g key={sIdx}>
                     <rect 
-                      x={plotLeft} y={bY} width={bW} height={barHeight} fill={fillId} 
-                      stroke={resolvedBg} strokeWidth={fs(2)} rx={fs(6)}
+                      x={bX} y={bY} width={bW} height={barHeight} 
+                      fill={`url(#hbarGrad-${sIdx}-${instanceId})`} 
+                      stroke={resolvedBg} strokeWidth={fs(1)} rx={stacked ? 0 : fs(6)}
                     />
-                    {showValueLabels && progress > 0.8 && (
+                    {/* Value Labels: Apenas no modo Grouped ou no final do Stack */}
+                    {showValueLabels && progress > 0.8 && (!stacked || sIdx === seriesCount - 1) && (
                       <text 
-                        x={plotLeft + bW + fs(15)} 
+                        x={stacked ? currentStackX + fs(15) : plotLeft + bW + fs(15)} 
                         y={bY + barHeight / 2} 
                         dominantBaseline="middle" 
-                        style={{ fontSize: fs(24), fill: resolvedText, fontWeight: 700, opacity: interpolate(frame, [delay + 10, delay + 20], [0, 1]), ...Theme.typography.tabularNums }}
+                        style={{ 
+                            fontSize: fs(24), 
+                            fill: resolvedText, 
+                            fontWeight: 700, 
+                            opacity: interpolate(frame, [delay + 10, delay + 20], [0, 1]), 
+                            ...Theme.typography.tabularNums 
+                        }}
                       >
-                        {formatValue(val, unit)}
+                        {formatValue(stacked ? normalizedSeries.reduce((acc, ser) => acc + (Number(ser.data[gIdx]) || 0), 0) : val, unit)}
                       </text>
                     )}
                   </g>

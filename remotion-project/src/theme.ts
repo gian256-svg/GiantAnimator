@@ -706,6 +706,22 @@ export function isColorDark(hex: string): boolean {
 }
 
 /**
+ * isVeryDark — Detecta cores extremamente escuras (quase pretas).
+ */
+export function isVeryDark(hex: string): boolean {
+  try {
+    const c = hex.replace('#', '');
+    const r = parseInt(c.substring(0, 2), 16);
+    const g = parseInt(c.substring(2, 4), 16);
+    const b = parseInt(c.substring(4, 6), 16);
+    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+    return brightness < 15;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * resolveTheme — Retorna a configuração de tema correta.
  * Agora suporta detecção automática para o tema "original" baseada no background.
  *
@@ -761,6 +777,16 @@ export function resolveTheme(
     config = { ...(THEMES[name] ?? THEMES['dark']) };
   }
 
+  // 🎨 APLICAÇÃO DE CORES CUSTOM (Identidade da Imagem)
+  // Se o sistema ou a IA vision prover cores específicas, elas devem ter precedência
+  // sobre a paleta padrão do tema, para garantir fidelidade visual.
+  if (customColors && customColors.length > 0) {
+    const vibrantCustom = customColors.filter(c => !isVeryDark(c));
+    if (vibrantCustom.length > 0) {
+      config.colors = vibrantCustom;
+    }
+  }
+
   // Prioridade: baseColor (fluxo original/referência)
   // REGRA DE OURO: Só usamos a cor base detectada se o tema for 'original'.
   // Se o usuário escolheu um tema específico (Dark, Neon, etc), respeitamos o background do tema.
@@ -787,7 +813,7 @@ export function resolveTheme(
   // devem manter sua cor de fundo identitária.
   if (backgroundType) {
     if (backgroundType === 'transparent') {
-      config.background = 'transparent';
+      config.background = 'rgba(0,0,0,0)';
       config.text = '#ffffff';
       config.textMuted = '#8892b0';
       config.axis = 'rgba(232,234,246,0.25)';
