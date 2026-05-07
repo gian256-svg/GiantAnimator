@@ -12,7 +12,7 @@ interface Props {
 }
 
 const ZOOM_SCALE = 2.5;
-const ZOOM_START = 210;   // frame 7s @ 30fps — after callout animations settle
+const ZOOM_START = 120;   // frame 4s @ 30fps
 const ZOOM_IN   = 50;     // ~1.67s smooth ease-in
 const DWELL     = 60;     // 2s per point
 const PAN       = 50;     // ~1.67s smooth camera pan between points

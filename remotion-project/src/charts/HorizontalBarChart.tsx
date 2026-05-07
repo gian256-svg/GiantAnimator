@@ -339,7 +339,7 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
               key={i} 
               x={plotLeft + bW} 
               y={bY + barHeight/2} 
-              delay={160 + i * 20} 
+              delay={60 + i * 20}
               color="#ff4d6d"
             />
           );

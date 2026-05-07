@@ -294,7 +294,7 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
             key={`ann-${i}`}
             x={calloutX}
             y={calloutY}
-            delay={140 + i * 15}
+            delay={60 + i * 15}
             color="#ff4d6d"
           />
         );

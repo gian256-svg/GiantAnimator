@@ -403,7 +403,7 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
               key={`ann-${i}`}
               x={x}
               y={y}
-              delay={140 + i * 15}
+              delay={60 + i * 15}
               color="#ff4d6d"
             />
           );
