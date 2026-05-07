@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useCurrentFrame, useVideoConfig, Easing } from "remotion";
 
 export interface ZoomPoint {
@@ -6,96 +6,104 @@ export interface ZoomPoint {
   y: number; // normalized 0–1
 }
 
+interface Segment {
+  start: number; end: number;
+  fromTx: number; fromTy: number; fromScale: number;
+  toTx:   number; toTy:   number; toScale:   number;
+}
+
 interface Props {
-  zoomPoints?: ZoomPoint[];
-  children: React.ReactNode;
+  zoomPoints?:     ZoomPoint[];
+  zoomStartFrame?: number;      // injected by server based on whether callouts exist
+  children:        React.ReactNode;
 }
 
 const ZOOM_SCALE = 2.5;
-const ZOOM_START = 120;   // frame 4s @ 30fps
-const ZOOM_IN   = 50;     // ~1.67s smooth ease-in
-const DWELL     = 60;     // 2s per point
-const PAN       = 50;     // ~1.67s smooth camera pan between points
-const ZOOM_OUT  = 70;     // ~2.33s slow reveal back to full chart
+const DEFAULT_ZOOM_START = 120; // 4s fallback
+const ZOOM_IN  = 50;  // ~1.67s
+const DWELL    = 60;  // 2s per point
+const PAN      = 50;  // ~1.67s between points
+const ZOOM_OUT = 70;  // ~2.33s reveal
 
-function easeInOut(t: number): number {
-  return Easing.inOut(Easing.ease)(Math.max(0, Math.min(1, t)));
+const ease = (t: number) =>
+  Easing.inOut(Easing.ease)(Math.max(0, Math.min(1, t)));
+
+const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+
+function target(p: ZoomPoint, W: number, H: number) {
+  return { tx: W / 2 - p.x * W * ZOOM_SCALE, ty: H / 2 - p.y * H * ZOOM_SCALE };
 }
 
-function lerp(a: number, b: number, t: number): number {
-  return a + (b - a) * t;
-}
+function buildSegments(
+  points: ZoomPoint[],
+  W: number,
+  H: number,
+  zoomStart: number,
+): Segment[] {
+  const segs: Segment[] = [];
+  let cursor = zoomStart;
+  const p0 = target(points[0], W, H);
 
-interface Transform {
-  tx: number;
-  ty: number;
-  scale: number;
-}
-
-function computeTarget(p: ZoomPoint, W: number, H: number): Transform {
-  return {
-    tx: W / 2 - p.x * W * ZOOM_SCALE,
-    ty: H / 2 - p.y * H * ZOOM_SCALE,
-    scale: ZOOM_SCALE,
-  };
-}
-
-function getTransform(frame: number, points: ZoomPoint[], W: number, H: number): Transform {
-  const N = points.length;
-
-  if (frame < ZOOM_START) return { tx: 0, ty: 0, scale: 1 };
-
-  let cursor = ZOOM_START;
-  const p0 = computeTarget(points[0], W, H);
-
-  // Zoom-in to first point
-  if (frame < cursor + ZOOM_IN) {
-    const t = easeInOut((frame - cursor) / ZOOM_IN);
-    return { tx: lerp(0, p0.tx, t), ty: lerp(0, p0.ty, t), scale: lerp(1, ZOOM_SCALE, t) };
-  }
+  // zoom in to first point
+  segs.push({ start: cursor, end: cursor + ZOOM_IN, fromTx: 0, fromTy: 0, fromScale: 1, toTx: p0.tx, toTy: p0.ty, toScale: ZOOM_SCALE });
   cursor += ZOOM_IN;
 
-  let prev = p0;
+  let prevTx = p0.tx, prevTy = p0.ty;
 
-  for (let i = 0; i < N; i++) {
-    const curr = computeTarget(points[i], W, H);
+  for (let i = 0; i < points.length; i++) {
+    const curr = target(points[i], W, H);
 
     if (i > 0) {
-      // Pan from prev to curr
-      if (frame < cursor + PAN) {
-        const t = easeInOut((frame - cursor) / PAN);
-        return { tx: lerp(prev.tx, curr.tx, t), ty: lerp(prev.ty, curr.ty, t), scale: ZOOM_SCALE };
-      }
+      // pan from previous point
+      segs.push({ start: cursor, end: cursor + PAN, fromTx: prevTx, fromTy: prevTy, fromScale: ZOOM_SCALE, toTx: curr.tx, toTy: curr.ty, toScale: ZOOM_SCALE });
       cursor += PAN;
     }
 
-    // Dwell at curr
-    if (frame < cursor + DWELL) {
-      return { tx: curr.tx, ty: curr.ty, scale: ZOOM_SCALE };
-    }
+    // dwell
+    segs.push({ start: cursor, end: cursor + DWELL, fromTx: curr.tx, fromTy: curr.ty, fromScale: ZOOM_SCALE, toTx: curr.tx, toTy: curr.ty, toScale: ZOOM_SCALE });
     cursor += DWELL;
-    prev = curr;
+    prevTx = curr.tx;
+    prevTy = curr.ty;
   }
 
-  // Zoom-out from last point back to full view
-  const last = computeTarget(points[N - 1], W, H);
-  if (frame < cursor + ZOOM_OUT) {
-    const t = easeInOut((frame - cursor) / ZOOM_OUT);
-    return { tx: lerp(last.tx, 0, t), ty: lerp(last.ty, 0, t), scale: lerp(ZOOM_SCALE, 1, t) };
-  }
+  // zoom out
+  const last = target(points[points.length - 1], W, H);
+  segs.push({ start: cursor, end: cursor + ZOOM_OUT, fromTx: last.tx, fromTy: last.ty, fromScale: ZOOM_SCALE, toTx: 0, toTy: 0, toScale: 1 });
 
-  return { tx: 0, ty: 0, scale: 1 };
+  return segs;
 }
 
-export const ZoomWrapper: React.FC<Props> = ({ zoomPoints, children }) => {
+export const ZoomWrapper: React.FC<Props> = ({ zoomPoints, zoomStartFrame, children }) => {
   const frame = useCurrentFrame();
   const { width, height } = useVideoConfig();
 
-  if (!zoomPoints || zoomPoints.length === 0) {
-    return <>{children}</>;
-  }
+  // Pre-compute once — never recalculated during playback
+  const segments = useMemo<Segment[] | null>(() => {
+    if (!zoomPoints || zoomPoints.length === 0) return null;
+    return buildSegments(zoomPoints, width, height, zoomStartFrame ?? DEFAULT_ZOOM_START);
+  }, [zoomPoints, width, height, zoomStartFrame]);
 
-  const { tx, ty, scale } = getTransform(frame, zoomPoints, width, height);
+  if (!segments) return <>{children}</>;
+
+  const zoomStart = zoomStartFrame ?? DEFAULT_ZOOM_START;
+
+  let tx = 0, ty = 0, scale = 1;
+
+  if (frame >= zoomStart) {
+    for (let i = 0; i < segments.length; i++) {
+      const seg = segments[i];
+      const isLast = i === segments.length - 1;
+
+      if (frame <= seg.end || isLast) {
+        const rawT = seg.end === seg.start ? 1 : (frame - seg.start) / (seg.end - seg.start);
+        const t = ease(rawT);
+        tx    = lerp(seg.fromTx,    seg.toTx,    t);
+        ty    = lerp(seg.fromTy,    seg.toTy,    t);
+        scale = lerp(seg.fromScale, seg.toScale,  t);
+        break;
+      }
+    }
+  }
 
   return (
     <div style={{ width, height, overflow: "hidden", position: "relative" }}>

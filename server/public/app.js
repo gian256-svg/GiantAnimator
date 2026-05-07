@@ -1334,6 +1334,7 @@ function startPolling(jobId, fileName, fileId) {
           state.currentJobId = jobId;
           state.currentAnalysis = msg.analysis;
           state.stillUrl = msg.stillUrl || null;
+          state.zoomPoints = []; // limpa pontos de qualquer job anterior
 
           // Open Modal & Render Visual Editor
           const modal = document.getElementById('json-editor-overlay');

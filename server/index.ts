@@ -400,6 +400,9 @@ async function finishJobRendering(jobId: string, analysis: ChartAnalysis, chartT
         if (options.zoomPoints && Array.isArray(options.zoomPoints) && options.zoomPoints.length > 0) {
             console.log(`🎬 [Zoom] Injetando ${options.zoomPoints.length} pontos de zoom`);
             inputProps.zoomPoints = options.zoomPoints;
+            // Charts sem callouts não precisam esperar os 4s — zoomam logo aos 2s
+            const hasCallouts = Array.isArray(inputProps.annotations) && inputProps.annotations.length > 0;
+            inputProps.zoomStartFrame = hasCallouts ? 120 : 60;
         }
 
         console.log("🎨 [Render] Propriedades finais enviadas ao Remotion:");
@@ -644,6 +647,16 @@ async function runSurgeryGradePipeline(
       job.stillUrl = '/cache/' + path.basename(stillPath);
       job.progress += 2;
       await saveJob(job);
+
+      // Mantém só os 5 stills mais recentes (cleanup passivo)
+      try {
+        const cacheDir = PATHS.cache;
+        const stills = fs.readdirSync(cacheDir)
+          .filter(f => f.startsWith('still-') && f.endsWith('.png'))
+          .map(f => ({ f, mtime: fs.statSync(path.join(cacheDir, f)).mtimeMs }))
+          .sort((a, b) => b.mtime - a.mtime);
+        stills.slice(5).forEach(({ f }) => { try { fs.unlinkSync(path.join(cacheDir, f)); } catch {} });
+      } catch {}
       
       const audit = await auditRenderFidelity(filePath, stillPath);
       lastAudit = audit;
