@@ -394,7 +394,13 @@ async function finishJobRendering(jobId: string, analysis: ChartAnalysis, chartT
             backgroundColor: isAlpha ? 'rgba(0,0,0,0)' : (analysis.props.backgroundColor === '#000000' ? undefined : analysis.props.backgroundColor)
         });
 
-        const inputProps = finalizedProps;
+        const inputProps: any = finalizedProps;
+
+        // Zoom cinematográfico — injetado AQUI (pós-auditoria, nunca contamina o still do auditor)
+        if (options.zoomPoints && Array.isArray(options.zoomPoints) && options.zoomPoints.length > 0) {
+            console.log(`🎬 [Zoom] Injetando ${options.zoomPoints.length} pontos de zoom`);
+            inputProps.zoomPoints = options.zoomPoints;
+        }
 
         console.log("🎨 [Render] Propriedades finais enviadas ao Remotion:");
         console.dir(inputProps, { depth: null });
@@ -463,8 +469,9 @@ async function finishJobRendering(jobId: string, analysis: ChartAnalysis, chartT
 
 // 📌 ROTAS 📌
 const upload = multer({ storage: multer.memoryStorage() });
-app.use(express.static(path.join(PATHS.server, 'public'))); 
+app.use(express.static(path.join(PATHS.server, 'public')));
 app.use('/output', express.static(OUTPUT_DIR));
+app.use('/cache', express.static(PATHS.cache));
 
 app.post('/reload-bundle', (_req: Request, res: Response) => {
   clearBundleCache();
@@ -550,6 +557,9 @@ app.post('/jobs/:jobId/start-render', async (req: Request, res: Response) => {
         if (includeCallouts !== undefined) job.options.includeCallouts = includeCallouts;
         if (req.body.options?.engine) job.options.engine = req.body.options.engine;
         if (req.body.options?.exportAlpha !== undefined) job.options.exportAlpha = req.body.options.exportAlpha;
+        if (Array.isArray(req.body.zoomPoints) && req.body.zoomPoints.length > 0) {
+          job.options.zoomPoints = req.body.zoomPoints;
+        }
         await saveJob(job);
     } else {
         return res.status(404).json({ error: 'Job not found or corrupted' });
@@ -631,7 +641,8 @@ async function runSurgeryGradePipeline(
 
     try {
       const stillPath = await generateStill(analysis.componentId, analysis.props);
-      job.progress += 2; 
+      job.stillUrl = '/cache/' + path.basename(stillPath);
+      job.progress += 2;
       await saveJob(job);
       
       const audit = await auditRenderFidelity(filePath, stillPath);

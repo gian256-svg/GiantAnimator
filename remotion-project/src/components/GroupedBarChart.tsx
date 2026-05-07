@@ -156,12 +156,28 @@ export const GroupedBarChart: React.FC<GroupedBarChartProps> = ({
 
       <svg width={width} height={height} style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}>
         <defs>
-          {series.map((s, si) => (
-            <linearGradient key={si} id={`groupGrad-${si}-${instanceId}`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%"   stopColor={s.color || T.colors[si % T.colors.length]} />
-              <stop offset="100%" stopColor={s.color || T.colors[si % T.colors.length]} stopOpacity={0.85} />
-            </linearGradient>
-          ))}
+          {series.map((s, si) => {
+             // Se tiver apenas uma série, criamos um gradiente para cada categoria (Efeito Rainbow)
+             if (series.length === 1) {
+               return categories.map((_, ci) => {
+                 const baseColor = T.colors[ci % T.colors.length];
+                 return (
+                   <linearGradient key={`groupGrad-${si}-${ci}-${instanceId}`} id={`groupGrad-${si}-${ci}-${instanceId}`} x1="0" y1="0" x2="0" y2="1">
+                     <stop offset="0%" stopColor={baseColor} />
+                     <stop offset="100%" stopColor={baseColor} stopOpacity={0.85} />
+                   </linearGradient>
+                 );
+               });
+             }
+
+             const baseColor = s.color || T.colors[si % T.colors.length];
+             return (
+              <linearGradient key={si} id={`groupGrad-${si}-${instanceId}`} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%"   stopColor={baseColor} />
+                <stop offset="100%" stopColor={baseColor} stopOpacity={0.85} />
+              </linearGradient>
+             );
+          })}
         </defs>
 
         {/* ── Legenda: acima do gráfico, centralizada por item ── */}
@@ -235,11 +251,15 @@ export const GroupedBarChart: React.FC<GroupedBarChartProps> = ({
                 const y = chartTop + plotHeight - h;
                 const isGroupHighlighted = highlightGroup === ci;
 
+                const fillId = series.length === 1 
+                  ? `url(#groupGrad-${si}-${ci}-${instanceId})`
+                  : `url(#groupGrad-${si}-${instanceId})`;
+
                 return (
                   <g key={si}>
                     <rect
                       x={x} y={y} width={barWidth} height={Math.max(h, 2)}
-                      fill={`url(#groupGrad-${si}-${instanceId})`} rx={Theme.spacing.barRadius}
+                      fill={fillId} rx={Theme.spacing.barRadius}
                       style={{ filter: isGroupHighlighted ? `brightness(${Theme.effects.highlightScale})` : 'none' }}
                     />
                     {showValues && groupProgress > 0.9 && (

@@ -152,9 +152,13 @@ export const StackedBarChart: React.FC<StackedBarChartProps> = ({
                 const currentH = ((v / maxTotal) * plotHeight) * progress;
                 const currentY = chartTop + plotHeight - ((currentAcc + v) / maxTotal) * plotHeight - (currentH - (v / maxTotal) * plotHeight * progress);
                 currentAcc += v;
-                return (
-                  <rect key={vi} x={x} y={currentY} width={barWidth} height={Math.max(currentH, 2)} fill={resolvedColors[vi % resolvedColors.length]} rx={4} />
-                );
+                  const fillColor = seriesLabels.length === 1
+                    ? resolvedColors[ci % resolvedColors.length]
+                    : resolvedColors[vi % resolvedColors.length];
+
+                  return (
+                    <rect key={vi} x={x} y={currentY} width={barWidth} height={Math.max(currentH, 2)} fill={fillColor} rx={4} />
+                  );
               })}
                <text x={x + barWidth/2} y={chartTop + plotHeight + fs(50)} textAnchor="middle" style={{ fontSize: fs(22), fill: T.textMuted, fontWeight: 600, fontFamily: Theme.typography.fontFamily }}>{cat.label}</text>
             </g>

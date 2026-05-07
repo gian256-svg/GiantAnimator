@@ -15,6 +15,8 @@ const state = {
   originalFilename: null,
   selectedPalette: 'original',
   lastLogLength: 0, // rastreia quantos chars do log já foram exibidos
+  zoomPoints: [],   // pontos de zoom cinematográfico (normalizados 0–1)
+  stillUrl: null,   // URL do still do auditor — imagem fiel para seleção de pontos
   customPalette: {
     bg: '#0f1117',
     text: '#ffffff',
@@ -639,12 +641,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnCloseJson = document.getElementById('btn-close-json');
   const btnCancelJson = document.getElementById('btn-cancel-json');
 
-  const closeModal = () => { if (modal) modal.style.display = 'none'; state.isRendering = false; renderFileQueue(); };
+  const closeModal = () => { if (modal) modal.style.display = 'none'; state.isRendering = false; state.zoomPoints = []; renderFileQueue(); };
   if (btnCloseJson) btnCloseJson.addEventListener('click', closeModal);
   if (btnCancelJson) btnCancelJson.addEventListener('click', closeModal);
 
   // ─── VISUAL EDITOR PREMIUM — Split Panel + Live Preview ──────────
-  window.renderVisualEditor = function(analysis) {
+  window.renderVisualEditor = function(analysis, stillUrl) {
     const container = document.getElementById('visual-editor-container');
     if (!container) return;
 
@@ -740,6 +742,21 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="ve-preview-subtitle" id="ve-preview-subtitle">${props.subtitle || ''}</div>
           <div class="ve-chart-wrap">
             <svg id="ve-chart-svg" width="100%" height="220" viewBox="0 0 360 220"></svg>
+          </div>
+          <!-- Zoom picker — aparece só quando toggle-zoom está marcado -->
+          <div id="ve-zoom-section" style="display:none;margin-top:12px;padding:10px;border:1px solid rgba(139,92,246,0.3);border-radius:8px;background:rgba(139,92,246,0.06);">
+            <div style="font-size:12px;font-weight:600;color:#8b5cf6;margin-bottom:6px;">Pontos de Zoom Cinematográfico</div>
+            <!-- Preview real do gráfico para clique -->
+            <div id="ve-zoom-image-wrap" style="display:none;position:relative;margin-bottom:8px;border-radius:6px;overflow:hidden;cursor:crosshair;">
+              <img id="ve-zoom-img" src="" style="width:100%;display:block;border-radius:6px;" />
+              <div id="ve-zoom-overlay" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;"></div>
+            </div>
+            <!-- Fallback quando auditor está desativado -->
+            <div id="ve-zoom-no-still" style="display:none;font-size:11px;color:#888;margin-bottom:8px;padding:8px;border:1px dashed #444;border-radius:4px;">
+              Ative <strong>Auditoria de Fidelidade</strong> para ver o preview fiel do gráfico e marcar pontos com precisão.
+            </div>
+            <div id="ve-zoom-list" style="display:flex;flex-direction:column;gap:4px;margin-bottom:8px;max-height:120px;overflow-y:auto;"></div>
+            <button id="ve-zoom-clear" style="font-size:11px;padding:3px 10px;background:transparent;border:1px solid #555;border-radius:4px;color:#888;cursor:pointer;">Limpar tudo</button>
           </div>
         </div>
       </div>
@@ -952,6 +969,100 @@ document.addEventListener('DOMContentLoaded', () => {
     renderGrid();
     updatePreview();
 
+    // ── Zoom Cinematográfico ──────────────────────────────────────────
+    const zoomSection   = document.getElementById('ve-zoom-section');
+    const zoomImageWrap = document.getElementById('ve-zoom-image-wrap');
+    const zoomImg       = document.getElementById('ve-zoom-img');
+    const zoomOverlay   = document.getElementById('ve-zoom-overlay');
+    const zoomNoStill   = document.getElementById('ve-zoom-no-still');
+    const zoomList      = document.getElementById('ve-zoom-list');
+    const zoomClearBtn  = document.getElementById('ve-zoom-clear');
+    const zoomToggle    = document.getElementById('toggle-zoom');
+
+    function renderZoomUI() {
+      const pts = state.zoomPoints;
+
+      // Marcadores numerados sobre a imagem
+      if (zoomOverlay) {
+        zoomOverlay.innerHTML = pts.map((p, i) => `
+          <div style="position:absolute;left:calc(${p.x * 100}% - 10px);top:calc(${p.y * 100}% - 10px);
+            width:20px;height:20px;border-radius:50%;background:#8b5cf6;border:2px solid #fff;
+            display:flex;align-items:center;justify-content:center;
+            font-size:10px;font-weight:700;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.7);">
+            ${i + 1}
+          </div>`).join('');
+      }
+
+      if (zoomList) {
+        if (pts.length === 0) {
+          zoomList.innerHTML = '<div style="font-size:11px;color:#666;">Nenhum ponto marcado ainda.</div>';
+        } else {
+          zoomList.innerHTML = pts.map((p, i) => `
+            <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#ccc;">
+              <span style="width:18px;height:18px;border-radius:50%;background:#8b5cf6;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;flex-shrink:0;">${i+1}</span>
+              <span>x: ${(p.x * 100).toFixed(1)}%&nbsp;&nbsp;y: ${(p.y * 100).toFixed(1)}%</span>
+              <button data-idx="${i}" style="margin-left:auto;background:transparent;border:none;color:#666;cursor:pointer;font-size:13px;line-height:1;" title="Remover">×</button>
+            </div>`).join('');
+          zoomList.querySelectorAll('button[data-idx]').forEach(btn => {
+            btn.addEventListener('click', e => {
+              state.zoomPoints.splice(parseInt(e.currentTarget.dataset.idx), 1);
+              renderZoomUI();
+            });
+          });
+        }
+      }
+    }
+
+    function applyZoomMode(active) {
+      if (!zoomSection) return;
+      zoomSection.style.display = active ? 'block' : 'none';
+
+      if (!active) {
+        state.zoomPoints = [];
+        if (zoomOverlay) zoomOverlay.innerHTML = '';
+        renderZoomUI();
+        return;
+      }
+
+      // Usa o still real (fiel ao gráfico) quando disponível
+      if (stillUrl && zoomImageWrap && zoomImg) {
+        zoomImg.src = stillUrl;
+        zoomImageWrap.style.display = 'block';
+        if (zoomNoStill) zoomNoStill.style.display = 'none';
+      } else {
+        if (zoomImageWrap) zoomImageWrap.style.display = 'none';
+        if (zoomNoStill) zoomNoStill.style.display = 'block';
+      }
+
+      renderZoomUI();
+    }
+
+    // Clique na imagem real para registrar pontos
+    if (zoomImg) {
+      zoomImg.addEventListener('click', e => {
+        if (!zoomToggle?.checked) return;
+        const rect = zoomImg.getBoundingClientRect();
+        const nx = (e.clientX - rect.left) / rect.width;
+        const ny = (e.clientY - rect.top) / rect.height;
+        state.zoomPoints.push({ x: Math.max(0, Math.min(1, nx)), y: Math.max(0, Math.min(1, ny)) });
+        renderZoomUI();
+      });
+    }
+
+    if (zoomClearBtn) {
+      zoomClearBtn.addEventListener('click', () => {
+        state.zoomPoints = [];
+        renderZoomUI();
+      });
+    }
+
+    if (zoomToggle) {
+      zoomToggle.addEventListener('change', () => applyZoomMode(zoomToggle.checked));
+    }
+
+    // Init — apply current checkbox state
+    applyZoomMode(!!zoomToggle?.checked);
+
     // Expõe dados para o botão Confirmar (retrocompatibilidade total)
     container._getEditorData = () => editorData;
     container._getEditorType = () => editorType;
@@ -1056,7 +1167,10 @@ document.addEventListener('DOMContentLoaded', () => {
                          backgroundType: isDarkBg ? 'dark' : 'light',
                          exportAlpha: String(document.getElementById('toggle-alpha')?.checked || false)
                        },
-                       includeCallouts: document.getElementById('toggle-callouts')?.checked || false
+                       includeCallouts: document.getElementById('toggle-callouts')?.checked || false,
+                       zoomPoints: (document.getElementById('toggle-zoom')?.checked && state.zoomPoints.length > 0)
+                         ? state.zoomPoints
+                         : []
                    })
                });
 
@@ -1219,11 +1333,12 @@ function startPolling(jobId, fileName, fileId) {
           clearInterval(interval);
           state.currentJobId = jobId;
           state.currentAnalysis = msg.analysis;
-          
+          state.stillUrl = msg.stillUrl || null;
+
           // Open Modal & Render Visual Editor
           const modal = document.getElementById('json-editor-overlay');
           if (modal) {
-              if (window.renderVisualEditor) window.renderVisualEditor(msg.analysis);
+              if (window.renderVisualEditor) window.renderVisualEditor(msg.analysis, state.stillUrl);
               modal.style.display = 'flex';
           }
           log("João: Análise concluída. Aguardando revisão dos dados...", "accent");

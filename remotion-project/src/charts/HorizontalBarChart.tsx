@@ -185,8 +185,22 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
       <svg width={width} height={height} style={{ overflow: "visible", position: "relative", zIndex: 10 }}>
         <defs>
           {normalizedSeries.map((s, sIdx) => {
-            const baseColor = s.color || resolvedColors[sIdx % resolvedColors.length];
             const edgeOpacity = (backgroundType as string) === 'transparent' ? 1 : 0.85;
+            
+            // Se tiver apenas uma série, criamos um gradiente para cada barra (Efeito Rainbow)
+            if (seriesCount === 1) {
+              return xAxisLabels.map((_, barIdx) => {
+                const baseColor = resolvedColors[barIdx % resolvedColors.length];
+                return (
+                  <linearGradient key={`hbarGrad-${sIdx}-${barIdx}-${instanceId}`} id={`hbarGrad-${sIdx}-${barIdx}-${instanceId}`} x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor={baseColor} />
+                    <stop offset="100%" stopColor={baseColor} stopOpacity={edgeOpacity} />
+                  </linearGradient>
+                );
+              });
+            }
+
+            const baseColor = s.color || resolvedColors[sIdx % resolvedColors.length];
             return (
               <linearGradient key={sIdx} id={`hbarGrad-${sIdx}-${instanceId}`} x1="0" y1="0" x2="1" y2="0">
                 <stop offset="0%" stopColor={baseColor} />
@@ -274,11 +288,15 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
                     currentStackX += bW;
                 }
 
+                const fillId = seriesCount === 1 
+                  ? `url(#hbarGrad-${sIdx}-${gIdx}-${instanceId})`
+                  : `url(#hbarGrad-${sIdx}-${instanceId})`;
+
                 return (
                   <g key={sIdx}>
                     <rect 
                       x={bX} y={bY} width={bW} height={barHeight} 
-                      fill={`url(#hbarGrad-${sIdx}-${instanceId})`} 
+                      fill={fillId} 
                       stroke={resolvedBg} strokeWidth={fs(1)} rx={stacked ? 0 : fs(6)}
                     />
                     {/* Value Labels: Apenas no modo Grouped ou no final do Stack */}
