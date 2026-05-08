@@ -650,3 +650,16 @@ Caso a imagem mande um tÃƒÂ­tulo muito longo, ele nÃƒÂ£o pode flanquear 
    - O círculo de destaque utiliza `drop-shadow` de alta fidelidade e animação de escala suave (Ease In/Out).
    - As cores são cravadas em vermelho vibrante (#ff4d6d) para máximo contraste em fundos claros e escuros.
 5. **Impacto no Front-end**: A opção na UI foi renomeada para **"Destaques de Alta e Baixa"**, alinhando a expectativa do usuário com o resultado visual minimalista e funcional.
+
+---
+
+### 🚀 [2026-05-08] INFRA — AUTO-UPDATER & DISTRIBUIÇÃO LOCAL
+**Contexto**: Implementação de um sistema de atualização automática para a versão desktop (.exe) do GiantAnimator.
+**Mudanças**:
+1.  **Auto-Updater**: O executável agora verifica o arquivo `version.json` no repositório remoto ao iniciar.
+2.  **version.json**: Arquivo central que controla a versão atual (`version`), data (`date`) e o link para o pacote de atualização (`zipUrl`).
+3.  **Fluxo de Distribuição**: 
+    - Alterações são feitas no código-fonte e testadas via `localhost:3000`.
+    - Uma vez validadas, o `version.json` é atualizado.
+    - O app local baixa e aplica o patch automaticamente, garantindo que todos os usuários estejam na versão mais recente sem intervenção manual.
+**Regra para a IA**: Ao realizar mudanças críticas na UI ou no motor de renderização, notificar o usuário para considerar um "version bump" no `version.json`.
