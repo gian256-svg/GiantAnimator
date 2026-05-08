@@ -3,18 +3,70 @@
   "version": "1.0.0",
   "description": "GiantAnimator — Servidor de geração de vídeos com Remotion + Gemini",
   "type": "module",
+  "main": "electron/main.js",
   "engines": {
     "node": ">=20.0.0"
   },
   "scripts": {
     "dev": "tsx watch server/index.ts",
     "start": "tsx server/index.ts",
+    "electron:dev": "electron .",
     "tunnel": "concurrently \"npm run dev\" \"npx --yes localtunnel --port 3000\"",
     "tunnel:cf": "concurrently \"npm run dev\" \"npx --yes cloudflared tunnel --url http://localhost:3000 --protocol http2\"",
     "tunnel:safe": "concurrently \"npm run dev\" \"npx serve-handler --port 3000\"",
     "sync": "powershell -ExecutionPolicy Bypass -File scripts/sync.ps1",
     "watch-sync": "powershell -ExecutionPolicy Bypass -File scripts/watch-sync.ps1",
+    "prebundle": "node scripts/prebundle.mjs",
+    "build:server": "cd server && tsc -p tsconfig.server.json && cd ..",
+    "build:electron": "electron-builder --win portable --publish never",
     "build": "exit 0"
+  },
+  "build": {
+    "appId": "com.grupoprimo.giantanimator",
+    "productName": "GiantAnimator",
+    "asar": false,
+    "files": [
+      "electron/**/*",
+      "server/dist/**/*",
+      "server/public/**/*",
+      "server/prompts/**/*",
+      "server/package.json",
+      "remotion-project/**/*",
+      "node_modules/**/*",
+      "package.json",
+      ".env"
+    ],
+    "extraResources": [
+      {
+        "from": "dist/remotion-bundle",
+        "to": "remotion-bundle"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "dir",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "category": "public.app-category.productivity"
+    },
+    "directories": {
+      "output": "dist/electron-out"
+    }
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.92.0",
@@ -30,7 +82,9 @@
     "cors": "^2.8.6",
     "dotenv": "^16.6.1",
     "express": "^4.22.1",
+    "groq-sdk": "^1.1.2",
     "localtunnel": "^2.0.2",
+    "lodash": "^4.18.1",
     "multer": "^2.1.1",
     "openai": "^6.36.0",
     "remotion": "^4.0.453",
@@ -46,6 +100,8 @@
     "@types/multer": "^2.1.0",
     "@types/node": "^22.19.17",
     "@types/uuid": "^10.0.0",
-    "@types/xlsx": "^0.0.35"
+    "@types/xlsx": "^0.0.35",
+    "electron": "^33.4.11",
+    "electron-builder": "^25.1.8"
   }
 }
