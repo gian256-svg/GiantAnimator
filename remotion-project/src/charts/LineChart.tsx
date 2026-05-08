@@ -157,11 +157,28 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
     currentY = item.y;
   });
 
-  const progress = interpolate(frame, [30, 180], [0, 1], {
+  // Frame em que o gráfico termina de se desenhar
+  const CHART_END = 180;
+
+  const progress = interpolate(frame, [30, CHART_END], [0, 1], {
     easing: Easing.bezier(0.1, 0, 0.1, 1),
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
+
+  // Destaques: apenas o ponto MAIS ALTO e o MAIS BAIXO globais
+  // (annotations.length > 0 = callouts ativados pelo usuário)
+  const highlightPoints = React.useMemo(() => {
+    if (!annotations || annotations.length === 0) return [];
+    const all = normalizedSeries.flatMap((s, sIdx) =>
+      s.data.map((v, dIdx) => ({ v, sIdx, dIdx }))
+    );
+    if (all.length === 0) return [];
+    const maxPt = all.reduce((best, p) => p.v > best.v ? p : best);
+    const minPt = all.reduce((best, p) => p.v < best.v ? p : best);
+    if (maxPt.sIdx === minPt.sIdx && maxPt.dIdx === minPt.dIdx) return [maxPt];
+    return [maxPt, minPt];
+  }, [annotations, normalizedSeries]);
 
   return (
     <AbsoluteFill style={{ 
@@ -387,27 +404,17 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
         )}
       </svg>
 
-      {/* Destaques (Highlights) Container Z-Index Superior */}
+      {/* Destaques: apenas max e min globais, após o gráfico estar completo */}
       <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 100, pointerEvents: 'none' }}>
-        {annotations.map((ann, i) => {
-          if (!ann || ann.index === undefined || !normalizedSeries[ann.seriesIndex || 0]) return null;
-          const sIdx = ann.seriesIndex || 0;
-          const data = normalizedSeries[sIdx].data;
-          const idx = Math.min(Math.max(0, ann.index), data.length - 1);
-          const val = data[idx];
-          const x = getX(sIdx, idx);
-          const y = getY(val);
-
-          return (
-            <HighlightCircle
-              key={`ann-${i}`}
-              x={x}
-              y={y}
-              delay={60 + i * 15}
-              color="#ff4d6d"
-            />
-          );
-        })}
+        {highlightPoints.map((pt, i) => (
+          <HighlightCircle
+            key={`hl-${i}`}
+            x={getX(pt.sIdx, pt.dIdx)}
+            y={getY(pt.v)}
+            delay={CHART_END + 10 + i * 20}
+            color="#ff4d6d"
+          />
+        ))}
       </div>
     </AbsoluteFill>
   );

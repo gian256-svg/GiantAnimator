@@ -2,9 +2,9 @@ import React from "react";
 import { Composition } from "remotion";
 import { ZoomWrapper, ZoomPoint } from "./components/ZoomWrapper";
 
-function withZoom<P extends object>(Component: React.FC<P>): React.FC<P & { zoomPoints?: ZoomPoint[] }> {
-  return ({ zoomPoints, ...props }) => (
-    <ZoomWrapper zoomPoints={zoomPoints}>
+function withZoom<P extends object>(Component: React.FC<P>): React.FC<P & { zoomPoints?: ZoomPoint[]; zoomStartFrame?: number }> {
+  return ({ zoomPoints, zoomStartFrame, ...props }) => (
+    <ZoomWrapper zoomPoints={zoomPoints} zoomStartFrame={zoomStartFrame}>
       <Component {...(props as P)} />
     </ZoomWrapper>
   );

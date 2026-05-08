@@ -413,9 +413,13 @@ async function finishJobRendering(jobId: string, analysis: ChartAnalysis, chartT
         if (options.zoomPoints && Array.isArray(options.zoomPoints) && options.zoomPoints.length > 0) {
             console.log(`🎬 [Zoom] Injetando ${options.zoomPoints.length} pontos de zoom`);
             inputProps.zoomPoints = options.zoomPoints;
-            // Charts sem callouts não precisam esperar os 4s — zoomam logo aos 2s
             const hasCallouts = Array.isArray(inputProps.annotations) && inputProps.annotations.length > 0;
-            inputProps.zoomStartFrame = hasCallouts ? 120 : 60;
+            // LineChart termina de desenhar no frame 180; highlights ocupam ~60 frames depois.
+            // Outros charts terminam mais cedo (~frame 90).
+            const isLineChart = (analysis.componentId || '').includes('Line');
+            const chartEnd    = isLineChart ? 180 : 90;
+            const hlDuration  = hasCallouts ? 60 : 0;
+            inputProps.zoomStartFrame = chartEnd + hlDuration + 5;
         }
 
         console.log("🎨 [Render] Propriedades finais enviadas ao Remotion:");
