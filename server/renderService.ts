@@ -1,5 +1,4 @@
 import { renderMedia, renderStill, selectComposition } from '@remotion/renderer';
-import { bundle } from '@remotion/bundler';
 import path from 'path';
 import fs from 'fs';
 import { PATHS } from './paths.js';
@@ -40,9 +39,10 @@ export async function getBundle(): Promise<string> {
   isBundling = true;
   try {
     console.log('📦 [REMOTION] Criando bundle UHD...');
+    const { bundle } = await import('@remotion/bundler');
     const bundleLocation = await bundle({
       entryPoint: ENTRY_POINT,
-      webpackOverride: (config) => {
+      webpackOverride: (config: any) => {
         config.cache = false;
         return config;
       },

@@ -3,15 +3,18 @@ import { COMPONENT_REGISTRY } from './componentRegistry.js';
 
 // ── Cliente singleton ────────────────────────────────────────
 let _client: SupabaseClient | null = null;
+let _initFailed = false;
 
 function getClient(): SupabaseClient | null {
   if (_client) return _client;
+  if (_initFailed) return null;
 
   const url = process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_KEY;
 
   if (!url || !key) {
-    console.warn('⚠️  [SUPABASE] Credenciais ausentes (.env). Sincronização desativada.');
+    _initFailed = true;
+    console.warn('⚠️  [SUPABASE] Credenciais ausentes. Sincronização desativada.');
     return null;
   }
 
@@ -19,10 +22,11 @@ function getClient(): SupabaseClient | null {
     _client = createClient(url, key, {
       auth: { persistSession: false },
     });
-    console.log('📡 [SUPABASE] Cliente inicializado com sucesso.');
+    console.log('📡 [SUPABASE] Cliente inicializado.');
     return _client;
   } catch (err: any) {
-    console.error('❌ [SUPABASE] Erro ao inicializar cliente:', err.message);
+    _initFailed = true;
+    console.warn('⚠️  [SUPABASE] Sync desativado:', err.message.split('\n')[0]);
     return null;
   }
 }
