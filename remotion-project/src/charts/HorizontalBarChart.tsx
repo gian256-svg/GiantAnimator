@@ -309,7 +309,7 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
                             fontSize: fs(24), 
                             fill: resolvedText, 
                             fontWeight: 700, 
-                            opacity: interpolate(frame, [delay + 10, delay + 20], [0, 1]), 
+                            opacity: interpolate(frame, [delay + 10, delay + 20], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }),
                             ...Theme.typography.tabularNums 
                         }}
                       >

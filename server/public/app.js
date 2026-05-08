@@ -1191,6 +1191,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!pending.length) return;
       state.isRendering = true;
       btnRender.disabled = true;
+      showCancelButton(true);
 
       try {
         for (const f of pending) {
@@ -1308,6 +1309,28 @@ function stopPolling() {
   }
 }
 
+function showCancelButton(visible) {
+  const btn = document.getElementById('btn-cancel');
+  if (btn) btn.style.display = visible ? 'block' : 'none';
+}
+
+async function cancelCurrentJob() {
+  const jobId = state.currentJobId;
+  if (!jobId) return;
+  try {
+    await fetch(`/jobs/${jobId}/cancel`, { method: 'POST' });
+  } catch (_) {}
+  stopPolling();
+  showCancelButton(false);
+  state.isRendering = false;
+  setProgress(0, 'Cancelado');
+  log('Processo cancelado pelo usuário.', 'error');
+  toast('Processo cancelado.', 'error');
+  const btnRender = document.getElementById('btn-render');
+  if (btnRender) btnRender.disabled = false;
+  renderFileQueue();
+}
+
 function startPolling(jobId, fileName, fileId) {
   if (state.pollInterval) clearInterval(state.pollInterval);
   state.currentJobId = jobId;
@@ -1347,9 +1370,22 @@ function startPolling(jobId, fileName, fileId) {
           return;
       }
 
+      if (msg.status === 'cancelled') {
+        clearInterval(interval);
+        state.isRendering = false;
+        showCancelButton(false);
+        setProgress(0, 'Cancelado');
+        log('Processo cancelado.', 'error');
+        const btnRender = document.getElementById('btn-render');
+        if (btnRender) btnRender.disabled = false;
+        renderFileQueue();
+        return;
+      }
+
       if (msg.status === 'done') {
         clearInterval(interval);
         state.isRendering = false;
+        showCancelButton(false);
         
         // Atualiza o status do arquivo na fila
         const file = state.files.find(f => f.id === fileId);
@@ -1368,6 +1404,7 @@ function startPolling(jobId, fileName, fileId) {
       if (msg.status === 'error') {
         clearInterval(interval);
         state.isRendering = false;
+        showCancelButton(false);
         
         const file = state.files.find(f => f.id === fileId);
         if (file) file.status = 'error';

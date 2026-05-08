@@ -13,9 +13,10 @@ interface Segment {
 }
 
 interface Props {
-  zoomPoints?:     ZoomPoint[];
-  zoomStartFrame?: number;      // injected by server based on whether callouts exist
-  children:        React.ReactNode;
+  zoomPoints?:      ZoomPoint[];
+  zoomStartFrame?:  number;
+  durationInFrames?: number;
+  children:         React.ReactNode;
 }
 
 const ZOOM_SCALE = 2.5;
@@ -39,12 +40,22 @@ function buildSegments(
   W: number,
   H: number,
   zoomStart: number,
+  durationInFrames: number,
 ): Segment[] {
   const segs: Segment[] = [];
+
+  // Budget: reserve ZOOM_IN + ZOOM_OUT + 30 frames (1s hold) at the end
+  const budget = durationInFrames - 1 - zoomStart - ZOOM_IN - ZOOM_OUT - 30;
+  const nDwells = points.length;
+  const nPans = points.length - 1;
+  const rawBudget = nDwells * DWELL + nPans * PAN;
+  const scaleFactor = budget > 0 && rawBudget > budget ? budget / rawBudget : 1;
+  const effectiveDwell = Math.max(10, Math.round(DWELL * scaleFactor));
+  const effectivePan   = Math.max(10, Math.round(PAN   * scaleFactor));
+
   let cursor = zoomStart;
   const p0 = target(points[0], W, H);
 
-  // zoom in to first point
   segs.push({ start: cursor, end: cursor + ZOOM_IN, fromTx: 0, fromTy: 0, fromScale: 1, toTx: p0.tx, toTy: p0.ty, toScale: ZOOM_SCALE });
   cursor += ZOOM_IN;
 
@@ -54,34 +65,33 @@ function buildSegments(
     const curr = target(points[i], W, H);
 
     if (i > 0) {
-      // pan from previous point
-      segs.push({ start: cursor, end: cursor + PAN, fromTx: prevTx, fromTy: prevTy, fromScale: ZOOM_SCALE, toTx: curr.tx, toTy: curr.ty, toScale: ZOOM_SCALE });
-      cursor += PAN;
+      segs.push({ start: cursor, end: cursor + effectivePan, fromTx: prevTx, fromTy: prevTy, fromScale: ZOOM_SCALE, toTx: curr.tx, toTy: curr.ty, toScale: ZOOM_SCALE });
+      cursor += effectivePan;
     }
 
-    // dwell
-    segs.push({ start: cursor, end: cursor + DWELL, fromTx: curr.tx, fromTy: curr.ty, fromScale: ZOOM_SCALE, toTx: curr.tx, toTy: curr.ty, toScale: ZOOM_SCALE });
-    cursor += DWELL;
+    segs.push({ start: cursor, end: cursor + effectiveDwell, fromTx: curr.tx, fromTy: curr.ty, fromScale: ZOOM_SCALE, toTx: curr.tx, toTy: curr.ty, toScale: ZOOM_SCALE });
+    cursor += effectiveDwell;
     prevTx = curr.tx;
     prevTy = curr.ty;
   }
 
-  // zoom out
+  // zoom out — always ends at least 30 frames before the video ends
   const last = target(points[points.length - 1], W, H);
-  segs.push({ start: cursor, end: cursor + ZOOM_OUT, fromTx: last.tx, fromTy: last.ty, fromScale: ZOOM_SCALE, toTx: 0, toTy: 0, toScale: 1 });
+  const zoomOutEnd = Math.min(cursor + ZOOM_OUT, durationInFrames - 1 - 30);
+  segs.push({ start: cursor, end: zoomOutEnd, fromTx: last.tx, fromTy: last.ty, fromScale: ZOOM_SCALE, toTx: 0, toTy: 0, toScale: 1 });
 
   return segs;
 }
 
 export const ZoomWrapper: React.FC<Props> = ({ zoomPoints, zoomStartFrame, children }) => {
   const frame = useCurrentFrame();
-  const { width, height } = useVideoConfig();
+  const { width, height, durationInFrames } = useVideoConfig();
 
   // Pre-compute once — never recalculated during playback
   const segments = useMemo<Segment[] | null>(() => {
     if (!zoomPoints || zoomPoints.length === 0) return null;
-    return buildSegments(zoomPoints, width, height, zoomStartFrame ?? DEFAULT_ZOOM_START);
-  }, [zoomPoints, width, height, zoomStartFrame]);
+    return buildSegments(zoomPoints, width, height, zoomStartFrame ?? DEFAULT_ZOOM_START, durationInFrames);
+  }, [zoomPoints, width, height, zoomStartFrame, durationInFrames]);
 
   if (!segments) return <>{children}</>;
 
@@ -90,17 +100,24 @@ export const ZoomWrapper: React.FC<Props> = ({ zoomPoints, zoomStartFrame, child
   let tx = 0, ty = 0, scale = 1;
 
   if (frame >= zoomStart) {
-    for (let i = 0; i < segments.length; i++) {
-      const seg = segments[i];
-      const isLast = i === segments.length - 1;
+    const lastSeg = segments[segments.length - 1];
 
-      if (frame <= seg.end || isLast) {
-        const rawT = seg.end === seg.start ? 1 : (frame - seg.start) / (seg.end - seg.start);
-        const t = ease(rawT);
-        tx    = lerp(seg.fromTx,    seg.toTx,    t);
-        ty    = lerp(seg.fromTy,    seg.toTy,    t);
-        scale = lerp(seg.fromScale, seg.toScale,  t);
-        break;
+    // After zoom-out ends, lock to identity — chart stays fully visible
+    if (frame > lastSeg.end) {
+      tx = 0; ty = 0; scale = 1;
+    } else {
+      for (let i = 0; i < segments.length; i++) {
+        const seg = segments[i];
+        const isLast = i === segments.length - 1;
+
+        if (frame <= seg.end || isLast) {
+          const rawT = seg.end === seg.start ? 1 : (frame - seg.start) / (seg.end - seg.start);
+          const t = ease(rawT);
+          tx    = lerp(seg.fromTx,    seg.toTx,    t);
+          ty    = lerp(seg.fromTy,    seg.toTy,    t);
+          scale = lerp(seg.fromScale, seg.toScale,  t);
+          break;
+        }
       }
     }
   }

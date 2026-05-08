@@ -43,7 +43,7 @@ if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 // ─── ESTADO PERSISTENTE ───────────────────────────────────────
 type PipelineJob = {
   id: string;
-  status: 'pending' | 'processing' | 'awaiting_review' | 'rendering' | 'done' | 'error';
+  status: 'pending' | 'processing' | 'awaiting_review' | 'rendering' | 'done' | 'error' | 'cancelled';
   progress: number;
   stage: string;
   error?: string;
@@ -89,6 +89,11 @@ function loadJob(id: string): PipelineJob | null {
   }
 }
 
+function isCancelled(jobId: string): boolean {
+  const j = loadJob(jobId);
+  return j?.status === 'cancelled';
+}
+
 
 async function processJob(
   jobId: string, 
@@ -116,6 +121,8 @@ async function processJob(
     await fs.promises.writeFile(filePath, fileBuffer);
 
     let analysis: ChartAnalysis;
+
+    if (isCancelled(jobId)) return;
 
     if (isData) {
       job.stage = 'Mateus: Processando planilha...';
@@ -211,6 +218,8 @@ async function processJob(
       }
     }
 
+    if (isCancelled(jobId)) return;
+
     job.progress = 40;
     job.stage = 'João: Estrutura identificada';
     job.log = `Componente: ${analysis.componentId}`;
@@ -238,6 +247,8 @@ async function processJob(
         analysis.props.insightText = analysis.props.title || "Insight não disponível.";
       }
     }
+
+    if (isCancelled(jobId)) return;
 
     // ─── ETAPA FINAL: Enriquecimento de Destaques (Highlights) ───
     if (includeCallouts) {
@@ -356,6 +367,8 @@ async function finishJobRendering(jobId: string, analysis: ChartAnalysis, chartT
             await saveJob(job);
             return;
         }
+
+        if (isCancelled(jobId)) return;
 
         // ─── MOTOR REMOTION (React/UHD) ───────────────────
         job.progress = 60;
@@ -585,6 +598,20 @@ app.get('/progress/:jobId', (req: Request, res: Response) => {
   const job = loadJob(jobId);
   if (!job) return res.status(404).json({ error: 'Job not found' });
   res.json(job);
+});
+
+app.post('/jobs/:jobId/cancel', (req: Request, res: Response) => {
+  const jobId = String(req.params.jobId);
+  const job = loadJob(jobId);
+  if (!job) return res.status(404).json({ error: 'Job not found' });
+  if (['done', 'error', 'cancelled'].includes(job.status)) {
+    return res.json({ ok: true, status: job.status });
+  }
+  job.status = 'cancelled';
+  job.stage = 'Cancelado pelo usuário';
+  saveJob(job);
+  console.log(`🛑 [Cancel] Job ${jobId} cancelado.`);
+  res.json({ ok: true });
 });
 
 app.post('/preview-data', upload.single('file'), async (req: Request, res: Response) => {
