@@ -4,9 +4,6 @@
  * Verifica version.json no GitHub (master branch) a cada inicialização.
  * Se a versão remota for diferente da local, baixa o zip da GitHub Release
  * correspondente, extrai sobre resources/app/ e sinaliza para o app reiniciar.
- *
- * Não requer configuração: o MANIFEST_URL está embutido aqui.
- * O .env pode sobrescrever via UPDATE_MANIFEST_URL (para ambientes alternativos).
  */
 
 import https from 'https';
@@ -57,9 +54,56 @@ async function fetchJson(url) {
   return JSON.parse(buf.toString('utf-8'));
 }
 
-async function downloadFile(url, dest) {
-  const buf = await get(url);
-  fs.writeFileSync(dest, buf);
+/**
+ * Baixa um arquivo com progresso reportado via onProgress(msg, percent).
+ * percent vai de startPct a endPct conforme o download avança.
+ */
+function downloadFileWithProgress(url, dest, onProgress, startPct = 30, endPct = 70, redirects = 8) {
+  return new Promise((resolve, reject) => {
+    const proto = url.startsWith('https') ? https : http;
+    const req = proto.get(url, { timeout: 60000 }, res => {
+      // Segue redirect
+      if (redirects > 0 && res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+        return downloadFileWithProgress(res.headers.location, dest, onProgress, startPct, endPct, redirects - 1)
+          .then(resolve).catch(reject);
+      }
+      if (res.statusCode !== 200) {
+        return reject(new Error(`HTTP ${res.statusCode} ao baixar atualização`));
+      }
+
+      const total = parseInt(res.headers['content-length'] || '0', 10);
+      let received = 0;
+      const chunks = [];
+
+      res.on('data', chunk => {
+        chunks.push(chunk);
+        received += chunk.length;
+        if (total > 0) {
+          const pct = Math.round(startPct + ((received / total) * (endPct - startPct)));
+          const mb = (received / 1024 / 1024).toFixed(1);
+          const totalMb = (total / 1024 / 1024).toFixed(1);
+          onProgress?.(`Baixando atualização... ${mb} / ${totalMb} MB`, pct);
+        } else {
+          const mb = (received / 1024 / 1024).toFixed(1);
+          onProgress?.(`Baixando atualização... ${mb} MB`, -1);
+        }
+      });
+
+      res.on('end', () => {
+        try {
+          fs.writeFileSync(dest, Buffer.concat(chunks));
+          resolve();
+        } catch (err) {
+          reject(err);
+        }
+      });
+
+      res.on('error', reject);
+    });
+
+    req.on('error', reject);
+    req.on('timeout', () => { req.destroy(); reject(new Error('Timeout ao baixar atualização')); });
+  });
 }
 
 // ── Lógica principal ──────────────────────────────────────────────
@@ -68,7 +112,7 @@ export async function checkAndApplyUpdate(onProgress) {
   const manifestUrl = process.env.UPDATE_MANIFEST_URL || DEFAULT_MANIFEST_URL;
 
   try {
-    onProgress?.('Verificando atualizações...');
+    onProgress?.('Verificando atualizações...', -1);
     const manifest = await fetchJson(manifestUrl);
 
     if (!manifest.version || !manifest.zipUrl) {
@@ -85,12 +129,12 @@ export async function checkAndApplyUpdate(onProgress) {
     }
 
     console.log(`[Updater] Nova versão disponível: ${manifest.version}`);
-    onProgress?.(`Baixando atualização ${manifest.version}...`);
+    onProgress?.(`Atualização disponível: v${manifest.version}`, 20);
 
     const tmpZip = path.join(app.getPath('userData'), 'giant-update.zip');
-    await downloadFile(manifest.zipUrl, tmpZip);
+    await downloadFileWithProgress(manifest.zipUrl, tmpZip, onProgress, 25, 70);
 
-    onProgress?.('Aplicando atualização...');
+    onProgress?.('Aplicando atualização...', 80);
 
     const appPath = app.getAppPath();
     execSync(
@@ -101,11 +145,10 @@ export async function checkAndApplyUpdate(onProgress) {
     try { fs.unlinkSync(tmpZip); } catch {}
 
     console.log(`[Updater] Versão ${manifest.version} instalada.`);
-    onProgress?.('Atualização concluída. Reiniciando...');
+    onProgress?.('Atualização concluída. Reiniciando...', 100);
     return true;
 
   } catch (err) {
-    // Falha silenciosa — app inicia normalmente sem atualização
     console.warn('[Updater] Não foi possível verificar atualização:', err.message);
     return false;
   }

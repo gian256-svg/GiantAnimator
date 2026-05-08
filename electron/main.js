@@ -10,7 +10,47 @@ const __dirname  = path.dirname(__filename);
 
 const PORT = 3742;
 let mainWindow    = null;
+let splashWindow  = null;
 let serverProcess = null;
+
+// ── Splash screen ─────────────────────────────────────────────────
+function createSplash() {
+  splashWindow = new BrowserWindow({
+    width:           420,
+    height:          260,
+    frame:           false,
+    transparent:     false,
+    resizable:       false,
+    center:          true,
+    show:            false,
+    backgroundColor: '#070B12',
+    title:           'GiantAnimator',
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+    },
+  });
+
+  const splashPath = path.join(__dirname, 'splash.html');
+  splashWindow.loadFile(splashPath);
+  splashWindow.once('ready-to-show', () => splashWindow.show());
+  splashWindow.on('closed', () => { splashWindow = null; });
+}
+
+function splashUpdate(msg, progress) {
+  if (!splashWindow || splashWindow.isDestroyed()) return;
+  const safe = msg.replace(/'/g, "\\'");
+  const progressArg = progress !== undefined ? String(progress) : 'undefined';
+  splashWindow.webContents.executeJavaScript(
+    `window.updateSplash('${safe}', ${progressArg})`
+  ).catch(() => {});
+}
+
+function splashClose() {
+  if (splashWindow && !splashWindow.isDestroyed()) {
+    splashWindow.close();
+  }
+}
 
 // ── Aguarda o servidor responder no /health ───────────────────────
 function waitForServer(timeout = 90000) {
@@ -39,7 +79,6 @@ function spawnServer() {
   const appPath    = app.getAppPath();
   const userData   = app.getPath('userData');
 
-  // Remotion bundle pré-compilado (criado em build time por scripts/prebundle.mjs)
   const bundlePath = isPackaged
     ? path.join(process.resourcesPath, 'remotion-bundle')
     : path.join(appPath, 'dist', 'remotion-bundle');
@@ -47,7 +86,7 @@ function spawnServer() {
   const env = {
     ...process.env,
     PORT:                  String(PORT),
-    GIANT_WRITABLE_DIR:    userData,                 // diretório gravável no sistema do usuário
+    GIANT_WRITABLE_DIR:    userData,
     REMOTION_BUNDLE_PATH:  bundlePath,
     ELECTRON_RUN:          '1',
     NODE_ENV:              isPackaged ? 'production' : 'development',
@@ -56,13 +95,11 @@ function spawnServer() {
   let cmd, args, cwd;
 
   if (isPackaged) {
-    // Produção — usa o JS compilado; Electron actua como Node via ELECTRON_RUN_AS_NODE
     env.ELECTRON_RUN_AS_NODE = '1';
     cmd  = process.execPath;
     args = [path.join(appPath, 'server', 'dist', 'index.js')];
     cwd  = appPath;
   } else {
-    // Desenvolvimento — usa tsx directamente
     cmd  = process.platform === 'win32' ? 'npx.cmd' : 'npx';
     args = ['tsx', 'server/index.ts'];
     cwd  = path.join(__dirname, '..');
@@ -99,14 +136,16 @@ async function createWindow() {
     },
   });
 
-  // Remove barra de menu nativa (a UI já tem seus próprios controles)
   Menu.setApplicationMenu(null);
-
   mainWindow.loadURL(`http://localhost:${PORT}`);
-  mainWindow.once('ready-to-show', () => mainWindow.show());
+
+  mainWindow.once('ready-to-show', () => {
+    splashClose();
+    mainWindow.show();
+  });
+
   mainWindow.on('closed', () => { mainWindow = null; });
 
-  // Links externos abrem no browser padrão do sistema
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url);
     return { action: 'deny' };
@@ -115,9 +154,32 @@ async function createWindow() {
 
 // ── Ciclo de vida do app ──────────────────────────────────────────
 app.whenReady().then(async () => {
+  // Splash aparece imediatamente — antes de qualquer coisa
+  createSplash();
+
+  // Mostra versão local na splash
+  try {
+    const versionFile = path.join(__dirname, '..', 'version.json');
+    if (fs.existsSync(versionFile)) {
+      const { version } = JSON.parse(fs.readFileSync(versionFile, 'utf-8'));
+      if (version && splashWindow && !splashWindow.isDestroyed()) {
+        splashWindow.webContents.executeJavaScript(
+          `window.setVersion('${version}')`
+        ).catch(() => {});
+      }
+    }
+  } catch {}
+
+  // Verificação/download de atualização com progresso na splash
   try {
     const { checkAndApplyUpdate } = await import('./updater.js');
-    const updated = await checkAndApplyUpdate(msg => console.log('[Updater]', msg));
+
+    splashUpdate('Verificando atualizações...', -1);
+    const updated = await checkAndApplyUpdate((msg, pct) => {
+      console.log('[Updater]', msg);
+      splashUpdate(msg, pct);
+    });
+
     if (updated) {
       app.relaunch();
       app.exit(0);
@@ -127,11 +189,17 @@ app.whenReady().then(async () => {
     console.warn('[Updater] Erro no módulo de atualização:', err.message);
   }
 
+  // Inicia o servidor e aguarda
+  splashUpdate('Iniciando servidor...', -1);
   spawnServer();
+
   try {
     await waitForServer();
+    splashUpdate('Carregando interface...', 95);
     await createWindow();
+    // splashClose() é chamado dentro de mainWindow.once('ready-to-show')
   } catch (err) {
+    splashClose();
     dialog.showErrorBox('GiantAnimator — Erro de inicialização', err.message);
     app.quit();
   }
