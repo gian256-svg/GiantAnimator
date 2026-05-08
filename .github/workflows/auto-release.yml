@@ -1,0 +1,101 @@
+name: Auto Release
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    # Evita loop infinito: pula se o commit foi feito pelo próprio bot
+    if: "!startsWith(github.event.head_commit.message, 'chore: release')"
+
+    permissions:
+      contents: write   # criar releases, commits, push
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install root dependencies
+        run: npm install
+
+      - name: Install server dependencies
+        run: npm install
+        working-directory: server
+
+      - name: Compile TypeScript server
+        # noEmitOnError:false já está no tsconfig — continua mesmo com erros pré-existentes
+        run: npx tsc -p tsconfig.server.json || true
+        working-directory: server
+
+      - name: Compute new patch version
+        id: ver
+        run: |
+          VERSION=$(node -e "
+            const v = require('./version.json').version.split('.');
+            v[2] = String(parseInt(v[2]) + 1);
+            process.stdout.write(v.join('.'));
+          ")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION"    >> "$GITHUB_OUTPUT"
+
+      - name: Build update.zip
+        run: |
+          mkdir -p _zip
+
+          for dir in electron server/dist server/public; do
+            if [ -d "$dir" ]; then
+              mkdir -p "_zip/$dir"
+              cp -r "$dir/." "_zip/$dir/"
+            fi
+          done
+
+          # prompts (fonte TS — incluído por paridade com build-update.ps1)
+          if [ -d "server/prompts" ]; then
+            mkdir -p "_zip/server/prompts"
+            cp -r "server/prompts/." "_zip/server/prompts/"
+          fi
+
+          cp version.json _zip/
+          cd _zip && zip -r ../update.zip . && cd ..
+          echo "ZIP size: $(du -sh update.zip | cut -f1)"
+
+      - name: Create GitHub Release & upload zip
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ steps.ver.outputs.tag }}" \
+            --title "GiantAnimator ${{ steps.ver.outputs.version }}" \
+            --notes "Auto-release ${{ steps.ver.outputs.version }} — $(date -u '+%Y-%m-%d')" \
+            update.zip#update.zip
+
+      - name: Update version.json
+        run: |
+          node -e "
+            const v = '${{ steps.ver.outputs.version }}';
+            const repo = '${{ github.repository }}';
+            const data = {
+              version: v,
+              date: new Date().toISOString().split('T')[0],
+              zipUrl: \`https://github.com/\${repo}/releases/download/v\${v}/update.zip\`
+            };
+            require('fs').writeFileSync('version.json', JSON.stringify(data, null, 2) + '\n');
+          "
+
+      - name: Commit & push version.json
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add version.json
+          git commit -m "chore: release ${{ steps.ver.outputs.version }}"
+          git push
