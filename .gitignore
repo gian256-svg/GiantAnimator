@@ -68,3 +68,6 @@ knowledge-base/
 uploads/
 server/cache/
 .agent/cache/
+cache/
+GiantAnimator-win-x64/
+.claude/
