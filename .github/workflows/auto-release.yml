@@ -66,7 +66,17 @@ jobs:
             cp -r "server/prompts/." "_zip/server/prompts/"
           fi
 
-          cp version.json _zip/
+          # version.json dentro do zip já deve ter a versão nova
+          node -e "
+            const v = '${{ steps.ver.outputs.version }}';
+            const repo = '${{ github.repository }}';
+            const data = {
+              version: v,
+              date: new Date().toISOString().split('T')[0],
+              zipUrl: \`https://github.com/\${repo}/releases/download/v\${v}/update.zip\`
+            };
+            require('fs').writeFileSync('_zip/version.json', JSON.stringify(data, null, 2) + '\n');
+          "
           cd _zip && zip -r ../update.zip . && cd ..
           echo "ZIP size: $(du -sh update.zip | cut -f1)"
 
