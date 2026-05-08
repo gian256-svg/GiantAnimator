@@ -19,6 +19,14 @@ let isBundling = false;
 export async function getBundle(): Promise<string> {
   if (cachedBundleLocation) return cachedBundleLocation;
 
+  // Use pre-built bundle in Electron/packaged mode
+  const prebuilt = process.env.REMOTION_BUNDLE_PATH;
+  if (prebuilt && fs.existsSync(prebuilt)) {
+    cachedBundleLocation = prebuilt;
+    console.log('📦 [REMOTION] Usando bundle pré-compilado:', prebuilt);
+    return prebuilt;
+  }
+
   if (isBundling) {
     console.log('⏳ [REMOTION] Já existe um processo de bundling em curso. Aguardando...');
     while (isBundling) {
@@ -99,9 +107,15 @@ export async function renderChart(
       codec: 'h264',
       outputLocation: outputPath,
       inputProps,
+      ...(process.env.CHROMIUM_PATH ? { browserExecutable: process.env.CHROMIUM_PATH } : {}),
+      chromiumOptions: {
+        gl: 'swangle',
+        enableMultiProcessOnLinux: false,
+      },
+      concurrency: 1,
     });
 
-    const timeoutPromise = new Promise((_, reject) => 
+    const timeoutPromise = new Promise((_, reject) =>
       setTimeout(() => reject(new Error("RENDER_TIMEOUT: A renderização demorou mais de 300s")), 300000)
     );
 
@@ -152,7 +166,12 @@ export async function generateStill(
       output: outputPath,
       frame: auditFrame,
       inputProps,
-      transparentBackground: true, // Habilita Alpha no still de auditoria (PNG)
+      imageFormat: 'png',
+      ...(process.env.CHROMIUM_PATH ? { browserExecutable: process.env.CHROMIUM_PATH } : {}),
+      chromiumOptions: {
+        gl: 'swangle',
+        enableMultiProcessOnLinux: false,
+      },
     });
 
     const timeoutPromise = new Promise((_, reject) => 
