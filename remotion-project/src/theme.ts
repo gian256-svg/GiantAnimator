@@ -884,7 +884,10 @@ export const formatValue = (n: number, unit = '') => {
     valueStr = Number.isInteger(n) ? String(n) : n.toFixed(2).replace(/\.?0+$/, '');
   }
 
-  if (unit === 'M' || unit === 'k') return valueStr;
+  // M / k: se o valor já foi abreviado automaticamente (>= escala), M/k já está em valueStr.
+  // Se o valor é pré-escalado (ex: 4.8 com unit "M"), appenda a unidade.
+  if (unit === 'M') return absN >= 1_000_000 ? valueStr : `${valueStr}M`;
+  if (unit === 'k') return absN >= 1_000     ? valueStr : `${valueStr}k`;
 
   if (unit === '%') return `${valueStr}%`;
 
