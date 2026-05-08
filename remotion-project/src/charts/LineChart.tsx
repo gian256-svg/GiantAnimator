@@ -6,7 +6,7 @@ import {
   AbsoluteFill,
   Easing,
 } from "remotion";
-import { Theme, resolveTheme, formatValue, parseSafeNumber, getNiceScale } from '../theme';
+import { Theme, resolveTheme, formatValue, parseSafeNumber, getNiceScale, unitAxisLabel } from '../theme';
 import { DynamicBackground } from "../layout/DynamicBackground";
 import { HighlightCircle } from "../components/HighlightCircle";
 
@@ -391,7 +391,7 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
         )}
 
         {/* Título do Eixo Y */}
-        {yAxisTitle && (
+        {(yAxisTitle || unitAxisLabel(unit)) && (
           <text
             x={fs(100)}
             y={chartTop + plotHeight / 2}
@@ -399,7 +399,7 @@ export const LineChart: React.FC<LineChartProps> = (props) => {
             transform={`rotate(-90, ${fs(100)}, ${chartTop + plotHeight / 2})`}
             style={{ fontSize: fs(24), fill: T.textMuted, fontWeight: 700, opacity: 0.8 }}
           >
-            {yAxisTitle}
+            {[yAxisTitle, unitAxisLabel(unit)].filter(Boolean).join(' ')}
           </text>
         )}
       </svg>

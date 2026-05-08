@@ -894,11 +894,31 @@ export const formatValue = (n: number, unit = '') => {
   const isPrefix = unit.includes('$') || unit.includes('£') || unit.includes('€') || unit.trim().toLowerCase() === 'r$';
   if (isPrefix) return `${unit.trim()}${valueStr}`;
 
-  // Palavras longas (ex: "thousands", "millions") já estão no yAxisTitle — não repetir nos labels
+  // Palavras longas (ex: "thousands", "millions") não aparecem inline — usam unitAxisLabel()
   if (unit.length > 3) return valueStr;
 
   return unit ? `${valueStr} ${unit}`.trim() : valueStr;
 };
+
+/**
+ * unitIsInline — true se a unidade já aparece em cada valor via formatValue.
+ * false = unidade longa que deve ser exibida no eixo via unitAxisLabel().
+ */
+export const unitIsInline = (unit: string): boolean => {
+  if (!unit) return false;
+  const u = unit.trim();
+  if (u === '%' || u === 'M' || u === 'k') return true;
+  if (['$', '£', '€'].some(s => u.includes(s))) return true;
+  if (u.toLowerCase() === 'r$') return true;
+  return u.length <= 3;
+};
+
+/**
+ * unitAxisLabel — Label a exibir próximo ao eixo quando a unidade NÃO é inline.
+ * Ex: "millions" → "(millions)"  |  "R$ milhões" → "(R$ milhões)"
+ */
+export const unitAxisLabel = (unit: string): string =>
+  unit && !unitIsInline(unit) ? `(${unit})` : '';
 
 /**
  * parseSafeNumber — Limpa strings (remove %, $, etc) e retorna um número válido.

@@ -6,7 +6,7 @@ import {
   interpolate,
   AbsoluteFill,
 } from "remotion";
-import { Theme, resolveTheme, formatValue, getNiceScale, wrapText } from '../theme';
+import { Theme, resolveTheme, formatValue, getNiceScale, wrapText, unitAxisLabel } from '../theme';
 import { DynamicBackground } from "../layout/DynamicBackground";
 import { HighlightCircle } from "../components/HighlightCircle";
 
@@ -251,15 +251,15 @@ export const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
           );
         })}
 
-        {/* TÍTULO DO EIXO X */}
-        {xAxisTitle && (
+        {/* TÍTULO DO EIXO X + unidade longa quando não é inline */}
+        {(xAxisTitle || unitAxisLabel(unit)) && (
           <text
             x={plotLeft + plotWidth / 2}
             y={chartTop + plotHeight + fs(90)}
             textAnchor="middle"
             style={{ fontSize: fs(24), fill: T.textMuted, fontWeight: 700, opacity: 0.8 }}
           >
-            {xAxisTitle}
+            {[xAxisTitle, unitAxisLabel(unit)].filter(Boolean).join(' ')}
           </text>
         )}
 

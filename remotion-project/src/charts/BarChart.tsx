@@ -6,7 +6,7 @@ import {
   interpolate,
   AbsoluteFill,
 } from "remotion";
-import { Theme, resolveTheme, formatValue, getNiceScale, parseSafeNumber, wrapText } from "../theme";
+import { Theme, resolveTheme, formatValue, getNiceScale, parseSafeNumber, wrapText, unitAxisLabel } from "../theme";
 import { DynamicBackground } from "../layout/DynamicBackground";
 import { HighlightCircle } from "../components/HighlightCircle";
 
@@ -324,8 +324,8 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
           </text>
         )}
 
-        {/* Título do Eixo Y */}
-        {yAxisTitle && (
+        {/* Título do Eixo Y + unidade longa quando não é inline */}
+        {(yAxisTitle || unitAxisLabel(unit)) && (
           <text
             x={fs(40)}
             y={chartTop + plotHeight / 2}
@@ -333,7 +333,7 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
             transform={`rotate(-90, ${fs(40)}, ${chartTop + plotHeight / 2})`}
             style={{ fontSize: fs(24), fill: T.textMuted, fontWeight: 700, opacity: 0.8 }}
           >
-            {yAxisTitle}
+            {[yAxisTitle, unitAxisLabel(unit)].filter(Boolean).join(' ')}
           </text>
         )}
       </svg>
