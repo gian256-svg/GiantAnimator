@@ -117,13 +117,24 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
     };
   });
 
+  // ── Limites verticais seguros (não sobrepor título nem legenda) ──
+  const titleBottom = title
+    ? margin + fs(Theme.typography.title.size) + (subtitle ? fs(Theme.typography.subtitle.size) + fs(10) : 0) + fs(24)
+    : margin + fs(16);
+  const legendTop = legendPosition !== 'none' && !isRightLegend
+    ? height - fs(80) - fs(32)
+    : height - fs(20);
+
+  const LABEL_HALF_H = fs(28); // metade da altura de um bloco label+valor
+  const Y_MIN = titleBottom  + LABEL_HALF_H;
+  const Y_MAX = legendTop    - LABEL_HALF_H;
+
   // ── Resolução de colisões Y para labels externas ──────────────
   const adjY = geo.map(s => s.ly);
 
   function pushApart(idxs: number[]) {
-    // ordena por Y atual
     const sorted = [...idxs].sort((a, b) => adjY[a] - adjY[b]);
-    for (let iter = 0; iter < 50; iter++) {
+    for (let iter = 0; iter < 60; iter++) {
       let moved = false;
       for (let k = 0; k < sorted.length - 1; k++) {
         const gap = adjY[sorted[k + 1]] - adjY[sorted[k]];
@@ -135,6 +146,11 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
         }
       }
       if (!moved) break;
+    }
+    // Clamp dentro dos limites seguros — empurra para dentro se ultrapassar
+    for (const idx of sorted) {
+      if (adjY[idx] < Y_MIN) adjY[idx] = Y_MIN;
+      if (adjY[idx] > Y_MAX) adjY[idx] = Y_MAX;
     }
   }
 
