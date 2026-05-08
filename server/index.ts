@@ -431,6 +431,8 @@ async function finishJobRendering(jobId: string, analysis: ChartAnalysis, chartT
           renderOptions.codec = 'h264';
         }
 
+        if (process.env.CHROMIUM_PATH) renderOptions.browserExecutable = process.env.CHROMIUM_PATH;
+
         await renderMedia(renderOptions);
 
         // Generate thumbnail from final frame
@@ -447,6 +449,7 @@ async function finishJobRendering(jobId: string, analysis: ChartAnalysis, chartT
                 frame: thumbFrame,
                 imageFormat: 'jpeg',
                 jpegQuality: 85,
+                ...(process.env.CHROMIUM_PATH ? { browserExecutable: process.env.CHROMIUM_PATH } : {}),
             });
             thumbnailFile = thumbName;
             console.log(`🖼️ [Thumb] Gerado: ${thumbName}`);
@@ -713,41 +716,42 @@ async function runSurgeryGradePipeline(
 }
 
 // Inicialização do Agente e Servidor
-(async () => {
-    try {
-        await agent.initialize();
-        app.listen(port, '0.0.0.0', () => {
-            console.log(`
+app.listen(port, '0.0.0.0', () => {
+    console.log(`
   ✦ ───────────────────────────────────────── ✦
   🔗 http://localhost:${port} (Local)
   ✦ ───────────────────────────────────────── ✦
-            `);
-            
-            // 📡 SINCRONIZAÇÃO SUPABASE (MEGA DATABASE)
-            seedComponentRegistry();
-            
-            // Sincroniza LOG de Treinamento
-            if (fs.existsSync('TRAINING_LOG.md')) {
-                syncTrainingLog(fs.readFileSync('TRAINING_LOG.md', 'utf-8'));
-            }
+    `);
 
-            // Sincroniza Regras Ativas (.agent/knowledge)
-            const knowledgeDir = path.join('.agent', 'knowledge');
-            if (fs.existsSync(knowledgeDir)) {
-                const files = fs.readdirSync(knowledgeDir).filter(f => f.endsWith('.md'));
-                files.forEach(f => {
-                    const content = fs.readFileSync(path.join(knowledgeDir, f), 'utf-8');
-                    syncTrainingLog(content, f.replace('.md', '')); 
-                });
-            }
+    // Inicialização assíncrona pós-listen (não bloqueia o healthcheck)
+    (async () => {
+        try {
+            await agent.initialize();
+        } catch (err) {
+            console.error("❌ Falha ao inicializar agente:", err);
+        }
 
-            if (!IS_VERCEL) {
-                getBundle();
-                startWatcher(PATHS.input);
-            }
-        });
-    } catch (err) {
-        console.error("❌ Falha crítica ao iniciar agente:", err);
-        process.exit(1);
-    }
-})();
+        // 📡 SINCRONIZAÇÃO SUPABASE (MEGA DATABASE)
+        seedComponentRegistry();
+
+        // Sincroniza LOG de Treinamento
+        if (fs.existsSync('TRAINING_LOG.md')) {
+            syncTrainingLog(fs.readFileSync('TRAINING_LOG.md', 'utf-8'));
+        }
+
+        // Sincroniza Regras Ativas (.agent/knowledge)
+        const knowledgeDir = path.join('.agent', 'knowledge');
+        if (fs.existsSync(knowledgeDir)) {
+            const files = fs.readdirSync(knowledgeDir).filter(f => f.endsWith('.md'));
+            files.forEach(f => {
+                const content = fs.readFileSync(path.join(knowledgeDir, f), 'utf-8');
+                syncTrainingLog(content, f.replace('.md', ''));
+            });
+        }
+
+        if (!IS_VERCEL) {
+            getBundle();
+            startWatcher(PATHS.input);
+        }
+    })();
+});
