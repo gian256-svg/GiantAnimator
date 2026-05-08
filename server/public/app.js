@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════
-   APP LOGIC — GiantAnimator v2.0
-   Equipe Apostólica: Pedro · João · Mateus · Tomé · André · Felipe
+   APP LOGIC — 4Chartz v2.0
+   primo.studio: Pedro · João · Mateus · Tomé · André · Felipe
 ═══════════════════════════════════════════════════════════════ */
 
 const state = {
@@ -57,7 +57,7 @@ function updateUploadUI() {
     if (text) text.textContent = 'Arraste um GRÁFICO para analisar';
     if (hint) hint.textContent = 'Logos/Marcas? Use o botão "EDITAR CORES" abaixo.';
     if (fileInput) fileInput.accept = '.png,.jpg,.jpeg,.webp';
-    log("Pedro: Modo Referência Visual (Gráficos) ativado.");
+    log("Pedro: Modo Referência Visual (Gráficos) ativado. 4Chartz pronto.");
   } else {
     if (text) text.textContent = 'Arraste sua planilha ou clique';
     if (hint) hint.textContent = 'Formatos: XLSX · CSV · XLS · JSON';
@@ -1504,7 +1504,7 @@ function standardDownload(url, filename) {
   
   const a    = document.createElement('a');
   a.href     = url;
-  a.download = `${cleanName}_GiantAnimator_4K.${extension}`;
+  a.download = `${cleanName}_4Chartz_4K.${extension}`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

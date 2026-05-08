@@ -663,3 +663,14 @@ Caso a imagem mande um tÃƒÂ­tulo muito longo, ele nÃƒÂ£o pode flanquear 
     - Uma vez validadas, o `version.json` é atualizado.
     - O app local baixa e aplica o patch automaticamente, garantindo que todos os usuários estejam na versão mais recente sem intervenção manual.
 **Regra para a IA**: Ao realizar mudanças críticas na UI ou no motor de renderização, notificar o usuário para considerar um "version bump" no `version.json`.
+
+---
+
+### 🎨 [2026-05-08] BRANDING — REBRANDING PARA 4CHARTZ
+**Contexto**: O projeto foi renomeado de GiantAnimator para **4Chartz** para alinhar com a nova identidade visual e patrocínio da **primo.studio**.
+**Mudanças**:
+1.  **Frontend**: Alterado título da página, header e rodapé para refletir o nome "4Chartz".
+2.  **Sponsorship**: Adicionado subtítulo "primo.studio sponsored" no header.
+3.  **Logo**: Gerado e aplicado um novo logo minimalista e premium para a marca 4Chartz.
+4.  **Log Messages**: Mensagens de inicialização e logs do sistema atualizados para usar a nova nomenclatura.
+5.  **Version Bump**: Versão do frontend incrementada para `v2.0.1`.
