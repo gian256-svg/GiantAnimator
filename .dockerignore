@@ -1,0 +1,12 @@
+node_modules/
+remotion-project/node_modules/
+.env
+server/.env
+*.log
+output/
+input/
+cache/
+dist/
+.git/
+.gitignore
+*.thumb.jpg
