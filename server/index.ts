@@ -8,7 +8,8 @@ import cors from 'cors';
 import { bundle } from '@remotion/bundler';
 import { renderMedia, renderStill, selectComposition } from '@remotion/renderer';
 import { getHistory, addJob, clearHistory } from './historyService.js';
-import { syncPipelineJob, seedComponentRegistry, syncTrainingLog } from './supabaseService.js';
+import { syncPipelineJob, seedComponentRegistry, syncTrainingLog, syncTrainingSample } from './supabaseService.js';
+import { createHash } from 'crypto';
 import { analyzeChartImage } from './visionService.js';
 import { generateStill, getBundle, clearBundleCache } from './renderService.js';
 import { auditRenderFidelity } from './auditorService.js';
@@ -49,8 +50,14 @@ type PipelineJob = {
   error?: string;
   videoUrl?: string;
   log?: string;
-  analysis?: ChartAnalysis; // Store for review
+  analysis?: ChartAnalysis;
   options?: any;
+  stillUrl?: string;
+  // campos internos de training (não persistidos no JSON do job)
+  _rawExtraction?: ChartAnalysis;
+  _imageHash?: string;
+  _auditScore?: number;
+  _auditPassed?: boolean;
 };
 
 async function saveJob(job: PipelineJob) {
@@ -206,13 +213,19 @@ async function processJob(
           // Modo Rápido/Safe: Apenas análise inicial sem auditoria de fidelidade
           console.log("⏭️  [Orchestrator] Auditoria desabilitada pelo usuário. Pulando para análise direta...");
           analysis = await analyzeChartImage(
-            filePath, 
-            chartTheme, 
-            undefined, 
+            filePath,
+            chartTheme,
+            undefined,
             { includeCallouts: options.includeCallouts },
             (msg) => appendJobLog(job, msg)
           );
         }
+        // ── Captura training: raw extraction + hash da imagem ──
+        job._rawExtraction = JSON.parse(JSON.stringify(analysis));
+        try {
+          const imgBuf = fs.readFileSync(filePath);
+          job._imageHash = createHash('sha256').update(imgBuf).digest('hex');
+        } catch {}
       } catch (err: any) {
         throw new Error(`Falha ao analisar imagem como gráfico: ${err.message}`);
       }
@@ -482,6 +495,21 @@ async function finishJobRendering(jobId: string, analysis: ChartAnalysis, chartT
         job.videoUrl = videoUrl;
         await saveJob(job);
 
+        // ── Training dataset: grava par (imagem → props) no Supabase ──
+        if (job._rawExtraction && job._imageHash) {
+          syncTrainingSample({
+            id:               jobId,
+            componentId:      analysis.componentId,
+            imageHash:        job._imageHash,
+            imageFilename:    originalName,
+            rawExtraction:    job._rawExtraction,
+            finalProps:       inputProps,
+            auditScore:       job._auditScore,
+            auditPassed:      job._auditPassed,
+            renderSucceeded:  true,
+          });
+        }
+
     } catch (err: any) {
         console.error("Error Rendering:", err);
         job.status = 'error';
@@ -694,6 +722,10 @@ async function runSurgeryGradePipeline(
       
       const audit = await auditRenderFidelity(filePath, stillPath);
       lastAudit = audit;
+
+      // Guarda resultado da auditoria para training dataset
+      job._auditScore  = audit.score;
+      job._auditPassed = audit.isApproved;
 
       if (audit.isApproved && audit.score >= 95) {
         console.log("✅ [Orchestrator] Fidelidade Aprovada (Score:", audit.score, ")!");

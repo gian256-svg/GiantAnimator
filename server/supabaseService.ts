@@ -225,6 +225,44 @@ export async function syncTrainingLog(content: string, customId: string = 'globa
 }
 
 /**
+ * Grava um par (imagem → props) para dataset de fine-tuning futuro.
+ * Chamado uma vez quando o render conclui com sucesso.
+ */
+export function syncTrainingSample(sample: {
+  id: string;
+  componentId: string;
+  imageHash: string;
+  imageFilename: string;
+  rawExtraction: object;       // análise antes de insights/callouts
+  finalProps: object;          // props como enviadas ao Remotion
+  auditScore?: number;         // score do auditor visual (0–100)
+  auditPassed?: boolean;
+  renderSucceeded: boolean;
+}) {
+  const db = getClient();
+  if (!db) return;
+
+  const row = {
+    id:               sample.id,
+    component_id:     sample.componentId,
+    image_hash:       sample.imageHash,
+    image_filename:   sample.imageFilename,
+    raw_extraction:   sample.rawExtraction,
+    final_props:      sample.finalProps,
+    audit_score:      sample.auditScore ?? null,
+    audit_passed:     sample.auditPassed ?? null,
+    render_succeeded: sample.renderSucceeded,
+    user_approved:    null,           // preenchido futuramente via feedback
+    created_at:       new Date().toISOString(),
+  };
+
+  fire(
+    db.from('training_samples').upsert(row, { onConflict: 'id' }),
+    `syncTrainingSample(${sample.id})`
+  );
+}
+
+/**
  * Registra um novo aprendizado específico.
  */
 export function logLearning(title: string, content: string, tags: string[] = []) {
