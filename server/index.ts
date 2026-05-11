@@ -8,7 +8,7 @@ import cors from 'cors';
 import { bundle } from '@remotion/bundler';
 import { renderMedia, renderStill, selectComposition } from '@remotion/renderer';
 import { getHistory, addJob, clearHistory } from './historyService.js';
-import { syncPipelineJob, seedComponentRegistry, syncTrainingLog, syncTrainingSample } from './supabaseService.js';
+import { syncPipelineJob, seedComponentRegistry, syncTrainingLog, syncTrainingSample, logLearning } from './supabaseService.js';
 import { createHash } from 'crypto';
 import { analyzeChartImage } from './visionService.js';
 import { generateStill, getBundle, clearBundleCache } from './renderService.js';
@@ -22,6 +22,12 @@ import { type ChartAnalysis } from './types.js';
 import { generateVoiceover } from './voiceoverService.js';
 import { hyperframesService } from './hyperframesService.js';
 import { validateChartData } from './dataValidator.js';
+import {
+  login, logout, validateSession, changePassword, createUser,
+  getPreferences, savePreferences,
+  getUserStats, getAllUsers, adminCreateUser, adminDeleteUser, adminResetPassword,
+  type AuthUser,
+} from './authService.js';
 
 const app = express();
 const portStr = process.env.PORT || '8080';
@@ -40,6 +46,21 @@ const REMOTION_ENTRY = path.join(PATHS.remotion, 'src/index.ts');
 
 if (!fs.existsSync(JOBS_DIR)) fs.mkdirSync(JOBS_DIR, { recursive: true });
 if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+
+// ─── TRAINING BATCH STATE ────────────────────────────────────
+interface TrainingSession {
+  id: string;
+  status: 'running' | 'done' | 'halted';
+  total: number;
+  processed: number;
+  approved: number;
+  failed: number;
+  scores: number[];
+  haltReason?: string;
+  log: string[];
+}
+let _trainingSession: TrainingSession | null = null;
+let _trainingAbort = false;
 
 // ─── ESTADO PERSISTENTE ───────────────────────────────────────
 type PipelineJob = {
@@ -296,6 +317,36 @@ async function processJob(
       return;
     }
 
+    // Modo treinamento profundo: extração + auditoria + save Supabase, sem render de vídeo
+    if (options.trainingDeep) {
+      const score = job._auditScore ?? 0;
+      const approved = score >= 90;
+      const finalProps = dataTransformationService.prepareFor4K({
+        ...analysis.props,
+        theme: chartTheme,
+      });
+      if (job._rawExtraction && job._imageHash) {
+        syncTrainingSample({
+          id:              jobId,
+          componentId:     analysis.componentId,
+          imageHash:       job._imageHash,
+          imageFilename:   originalName,
+          rawExtraction:   job._rawExtraction,
+          finalProps,
+          auditScore:      score,
+          auditPassed:     job._auditPassed,
+          renderSucceeded: false,
+          userApproved:    approved,
+        });
+      }
+      job.status = 'done';
+      job.stage = `Training: ${approved ? '✅' : '❌'} Score ${score}/100`;
+      job.progress = 100;
+      addJob({ filename: originalName, outputFile: '', status: 'done', props: { analysis } });
+      await saveJob(job);
+      return;
+    }
+
     // Prossiga para o render completo
     await finishJobRendering(jobId, analysis, chartTheme, originalName, options.customPalette);
 
@@ -524,6 +575,118 @@ app.use(express.static(path.join(PATHS.server, 'public')));
 app.use('/output', express.static(OUTPUT_DIR));
 app.use('/cache', express.static(PATHS.cache));
 
+// ── Auth middleware ───────────────────────────────────────────────
+async function requireAuth(req: Request, res: Response, next: Function) {
+  const token = (req.headers.authorization ?? '').replace('Bearer ', '').trim();
+  const user = await validateSession(token);
+  if (!user) return res.status(401).json({ error: 'Não autenticado' });
+  (req as any).user = user;
+  next();
+}
+
+async function requireAdmin(req: Request, res: Response, next: Function) {
+  const token = (req.headers.authorization ?? '').replace('Bearer ', '').trim();
+  const user = await validateSession(token);
+  if (!user) return res.status(401).json({ error: 'Não autenticado' });
+  if (user.role !== 'admin') return res.status(403).json({ error: 'Acesso restrito' });
+  (req as any).user = user;
+  next();
+}
+
+// ── Bootstrap: define senha do admin na primeira vez ────────────
+// Só funciona enquanto password_hash = 'CHANGE_VIA_APP'
+app.post('/auth/bootstrap', async (req: Request, res: Response) => {
+  const { password } = req.body ?? {};
+  if (!password || password.length < 6) return res.status(400).json({ error: 'Mínimo 6 caracteres' });
+  const { bootstrapAdmin } = await import('./authService.js');
+  await bootstrapAdmin(password);
+  res.json({ ok: true, message: 'Senha do admin definida. Faça login.' });
+});
+
+// ── Auth routes ──────────────────────────────────────────────────
+app.post('/auth/register', async (req: Request, res: Response) => {
+  const { name, email, password } = req.body ?? {};
+  if (!name || !email || !password) return res.status(400).json({ error: 'Campos obrigatórios' });
+  if (password.length < 6) return res.status(400).json({ error: 'Senha mínima: 6 caracteres' });
+  const result = await createUser(email, name, password, 'user');
+  if (result.error) return res.status(400).json({ error: result.error });
+  res.json({ ok: true });
+});
+
+app.post('/auth/login', async (req: Request, res: Response) => {
+  const { email, password } = req.body ?? {};
+  if (!email || !password) return res.status(400).json({ error: 'E-mail e senha obrigatórios' });
+  const result = await login(email, password);
+  if (result.error) return res.status(401).json({ error: result.error });
+  res.json({ user: result.user, token: result.token });
+});
+
+app.post('/auth/logout', async (req: Request, res: Response) => {
+  const token = (req.headers.authorization ?? '').replace('Bearer ', '').trim();
+  if (token) await logout(token);
+  res.json({ ok: true });
+});
+
+app.get('/auth/me', requireAuth as any, (req: Request, res: Response) => {
+  res.json({ user: (req as any).user });
+});
+
+app.post('/auth/change-password', requireAuth as any, async (req: Request, res: Response) => {
+  const { currentPassword, newPassword } = req.body ?? {};
+  if (!currentPassword || !newPassword) return res.status(400).json({ error: 'Campos obrigatórios' });
+  if (newPassword.length < 6) return res.status(400).json({ error: 'Senha deve ter ao menos 6 caracteres' });
+  const user = (req as any).user as AuthUser;
+  const result = await changePassword(user.id, currentPassword, newPassword);
+  if (result.error) return res.status(400).json({ error: result.error });
+  res.json({ ok: true });
+});
+
+// ── Preferences routes ───────────────────────────────────────────
+app.get('/prefs', requireAuth as any, async (req: Request, res: Response) => {
+  const user = (req as any).user as AuthUser;
+  const prefs = await getPreferences(user.id);
+  res.json(prefs);
+});
+
+app.put('/prefs', requireAuth as any, async (req: Request, res: Response) => {
+  const user = (req as any).user as AuthUser;
+  await savePreferences(user.id, req.body);
+  res.json({ ok: true });
+});
+
+// ── Admin routes ─────────────────────────────────────────────────
+app.get('/admin/users', requireAdmin as any, async (_req: Request, res: Response) => {
+  const users = await getAllUsers();
+  res.json(users);
+});
+
+app.get('/admin/stats', requireAdmin as any, async (_req: Request, res: Response) => {
+  const stats = await getUserStats();
+  res.json(stats);
+});
+
+app.post('/admin/users', requireAdmin as any, async (req: Request, res: Response) => {
+  const { email, name, password } = req.body ?? {};
+  if (!email || !name || !password) return res.status(400).json({ error: 'Campos obrigatórios' });
+  const result = await adminCreateUser(email, name, password);
+  if (result.error) return res.status(400).json({ error: result.error });
+  res.json({ user: result.user });
+});
+
+app.delete('/admin/users/:userId', requireAdmin as any, async (req: Request, res: Response) => {
+  const result = await adminDeleteUser(String(req.params.userId));
+  if (result.error) return res.status(400).json({ error: result.error });
+  res.json({ ok: true });
+});
+
+app.post('/admin/users/:userId/reset-password', requireAdmin as any, async (req: Request, res: Response) => {
+  const { newPassword } = req.body ?? {};
+  if (!newPassword) return res.status(400).json({ error: 'Nova senha obrigatória' });
+  const result = await adminResetPassword(String(req.params.userId), newPassword);
+  if (result.error) return res.status(400).json({ error: result.error });
+  res.json({ ok: true });
+});
+
 app.post('/reload-bundle', (_req: Request, res: Response) => {
   clearBundleCache();
   getBundle().then(() => res.json({ ok: true, message: 'Bundle reconstruído.' })).catch(err => res.status(500).json({ error: err.message }));
@@ -552,6 +715,23 @@ app.post('/upload', upload.single('file'), async (req: Request, res: Response) =
       trainingOnly: req.body.trainingOnly === 'true',
       exportAlpha: req.body.exportAlpha === 'true'
     };
+
+    // Optionally tag job with userId (non-blocking)
+    const uploadToken = (req.headers.authorization ?? '').replace('Bearer ', '').trim();
+    if (uploadToken) {
+      validateSession(uploadToken).then(user => {
+        if (user) {
+          const supaUrl = process.env.SUPABASE_URL;
+          const supaKey = process.env.SUPABASE_SERVICE_KEY;
+          if (supaUrl && supaKey) {
+            import('@supabase/supabase-js').then(({ createClient }) => {
+              const db = createClient(supaUrl, supaKey, { auth: { persistSession: false } });
+              db.from('jobs').update({ user_id: user.id }).eq('id', jobId);
+            }).catch(() => {});
+          }
+        }
+      }).catch(() => {});
+    }
 
     processJob(jobId, req.file.buffer, req.file.originalname, options.chartTheme, options);
     res.json({ jobId });
@@ -777,6 +957,156 @@ async function runSurgeryGradePipeline(
   
   return analysis;
 }
+
+// ─── TRAINING BATCH RUNNER ───────────────────────────────────
+
+const TRAINING_FIDELITY_GATE  = 90;
+const TRAINING_HALT_CONSEC    = 3;
+const TRAINING_HALT_ROLL_MIN  = 75;
+const TRAINING_ROLL_WINDOW    = 5;
+const TRAINING_IMG_DIR        = path.join(PATHS.root, 'training', 'images');
+
+async function runTrainingBatch(): Promise<void> {
+  if (!fs.existsSync(TRAINING_IMG_DIR)) fs.mkdirSync(TRAINING_IMG_DIR, { recursive: true });
+
+  const images = fs.readdirSync(TRAINING_IMG_DIR)
+    .filter(f => /\.(jpg|jpeg|png|webp)$/i.test(f))
+    .sort();
+
+  if (images.length === 0) {
+    _trainingSession!.status = 'halted';
+    _trainingSession!.haltReason = 'No images in training/images/';
+    return;
+  }
+
+  _trainingSession!.total = images.length;
+  _trainingSession!.log.push(`📂 ${images.length} imagens encontradas`);
+
+  let consecutiveFailures = 0;
+
+  for (let i = 0; i < images.length; i++) {
+    const session = _trainingSession!;
+
+    if (_trainingAbort) {
+      session.status = 'halted';
+      session.haltReason = 'Parada manual';
+      session.log.push('🛑 Parado pelo usuário');
+      break;
+    }
+
+    if (session.scores.length >= TRAINING_ROLL_WINDOW) {
+      const recent = session.scores.slice(-TRAINING_ROLL_WINDOW);
+      const avg = recent.reduce((a, b) => a + b, 0) / TRAINING_ROLL_WINDOW;
+      if (avg < TRAINING_HALT_ROLL_MIN) {
+        session.status = 'halted';
+        session.haltReason = `Média móvel ${avg.toFixed(1)}% < ${TRAINING_HALT_ROLL_MIN}% — fora dos trilhos`;
+        session.log.push(`🛑 HALT: ${session.haltReason}`);
+        logLearning('TRAINING_HALT_ROLLING_AVG', `Sessão ${session.id}: ${session.haltReason}`);
+        break;
+      }
+    }
+
+    if (consecutiveFailures >= TRAINING_HALT_CONSEC) {
+      session.status = 'halted';
+      session.haltReason = `${TRAINING_HALT_CONSEC} falhas consecutivas`;
+      session.log.push(`🛑 HALT: ${session.haltReason}`);
+      logLearning('TRAINING_HALT_CONSECUTIVE', `Sessão ${session.id}: ${session.haltReason}`);
+      break;
+    }
+
+    const imageFile = images[i];
+    const imagePath = path.join(TRAINING_IMG_DIR, imageFile);
+    const jobId     = uuidv4();
+    session.log.push(`[${i + 1}/${images.length}] ${imageFile}`);
+
+    try {
+      const initJob: PipelineJob = { id: jobId, status: 'pending', progress: 0, stage: 'Training queue...' };
+      await saveJob(initJob);
+
+      const buffer = fs.readFileSync(imagePath);
+      await processJob(jobId, buffer, imageFile, 'dark', {
+        enableAuditor:    true,
+        trainingDeep:     true,
+        includeCallouts:  false,
+      });
+
+      const completed = loadJob(jobId);
+      const score     = completed?._auditScore ?? 0;
+      session.scores.push(score);
+      session.processed++;
+
+      if (completed?.status === 'done' && score >= TRAINING_FIDELITY_GATE) {
+        session.approved++;
+        consecutiveFailures = 0;
+        session.log.push(`  ✅ ${score}/100 — aprovado`);
+      } else {
+        session.failed++;
+        consecutiveFailures++;
+        const reason = completed?.status === 'error'
+          ? (completed.error ?? 'erro desconhecido').slice(0, 100)
+          : `score ${score}/100 abaixo do gate`;
+        session.log.push(`  ❌ ${reason}`);
+      }
+    } catch (err: any) {
+      session.processed++;
+      session.failed++;
+      consecutiveFailures++;
+      session.scores.push(0);
+      session.log.push(`  ❌ Exceção: ${err.message.slice(0, 100)}`);
+    }
+
+    if (i < images.length - 1 && !_trainingAbort) {
+      await new Promise(r => setTimeout(r, 2500));
+    }
+  }
+
+  if (_trainingSession?.status === 'running') _trainingSession.status = 'done';
+
+  const s = _trainingSession!;
+  const avgScore = s.scores.length > 0
+    ? (s.scores.reduce((a, b) => a + b, 0) / s.scores.length).toFixed(1)
+    : '0';
+  s.log.push(`📊 Fim. Aprovados: ${s.approved}/${s.total} | Média: ${avgScore}%`);
+  syncTrainingLog(s.log.join('\n'), `training_run_${s.id}`);
+}
+
+app.post('/training/start', async (_req: Request, res: Response) => {
+  if (_trainingSession?.status === 'running') {
+    return res.status(409).json({ error: 'Batch já em execução', session: _trainingSession });
+  }
+  _trainingAbort = false;
+  _trainingSession = {
+    id:        uuidv4(),
+    status:    'running',
+    total:     0,
+    processed: 0,
+    approved:  0,
+    failed:    0,
+    scores:    [],
+    log:       [`🚀 Batch iniciado em ${new Date().toISOString()}`],
+  };
+  runTrainingBatch().catch(err => {
+    if (_trainingSession) {
+      _trainingSession.status = 'halted';
+      _trainingSession.haltReason = err.message;
+    }
+  });
+  res.json({ ok: true, session: _trainingSession });
+});
+
+app.get('/training/status', (_req: Request, res: Response) => {
+  if (!_trainingSession) return res.json({ status: 'idle' });
+  const s = _trainingSession;
+  const avgScore = s.scores.length > 0
+    ? (s.scores.reduce((a, b) => a + b, 0) / s.scores.length).toFixed(1)
+    : null;
+  res.json({ ...s, avgScore });
+});
+
+app.post('/training/stop', (_req: Request, res: Response) => {
+  _trainingAbort = true;
+  res.json({ ok: true, message: 'Sinal de parada enviado' });
+});
 
 // Inicialização do Agente e Servidor
 app.listen(port, '0.0.0.0', () => {

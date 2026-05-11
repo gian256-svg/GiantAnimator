@@ -1214,7 +1214,8 @@ document.addEventListener('DOMContentLoaded', () => {
           fd.append('reviewRequired', true);
 
           log(`Pedro: Enviando ${f.name}...`);
-          const res = await fetch('/upload', { method: 'POST', body: fd });
+          const uploadFn = typeof authFetch !== 'undefined' ? authFetch : fetch;
+          const res = await uploadFn('/upload', { method: 'POST', body: fd });
           if (!res.ok) throw new Error(`Erro no upload: ${res.status}`);
           
           const data = await res.json();
