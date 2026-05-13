@@ -17,6 +17,7 @@
 - `remotion-project/src/theme.ts` — `resolveTheme()`, color palette
 - `remotion-project/src/layout/DynamicBackground.tsx` — returns `null` when `backgroundType === 'transparent'`
 - `.agent/knowledge/active-vision-rules.md` — AI extraction rules (do not break)
+- `.agent/knowledge/error-log.md` — critical bugs log (update when fixing significant bugs)
 
 ## Alpha export
 - `codec: 'prores'`, `proResProfile: '4444'` (capital R — typo `proresProfile` silently fails)
