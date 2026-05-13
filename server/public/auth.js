@@ -536,25 +536,6 @@ window.adminResetPw = async function(userId, name) {
   else { const d = await resp.json(); toast(d.error || 'Erro', 'error'); }
 };
 
-async function adminAddUser() {
-  const name = document.getElementById('new-user-name').value.trim();
-  const email = document.getElementById('new-user-email').value.trim();
-  const password = document.getElementById('new-user-password').value;
-  const errEl = document.getElementById('admin-add-error');
-  errEl.style.display = 'none';
-
-  if (!name || !email || !password) { errEl.textContent = 'Preencha todos os campos.'; errEl.style.display = 'block'; return; }
-
-  const resp = await authFetch('/admin/users', { method: 'POST', body: { name, email, password } });
-  const data = await resp.json();
-  if (!resp.ok) { errEl.textContent = data.error || 'Erro'; errEl.style.display = 'block'; return; }
-
-  document.getElementById('new-user-name').value = '';
-  document.getElementById('new-user-email').value = '';
-  document.getElementById('new-user-password').value = '';
-  toast(`Usuário ${name} criado.`, 'success');
-  await loadAdminData();
-}
 
 // ── First-run bootstrap mode ──────────────────────────────────────
 async function checkBootstrapMode() {
@@ -598,7 +579,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Admin modal
   document.getElementById('btn-close-admin')?.addEventListener('click', () => document.getElementById('admin-overlay').style.display = 'none');
-  document.getElementById('btn-admin-add-user')?.addEventListener('click', adminAddUser);
+  document.getElementById('btn-admin-refresh')?.addEventListener('click', loadAdminData);
 
   // Close modals on backdrop click
   ['profile-overlay', 'admin-overlay'].forEach(id => {

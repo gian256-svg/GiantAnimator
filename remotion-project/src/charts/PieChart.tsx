@@ -91,7 +91,10 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
   // ── Pré-computação de geometria (ângulos finais, não animados) ──
   const OUTSIDE_R   = radius * 1.38;
   const LEADER_R    = radius * 1.05;
-  const MIN_GAP     = fs(30);  // espaço mínimo vertical entre labels externas
+  // MIN_GAP precisa cobrir duas linhas de texto (label + valor) + espaçamento
+  const MIN_GAP     = fs(50);
+  // Fatias menores que este % não recebem label externa quando há legenda visível
+  const MIN_LABEL_PCT = legendPosition !== 'none' ? 4.5 : 2.5;
 
   let angleAcc = -Math.PI / 2;
   const geo = slices.map((slice, i) => {
@@ -104,14 +107,17 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
                  : labelPosition === 'outside' ? false
                  : slice.pct >= 8;
 
+    // Oculta label se fatia pequena demais e a legenda já cobre
+    const showLabel = inside || slice.pct >= MIN_LABEL_PCT;
+
     const lDist = inside ? radius * 0.65 : OUTSIDE_R;
     const color = slice.color || sliceColors[i % sliceColors.length];
 
     return {
-      i, sa, ea, mid, inside, color,
+      i, sa, ea, mid, inside, showLabel, color,
       lx: centerX + lDist * Math.cos(mid),
       ly: centerY + lDist * Math.sin(mid),
-      ex: centerX + LEADER_R * Math.cos(mid),  // ponta da linha no bordo da fatia
+      ex: centerX + LEADER_R * Math.cos(mid),
       ey: centerY + LEADER_R * Math.sin(mid),
       side: Math.cos(mid) >= 0 ? 'right' : 'left',
     };
@@ -125,16 +131,18 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
     ? height - fs(80) - fs(32)
     : height - fs(20);
 
-  const LABEL_HALF_H = fs(28); // metade da altura de um bloco label+valor
+  const LABEL_HALF_H = fs(28);
   const Y_MIN = titleBottom  + LABEL_HALF_H;
   const Y_MAX = legendTop    - LABEL_HALF_H;
 
-  // ── Resolução de colisões Y para labels externas ──────────────
+  // ── Resolução de colisões Y — roda sobre TODOS os externos juntos ──
+  // (não separar por lado: fatias perto das 12h estão em lados opostos
+  //  mas podem ter labels fisicamente sobrepostas)
   const adjY = geo.map(s => s.ly);
 
   function pushApart(idxs: number[]) {
     const sorted = [...idxs].sort((a, b) => adjY[a] - adjY[b]);
-    for (let iter = 0; iter < 60; iter++) {
+    for (let iter = 0; iter < 80; iter++) {
       let moved = false;
       for (let k = 0; k < sorted.length - 1; k++) {
         const gap = adjY[sorted[k + 1]] - adjY[sorted[k]];
@@ -147,17 +155,15 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
       }
       if (!moved) break;
     }
-    // Clamp dentro dos limites seguros — empurra para dentro se ultrapassar
     for (const idx of sorted) {
       if (adjY[idx] < Y_MIN) adjY[idx] = Y_MIN;
       if (adjY[idx] > Y_MAX) adjY[idx] = Y_MAX;
     }
   }
 
-  const outsideLeft  = geo.filter(s => !s.inside && s.side === 'left').map(s => s.i);
-  const outsideRight = geo.filter(s => !s.inside && s.side === 'right').map(s => s.i);
-  pushApart(outsideLeft);
-  pushApart(outsideRight);
+  // Todos os externos visíveis juntos (esquerda E direita num único passe)
+  const allOutside = geo.filter(s => !s.inside && s.showLabel).map(s => s.i);
+  pushApart(allOutside);
 
   return (
     <AbsoluteFill style={{
@@ -223,7 +229,7 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
                 strokeWidth={fs(3)}
               />
 
-              {showValueLabels && progress > 0.85 && (
+              {showValueLabels && progress > 0.85 && s.showLabel && (
                 <g opacity={labelOpacity}>
                   {/* Linha de ligação para labels externas */}
                   {!s.inside && (

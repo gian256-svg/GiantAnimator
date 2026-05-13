@@ -1,13 +1,30 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { COMPONENT_REGISTRY } from './componentRegistry.js';
 
+// ── WebSocket polyfill (Electron / Node 20 sem WS nativo) ───
+async function ensureWebSocket() {
+  if (typeof (globalThis as any).WebSocket === 'undefined') {
+    try {
+      const ws = await import('ws');
+      (globalThis as any).WebSocket = (ws as any).default ?? ws;
+    } catch (_) {}
+  }
+}
+
 // ── Cliente singleton ────────────────────────────────────────
 let _client: SupabaseClient | null = null;
 let _initFailed = false;
 
 function getClient(): SupabaseClient | null {
-  if (_client) return _client;
-  if (_initFailed) return null;
+  return _client;
+}
+
+/**
+ * Inicializa o cliente Supabase com polyfill de WebSocket.
+ * Deve ser chamado uma vez no startup do servidor (await initSupabase()).
+ */
+export async function initSupabase(): Promise<void> {
+  if (_client || _initFailed) return;
 
   const url = process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_KEY;
@@ -15,19 +32,16 @@ function getClient(): SupabaseClient | null {
   if (!url || !key) {
     _initFailed = true;
     console.warn('⚠️  [SUPABASE] Credenciais ausentes. Sincronização desativada.');
-    return null;
+    return;
   }
 
   try {
-    _client = createClient(url, key, {
-      auth: { persistSession: false },
-    });
+    await ensureWebSocket();
+    _client = createClient(url, key, { auth: { persistSession: false } });
     console.log('📡 [SUPABASE] Cliente inicializado.');
-    return _client;
   } catch (err: any) {
     _initFailed = true;
     console.warn('⚠️  [SUPABASE] Sync desativado:', err.message.split('\n')[0]);
-    return null;
   }
 }
 
@@ -238,6 +252,7 @@ export function syncTrainingSample(sample: {
   auditScore?: number;         // score do auditor visual (0–100)
   auditPassed?: boolean;
   renderSucceeded: boolean;
+  userApproved?: boolean | null; // definido pelo training runner automático
 }) {
   const db = getClient();
   if (!db) return;
@@ -252,7 +267,7 @@ export function syncTrainingSample(sample: {
     audit_score:      sample.auditScore ?? null,
     audit_passed:     sample.auditPassed ?? null,
     render_succeeded: sample.renderSucceeded,
-    user_approved:    null,           // preenchido futuramente via feedback
+    user_approved:    sample.userApproved !== undefined ? sample.userApproved : null,
     created_at:       new Date().toISOString(),
   };
 
@@ -265,6 +280,15 @@ export function syncTrainingSample(sample: {
 /**
  * Registra um novo aprendizado específico.
  */
+export function tagJobUser(jobId: string, userId: string): void {
+  const db = getClient();
+  if (!db) return;
+  fire(
+    db.from('jobs').update({ user_id: userId }).eq('id', jobId),
+    `tagJobUser(${jobId})`
+  );
+}
+
 export function logLearning(title: string, content: string, tags: string[] = []) {
   const db = getClient();
   if (!db) return;

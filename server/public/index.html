@@ -513,18 +513,14 @@
       </div>
 
       <!-- User table -->
-      <div class="admin-section-title">Usuários</div>
-      <div id="admin-users-table" class="admin-users-table"></div>
-
-      <!-- Add user form -->
-      <div class="admin-section-title" style="margin-top:20px;">Adicionar Usuário</div>
-      <div class="admin-add-user-form">
-        <input type="text" id="new-user-name" placeholder="Nome" class="admin-input" />
-        <input type="email" id="new-user-email" placeholder="E-mail" class="admin-input" />
-        <input type="password" id="new-user-password" placeholder="Senha inicial" class="admin-input" />
-        <button class="btn btn-primary" id="btn-admin-add-user" style="white-space:nowrap;">Adicionar</button>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div class="admin-section-title">Usuários</div>
+        <button class="btn btn-ghost" id="btn-admin-refresh" style="font-size:12px;padding:5px 12px;gap:6px;display:flex;align-items:center;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          Atualizar
+        </button>
       </div>
-      <div id="admin-add-error" class="login-error" style="display:none;margin-top:8px;"></div>
+      <div id="admin-users-table" class="admin-users-table"></div>
     </div>
   </div>
 </div>

@@ -18,6 +18,8 @@ Nunca viole estas regras.
 11. **Escala do Eixo Y (yMin / yMax) — CRÍTICO**: Inspecione o eixo Y da imagem original e extraia o valor mínimo e máximo EXATAMENTE como exibido. Retorne `"yMin": <valor>` e `"yMax": <valor>` nas props. NUNCA assuma que o eixo começa em zero — se o eixo começa em 255, retorne `"yMin": 255`. Um eixo começando em 0 quando a imagem mostra 255 é uma FALHA CRÍTICA que torna os dados visualmente irreconhecíveis. Na dúvida, siga a referência.
 12. **Legenda vs. Direct Labels**: Se a imagem original exibe rótulos de série no final das linhas (direct labeling) em vez de uma legenda separada, retorne `"showLegend": false`. Se possuir legenda centralizada/inferior, retorne `"showLegend": true`. Nunca ative ambos simultaneamente.
 
+13a. **PieChart — Anti-Overlap de Labels (OBRIGATÓRIO)**: Quando o gráfico de pizza tiver **5 ou mais fatias**, ou **qualquer fatia com menos de 5% do total**, SEMPRE use `"legendPosition": "right"` e `"showValueLabels": false` nas props. As labels diretas sobre fatias pequenas geram sobreposição inevitável de texto. A legenda lateral é suficiente e resolve o problema. Violação desta regra gera sobreposição e é uma falha visual crítica.
+
 13. **Barras Empilhadas (Stacked) vs. Agrupadas (Grouped) — CRÍTICO**:
     - EMPILHADO: cada categoria = uma única barra particionada em segmentos coloridos contíguos → `"stacked": true`.
     - AGRUPADO: cada categoria = múltiplas barras paralelas separadas → `"stacked": false`.

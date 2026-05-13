@@ -8,7 +8,7 @@ import cors from 'cors';
 import { bundle } from '@remotion/bundler';
 import { renderMedia, renderStill, selectComposition } from '@remotion/renderer';
 import { getHistory, addJob, clearHistory } from './historyService.js';
-import { syncPipelineJob, seedComponentRegistry, syncTrainingLog, syncTrainingSample, logLearning } from './supabaseService.js';
+import { syncPipelineJob, seedComponentRegistry, syncTrainingLog, syncTrainingSample, logLearning, initSupabase, tagJobUser } from './supabaseService.js';
 import { createHash } from 'crypto';
 import { analyzeChartImage } from './visionService.js';
 import { generateStill, getBundle, clearBundleCache } from './renderService.js';
@@ -716,20 +716,11 @@ app.post('/upload', upload.single('file'), async (req: Request, res: Response) =
       exportAlpha: req.body.exportAlpha === 'true'
     };
 
-    // Optionally tag job with userId (non-blocking)
+    // Tag job with userId using the supabaseService singleton (already initialized)
     const uploadToken = (req.headers.authorization ?? '').replace('Bearer ', '').trim();
     if (uploadToken) {
       validateSession(uploadToken).then(user => {
-        if (user) {
-          const supaUrl = process.env.SUPABASE_URL;
-          const supaKey = process.env.SUPABASE_SERVICE_KEY;
-          if (supaUrl && supaKey) {
-            import('@supabase/supabase-js').then(({ createClient }) => {
-              const db = createClient(supaUrl, supaKey, { auth: { persistSession: false } });
-              db.from('jobs').update({ user_id: user.id }).eq('id', jobId);
-            }).catch(() => {});
-          }
-        }
+        if (user) tagJobUser(jobId, user.id);
       }).catch(() => {});
     }
 
@@ -1118,6 +1109,9 @@ app.listen(port, '0.0.0.0', () => {
 
     // Inicialização assíncrona pós-listen (não bloqueia o healthcheck)
     (async () => {
+        // Supabase primeiro — polyfill de WebSocket antes de qualquer sync
+        await initSupabase();
+
         try {
             await agent.initialize();
         } catch (err) {
