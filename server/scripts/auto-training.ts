@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { Buffer } from 'buffer';
 
-const SERVER_URL = 'http://localhost:3000';
+const SERVER_URL = `http://localhost:${process.env.PORT || 8080}`;
 const INPUT_DIR = path.join(process.cwd(), 'input', 'training_auto');
 
 if (!fs.existsSync(INPUT_DIR)) fs.mkdirSync(INPUT_DIR, { recursive: true });
@@ -18,12 +18,20 @@ const generateConfig = (type: string, id: number) => {
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'];
   const categories = ['Tech', 'Health', 'Finance', 'Energy', 'Retail'];
   
+  // Count determines label/data size — always consistent
+  const n = r(3, 5);
+  const labels4 = ['US', 'UK', 'BR', 'CA'].slice(0, n);
+  const cats    = categories.slice(0, n);
+  const data4   = Array.from({ length: n }, () => r(10, 90));
+  const data500 = Array.from({ length: n }, () => r(100, 500));
+  const data40  = Array.from({ length: n }, () => r(10, 40));
+
   if (type === 'BarChart') {
     return {
       type: 'bar',
       data: {
-        labels: categories.slice(0, r(3, 5)),
-        datasets: [{ label: `Revenue ${id}`, data: [r(100, 500), r(100, 500), r(100, 500), r(100, 500), r(100, 500)].slice(0, 5) }]
+        labels: cats,
+        datasets: [{ label: `Revenue ${id}`, data: data500 }]
       },
       options: { title: { display: true, text: `Annual Revenue Analysis ${id}` } }
     };
@@ -31,28 +39,30 @@ const generateConfig = (type: string, id: number) => {
     return {
       type: 'horizontalBar',
       data: {
-        labels: ['US', 'UK', 'BR', 'CA', 'JP'].slice(0, r(4, 5)),
-        datasets: [{ label: `Users ${id}`, data: [r(10, 90), r(10, 90), r(10, 90), r(10, 90), r(10, 90)].slice(0, 5) }]
+        labels: labels4,
+        datasets: [{ label: `Users ${id}`, data: data4 }]
       },
       options: { title: { display: true, text: `Global Users ${id}` } }
     };
   } else if (type === 'LineChart') {
+    const lMonths = months.slice(0, n);
     return {
       type: 'line',
       data: {
-        labels: months,
-        datasets: [{ label: `Growth ${id}`, data: [r(10, 50), r(20, 60), r(30, 70), r(40, 80), r(50, 90), r(60, 100), r(70, 110)] }]
+        labels: lMonths,
+        datasets: [{ label: `Growth ${id}`, data: lMonths.map((_, k) => r(10 + k * 8, 50 + k * 10)) }]
       },
       options: { title: { display: true, text: `Monthly Growth ${id}` } }
     };
   } else if (type === 'MultiLineChart') {
+    const lMonths = months.slice(0, n);
     return {
       type: 'line',
       data: {
-        labels: months.slice(0, 5),
+        labels: lMonths,
         datasets: [
-          { label: `Product A ${id}`, data: [r(10, 50), r(20, 60), r(30, 70), r(40, 80), r(50, 90)] },
-          { label: `Product B ${id}`, data: [r(30, 50), r(40, 60), r(20, 70), r(10, 80), r(5, 90)] }
+          { label: `Product A ${id}`, data: lMonths.map(() => r(10, 80)) },
+          { label: `Product B ${id}`, data: lMonths.map(() => r(10, 80)) }
         ]
       },
       options: { title: { display: true, text: `Product Comparison ${id}` } }
@@ -61,8 +71,8 @@ const generateConfig = (type: string, id: number) => {
     return {
       type: 'pie',
       data: {
-        labels: categories.slice(0, r(3, 5)),
-        datasets: [{ data: [r(10, 40), r(10, 40), r(10, 40), r(10, 40), r(10, 40)].slice(0, 5) }]
+        labels: cats,
+        datasets: [{ data: data40 }]
       },
       options: { title: { display: true, text: `Market Share ${id}` } }
     };
@@ -70,8 +80,8 @@ const generateConfig = (type: string, id: number) => {
     return {
       type: 'doughnut',
       data: {
-        labels: categories.slice(0, r(3, 5)),
-        datasets: [{ data: [r(10, 40), r(10, 40), r(10, 40), r(10, 40), r(10, 40)].slice(0, 5) }]
+        labels: cats,
+        datasets: [{ data: data40 }]
       },
       options: { title: { display: true, text: `Distribution ${id}` } }
     };
@@ -118,9 +128,9 @@ async function runAutoTraining() {
         formData.append('file', blob, filename);
         formData.append('chartTheme', 'dark');
         formData.append('includeCallouts', 'false');
-        formData.append('enableAuditor', 'true'); // HABILITADO PARA COMPARAÇÃO DE FIDELIDADE
+        formData.append('enableAuditor', 'true');
         formData.append('reviewRequired', 'false');
-        formData.append('trainingOnly', 'true'); // MODO TREINAMENTO, não renderiza vídeo
+        formData.append('trainingDeep', 'true'); // auditoria + save Supabase, sem render de vídeo
 
         const uploadRes = await fetch(`${SERVER_URL}/upload`, {
           method: 'POST',

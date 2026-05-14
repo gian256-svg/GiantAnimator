@@ -1,49 +1,40 @@
 import 'dotenv/config';
 import fs from 'fs';
 import path from 'path';
-import { v4 as uuidv4 } from 'uuid';
 
-const SERVER_URL = 'http://localhost:3000';
+const SERVER_URL = `http://localhost:${process.env.PORT || 8080}`;
 const INPUT_DIR = path.join(process.cwd(), 'input', 'training');
 
 if (!fs.existsSync(INPUT_DIR)) fs.mkdirSync(INPUT_DIR, { recursive: true });
 
+// Nota: Our World in Data exporta gráficos como .png — a categoria aqui é o tipo ESPERADO
+// da imagem baixada. Verificadas visualmente antes de incluir.
 const TRAINING_DATA: Record<string, string[]> = {
   "LineChart": [
     "https://ourworldindata.org/grapher/exports/co-emissions-per-capita.png",
-    "https://ourworldindata.org/grapher/exports/population-growth-rates.png",
-    "https://ourworldindata.org/grapher/exports/share-electricity-renewables.png",
-    "https://ourworldindata.org/grapher/exports/world-population-growth.png",
-    "https://ourworldindata.org/grapher/exports/natural-population-growth-rate.png",
     "https://ourworldindata.org/grapher/exports/life-expectancy.png",
     "https://ourworldindata.org/grapher/exports/gdp-per-capita-maddison.png",
-    "https://ourworldindata.org/grapher/exports/daily-cases-covid-19.png",
-    "https://ourworldindata.org/grapher/exports/annual-co2-emissions-per-country.png",
-    "https://ourworldindata.org/grapher/exports/cumulative-co-emissions.png",
-    "https://ourworldindata.org/grapher/exports/annual-co-emissions-by-region.png",
-    "https://ourworldindata.org/grapher/exports/ghg-emissions-by-sector.png",
-    "https://ourworldindata.org/grapher/exports/co2-by-source.png",
     "https://ourworldindata.org/grapher/exports/installed-solar-pv-capacity.png",
     "https://ourworldindata.org/grapher/exports/wind-generation.png",
     "https://ourworldindata.org/grapher/exports/gdp-growth.png",
-    "https://ourworldindata.org/grapher/exports/poverty-gap-index.png",
+    "https://ourworldindata.org/grapher/exports/world-population-growth.png",
+    "https://ourworldindata.org/grapher/exports/share-electricity-renewables.png",
+    "https://ourworldindata.org/grapher/exports/daily-cases-covid-19.png",
     "https://ourworldindata.org/grapher/exports/literacy-rate-by-generation.png"
-  ],
-  "PieChart": [
-    "https://ourworldindata.org/grapher/exports/global-primary-energy-share-inc-biomass.png",
-    "https://ourworldindata.org/grapher/exports/share-of-the-population-that-is-obese.png",
-    "https://ourworldindata.org/grapher/exports/share-of-deaths-by-cause.png",
-    "https://ourworldindata.org/grapher/exports/share-of-calories-from-animal-protein.png",
-    "https://ourworldindata.org/grapher/exports/share-of-individuals-using-the-internet.png"
   ],
   "BarChart": [
     "https://ourworldindata.org/grapher/exports/co2-emissions-by-sector.png",
-    "https://ourworldindata.org/grapher/exports/energy-consumption-by-source-and-region.png",
     "https://ourworldindata.org/grapher/exports/food-emissions-supply-chain.png",
-    "https://ourworldindata.org/grapher/exports/meat-consumption-vs-gdp-per-capita.png",
-    "https://ourworldindata.org/grapher/exports/agriculture-value-added-per-worker-wdi.png",
     "https://ourworldindata.org/grapher/exports/research-spending-gdp.png",
-    "https://ourworldindata.org/grapher/exports/urban-and-rural-population.png"
+    "https://ourworldindata.org/grapher/exports/urban-and-rural-population.png",
+    "https://ourworldindata.org/grapher/exports/meat-consumption-vs-gdp-per-capita.png",
+    "https://ourworldindata.org/grapher/exports/agriculture-value-added-per-worker-wdi.png"
+  ],
+  "AreaChart": [
+    "https://ourworldindata.org/grapher/exports/annual-co-emissions-by-region.png",
+    "https://ourworldindata.org/grapher/exports/energy-consumption-by-source-and-region.png",
+    "https://ourworldindata.org/grapher/exports/co2-by-source.png",
+    "https://ourworldindata.org/grapher/exports/ghg-emissions-by-sector.png"
   ]
 };
 
@@ -82,9 +73,9 @@ async function runTraining() {
         formData.append('file', blob, filename);
         formData.append('chartTheme', 'dark');
         formData.append('includeCallouts', 'false');
-        formData.append('enableAuditor', 'false');
+        formData.append('enableAuditor', 'true');
         formData.append('reviewRequired', 'false');
-        formData.append('trainingOnly', 'true');
+        formData.append('trainingDeep', 'true'); // auditoria + save Supabase, sem render de vídeo
 
         const uploadRes = await fetch(`${SERVER_URL}/upload`, {
           method: 'POST',
