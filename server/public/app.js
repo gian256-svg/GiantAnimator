@@ -10,13 +10,15 @@ const state = {
   isRendering: false,
   eventSource: null,
   currentJobId: null,
+  currentFileId: null,
   uploadMode: 'vision', // 'vision' ou 'data'
   currentAnalysis: null,
   originalFilename: null,
   selectedPalette: 'original',
-  lastLogLength: 0, // rastreia quantos chars do log já foram exibidos
-  zoomPoints: [],   // pontos de zoom cinematográfico (normalizados 0–1)
-  stillUrl: null,   // URL do still do auditor — imagem fiel para seleção de pontos
+  lastLogLength: 0,
+  zoomPoints: [],
+  stillUrl: null,
+  queueMeta: {},    // { [fileId]: { jobId, stage, progress, videoUrl } }
   customPalette: {
     bg: '#0f1117',
     text: '#ffffff',
@@ -419,27 +421,135 @@ function renderFileQueue() {
   const el = document.getElementById('file-queue');
   if (!el) return;
   if (!state.files.length) { el.innerHTML = ''; return; }
-  el.innerHTML = state.files.map(f => `
-    <div class="file-item">
-      <div class="file-icon">${fileIcon(f.name)}</div>
-      <div class="file-name">${f.name}</div>
-      <div class="file-status ${f.status}">${f.status === 'pending' ? 'Aguardando' : f.status === 'processing' ? 'Processando...' : f.status === 'done' ? 'Concluído' : 'Erro'}</div>
-      ${f.status === 'pending' ? `<button class="file-remove" onclick="removeFile('${f.id}')" title="Remover">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>` : ''}
-    </div>
-  `).join('');
-  
+
+  const multi = state.files.length > 1;
+
+  if (!multi) {
+    // Single file — minimal chip
+    const f = state.files[0];
+    el.innerHTML = `
+      <div class="file-item">
+        <div class="file-icon">${fileIcon(f.name)}</div>
+        <div class="file-name">${f.name}</div>
+        <div class="file-status ${f.status}">${f.status === 'pending' ? 'Aguardando' : f.status === 'processing' ? 'Processando...' : f.status === 'done' ? 'Concluído' : 'Erro'}</div>
+        ${f.status === 'pending' ? `<button class="file-remove" onclick="removeFile('${f.id}')" title="Remover"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>` : ''}
+      </div>`;
+  } else {
+    // Multi-file — beautiful queue panel
+    const doneCount = state.files.filter(f => f.status === 'done').length;
+    const rows = state.files.map(f => {
+      const meta = state.queueMeta[f.id] || {};
+      const isActive = f.status === 'processing';
+      const pct = Math.round(meta.progress || 0);
+
+      const iconSvg = {
+        pending:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>`,
+        processing: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="q-spin"><path d="M12 3a9 9 0 1 0 9 9"/></svg>`,
+        done:       `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-5"/></svg>`,
+        error:      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+      }[f.status] || '';
+
+      const downloadBtn = (f.status === 'done' && meta.videoUrl) ? `
+        <a class="q-action q-download" href="${meta.videoUrl}" download title="Download">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </a>` : '';
+      const removeBtn = (f.status === 'pending') ? `
+        <button class="q-action q-remove" onclick="removeFile('${f.id}')" title="Remover">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>` : '';
+
+      return `
+        <div class="q-item q-item--${f.status}">
+          <div class="q-icon q-icon--${f.status}">${iconSvg}</div>
+          <div class="q-body">
+            <div class="q-name">${f.name}</div>
+            ${isActive ? `
+              <div class="q-stage">${meta.stage || 'Processando...'}</div>
+              <div class="q-bar"><div class="q-bar-fill" style="width:${pct}%"></div></div>
+            ` : `
+              <div class="q-stage q-stage--${f.status}">${
+                f.status === 'pending' ? 'Aguardando na fila' :
+                f.status === 'done'    ? 'Concluído' : 'Erro no processamento'
+              }</div>
+            `}
+          </div>
+          <div class="q-actions">${downloadBtn}${removeBtn}</div>
+        </div>`;
+    }).join('');
+
+    el.innerHTML = `
+      <div class="queue-panel">
+        <div class="queue-header">
+          <div class="queue-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            Fila de Renderização
+            <span class="queue-pill">${doneCount}/${state.files.length}</span>
+          </div>
+          <button class="queue-clear-btn" onclick="clearQueue()" title="Limpar concluídos">Limpar</button>
+        </div>
+        <div class="queue-list">${rows}</div>
+      </div>`;
+  }
+
   const btnRender = document.getElementById('btn-render');
   if (btnRender) {
     btnRender.disabled = !state.files.some(f => f.status === 'pending') || state.isRendering;
   }
 }
 
+window.clearQueue = function() {
+  state.files = state.files.filter(f => f.status === 'processing');
+  renderFileQueue();
+};
+
 window.removeFile = function(id) {
   state.files = state.files.filter(f => f.id !== id);
   renderFileQueue();
 };
+
+// Promise-based job poller — resolves on done/error/cancelled/awaiting_review
+function waitForJob(jobId, fileId) {
+  return new Promise((resolve) => {
+    if (state.pollInterval) clearInterval(state.pollInterval);
+    state.currentJobId = jobId;
+    state.lastLogLength = 0;
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`/progress/${jobId}`);
+        if (!res.ok) return;
+        const msg = await res.json();
+
+        if (msg.progress !== undefined) {
+          setProgress(msg.progress, msg.stage || '');
+          if (state.queueMeta[fileId]) {
+            state.queueMeta[fileId].stage    = msg.stage || '';
+            state.queueMeta[fileId].progress = msg.progress || 0;
+          }
+          if (msg.log && msg.log.length > state.lastLogLength) {
+            const newContent = msg.log.slice(state.lastLogLength);
+            state.lastLogLength = msg.log.length;
+            newContent.split('\n').filter(Boolean).forEach(line => log(line, msg.logType || 'info'));
+          }
+          renderFileQueue();
+        }
+
+        if (['done', 'error', 'cancelled', 'awaiting_review'].includes(msg.status)) {
+          clearInterval(interval);
+          state.pollInterval = null;
+          if (msg.status === 'done' && state.queueMeta[fileId]) {
+            state.queueMeta[fileId].videoUrl = msg.videoUrl;
+          }
+          resolve(msg);
+        }
+      } catch (err) {
+        console.error('Queue poll error:', err);
+      }
+    }, 2000);
+
+    state.pollInterval = interval;
+  });
+}
 
 function addFiles(fileList) {
   const files = Array.from(fileList);
@@ -1178,7 +1288,13 @@ document.addEventListener('DOMContentLoaded', () => {
               
               modal.style.display = 'none';
               toast("Renderização iniciada!", "success");
-              startPolling(state.currentJobId, state.originalFilename, state.currentFileId);
+              if (window._queueReviewResolve) {
+                const resolve = window._queueReviewResolve;
+                window._queueReviewResolve = null;
+                resolve();
+              } else {
+                startPolling(state.currentJobId, state.originalFilename, state.currentFileId);
+              }
           } catch (err) {
               toast("Erro ao processar dados: " + err.message, "error");
           }
@@ -1193,21 +1309,23 @@ document.addEventListener('DOMContentLoaded', () => {
       btnRender.disabled = true;
       showCancelButton(true);
 
-      try {
-        for (const f of pending) {
-          f.status = 'processing';
-          state.currentFileId = f.id;
-          state.originalFilename = f.name;
-          renderFileQueue();
-          
+      // Init queue metadata for all pending files
+      pending.forEach(f => {
+        state.queueMeta[f.id] = { jobId: null, stage: 'Aguardando...', progress: 0, videoUrl: null };
+      });
+      renderFileQueue();
+
+      for (const f of pending) {
+        f.status = 'processing';
+        state.currentFileId = f.id;
+        state.originalFilename = f.name;
+        renderFileQueue();
+
+        try {
           const fd = new FormData();
           fd.append('file', f.file);
-
           fd.append('chartTheme', document.getElementById('chart-theme').value);
-          if (state.selectedPalette === 'custom') {
-            fd.append('customPalette', JSON.stringify(state.customPalette));
-          }
-          
+          if (state.selectedPalette === 'custom') fd.append('customPalette', JSON.stringify(state.customPalette));
           fd.append('includeCallouts', document.getElementById('toggle-callouts').checked);
           fd.append('enableAuditor', document.getElementById('toggle-auditor').checked);
           fd.append('exportAlpha', document.getElementById('toggle-alpha').checked);
@@ -1217,50 +1335,89 @@ document.addEventListener('DOMContentLoaded', () => {
           const uploadFn = typeof authFetch !== 'undefined' ? authFetch : fetch;
           const res = await uploadFn('/upload', { method: 'POST', body: fd });
           if (!res.ok) throw new Error(`Erro no upload: ${res.status}`);
-          
+
           const data = await res.json();
           if (data.status === 'error') {
-            stopPolling();
             const errorMsg = data.error || 'Erro desconhecido';
             const banner = document.getElementById('critical-error-banner');
             const bannerDesc = document.getElementById('error-banner-desc');
-
             if (errorMsg.includes('503') || errorMsg.includes('UNAVAILABLE')) {
-                toast("⚠️ GEMINI OFFLINE 503", "error");
-                updateStatus('GEMINI OFFLINE 503', 'error');
+              toast("⚠️ GEMINI OFFLINE 503", "error"); updateStatus('GEMINI OFFLINE 503', 'error');
             } else if (errorMsg.includes('FIDELIDADE REPROVADA') || errorMsg.includes('BLANK')) {
-                if (banner) {
-                    banner.classList.remove('hidden');
-                    bannerDesc.textContent = errorMsg;
-                }
-                toast("❌ FIDELIDADE REPROVADA", "error");
+              if (banner) { banner.classList.remove('hidden'); bannerDesc.textContent = errorMsg; }
+              toast("❌ FIDELIDADE REPROVADA", "error");
             } else if (errorMsg.includes('Título ausente')) {
-                toast("❌ Título não detectado. Se for uma logomarca, use o botão 'EDITAR CORES'!", "error");
-                if (banner) {
-                    banner.classList.remove('hidden');
-                    bannerDesc.innerHTML = `<strong>Erro de Análise:</strong> Título não encontrado.<br><br>Parece que você subiu uma imagem de marca no lugar de um gráfico. Se quiser extrair cores, abra o modal <strong>EDITAR CORES</strong> na seção de estilos.`;
-                }
+              toast("❌ Título não detectado. Se for uma logomarca, use o botão 'EDITAR CORES'!", "error");
+              if (banner) { banner.classList.remove('hidden'); bannerDesc.innerHTML = `<strong>Erro de Análise:</strong> Título não encontrado.`; }
             } else {
-                toast(`Erro: ${errorMsg}`, "error");
+              toast(`Erro: ${errorMsg}`, "error");
             }
-
-            f.status = 'pending'; // Reverte para pending para reativar o botão
-            state.isRendering = false;
+            f.status = 'error';
             renderFileQueue();
-            return;
+            continue; // Avança para o próximo item da fila
           }
-          
-          // Reset banner if progressing
+
           document.getElementById('critical-error-banner').classList.add('hidden');
-          startPolling(data.jobId, f.name, f.id);
+          state.queueMeta[f.id].jobId = data.jobId;
+
+          // Aguarda análise (pode parar em awaiting_review)
+          const result = await waitForJob(data.jobId, f.id);
+
+          if (result.status === 'awaiting_review') {
+            // Abre modal de revisão e aguarda o usuário confirmar
+            state.currentJobId = data.jobId;
+            state.currentAnalysis = result.analysis;
+            state.stillUrl = result.stillUrl || null;
+            state.zoomPoints = [];
+            await new Promise(resolve => {
+              window._queueReviewResolve = resolve;
+              const modal = document.getElementById('json-editor-overlay');
+              if (modal) {
+                if (window.renderVisualEditor) window.renderVisualEditor(result.analysis, result.stillUrl);
+                modal.style.display = 'flex';
+              }
+              log("João: Análise concluída. Aguardando revisão dos dados...", "accent");
+              toast("Revisão de dados necessária", "info");
+            });
+
+            // Após confirmação, aguarda render completar
+            const renderResult = await waitForJob(data.jobId, f.id);
+            f.status = renderResult.status === 'done' ? 'done' : renderResult.status === 'cancelled' ? 'pending' : 'error';
+            if (renderResult.status === 'done') {
+              setProgress(100, 'Vídeo 4K pronto ✓');
+              log(`André: Vídeo 4K UHD concluído — ${f.name}`, 'success');
+              toast('Renderização 4K concluída!', 'success');
+              loadVideo(renderResult.videoUrl, f.name, renderResult.duration || '', data.jobId);
+              refreshHistory();
+            }
+          } else if (result.status === 'done') {
+            f.status = 'done';
+            setProgress(100, 'Vídeo 4K pronto ✓');
+            log(`André: Vídeo 4K UHD concluído — ${f.name}`, 'success');
+            toast('Renderização 4K concluída!', 'success');
+            loadVideo(result.videoUrl, f.name, result.duration || '', data.jobId);
+            refreshHistory();
+          } else if (result.status === 'cancelled') {
+            f.status = 'pending';
+            log('Processo cancelado.', 'error');
+          } else {
+            f.status = 'error';
+            log(`✕ Erro em ${f.name}: ${result.error || 'Erro interno'}`, 'error');
+            toast(`Erro: ${result.error || 'Erro interno'}`, 'error');
+          }
+
+        } catch (err) {
+          f.status = 'error';
+          log(`✕ Erro: ${err.message}`, 'error');
+          toast(`Erro: ${err.message}`, 'error');
         }
-      } catch (err) {
-        log(`✕ Erro: ${err.message}`, 'error');
-        toast(`Erro no processamento: ${err.message}`, 'error');
-        pending.forEach(f => { if (f.status === 'processing') f.status = 'pending'; }); // Resgata arquivos travados
-        state.isRendering = false;
+
         renderFileQueue();
       }
+
+      state.isRendering = false;
+      showCancelButton(false);
+      renderFileQueue();
     });
   }
 
