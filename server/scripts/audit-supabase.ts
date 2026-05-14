@@ -30,7 +30,7 @@ async function check() {
   console.log(`☁️  Supabase (Total de Linhas): ${count}`);
   console.log(`💻  Local (input/jobs/*.json): ${localFiles}`);
   
-  if (count < localFiles * 0.8) {
+  if ((count ?? 0) < localFiles * 0.8) {
     console.warn("⚠️  ALERTA: Discrepância detectada! O Supabase tem muito menos dados que o local.");
   } else {
     console.log("✅  Sincronização saudável. Os dados estão sendo inseridos.");
