@@ -150,7 +150,7 @@ export async function checkAndApplyUpdate(onProgress) {
     return true;
 
   } catch (err) {
-    console.warn('[Updater] Não foi possível verificar atualização:', err.message);
+    console.warn('[Updater] Erro ao verificar atualização:', err.message);
     return false;
   }
 }
