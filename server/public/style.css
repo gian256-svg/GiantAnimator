@@ -1851,8 +1851,17 @@ input:checked + .slider:before { transform: translateX(17px); }
 }
 .q-pal-btn div { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 .q-pal-btn:hover { border-color: var(--accent); background: var(--bg-hover); }
-.q-pal-btn--global { opacity: 0.5; }
+.q-pal-btn--global { opacity: 0.55; }
 .q-pal-btn--global:hover { opacity: 1; }
+
+.q-pal-g {
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--text-subtle);
+  letter-spacing: 0;
+  line-height: 1;
+  margin-left: 1px;
+}
 
 .q-palette-popup {
   position: absolute;

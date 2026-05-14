@@ -469,6 +469,7 @@ function renderFileQueue() {
       const paletteBtn = f.status !== 'processing' ? `
         <button class="q-pal-btn${isGlobal ? ' q-pal-btn--global' : ''}" title="${isGlobal ? 'Tema global: ' + pal.name : pal.name}" onclick="toggleQueuePalette('${f.id}')">
           ${swatchColors.map(c => `<div style="background:${c}"></div>`).join('')}
+          ${isGlobal ? '<span class="q-pal-g">G</span>' : ''}
         </button>
         ${palettePopup}` : '';
 
@@ -612,7 +613,9 @@ function addFiles(fileList) {
         return;
     }
 
-    state.files.push({ id: uid(), file, name: file.name, size: file.size, status: 'pending' });
+    const fid = uid();
+    state.files.push({ id: fid, file, name: file.name, size: file.size, status: 'pending' });
+    state.queueMeta[fid] = { paletteId: null, paletteOpen: false, jobId: null, stage: 'Aguardando...', progress: 0, videoUrl: null };
     log(`📎 Arquivo adicionado: ${file.name}`);
   });
   
@@ -723,7 +726,9 @@ function addClipboardImage(blob, index) {
   }
   const name = `imagem_colada_${Date.now()}${index > 0 ? '_' + index : ''}.png`;
   const file = new File([blob], name, { type: blob.type || 'image/png' });
-  state.files.push({ id: uid(), file, name: file.name, size: file.size, status: 'pending' });
+  const fid = uid();
+  state.files.push({ id: fid, file, name: file.name, size: file.size, status: 'pending' });
+  state.queueMeta[fid] = { paletteId: null, paletteOpen: false, jobId: null, stage: 'Aguardando...', progress: 0, videoUrl: null };
   log(`📋 Imagem colada do clipboard: ${file.name}`);
   renderFileQueue();
 }
