@@ -51,7 +51,8 @@ function get(url, redirects = 8) {
 
 async function fetchJson(url) {
   const buf = await get(url);
-  return JSON.parse(buf.toString('utf-8'));
+  // Strip UTF-8 BOM (﻿) that PowerShell adds when writing files
+  return JSON.parse(buf.toString('utf-8').replace(/^﻿/, ''));
 }
 
 /**
