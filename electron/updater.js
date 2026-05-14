@@ -154,3 +154,4 @@ export async function checkAndApplyUpdate(onProgress) {
     return false;
   }
 }
+
