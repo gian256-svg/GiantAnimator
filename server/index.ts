@@ -271,7 +271,7 @@ async function processJob(
         throw new Error("GROQ_API_KEY não definida");
       }
     } catch (groqErr) {
-      console.warn("⚠️ Groq indisponível para insights. Chaveando para OLLAMA local...");
+      console.warn("⚠️ Groq indisponível para insights. Tentando fallback...");
       try {
         const { generateInsightsWithOllama } = await import("./ollamaService.js");
         analysis.props.insightText = await generateInsightsWithOllama(analysis.props);
@@ -933,7 +933,7 @@ async function runSurgeryGradePipeline(
   const hasDataPoints = p.data && p.data.length > 0;
 
   if (!hasSeriesData && !hasDataPoints) {
-      throw new Error(`A detecção de dados falhou (Código: BLANK). IA não encontrou números na imagem. Verifique se suas chaves de API (Gemini/Groq) no .env são válidas ou se o seu modelo local do Ollama é capaz de analisar imagens.`);
+      throw new Error(`A detecção de dados falhou (Código: BLANK). IA não encontrou números na imagem. Verifique se suas chaves de API (Gemini/Groq) no arquivo .env são válidas e se há conexão com a internet.`);
   }
 
   // Verificação final do auditor (Regra de Resiliência: 85% é o novo "Gold Standard" para bloqueio)

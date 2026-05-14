@@ -112,7 +112,7 @@ export async function auditRenderFidelity(
         return {
           score: 0,
           isApproved: false,
-          critique: "❌ FALHA TÉCNICA: Os sistemas de auditoria (Google/Groq/Ollama) estão indisponíveis. Para garantir 100% de fidelidade UHD, o processo foi interrompido. Verifique sua conexão ou chaves de API."
+          critique: "❌ FALHA TÉCNICA: Os sistemas de auditoria estão indisponíveis. Para garantir 100% de fidelidade UHD, o processo foi interrompido. Verifique sua conexão ou chaves de API."
         };
       }
 

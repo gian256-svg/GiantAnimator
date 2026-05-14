@@ -146,7 +146,7 @@ export async function analyzeChartImage(
 
     // ── Fallback 3: Ollama local ─────────────────────────────────
     try {
-      if (onProgress) onProgress("⚠️ APIs cloud indisponíveis. Chaveando para OLLAMA local...");
+      if (onProgress) onProgress("⚠️ APIs cloud indisponíveis. Tentando fallback local...");
       console.warn("⚠️ [Simão] Usando Ollama como fallback final...");
       const { analyzeChartImageWithOllama } = await import("./ollamaService.js");
       const ollamaAnalysis = await analyzeChartImageWithOllama(imageBase64);
@@ -160,7 +160,7 @@ export async function analyzeChartImage(
       console.warn("⚠️ [Simão] Fallback local falhou ou Ollama offline.");
     }
 
-    throw new Error(`A detecção de dados falhou (Código: BLANK). IA não encontrou números na imagem. Verifique se suas chaves de API (Gemini/Groq) no .env são válidas ou se o seu modelo local do Ollama é capaz de analisar imagens.`);
+    throw new Error(`A detecção de dados falhou (Código: BLANK). IA não encontrou números na imagem. Verifique se suas chaves de API (Gemini/Groq) no arquivo .env são válidas e se há conexão com a internet.`);
   }
   const candidate = response.candidates?.[0];
   const responseText = candidate?.content?.parts?.[0]?.text ?? "";
