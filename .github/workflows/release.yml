@@ -10,6 +10,10 @@ on:
       - 'version.json'
       - 'scripts/**'
 
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -33,27 +37,22 @@ jobs:
       - name: Compile TypeScript
         run: cd server && npx tsc -p tsconfig.server.json || true
 
-      - name: Bump version
+      - name: Bump version from latest release
         id: ver
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          LATEST=$(gh release list --limit 1 --json tagName --jq '.[0].tagName // "v1.0.0"')
+          echo "Latest release tag: $LATEST"
           VERSION=$(node -e "
-            const v = require('./version.json').version;
-            const p = v.split('.');
+            const t = '$LATEST'.replace('v','');
+            const p = t.split('.');
             p[2] = parseInt(p[2]) + 1;
             console.log(p.join('.'));
           ")
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "tag=v$VERSION" >> $GITHUB_OUTPUT
-
-      - name: Check tag does not exist
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          TAG="${{ steps.ver.outputs.tag }}"
-          if gh release view "$TAG" > /dev/null 2>&1; then
-            echo "Release $TAG already exists — skipping."
-            exit 0
-          fi
+          echo "New version: $VERSION"
 
       - name: Create update.zip
         run: |
@@ -86,11 +85,12 @@ jobs:
             --notes "Release automatica — $(date +%Y-%m-%d)" \
             --target master
 
-      - name: Commit version.json
+      - name: Commit & push version.json
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
           git add version.json
           git commit -m "chore: release ${{ steps.ver.outputs.version }} [skip ci]"
           git pull --rebase origin master
-          git push
+          git push origin master
