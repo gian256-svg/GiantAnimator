@@ -455,8 +455,18 @@ function renderFileQueue() {
       const swatchColors = pal.colors ? pal.colors.slice(0, 3) : ['#7c3aed','#06b6d4','#a855f7'];
       const isGlobal = !meta.paletteId;
 
+      const dazRow = meta.paletteOpen ? (() => {
+        return `<div class="q-daz-row">${['callouts','alpha','zoom'].map(k => {
+          const val = meta[k];
+          const label = k === 'callouts' ? 'D' : k === 'alpha' ? 'A' : 'Z';
+          const tip   = k === 'callouts' ? 'Destaque' : k === 'alpha' ? 'Alpha' : 'Zoom';
+          const cls   = val === true ? ' q-daz-chip--on' : val === false ? ' q-daz-chip--off' : '';
+          return `<button class="q-daz-chip${cls}" title="${tip}" onclick="toggleQueueDaz('${f.id}','${k}')">${label}</button>`;
+        }).join('')}</div>`;
+      })() : '';
+
       const palettePopup = meta.paletteOpen ? `
-        <div class="q-palette-popup">
+        <div class="q-palette-popup" data-popup="${f.id}">
           ${PALETTES.filter(p => p.id !== 'custom').map(p => {
             const cols = p.colors ? p.colors.slice(0,3) : ['#888','#999','#aaa'];
             const isActive = effectivePaletteId === p.id;
@@ -464,10 +474,11 @@ function renderFileQueue() {
               ${cols.map(c => `<div style="background:${c}"></div>`).join('')}
             </div>`;
           }).join('')}
+          ${dazRow}
         </div>` : '';
 
       const paletteBtn = f.status !== 'processing' ? `
-        <button class="q-pal-btn${isGlobal ? ' q-pal-btn--global' : ''}" title="${isGlobal ? 'Tema global: ' + pal.name : pal.name}" onclick="toggleQueuePalette('${f.id}')">
+        <button class="q-pal-btn${isGlobal ? ' q-pal-btn--global' : ''}" title="${isGlobal ? 'Tema global: ' + pal.name : pal.name}" onclick="toggleQueuePalette('${f.id}')" data-palid="${f.id}">
           ${swatchColors.map(c => `<div style="background:${c}"></div>`).join('')}
           ${isGlobal ? '<span class="q-pal-g">G</span>' : ''}
         </button>
@@ -532,10 +543,37 @@ window.clearQueue = function() {
 window.toggleQueuePalette = function(fileId) {
   const meta = state.queueMeta[fileId];
   if (!meta) return;
-  // Close all others first
-  Object.keys(state.queueMeta).forEach(id => { if (id !== fileId) state.queueMeta[id].paletteOpen = false; });
-  meta.paletteOpen = !meta.paletteOpen;
+  const opening = !meta.paletteOpen;
+  Object.keys(state.queueMeta).forEach(id => { state.queueMeta[id].paletteOpen = false; });
+  if (opening) {
+    meta.paletteOpen = true;
+    renderFileQueue();
+    const btn = document.querySelector(`[data-palid="${fileId}"]`);
+    const popup = document.querySelector(`[data-popup="${fileId}"]`);
+    if (btn && popup) {
+      const rect = btn.getBoundingClientRect();
+      popup.style.top  = (rect.bottom + 6) + 'px';
+      popup.style.left = Math.max(8, rect.right - popup.offsetWidth) + 'px';
+    }
+  } else {
+    renderFileQueue();
+  }
+};
+
+window.toggleQueueDaz = function(fileId, key) {
+  const meta = state.queueMeta[fileId];
+  if (!meta) return;
+  const cur = meta[key];
+  meta[key] = cur === null ? true : cur === true ? false : null;
   renderFileQueue();
+  // Re-position popup after re-render
+  const btn = document.querySelector(`[data-palid="${fileId}"]`);
+  const popup = document.querySelector(`[data-popup="${fileId}"]`);
+  if (btn && popup) {
+    const rect = btn.getBoundingClientRect();
+    popup.style.top  = (rect.bottom + 6) + 'px';
+    popup.style.left = Math.max(8, rect.right - popup.offsetWidth) + 'px';
+  }
 };
 
 window.setQueuePalette = function(fileId, paletteId) {
@@ -615,7 +653,7 @@ function addFiles(fileList) {
 
     const fid = uid();
     state.files.push({ id: fid, file, name: file.name, size: file.size, status: 'pending' });
-    state.queueMeta[fid] = { paletteId: null, paletteOpen: false, jobId: null, stage: 'Aguardando...', progress: 0, videoUrl: null };
+    state.queueMeta[fid] = { paletteId: null, paletteOpen: false, jobId: null, stage: 'Aguardando...', progress: 0, videoUrl: null, callouts: null, alpha: null, zoom: null };
     log(`📎 Arquivo adicionado: ${file.name}`);
   });
   
@@ -728,7 +766,7 @@ function addClipboardImage(blob, index) {
   const file = new File([blob], name, { type: blob.type || 'image/png' });
   const fid = uid();
   state.files.push({ id: fid, file, name: file.name, size: file.size, status: 'pending' });
-  state.queueMeta[fid] = { paletteId: null, paletteOpen: false, jobId: null, stage: 'Aguardando...', progress: 0, videoUrl: null };
+  state.queueMeta[fid] = { paletteId: null, paletteOpen: false, jobId: null, stage: 'Aguardando...', progress: 0, videoUrl: null, callouts: null, alpha: null, zoom: null };
   log(`📋 Imagem colada do clipboard: ${file.name}`);
   renderFileQueue();
 }
@@ -1360,7 +1398,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Init queue metadata for all pending files (preserve existing paletteId if already set)
       pending.forEach(f => {
         const existing = state.queueMeta[f.id] || {};
-        state.queueMeta[f.id] = { jobId: null, stage: 'Aguardando...', progress: 0, videoUrl: null, paletteId: existing.paletteId || null, paletteOpen: false };
+        state.queueMeta[f.id] = { jobId: null, stage: 'Aguardando...', progress: 0, videoUrl: null, paletteId: existing.paletteId || null, paletteOpen: false, callouts: existing.callouts ?? null, alpha: existing.alpha ?? null, zoom: existing.zoom ?? null };
       });
       renderFileQueue();
 
@@ -1376,9 +1414,12 @@ document.addEventListener('DOMContentLoaded', () => {
           const itemPaletteId = state.queueMeta[f.id]?.paletteId || state.selectedPalette;
           fd.append('chartTheme', itemPaletteId);
           if (itemPaletteId === 'custom') fd.append('customPalette', JSON.stringify(state.customPalette));
-          fd.append('includeCallouts', document.getElementById('toggle-callouts').checked);
+          const itemMeta = state.queueMeta[f.id] || {};
+          fd.append('includeCallouts', itemMeta.callouts !== null ? itemMeta.callouts : document.getElementById('toggle-callouts').checked);
           fd.append('enableAuditor', document.getElementById('toggle-auditor').checked);
-          fd.append('exportAlpha', document.getElementById('toggle-alpha').checked);
+          fd.append('exportAlpha', itemMeta.alpha !== null ? itemMeta.alpha : document.getElementById('toggle-alpha').checked);
+          const useZoom = itemMeta.zoom !== null ? itemMeta.zoom : (document.getElementById('toggle-zoom')?.checked || false);
+          if (useZoom && state.zoomPoints?.length > 0) fd.append('zoomPoints', JSON.stringify(state.zoomPoints));
           fd.append('reviewRequired', true);
 
           log(`Pedro: Enviando ${f.name}...`);
