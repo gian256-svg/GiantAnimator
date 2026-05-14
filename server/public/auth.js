@@ -331,7 +331,7 @@ async function loadAdminData() {
     renderAdminKPIs(stats);
     renderRendersPerUser(stats);
     renderThemeDonut(stats);
-    renderEngineDonut(stats);
+    renderComponentDonut(stats);
     renderUsersTable(stats);
   } catch (_) {}
 }
@@ -414,15 +414,23 @@ function renderThemeDonut(stats) {
   renderDonut('donut-themes', 'donut-themes-legend', counts, PALETTE_COLORS);
 }
 
-function renderEngineDonut(stats) {
+function renderComponentDonut(stats) {
   const counts = {};
   stats.forEach(u => {
-    Object.entries(u.engineCounts || {}).forEach(([eng, n]) => {
-      counts[eng] = (counts[eng] || 0) + n;
+    Object.entries(u.componentCounts || {}).forEach(([cid, n]) => {
+      counts[cid] = (counts[cid] || 0) + n;
     });
   });
-  renderDonut('donut-engines', 'donut-engines-legend', counts, ENGINE_COLORS);
+  renderDonut('donut-components', 'donut-components-legend', counts, COMPONENT_COLORS);
 }
+
+const COMPONENT_COLORS = {
+  BarChart: '#00c9a7', HorizontalBarChart: '#06b6d4', StackedBarChart: '#0ea5e9',
+  LineChart: '#7c3aed', AreaChart: '#8b5cf6', PieChart: '#f59e0b',
+  DonutChart: '#f97316', ScatterChart: '#22c55e', BubbleChart: '#84cc16',
+  WaterfallChart: '#ef4444', FunnelChart: '#ec4899', RadarChart: '#a78bfa',
+  TreemapChart: '#14b8a6', GaugeChart: '#fb923c', unknown: '#555',
+};
 
 const PALETTE_COLORS = {
   original: '#7c3aed', midnight: '#8B5CF6', sunset: '#F59E0B',

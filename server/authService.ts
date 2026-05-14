@@ -70,6 +70,7 @@ export interface UserStats {
   favoriteEngine: string | null;
   themeCounts: Record<string, number>;
   engineCounts: Record<string, number>;
+  componentCounts: Record<string, number>;
 }
 
 const DEFAULT_PREFS: UserPreferences = {
@@ -268,20 +269,23 @@ export async function getUserStats(): Promise<UserStats[]> {
   for (const u of users) {
     const { data: jobs } = await client
       .from('jobs')
-      .select('options, created_at')
+      .select('options, created_at, component_id')
       .eq('user_id', u.id)
       .order('created_at', { ascending: false });
 
     const jobList = jobs ?? [];
     const themeCounts: Record<string, number> = {};
     const engineCounts: Record<string, number> = {};
+    const componentCounts: Record<string, number> = {};
 
     for (const j of jobList) {
       const opts = j.options ?? {};
       const theme = opts.chartTheme ?? 'original';
       const engine = opts.engine ?? 'remotion';
+      const cid = j.component_id ?? 'unknown';
       themeCounts[theme] = (themeCounts[theme] ?? 0) + 1;
       engineCounts[engine] = (engineCounts[engine] ?? 0) + 1;
+      componentCounts[cid] = (componentCounts[cid] ?? 0) + 1;
     }
 
     const favoriteTheme = Object.entries(themeCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
@@ -297,6 +301,7 @@ export async function getUserStats(): Promise<UserStats[]> {
       favoriteEngine,
       themeCounts,
       engineCounts,
+      componentCounts,
     });
   }
 
