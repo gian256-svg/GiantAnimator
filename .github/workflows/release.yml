@@ -1,0 +1,85 @@
+name: Auto Release
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'server/**'
+      - 'electron/**'
+    paths-ignore:
+      - 'version.json'
+      - 'scripts/**'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install --ignore-scripts
+
+      - name: Compile TypeScript
+        run: cd server && npx tsc -p tsconfig.server.json || true
+
+      - name: Bump version
+        id: ver
+        run: |
+          VERSION=$(node -e "
+            const v = require('./version.json').version;
+            const p = v.split('.');
+            p[2] = parseInt(p[2]) + 1;
+            console.log(p.join('.'));
+          ")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=v$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create update.zip
+        run: |
+          mkdir -p .release/server
+          cp -r electron .release/
+          [ -d server/dist ]    && cp -r server/dist    .release/server/
+          [ -d server/public ]  && cp -r server/public  .release/server/
+          [ -d server/prompts ] && cp -r server/prompts .release/server/
+          cp version.json .release/
+          cd .release && zip -r ../update.zip . && cd ..
+          echo "ZIP size: $(du -sh update.zip | cut -f1)"
+
+      - name: Update version.json
+        run: |
+          node -e "
+            const fs = require('fs');
+            fs.writeFileSync('version.json', JSON.stringify({
+              version: '${{ steps.ver.outputs.version }}',
+              date: new Date().toISOString().slice(0,10),
+              zipUrl: 'https://github.com/\${{ github.repository }}/releases/download/\${{ steps.ver.outputs.tag }}/update.zip'
+            }, null, 2) + '\n');
+          "
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ steps.ver.outputs.tag }}" update.zip \
+            --title "GiantAnimator ${{ steps.ver.outputs.version }}" \
+            --notes "Release automatica — $(date +%Y-%m-%d)" \
+            --target master
+
+      - name: Commit version.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add version.json
+          git commit -m "chore: release ${{ steps.ver.outputs.version }} [skip ci]"
+          git push
