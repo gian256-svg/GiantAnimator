@@ -449,6 +449,29 @@ function renderFileQueue() {
         error:      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
       }[f.status] || '';
 
+      // Palette swatch for this item
+      const effectivePaletteId = meta.paletteId || state.selectedPalette;
+      const pal = PALETTES.find(p => p.id === effectivePaletteId) || PALETTES[0];
+      const swatchColors = pal.colors ? pal.colors.slice(0, 3) : ['#7c3aed','#06b6d4','#a855f7'];
+      const isGlobal = !meta.paletteId;
+
+      const palettePopup = meta.paletteOpen ? `
+        <div class="q-palette-popup">
+          ${PALETTES.filter(p => p.id !== 'custom').map(p => {
+            const cols = p.colors ? p.colors.slice(0,3) : ['#888','#999','#aaa'];
+            const isActive = effectivePaletteId === p.id;
+            return `<div class="q-pal-opt${isActive ? ' q-pal-opt--active' : ''}" title="${p.name}" onclick="setQueuePalette('${f.id}','${p.id}')">
+              ${cols.map(c => `<div style="background:${c}"></div>`).join('')}
+            </div>`;
+          }).join('')}
+        </div>` : '';
+
+      const paletteBtn = f.status !== 'processing' ? `
+        <button class="q-pal-btn${isGlobal ? ' q-pal-btn--global' : ''}" title="${isGlobal ? 'Tema global: ' + pal.name : pal.name}" onclick="toggleQueuePalette('${f.id}')">
+          ${swatchColors.map(c => `<div style="background:${c}"></div>`).join('')}
+        </button>
+        ${palettePopup}` : '';
+
       const downloadBtn = (f.status === 'done' && meta.videoUrl) ? `
         <a class="q-action q-download" href="${meta.videoUrl}" download title="Download">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -473,7 +496,10 @@ function renderFileQueue() {
               }</div>
             `}
           </div>
-          <div class="q-actions">${downloadBtn}${removeBtn}</div>
+          <div class="q-actions">
+            <div class="q-pal-wrap">${paletteBtn}</div>
+            ${downloadBtn}${removeBtn}
+          </div>
         </div>`;
     }).join('');
 
@@ -499,6 +525,23 @@ function renderFileQueue() {
 
 window.clearQueue = function() {
   state.files = state.files.filter(f => f.status === 'processing');
+  renderFileQueue();
+};
+
+window.toggleQueuePalette = function(fileId) {
+  const meta = state.queueMeta[fileId];
+  if (!meta) return;
+  // Close all others first
+  Object.keys(state.queueMeta).forEach(id => { if (id !== fileId) state.queueMeta[id].paletteOpen = false; });
+  meta.paletteOpen = !meta.paletteOpen;
+  renderFileQueue();
+};
+
+window.setQueuePalette = function(fileId, paletteId) {
+  const meta = state.queueMeta[fileId];
+  if (!meta) return;
+  meta.paletteId = paletteId;
+  meta.paletteOpen = false;
   renderFileQueue();
 };
 
@@ -1309,9 +1352,10 @@ document.addEventListener('DOMContentLoaded', () => {
       btnRender.disabled = true;
       showCancelButton(true);
 
-      // Init queue metadata for all pending files
+      // Init queue metadata for all pending files (preserve existing paletteId if already set)
       pending.forEach(f => {
-        state.queueMeta[f.id] = { jobId: null, stage: 'Aguardando...', progress: 0, videoUrl: null };
+        const existing = state.queueMeta[f.id] || {};
+        state.queueMeta[f.id] = { jobId: null, stage: 'Aguardando...', progress: 0, videoUrl: null, paletteId: existing.paletteId || null, paletteOpen: false };
       });
       renderFileQueue();
 
@@ -1324,8 +1368,9 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
           const fd = new FormData();
           fd.append('file', f.file);
-          fd.append('chartTheme', document.getElementById('chart-theme').value);
-          if (state.selectedPalette === 'custom') fd.append('customPalette', JSON.stringify(state.customPalette));
+          const itemPaletteId = state.queueMeta[f.id]?.paletteId || state.selectedPalette;
+          fd.append('chartTheme', itemPaletteId);
+          if (itemPaletteId === 'custom') fd.append('customPalette', JSON.stringify(state.customPalette));
           fd.append('includeCallouts', document.getElementById('toggle-callouts').checked);
           fd.append('enableAuditor', document.getElementById('toggle-auditor').checked);
           fd.append('exportAlpha', document.getElementById('toggle-alpha').checked);
