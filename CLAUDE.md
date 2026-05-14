@@ -25,6 +25,15 @@
 - `transparentBackground` is NOT a valid Remotion API — transparency comes from `imageFormat: 'png'`
 - Components: `backgroundColor: backgroundType === 'transparent' ? 'rgba(0,0,0,0)' : undefined`
 
+## Auto-update / CI
+- `electron/updater.js` — runs on every app open; fetches `version.json` from GitHub master, compares with local, downloads `zipUrl`, extracts with `Expand-Archive`, relaunches
+- `.github/workflows/release.yml` — triggers on push to `server/**` or `electron/**` (NOT `version.json` or `scripts/**`)
+- Workflow: bumps patch from latest GitHub Release tag → creates release → updates `version.json` → commits `[skip ci]`
+- Anti-loop: `[skip ci]` in version bump commit + `paths-ignore: version.json` in trigger
+- `scripts/auto-commit.ps1` — syncs static files to packaged app then git add/commit/push (Task Scheduler, every 5 min)
+- Packaged app path: `GiantAnimator-win-x64/resources/app/` — completely separate from git repo; static files must be synced manually or via auto-commit script
+- **If workflow fails with "release already exists"**: version.json likely still points to previous version — manually update version.json to match the existing release and push
+
 ## Rules
 - Never invent label names ("Série 1", "Item 1") — extraction fail
 - `seriesColors` only (never `colors` as root alias)
